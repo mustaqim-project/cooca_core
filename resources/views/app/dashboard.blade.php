@@ -1,7 +1,7 @@
 @extends('layouts.app', [
-    'title' => 'Dashboard Bisnis',
-    'headerTitle' => 'Ringkasan Bisnis & Cockpit Operasional',
-    'headerSubtitle' => 'Pemantauan menyeluruh omzet, HPP, margin laba, inventori, dan kasir ' . ($business->name ?? 'Usaha'),
+    'title' => __('dashboard.title'),
+    'headerTitle' => __('dashboard.header_title'),
+    'headerSubtitle' => __('dashboard.header_subtitle', ['business' => $business->name ?? 'Usaha']),
 ])
 
 @section('content')
@@ -42,9 +42,9 @@
         <!-- ========================================== -->
         <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 py-0.5 whitespace-nowrap print:hidden"
             aria-label="Breadcrumb">
-            <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors font-medium">Dashboard</a>
+            <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors font-medium">{{ __('dashboard.breadcrumb_dashboard') }}</a>
             <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
-            <span class="text-black/80 dark:text-white/80 font-medium">Cockpit Bisnis &amp; Analisis Real-Time</span>
+            <span class="text-black/80 dark:text-white/80 font-medium">{{ __('dashboard.breadcrumb_cockpit') }}</span>
         </nav>
 
         <!-- ========================================== -->
@@ -53,35 +53,33 @@
         <div
             class="rounded-[16px] backdrop-blur-md bg-white/80 dark:bg-[#1C1C1E]/80 border border-black/5 dark:border-white/10 p-5 sm:p-6 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
             <div class="space-y-1.5 z-10 max-w-2xl">
-                <div class="flex flex-wrap items-center gap-2">
-                    <span
-                        class="rounded-full px-2.5 py-0.5 text-[11px] font-semibold inline-flex items-center gap-1.5 bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF]">
-                        <span class="w-1.5 h-1.5 rounded-full bg-[#007AFF]"></span>
-                        <span>Cockpit 360° Real-Time</span>
+                <div class="flex items-center gap-2">
+                    <span class="text-[11px] sm:text-[12px] font-semibold uppercase tracking-wider text-black/40 dark:text-white/40">
+                        {!! __('dashboard.cockpit_tag', ['business' => $business->name ?? 'Usaha']) !!}
                     </span>
+                </div>
+
+                <div class="flex items-center gap-3 flex-wrap">
+                    <h1 class="text-[20px] sm:text-[24px] font-bold text-black dark:text-white tracking-tight">
+                        {{ __('dashboard.greeting', ['name' => auth()->user()->name ?? 'Owner']) }}
+                    </h1>
                     @if (!empty($stats['is_shift_open']))
                         <span
                             class="rounded-full px-2.5 py-0.5 text-[11px] font-semibold inline-flex items-center gap-1.5 bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]">
-                            <span class="w-1.5 h-1.5 rounded-full bg-[#34C759] animate-pulse"></span>
-                            <span>Kasir Buka ({{ $stats['active_shift']->user?->name ?? 'Kasir' }} • sejak
-                                {{ $stats['active_shift']->opened_at?->format('H:i') }})</span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span>
+                            <span>{{ __('dashboard.cashier_active', ['name' => $stats['active_shift']->user?->name ?? 'Kasir', 'time' => $stats['active_shift']->opened_at?->format('H:i') ?? '']) }}</span>
                         </span>
                     @else
                         <span
                             class="rounded-full px-2.5 py-0.5 text-[11px] font-semibold inline-flex items-center gap-1.5 bg-black/6 dark:bg-white/8 text-black/60 dark:text-white/60">
                             <span class="w-1.5 h-1.5 rounded-full bg-black/30 dark:bg-white/30"></span>
-                            <span>Kasir Belum Buka</span>
+                            <span>{{ __('dashboard.cashier_closed') }}</span>
                         </span>
                     @endif
                 </div>
 
-                <h1 class="text-[20px] sm:text-[24px] font-bold text-black dark:text-white tracking-tight">
-                    Halo, {{ auth()->user()->name ?? 'Owner' }}! Selamat Beraktivitas.
-                </h1>
                 <p class="text-[13px] text-black/60 dark:text-white/60 leading-relaxed">
-                    Pantau omzet, laba kotor, perputaran bahan, dan stok outlet <strong
-                        class="text-black dark:text-white font-medium">{{ $business->name ?? 'Usaha' }}</strong> secara
-                    instan &amp; akurat.
+                    {{ __('dashboard.banner_desc') }}
                 </p>
             </div>
 
@@ -91,7 +89,7 @@
                     <a href="{{ route('pos.terminal') }}"
                         class="col-span-2 sm:col-span-1 h-10 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)] shrink-0">
                         <i data-lucide="calculator" class="w-4 h-4"></i>
-                        <span>Terminal Kasir POS</span>
+                        <span>{{ __('dashboard.action_pos') }}</span>
                     </a>
                 @endif
 
@@ -99,7 +97,7 @@
                     <a href="{{ route('calculator.index') }}"
                         class="col-span-1 h-10 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shrink-0">
                         <i data-lucide="calculator" class="w-4 h-4 text-[#AF52DE] dark:text-[#BF5AF2]"></i>
-                        <span>Kalkulator HPP</span>
+                        <span>{{ __('dashboard.action_calculator') }}</span>
                     </a>
                 @endif
 
@@ -107,7 +105,7 @@
                     <button type="button" @click="$dispatch('open-quick-expense')"
                         class="col-span-1 h-10 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shrink-0">
                         <i data-lucide="receipt" class="w-4 h-4 text-[#FF3B30] dark:text-[#FF453A]"></i>
-                        <span>+ Catat Biaya</span>
+                        <span>{{ __('dashboard.action_record_expense') }}</span>
                     </button>
                 @endif
 
@@ -115,7 +113,7 @@
                     <button type="button" @click="$dispatch('open-quick-stockin')"
                         class="col-span-1 h-10 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shrink-0">
                         <i data-lucide="package-plus" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i>
-                        <span>+ Tambah Stok</span>
+                        <span>{{ __('dashboard.action_add_stock') }}</span>
                     </button>
                 @endif
 
@@ -123,7 +121,7 @@
                     <a href="{{ route('invoices.create') }}"
                         class="col-span-1 h-10 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shrink-0">
                         <i data-lucide="file-text" class="w-4 h-4 text-[#007AFF] dark:text-[#0A84FF]"></i>
-                        <span>+ Faktur Baru</span>
+                        <span>{{ __('dashboard.action_new_invoice') }}</span>
                     </a>
                 @endif
             </div>
@@ -137,7 +135,7 @@
             <!-- Asynchronous Loading Spinner Overlay -->
             <div class="dash-loading-overlay rounded-[18px]" data-loading-overlay hidden>
                 <div class="dash-spinner" aria-hidden="true"></div>
-                <p class="text-xs font-medium text-black/70 dark:text-white/70">Memperbarui data analitik periode...</p>
+                <p class="text-xs font-medium text-black/70 dark:text-white/70">{{ __('dashboard.loading_analytics') }}</p>
             </div>
 
             <script>
@@ -176,7 +174,7 @@
                     <div class="min-w-0">
                         <div class="flex flex-wrap items-center gap-2">
                             <h2 class="text-[16px] sm:text-[18px] font-semibold text-black dark:text-white tracking-tight">
-                                Analisis Kinerja Bisnis</h2>
+                                {{ __('dashboard.performance_analysis') }}</h2>
                             <span
                                 class="rounded-full px-2.5 py-0.5 text-[11px] font-semibold inline-flex items-center gap-1.5 bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF]"
                                 data-analytics-period-badge>
@@ -184,8 +182,7 @@
                                 {{ $analytics['range']['to'] }}
                             </span>
                         </div>
-                        <p class="text-[12px] text-black/50 dark:text-white/50 mt-1">Indikator kinerja, grafik tren, dan
-                            peringkat produk bergerak dinamis sesuai periode yang dipilih.</p>
+                        <p class="text-[12px] text-black/50 dark:text-white/50 mt-1">{{ __('dashboard.performance_desc') }}</p>
                     </div>
 
                     <!-- Period Filter Controls (Apple Segmented Control Group) -->
@@ -200,31 +197,31 @@
                             x-show="!customOpen">
                             <button type="button" @click="selectPeriod('today')"
                                 :class="period === 'today' ? 'period-seg period-seg-active' : 'period-seg'"
-                                aria-label="Filter Hari Ini">Hari Ini</button>
+                                aria-label="{{ __('dashboard.period_today') }}">{{ __('dashboard.period_today') }}</button>
                             <button type="button" @click="selectPeriod('week')"
                                 :class="period === 'week' ? 'period-seg period-seg-active' : 'period-seg'"
-                                aria-label="Filter Minggu Ini">Minggu Ini</button>
+                                aria-label="{{ __('dashboard.period_week') }}">{{ __('dashboard.period_week') }}</button>
                             <button type="button" @click="selectPeriod('month')"
                                 :class="period === 'month' ? 'period-seg period-seg-active' : 'period-seg'"
-                                aria-label="Filter Bulan Ini">Bulan Ini</button>
+                                aria-label="{{ __('dashboard.period_month') }}">{{ __('dashboard.period_month') }}</button>
                             <button type="button" @click="selectPeriod('year')"
                                 :class="period === 'year' ? 'period-seg period-seg-active' : 'period-seg'"
-                                aria-label="Filter Tahun Ini">Tahun Ini</button>
+                                aria-label="{{ __('dashboard.period_year') }}">{{ __('dashboard.period_year') }}</button>
                             <button type="button" @click="selectPeriod('custom')"
                                 :class="period === 'custom' ? 'period-seg period-seg-active' : 'period-seg'"
-                                aria-label="Filter Custom Tanggal">Custom</button>
+                                aria-label="{{ __('dashboard.period_custom') }}">{{ __('dashboard.period_custom') }}</button>
                         </div>
 
                         <!-- Custom Date Range Picker Mode -->
                         <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto" x-show="customOpen">
                             <input type="date" class="period-date" x-model="from" :max="to"
-                                aria-label="Tanggal awal">
-                            <span class="text-[12px] text-black/40 dark:text-white/40 font-medium">s/d</span>
+                                aria-label="{{ __('dashboard.date_from') }}">
+                            <span class="text-[12px] text-black/40 dark:text-white/40 font-medium">{{ __('dashboard.date_to') }}</span>
                             <input type="date" class="period-date" x-model="to" :min="from"
-                                aria-label="Tanggal akhir">
-                            <button type="submit" class="period-apply">Terapkan</button>
+                                aria-label="{{ __('dashboard.date_end') }}">
+                            <button type="submit" class="period-apply">{{ __('dashboard.apply') }}</button>
                             <button type="button" @click="selectPeriod('month')"
-                                class="px-2.5 py-1.5 rounded-[8px] text-[12px] font-medium text-[#007AFF] hover:bg-[#007AFF]/8 transition">Batal</button>
+                                class="px-2.5 py-1.5 rounded-[8px] text-[12px] font-medium text-[#007AFF] hover:bg-[#007AFF]/8 transition">{{ __('dashboard.cancel') }}</button>
                         </div>
                     </form>
                 </div>
@@ -240,15 +237,13 @@
                     </div>
                     <div class="kpi-body min-w-0 flex-1">
                         <div class="flex items-center justify-between gap-1">
-                            <span class="kpi-label" data-kpi-label="omzet">Omzet {{ $analytics['period_label'] ?? 'Hari Ini' }}</span>
-                            <span
-                                class="text-[10px] font-semibold text-[#34C759] dark:text-[#30D158] bg-[#34C759]/10 px-2 py-0.5 rounded-full shrink-0">Penjualan</span>
+                            <span class="kpi-label" data-kpi-label="omzet">{{ __('dashboard.kpi_omzet_today') }}</span>
                         </div>
                         <div class="kpi-value tabular-nums font-bold text-black dark:text-white tracking-tight"
                             data-kpi-value data-kpi="omzet">
                             Rp {{ number_format($analytics['kpis']['omzet'], 0, ',', '.') }}
                         </div>
-                        <div class="kpi-foot">Akumulasi POS, Toko Online &amp; Faktur</div>
+                        <div class="kpi-foot">{{ __('dashboard.kpi_omzet_sub') }}</div>
                     </div>
                 </div>
 
@@ -259,17 +254,13 @@
                     </div>
                     <div class="kpi-body min-w-0 flex-1 w-full">
                         <div class="flex items-center justify-between gap-1">
-                            <span class="kpi-label truncate">Estimasi Untung Bersih</span>
-                            <span
-                                class="text-[9.5px] sm:text-[10px] font-semibold text-[#30B0C7] dark:text-[#40C8E0] bg-[#30B0C7]/10 px-1.5 sm:px-2 py-0.5 rounded-full shrink-0 truncate max-w-[65px] sm:max-w-none"
-                                data-kpi-badge="net">Estimasi Laba ({{ $analytics['period_label'] ?? 'MTD' }})</span>
+                            <span class="kpi-label truncate">{{ __('dashboard.kpi_net_profit') }}</span>
                         </div>
                         <div class="kpi-value tabular-nums font-bold {{ $analytics['kpis']['net'] >= 0 ? 'text-[#34C759] dark:text-[#30D158]' : 'text-[#FF3B30] dark:text-[#FF453A]' }} tracking-tight"
                             data-kpi-value data-kpi="net">
                             Rp {{ number_format($analytics['kpis']['net'], 0, ',', '.') }}
                         </div>
-                        <div class="kpi-foot" title="Setelah dikurangi beban toko & modal HPP">Setelah dikurangi beban
-                            toko &amp; modal HPP</div>
+                        <div class="kpi-foot" title="{{ __('dashboard.kpi_net_profit_sub') }}">{{ __('dashboard.kpi_net_profit_sub') }}</div>
                     </div>
                 </div>
 
@@ -280,18 +271,18 @@
                     </div>
                     <div class="kpi-body min-w-0 flex-1 w-full">
                         <div class="flex items-center justify-between gap-1">
-                            <span class="kpi-label truncate">Laba Kotor Produk</span>
+                            <span class="kpi-label truncate">{{ __('dashboard.kpi_gross_profit') }}</span>
                             <span
-                                class="text-[9.5px] sm:text-[10px] font-semibold text-[#5856D6] dark:text-[#5E5CE6] bg-[#5856D6]/10 px-1.5 sm:px-2 py-0.5 rounded-full tabular-nums shrink-0">Margin
-                                <b
-                                    data-kpi="margin_pct">{{ $analytics['kpis']['margin_pct'] !== null ? $analytics['kpis']['margin_pct'] . '%' : '-' }}</b></span>
+                                class="text-[11.5px] font-semibold text-[#5856D6] dark:text-[#5E5CE6] tabular-nums shrink-0">
+                                {{ __('dashboard.kpi_margin') }} <b
+                                    data-kpi="margin_pct">{{ $analytics['kpis']['margin_pct'] !== null ? $analytics['kpis']['margin_pct'] . '%' : '-' }}</b>
+                            </span>
                         </div>
                         <div class="kpi-value tabular-nums font-bold text-black dark:text-white tracking-tight"
                             data-kpi-value data-kpi="profit">
                             Rp {{ number_format($analytics['kpis']['profit'], 0, ',', '.') }}
                         </div>
-                        <div class="kpi-foot" title="Selisih harga jual terhadap modal resep">Selisih harga jual terhadap
-                            modal resep</div>
+                        <div class="kpi-foot" title="{{ __('dashboard.kpi_gross_profit_sub') }}">{{ __('dashboard.kpi_gross_profit_sub') }}</div>
                     </div>
                 </div>
 
@@ -302,19 +293,16 @@
                     </div>
                     <div class="kpi-body min-w-0 flex-1 w-full">
                         <div class="flex items-center justify-between gap-1">
-                            <span class="kpi-label truncate">Total Transaksi</span>
-                            <span
-                                class="text-[9.5px] sm:text-[10px] font-semibold text-[#007AFF] dark:text-[#0A84FF] bg-[#007AFF]/10 px-1.5 sm:px-2 py-0.5 rounded-full shrink-0">Volume</span>
+                            <span class="kpi-label truncate">{{ __('dashboard.kpi_total_tx') }}</span>
                         </div>
                         <div class="kpi-value tabular-nums font-bold text-black dark:text-white tracking-tight"
                             data-kpi-value data-kpi="transactions">
                             {{ number_format($analytics['kpis']['transactions'], 0, ',', '.') }}
                         </div>
                         <div class="kpi-foot"
-                            title="Rata-rata: Rp {{ number_format($analytics['kpis']['avg_ticket'], 0, ',', '.') }} / tx · Piutang Belum Lunas: Rp {{ number_format($stats['unpaid_invoices_amount'] ?? 0, 0, ',', '.') }}">
-                            Rata-rata: <b data-kpi="avg_ticket">Rp
-                                {{ number_format($analytics['kpis']['avg_ticket'], 0, ',', '.') }}</b> / tx · Piutang Belum
-                            Lunas: <span class="tabular-nums font-semibold">Rp
+                            title="{{ __('dashboard.kpi_avg_ticket_label', ['avg' => 'Rp ' . number_format($analytics['kpis']['avg_ticket'], 0, ',', '.'), 'unpaid' => 'Rp ' . number_format($stats['unpaid_invoices_amount'] ?? 0, 0, ',', '.')]) }}">
+                            {{ __('dashboard.kpi_avg_short') }}: <b data-kpi="avg_ticket">Rp
+                                {{ number_format($analytics['kpis']['avg_ticket'], 0, ',', '.') }}</b> / tx · {{ __('dashboard.kpi_unpaid_short') }}: <span class="tabular-nums font-semibold">Rp
                                 {{ number_format($stats['unpaid_invoices_amount'] ?? 0, 0, ',', '.') }}</span>
                         </div>
                     </div>
@@ -327,17 +315,15 @@
                     </div>
                     <div class="kpi-body min-w-0 flex-1 w-full">
                         <div class="flex items-center justify-between gap-1">
-                            <span class="kpi-label truncate">Total Beban Toko</span>
-                            <span
-                                class="text-[9.5px] sm:text-[10px] font-semibold text-[#FF9500] dark:text-[#FF9F0A] bg-[#FF9500]/10 px-1.5 sm:px-2 py-0.5 rounded-full shrink-0">Pengeluaran</span>
+                            <span class="kpi-label truncate">{{ __('dashboard.kpi_expenses') }}</span>
                         </div>
                         <div class="kpi-value tabular-nums font-bold text-[#FF9500] dark:text-[#FF9F0A] tracking-tight"
                             data-kpi-value data-kpi="expenses">
                             Rp {{ number_format($analytics['kpis']['expenses'], 0, ',', '.') }}
                         </div>
                         <div class="kpi-foot"
-                            title="HPP Modal Terjual: Rp {{ number_format($analytics['kpis']['hpp'], 0, ',', '.') }}">
-                            HPP Modal Terjual: <b data-kpi="hpp">Rp
+                            title="{{ __('dashboard.kpi_cogs_sold_label', ['cost' => 'Rp ' . number_format($analytics['kpis']['hpp'], 0, ',', '.')]) }}">
+                            {{ __('dashboard.kpi_cogs_short') }}: <b data-kpi="hpp">Rp
                                 {{ number_format($analytics['kpis']['hpp'], 0, ',', '.') }}</b>
                         </div>
                     </div>
@@ -350,9 +336,7 @@
                     </div>
                     <div class="kpi-body min-w-0 flex-1">
                         <div class="flex items-center justify-between gap-1">
-                            <span class="kpi-label">Perhatian Stok</span>
-                            <span
-                                class="text-[10px] font-semibold text-[#FF3B30] dark:text-[#FF453A] bg-[#FF3B30]/10 px-2 py-0.5 rounded-full shrink-0">Valuasi Aset Stok</span>
+                            <span class="kpi-label">{{ __('dashboard.kpi_stock_attention') }}</span>
                         </div>
                         <div class="kpi-value tabular-nums font-bold text-[#FF3B30] dark:text-[#FF453A] tracking-tight"
                             data-kpi-value data-kpi="low_stock">
@@ -360,8 +344,8 @@
                         </div>
                         <div class="kpi-foot">
                             <span
-                                x-text="stats.low_stock_count > 0 ? stats.low_stock_count + ' Stok Menipis' : 'Stok Aman'">{{ !empty($stats['low_stock_count']) && $stats['low_stock_count'] > 0 ? $stats['low_stock_count'] . ' Stok Menipis' : 'Stok Aman' }}</span>
-                            · Modal: <b data-kpi="at_risk_value">Rp
+                                x-text="stats.low_stock_count > 0 ? stats.low_stock_count + ' {{ __('dashboard.kpi_stock_low_suffix') }}' : '{{ __('dashboard.kpi_stock_safe') }}'">{{ !empty($stats['low_stock_count']) && $stats['low_stock_count'] > 0 ? $stats['low_stock_count'] . ' ' . __('dashboard.kpi_stock_low_suffix') : __('dashboard.kpi_stock_safe') }}</span>
+                            · {{ __('dashboard.kpi_capital_short') }}: <b data-kpi="at_risk_value">Rp
                                 {{ number_format($analytics['at_risk_value'], 0, ',', '.') }}</b>
                         </div>
                     </div>
@@ -383,10 +367,10 @@
                                 <div>
                                     <h3
                                         class="text-[14px] sm:text-[15px] font-semibold text-black dark:text-white tracking-tight">
-                                        Grafik Tren Penjualan &amp; Laba Kotor
+                                        {{ __('dashboard.chart_trend_title') }}
                                     </h3>
                                     <p class="text-[12px] text-black/50 dark:text-white/50">
-                                        Tren Penjualan 7 Hari Terakhir &amp; ritme omzet serta laba kotor
+                                        {{ __('dashboard.chart_trend_sub') }}
                                     </p>
                                 </div>
                             </div>
@@ -396,18 +380,17 @@
                                 <span
                                     class="rounded-full px-2.5 py-0.5 text-[11px] font-medium bg-black/[0.06] dark:bg-white/[0.08] text-black/60 dark:text-white/60 whitespace-nowrap"
                                     data-trend-granularity>
-                                    {{ $analytics['granularity'] === 'hour' ? 'Jam Operasional' : ($analytics['granularity'] === 'day' ? 'Harian' : 'Bulanan') }}
+                                    {{ $analytics['granularity'] === 'hour' ? __('dashboard.granularity_hour') : ($analytics['granularity'] === 'day' ? __('dashboard.granularity_day') : __('dashboard.granularity_month')) }}
                                 </span>
 
                                 <div
                                     class="inline-flex items-center p-0.5 rounded-[9px] bg-black/[0.06] dark:bg-white/[0.08] text-[12px] font-medium">
                                     <button type="button" onclick="setTrendSeries('all')" data-trend-btn="all"
-                                        class="px-2.5 py-0.5 rounded-[7px] transition bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]">Semua</button>
+                                        class="px-2.5 py-0.5 rounded-[7px] transition bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]">{{ __('dashboard.series_all') }}</button>
                                     <button type="button" onclick="setTrendSeries('omzet')" data-trend-btn="omzet"
-                                        class="px-2.5 py-0.5 rounded-[7px] transition text-black/55 dark:text-white/55">Omzet</button>
+                                        class="px-2.5 py-0.5 rounded-[7px] transition text-black/55 dark:text-white/55">{{ __('dashboard.series_omzet') }}</button>
                                     <button type="button" onclick="setTrendSeries('profit')" data-trend-btn="profit"
-                                        class="px-2.5 py-0.5 rounded-[7px] transition text-black/55 dark:text-white/55">Laba
-                                        Kotor</button>
+                                        class="px-2.5 py-0.5 rounded-[7px] transition text-black/55 dark:text-white/55">{{ __('dashboard.series_profit') }}</button>
                                 </div>
                             </div>
                         </div>
@@ -419,18 +402,15 @@
                             <!-- Empty State -->
                             <div class="chart-state chart-empty" data-empty hidden>
                                 <i data-lucide="bar-chart-2" class="w-10 h-10 text-black/20 dark:text-white/20 mb-1"></i>
-                                <p class="font-semibold text-black/70 dark:text-white/70">Belum ada transaksi pada periode
-                                    ini.</p>
-                                <span class="chart-state-note">Transaksi yang selesai di Kasir POS atau faktur terbayar
-                                    akan otomatis tergambar di sini.</span>
+                                <p class="font-semibold text-black/70 dark:text-white/70">{{ __('dashboard.chart_no_tx') }}</p>
+                                <span class="chart-state-note">{{ __('dashboard.chart_no_tx_note') }}</span>
                             </div>
 
                             <!-- Error State -->
                             <div class="chart-state chart-error" data-error hidden>
                                 <i data-lucide="alert-triangle" class="w-10 h-10 text-[#FF3B30] mb-1"></i>
-                                <p class="font-semibold text-black/70 dark:text-white/70">Grafik tidak dapat dimuat.</p>
-                                <button type="button" onclick="renderTrend()" class="chart-retry">Coba Muat
-                                    Ulang</button>
+                                <p class="font-semibold text-black/70 dark:text-white/70">{{ __('dashboard.chart_failed') }}</p>
+                                <button type="button" onclick="renderTrend()" class="chart-retry">{{ __('dashboard.chart_retry') }}</button>
                             </div>
                         </div>
                     </div>
@@ -445,8 +425,8 @@
                             <div>
                                 <h3
                                     class="text-[14px] sm:text-[15px] font-semibold text-black dark:text-white tracking-tight">
-                                    Sumber Penjualan</h3>
-                                <p class="text-[12px] text-black/50 dark:text-white/50">Kasir langsung vs faktur tagihan
+                                    {{ __('dashboard.channel_title') }}</h3>
+                                <p class="text-[12px] text-black/50 dark:text-white/50">{{ __('dashboard.channel_sub') }}
                                 </p>
                             </div>
                         </div>
@@ -456,15 +436,15 @@
                             <div class="chart-donut-center" data-donut-center="channel" hidden>
                                 <span class="donut-total tabular-nums font-bold text-black dark:text-white"
                                     data-donut-total="channel">Rp 0</span>
-                                <span class="donut-caption">Total Omzet</span>
+                                <span class="donut-caption">{{ __('dashboard.channel_total') }}</span>
                             </div>
                             <div class="chart-state chart-empty" data-empty hidden>
                                 <i data-lucide="pie-chart" class="w-8 h-8 text-black/20 dark:text-white/20"></i>
-                                <p>Belum ada penjualan</p>
+                                <p>{{ __('dashboard.channel_empty') }}</p>
                             </div>
                             <div class="chart-state chart-error" data-error hidden>
                                 <i data-lucide="alert-triangle" class="w-8 h-8 text-[#FF3B30]"></i>
-                                <p>Gagal memuat grafik</p>
+                                <p>{{ __('dashboard.chart_failed') }}</p>
                             </div>
                         </div>
                     </div>
@@ -476,17 +456,22 @@
             <div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-5 items-stretch">
 
-                    <!-- Donut 2: Tipe Layanan Kasir (Dine In, Take Away, Delivery) -->
+                    <!-- Donut 2: Tipe Layanan Kasir (Dinamis Sesuai Industri Usaha) -->
+                    @php
+                        $isFoodBiz = $business?->isFoodIndustry() ?? true;
+                        $orderChartTitle = $isFoodBiz ? __('dashboard.order_method_food') : __('dashboard.order_method_general');
+                        $orderChartSub   = $isFoodBiz ? __('dashboard.order_method_food_sub') : __('dashboard.order_method_general_sub');
+                        $orderChartIcon  = $isFoodBiz ? 'utensils' : ($business?->isWorkshop() ? 'wrench' : ($business?->isLaundry() ? 'shirt' : 'tag'));
+                    @endphp
                     <div class="chart-wrap chart-card-md" data-chart="orders">
                         <div class="chart-head">
                             <div
                                 class="w-7 h-7 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 flex items-center justify-center shrink-0">
-                                <i data-lucide="utensils" class="w-3.5 h-3.5"></i>
+                                <i data-lucide="{{ $orderChartIcon }}" class="w-3.5 h-3.5"></i>
                             </div>
                             <div>
-                                <h3 class="text-[14px] font-semibold text-black dark:text-white tracking-tight">Metode
-                                    Pelayanan</h3>
-                                <p class="text-[11px] text-black/50 dark:text-white/50">Pilihan pesanan pelanggan kasir</p>
+                                <h3 class="text-[14px] font-semibold text-black dark:text-white tracking-tight">{{ $orderChartTitle }}</h3>
+                                <p class="text-[11px] text-black/50 dark:text-white/50">{{ $orderChartSub }}</p>
                             </div>
                         </div>
                         <div class="chart-canvas-wrap chart-canvas-wrap-md chart-donut pt-1">
@@ -495,15 +480,15 @@
                             <div class="chart-donut-center" data-donut-center="orders" hidden>
                                 <span class="donut-total tabular-nums font-bold text-black dark:text-white"
                                     data-donut-total="orders">0</span>
-                                <span class="donut-caption">Transaksi</span>
+                                <span class="donut-caption">{{ __('dashboard.tx_unit') }}</span>
                             </div>
                             <div class="chart-state chart-empty" data-empty hidden>
                                 <i data-lucide="pie-chart" class="w-8 h-8 text-black/20 dark:text-white/20"></i>
-                                <p>Belum ada order kasir</p>
+                                <p>{{ __('dashboard.orders_empty') }}</p>
                             </div>
                             <div class="chart-state chart-error" data-error hidden>
                                 <i data-lucide="alert-triangle" class="w-8 h-8 text-[#FF3B30]"></i>
-                                <p>Gagal memuat grafik</p>
+                                <p>{{ __('dashboard.chart_failed') }}</p>
                             </div>
                         </div>
                     </div>
@@ -516,9 +501,8 @@
                                 <i data-lucide="layers" class="w-3.5 h-3.5"></i>
                             </div>
                             <div>
-                                <h3 class="text-[14px] font-semibold text-black dark:text-white tracking-tight">Kategori
-                                    Terlaris</h3>
-                                <p class="text-[11px] text-black/50 dark:text-white/50">Kategori paling berkontribusi</p>
+                                <h3 class="text-[14px] font-semibold text-black dark:text-white tracking-tight">{{ __('dashboard.categories_title') }}</h3>
+                                <p class="text-[11px] text-black/50 dark:text-white/50">{{ __('dashboard.categories_sub') }}</p>
                             </div>
                         </div>
                         <div class="chart-canvas-wrap chart-canvas-wrap-md chart-donut pt-1">
@@ -527,15 +511,15 @@
                             <div class="chart-donut-center" data-donut-center="categories" hidden>
                                 <span class="donut-total tabular-nums font-bold text-black dark:text-white"
                                     data-donut-total="categories">0</span>
-                                <span class="donut-caption">Kategori</span>
+                                <span class="donut-caption">{{ __('dashboard.categories_unit') }}</span>
                             </div>
                             <div class="chart-state chart-empty" data-empty hidden>
                                 <i data-lucide="pie-chart" class="w-8 h-8 text-black/20 dark:text-white/20"></i>
-                                <p>Belum ada kategori terjual</p>
+                                <p>{{ __('dashboard.categories_empty') }}</p>
                             </div>
                             <div class="chart-state chart-error" data-error hidden>
                                 <i data-lucide="alert-triangle" class="w-8 h-8 text-[#FF3B30]"></i>
-                                <p>Gagal memuat grafik</p>
+                                <p>{{ __('dashboard.chart_failed') }}</p>
                             </div>
                         </div>
                     </div>
@@ -548,9 +532,8 @@
                                 <i data-lucide="credit-card" class="w-3.5 h-3.5"></i>
                             </div>
                             <div>
-                                <h3 class="text-[14px] font-semibold text-black dark:text-white tracking-tight">Metode
-                                    Bayar</h3>
-                                <p class="text-[11px] text-black/50 dark:text-white/50">Tunai, QRIS, &amp; Transfer</p>
+                                <h3 class="text-[14px] font-semibold text-black dark:text-white tracking-tight">{{ __('dashboard.payment_title') }}</h3>
+                                <p class="text-[11px] text-black/50 dark:text-white/50">{{ __('dashboard.payment_sub') }}</p>
                             </div>
                         </div>
                         <div class="chart-canvas-wrap chart-canvas-wrap-md chart-donut pt-1">
@@ -559,15 +542,15 @@
                             <div class="chart-donut-center" data-donut-center="payment" hidden>
                                 <span class="donut-total tabular-nums font-bold text-black dark:text-white"
                                     data-donut-total="payment">0</span>
-                                <span class="donut-caption">Pembayaran</span>
+                                <span class="donut-caption">{{ __('dashboard.payment_unit') }}</span>
                             </div>
                             <div class="chart-state chart-empty" data-empty hidden>
                                 <i data-lucide="pie-chart" class="w-8 h-8 text-black/20 dark:text-white/20"></i>
-                                <p>Belum ada pembayaran</p>
+                                <p>{{ __('dashboard.payment_empty') }}</p>
                             </div>
                             <div class="chart-state chart-error" data-error hidden>
                                 <i data-lucide="alert-triangle" class="w-8 h-8 text-[#FF3B30]"></i>
-                                <p>Gagal memuat grafik</p>
+                                <p>{{ __('dashboard.chart_failed') }}</p>
                             </div>
                         </div>
                     </div>
@@ -589,11 +572,11 @@
                                 </div>
                                 <h3
                                     class="text-[13px] sm:text-[14px] font-semibold text-black dark:text-white tracking-tight">
-                                    Top 10 Produk Terlaris
+                                    {{ __('dashboard.top_products_title') }}
                                 </h3>
                             </div>
                             <span class="panel-count" data-panel-count="products">{{ count($analytics['top_products']) }}
-                                produk</span>
+                                {{ __('dashboard.products_unit') }}</span>
                         </div>
 
                         <div class="table-body-scroll custom-scrollbar">
@@ -603,10 +586,10 @@
                                         <thead>
                                             <tr class="border-b border-black/5 dark:border-white/10">
                                                 <th class="w-8">#</th>
-                                                <th>Produk Terlaris</th>
-                                                <th class="text-right">Terjual</th>
-                                                <th class="text-right">Omzet</th>
-                                                <th class="w-16">Porsi</th>
+                                                <th>{{ __('dashboard.col_best_product') }}</th>
+                                                <th class="text-right">{{ __('dashboard.col_sold') }}</th>
+                                                <th class="text-right">{{ __('dashboard.col_revenue') }}</th>
+                                                <th class="w-16">{{ __('dashboard.col_portion') }}</th>
                                             </tr>
                                         </thead>
                                         <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06] tabular-nums">
@@ -620,7 +603,7 @@
                                                         title="{{ $p['name'] }}">
                                                         {{ $p['name'] }}
                                                         @if (!empty($p['code']))
-                                                            <span class="dash-code">{{ $p['code'] }}</span>
+                                                             <span class="dash-code">{{ $p['code'] }}</span>
                                                         @endif
                                                     </td>
                                                     <td class="text-right text-black/60 dark:text-white/60 font-semibold">
@@ -630,7 +613,7 @@
                                                         Rp {{ number_format($p['revenue'], 0, ',', '.') }}</td>
                                                     <td>
                                                         <div class="pbar"
-                                                            title="{{ $p['pct'] }}% dari penjualan tertinggi"><i
+                                                            title="{{ $p['pct'] }}%"><i
                                                                 style="width: {{ $p['pct'] }}%"></i></div>
                                                     </td>
                                                 </tr>
@@ -643,10 +626,8 @@
                             <div class="panel-empty" data-panel-empty="products"
                                 {{ count($analytics['top_products']) > 0 ? 'hidden' : '' }}>
                                 <i data-lucide="trophy" class="w-8 h-8 text-black/20 dark:text-white/20"></i>
-                                <p class="font-semibold text-black/70 dark:text-white/70">Belum ada produk terjual pada
-                                    periode ini.</p>
-                                <span class="chart-state-note">Produk yang terjual lewat kasir atau faktur akan muncul di
-                                    daftar peringkat ini.</span>
+                                <p class="font-semibold text-black/70 dark:text-white/70">{{ __('dashboard.top_products_empty') }}</p>
+                                <span class="chart-state-note">{{ __('dashboard.top_products_empty_note') }}</span>
                             </div>
                         </div>
                     </div>
@@ -661,11 +642,11 @@
                                 </div>
                                 <h3
                                     class="text-[13px] sm:text-[14px] font-semibold text-black dark:text-white tracking-tight">
-                                    Top 15 Bahan Paling Sering
+                                    {{ __('dashboard.top_materials_title') }}
                                 </h3>
                             </div>
                             <span class="panel-count"
-                                data-panel-count="materials">{{ count($analytics['top_materials']) }} bahan</span>
+                                data-panel-count="materials">{{ count($analytics['top_materials']) }} {{ __('dashboard.materials_unit') }}</span>
                         </div>
 
                         <div class="table-body-scroll custom-scrollbar">
@@ -675,9 +656,9 @@
                                         <thead>
                                             <tr class="border-b border-black/5 dark:border-white/10">
                                                 <th class="w-8">#</th>
-                                                <th>Bahan Baku</th>
-                                                <th class="text-right">Jumlah Pakai</th>
-                                                <th class="w-16">Porsi</th>
+                                                <th>{{ __('dashboard.col_material_name') }}</th>
+                                                <th class="text-right">{{ __('dashboard.col_usage') }}</th>
+                                                <th class="w-16">{{ __('dashboard.col_portion') }}</th>
                                             </tr>
                                         </thead>
                                         <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06] tabular-nums">
@@ -697,7 +678,7 @@
                                                     </td>
                                                     <td>
                                                         <div class="pbar"
-                                                            title="{{ $m['pct'] }}% dari pemakaian tertinggi"><i
+                                                            title="{{ $m['pct'] }}%"><i
                                                                 style="width: {{ $m['pct'] }}%"></i></div>
                                                     </td>
                                                 </tr>
@@ -710,10 +691,8 @@
                             <div class="panel-empty" data-panel-empty="materials"
                                 {{ count($analytics['top_materials']) > 0 ? 'hidden' : '' }}>
                                 <i data-lucide="package-open" class="w-8 h-8 text-black/20 dark:text-white/20"></i>
-                                <p class="font-semibold text-black/70 dark:text-white/70">Belum ada pemakaian bahan pada
-                                    periode ini.</p>
-                                <span class="chart-state-note">Pemakaian bahan otomatis dihitung dari resep menu terjual
-                                    &amp; mutasi barang keluar.</span>
+                                <p class="font-semibold text-black/70 dark:text-white/70">{{ __('dashboard.top_materials_empty') }}</p>
+                                <span class="chart-state-note">{{ __('dashboard.top_materials_empty_note') }}</span>
                             </div>
                         </div>
                     </div>
@@ -728,11 +707,11 @@
                                 </div>
                                 <h3
                                     class="text-[13px] sm:text-[14px] font-semibold text-black dark:text-white tracking-tight">
-                                    Stok Hampir Habis
+                                    {{ __('dashboard.low_stock_title') }}
                                 </h3>
                             </div>
                             <span class="panel-count" data-panel-count="low_stock">{{ count($analytics['low_stock']) }}
-                                item</span>
+                                {{ __('dashboard.item_unit') }}</span>
                         </div>
 
                         <div class="table-body-scroll custom-scrollbar">
@@ -742,9 +721,9 @@
                                         <thead>
                                             <tr class="border-b border-black/5 dark:border-white/10">
                                                 <th class="w-8">#</th>
-                                                <th>Item</th>
-                                                <th class="text-right">Sisa</th>
-                                                <th>Status</th>
+                                                <th>{{ __('dashboard.col_item') }}</th>
+                                                <th class="text-right">{{ __('dashboard.col_remaining') }}</th>
+                                                <th>{{ __('dashboard.col_status') }}</th>
                                             </tr>
                                         </thead>
                                         <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06] tabular-nums">
@@ -769,15 +748,15 @@
                                                         @if ($it['critical'])
                                                             <span
                                                                 class="badge badge-critical inline-flex items-center gap-1.5"><span
-                                                                    class="w-1.5 h-1.5 rounded-full bg-[#FF3B30] shrink-0"></span><span>Kritis</span></span>
+                                                                    class="w-1.5 h-1.5 rounded-full bg-[#FF3B30] shrink-0"></span><span>{{ __('dashboard.status_critical') }}</span></span>
                                                         @elseif ($it['is_low'])
                                                             <span
                                                                 class="badge badge-low inline-flex items-center gap-1.5"><span
-                                                                    class="w-1.5 h-1.5 rounded-full bg-[#FF9500] shrink-0"></span><span>Menipis</span></span>
+                                                                    class="w-1.5 h-1.5 rounded-full bg-[#FF9500] shrink-0"></span><span>{{ __('dashboard.status_low') }}</span></span>
                                                         @else
                                                             <span
                                                                 class="badge badge-safe inline-flex items-center gap-1.5"><span
-                                                                    class="w-1.5 h-1.5 rounded-full bg-[#34C759] shrink-0"></span><span>Aman</span></span>
+                                                                    class="w-1.5 h-1.5 rounded-full bg-[#34C759] shrink-0"></span><span>{{ __('dashboard.status_safe') }}</span></span>
                                                         @endif
                                                     </td>
                                                 </tr>
@@ -790,9 +769,8 @@
                             <div class="panel-empty" data-panel-empty="low_stock"
                                 {{ count($analytics['low_stock']) > 0 ? 'hidden' : '' }}>
                                 <i data-lucide="check-circle-2" class="w-8 h-8 text-[#34C759]"></i>
-                                <p class="font-semibold text-black/70 dark:text-white/70">Semua stok dalam batas aman!</p>
-                                <span class="chart-state-note">Seluruh bahan baku dan produk di gudang masih mencukupi
-                                    kebutuhan operasional.</span>
+                                <p class="font-semibold text-black/70 dark:text-white/70">{{ __('dashboard.low_stock_all_safe') }}</p>
+                                <span class="chart-state-note">{{ __('dashboard.low_stock_all_safe_note') }}</span>
                             </div>
                         </div>
                     </div>
@@ -800,22 +778,19 @@
                 </div>
             </div>
 
-            <!-- 2.F Sorotan & Insight Cepat (Apple Intelligence Purple Theme) -->
+            <!-- 2.F Sorotan & Evaluasi Operasional -->
             <div>
                 <div class="insight-panel insight-card-fixed">
                     <div class="chart-head justify-between flex-shrink-0">
                         <div class="flex items-center gap-2">
-                            <i data-lucide="sparkles" class="w-4 h-4 text-[#AF52DE] dark:text-[#BF5AF2]"></i>
+                            <i data-lucide="compass" class="w-4 h-4 text-[#007AFF]"></i>
                             <h3 class="text-[13px] sm:text-[14px] font-semibold text-black dark:text-white tracking-tight">
-                                Cooca AI Business Advisor
+                                {{ __('dashboard.insights_title') }}
                             </h3>
                         </div>
-                        <span
-                            class="rounded-full px-2.5 py-0.5 text-[11px] font-semibold bg-[#AF52DE]/12 text-[#AF52DE] dark:text-[#BF5AF2]">Analisis
-                            Otomatis</span>
+                        <span class="text-[11px] font-medium text-black/45 dark:text-white/45">{{ __('dashboard.insights_summary') }}</span>
                     </div>
-                    <p class="chart-sub flex-shrink-0">Ringkasan penting dari data usaha Anda untuk pengambilan keputusan
-                        cepat.</p>
+                    <p class="chart-sub flex-shrink-0">{{ __('dashboard.insights_sub') }}</p>
 
                     <!-- Operational Health Alerts -->
                     @if (
@@ -827,11 +802,10 @@
                                     class="p-3 rounded-[12px] bg-[#FF9500]/10 border border-[#FF9500]/20 text-[#B25E00] dark:text-[#FF9F0A]">
                                     <div class="font-semibold flex items-center gap-1.5 mb-1 text-[12px]">
                                         <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-[#FF9500] shrink-0"></i>
-                                        <span>Margin Tipis Terdeteksi</span>
+                                        <span>{{ __('dashboard.alert_thin_margin_title') }}</span>
                                     </div>
                                     <p class="text-[11px] text-black/70 dark:text-white/70 leading-normal">
-                                        Ada <strong>{{ $stats['low_margin_count'] }} produk</strong> dengan margin di bawah
-                                        25%. Disarankan mengecek harga bahan baku atau menaikkan harga jual di kasir.
+                                        {!! __('dashboard.alert_thin_margin_desc', ['count' => $stats['low_margin_count']]) !!}
                                     </p>
                                 </div>
                             @endif
@@ -841,11 +815,10 @@
                                     class="p-3 rounded-[12px] bg-[#FF3B30]/10 border border-[#FF3B30]/20 text-[#C41E17] dark:text-[#FF453A]">
                                     <div class="font-semibold flex items-center gap-1.5 mb-1 text-[12px]">
                                         <i data-lucide="package-x" class="w-3.5 h-3.5 text-[#FF3B30] shrink-0"></i>
-                                        <span>Peringatan Stok Rendah</span>
+                                        <span>{{ __('dashboard.alert_low_stock_title') }}</span>
                                     </div>
                                     <p class="text-[11px] text-black/70 dark:text-white/70 leading-normal">
-                                        Terdapat <strong>{{ $stats['low_stock_count'] }} item stok</strong> hampir habis.
-                                        Segera lakukan pesanan pembelian agar tidak menghambat penjualan.
+                                        {!! __('dashboard.alert_low_stock_desc', ['count' => $stats['low_stock_count']]) !!}
                                     </p>
                                 </div>
                             @endif
@@ -856,8 +829,8 @@
                         <div class="flex flex-col gap-2" data-insights-list>
                             @foreach ($analytics['insights'] as $ins)
                                 <div class="insight-chip">
-                                    <i data-lucide="{{ $ins['icon'] ?? 'sparkles' }}"
-                                        class="w-4 h-4 text-[#AF52DE] dark:text-[#BF5AF2] shrink-0"></i>
+                                    <i data-lucide="{{ $ins['icon'] ?? 'compass' }}"
+                                        class="w-4 h-4 text-[#007AFF] shrink-0"></i>
                                     <span class="insight-label">{{ $ins['label'] }}</span>
                                     <span class="insight-value">{{ $ins['value'] }}</span>
                                 </div>
@@ -866,11 +839,10 @@
 
                         <div class="insight-empty" data-insights-empty
                             {{ count($analytics['insights']) > 0 ? 'hidden' : '' }}>
-                            <i data-lucide="sparkles" class="w-8 h-8 text-black/20 dark:text-white/20"></i>
-                            <p class="font-semibold text-black/70 dark:text-white/70">Belum ada sorotan untuk periode ini.
+                            <i data-lucide="compass" class="w-8 h-8 text-black/20 dark:text-white/20"></i>
+                            <p class="font-semibold text-black/70 dark:text-white/70">{{ __('dashboard.insights_empty') }}
                             </p>
-                            <span class="chart-state-note">Setelah penjualan pertama tercatat, rangkuman rekomendasi
-                                otomatis muncul di sini.</span>
+                            <span class="chart-state-note">{{ __('dashboard.insights_empty_note') }}</span>
                         </div>
                     </div>
                 </div>
@@ -896,14 +868,14 @@
                             <i data-lucide="receipt" class="w-4 h-4"></i>
                         </div>
                         <div>
-                            <h2 class="text-[15px] font-semibold text-black dark:text-white tracking-tight">Transaksi Kasir Terbaru</h2>
-                            <p class="text-[12px] text-black/50 dark:text-white/50">Order dan transaksi kasir POS hari ini</p>
+                            <h2 class="text-[15px] font-semibold text-black dark:text-white tracking-tight">{{ __('dashboard.recent_orders_title') }}</h2>
+                            <p class="text-[12px] text-black/50 dark:text-white/50">{{ __('dashboard.recent_orders_sub') }}</p>
                         </div>
                     </div>
                     @if (\App\Support\Context::hasPermission('pos.orders'))
                         <a href="{{ route('pos.orders.index') }}"
                             class="text-[13px] font-medium text-[#007AFF] hover:underline flex items-center gap-1 transition-colors">
-                            <span>Semua Transaksi</span>
+                            <span>{{ __('dashboard.all_transactions') }}</span>
                             <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
                         </a>
                     @endif
@@ -916,16 +888,15 @@
                             <i data-lucide="receipt" class="w-6 h-6"></i>
                         </div>
                         <div>
-                            <h3 class="text-[15px] font-semibold text-black dark:text-white">Belum Ada Transaksi Hari Ini
+                            <h3 class="text-[15px] font-semibold text-black dark:text-white">{{ __('dashboard.no_orders_today') }}
                             </h3>
-                            <p class="text-[13px] text-black/50 dark:text-white/50 mt-0.5">Buka terminal kasir POS untuk
-                                mulai melayani pelanggan toko.</p>
+                            <p class="text-[13px] text-black/50 dark:text-white/50 mt-0.5">{{ __('dashboard.no_orders_today_sub') }}</p>
                         </div>
                         @if (\App\Support\Context::hasPermission('pos.terminal'))
                             <a href="{{ route('pos.terminal') }}"
                                 class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all inline-flex items-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)] mt-2">
                                 <i data-lucide="calculator" class="w-4 h-4"></i>
-                                <span>Buka Terminal Kasir</span>
+                                <span>{{ __('dashboard.open_pos_terminal') }}</span>
                             </a>
                         @endif
                     </div>
@@ -940,10 +911,10 @@
                                         class="font-medium text-[13px] text-black dark:text-white flex items-center gap-2 truncate">
                                         <span class="tabular-nums font-semibold">{{ $order->order_number }}</span>
                                         <span
-                                            class="text-[11px] text-black/45 dark:text-white/45 truncate">({{ $order->customer_name_guest ?? 'Pelanggan Umum' }})</span>
+                                            class="text-[11px] text-black/45 dark:text-white/45 truncate">({{ $order->customer_name_guest ?? __('dashboard.general_customer') }})</span>
                                     </div>
                                     <div class="text-[11px] text-black/45 dark:text-white/45 flex items-center gap-2">
-                                        <span>{{ $order->created_at?->diffForHumans() ?? 'Baru saja' }}</span>
+                                        <span>{{ $order->created_at?->diffForHumans() ?? __('dashboard.just_now') }}</span>
                                         <span>&bull;</span>
                                         <span
                                             class="capitalize text-black/70 dark:text-white/70 font-medium">{{ str_replace('_', ' ', $order->order_type ?? 'Takeaway') }}</span>
@@ -975,14 +946,14 @@
                             <i data-lucide="package" class="w-4 h-4"></i>
                         </div>
                         <div>
-                            <h2 class="text-[15px] font-semibold text-black dark:text-white tracking-tight">Katalog &amp; Margin Produk</h2>
-                            <p class="text-[12px] text-black/50 dark:text-white/50">HPP dan persentase keuntungan produk</p>
+                            <h2 class="text-[15px] font-semibold text-black dark:text-white tracking-tight">{{ __('dashboard.products_catalog_title') }}</h2>
+                            <p class="text-[12px] text-black/50 dark:text-white/50">{{ __('dashboard.products_catalog_sub') }}</p>
                         </div>
                     </div>
                     @if (\App\Support\Context::hasPermission('products.view'))
                         <a href="{{ route('products.index') }}"
                             class="text-[13px] font-medium text-[#007AFF] hover:underline flex items-center gap-1 transition-colors">
-                            <span>Semua ({{ $stats['total_products'] ?? 0 }})</span>
+                            <span>{{ __('dashboard.all_products', ['total' => $stats['total_products'] ?? 0]) }}</span>
                             <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
                         </a>
                     @endif
@@ -995,16 +966,15 @@
                             <i data-lucide="box" class="w-6 h-6"></i>
                         </div>
                         <div>
-                            <h3 class="text-[15px] font-semibold text-black dark:text-white">Belum Ada Produk Terdaftar
+                            <h3 class="text-[15px] font-semibold text-black dark:text-white">{{ __('dashboard.no_products_yet') }}
                             </h3>
-                            <p class="text-[13px] text-black/50 dark:text-white/50 mt-0.5">Daftarkan produk baru untuk
-                                mulai menghitung HPP &amp; menjual di kasir.</p>
+                            <p class="text-[13px] text-black/50 dark:text-white/50 mt-0.5">{{ __('dashboard.no_products_yet_sub') }}</p>
                         </div>
                         @if (\App\Support\Context::hasPermission('costing.manage') || \App\Support\Context::hasPermission('products.create'))
                             <a href="{{ route('calculator.index') }}"
                                 class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all inline-flex items-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)] mt-2">
                                 <i data-lucide="plus" class="w-4 h-4"></i>
-                                <span>Hitung &amp; Daftarkan Produk Baru</span>
+                                <span>{{ __('dashboard.calc_new_product_btn') }}</span>
                             </a>
                         @endif
                     </div>
@@ -1015,10 +985,10 @@
                                 <thead
                                     class="border-b border-black/5 dark:border-white/10 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 whitespace-nowrap">
                                     <tr>
-                                        <th class="px-4 py-2.5">Produk</th>
-                                        <th class="px-4 py-2.5 text-right">HPP Dasar</th>
-                                        <th class="px-4 py-2.5 text-right">Harga Jual</th>
-                                        <th class="px-4 py-2.5 text-right">Margin %</th>
+                                        <th class="px-4 py-2.5">{{ __('dashboard.col_product') }}</th>
+                                        <th class="px-4 py-2.5 text-right">{{ __('dashboard.col_base_cogs') }}</th>
+                                        <th class="px-4 py-2.5 text-right">{{ __('dashboard.col_selling_price') }}</th>
+                                        <th class="px-4 py-2.5 text-right">{{ __('dashboard.col_margin_pct') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
@@ -1104,19 +1074,17 @@
                     <div class="flex items-center gap-2.5">
                         <div
                             class="w-8 h-8 rounded-[8px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center shrink-0">
-                            <i data-lucide="sparkles" class="w-4 h-4"></i>
+                            <i data-lucide="calculator" class="w-4 h-4"></i>
                         </div>
                         <div>
-                            <h2 class="text-[15px] font-semibold text-black dark:text-white tracking-tight">Kalkulator HPP
-                                &amp; Target Margin</h2>
-                            <p class="text-[12px] text-black/50 dark:text-white/50">Simulasikan harga jual rekomendasi
-                                instan berdasarkan target margin kotor</p>
+                            <h2 class="text-[15px] font-semibold text-black dark:text-white tracking-tight">{{ __('dashboard.sim_title') }}</h2>
+                            <p class="text-[12px] text-black/50 dark:text-white/50">{{ __('dashboard.sim_sub') }}</p>
                         </div>
                     </div>
                     @if (\App\Support\Context::hasPermission('costing.view_margin'))
                         <a href="{{ route('calculator.index') }}"
                             class="h-8 px-3 rounded-[8px] text-[12px] font-medium text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 active:scale-[0.97] transition-all flex items-center gap-1">
-                            <span>Kalkulator Lengkap</span>
+                            <span>{{ __('dashboard.full_calc_btn') }}</span>
                             <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
                         </a>
                     @endif
@@ -1124,8 +1092,7 @@
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 mb-4">
                     <div>
-                        <label class="block text-[12px] font-medium text-black/60 dark:text-white/60 mb-1.5">Estimasi Modal
-                            HPP Dasar</label>
+                        <label class="block text-[12px] font-medium text-black/60 dark:text-white/60 mb-1.5">{{ __('dashboard.est_base_cogs') }}</label>
                         <div class="relative">
                             <div
                                 class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-black/40 dark:text-white/40 text-[13px] font-medium tabular-nums">
@@ -1138,8 +1105,7 @@
 
                     <div>
                         <div class="flex items-center justify-between mb-1.5">
-                            <label class="block text-[12px] font-medium text-black/60 dark:text-white/60">Target Laba Kotor
-                                (Margin %)</label>
+                            <label class="block text-[12px] font-medium text-black/60 dark:text-white/60">{{ __('dashboard.target_gross_margin') }}</label>
                             <span class="text-[13px] font-bold tabular-nums text-[#007AFF]"
                                 x-text="quickMargin + '%'"></span>
                         </div>
@@ -1148,7 +1114,7 @@
 
                         <!-- Quick Margin Presets (Apple Segmented Control Style) -->
                         <div class="flex items-center gap-2 mt-2.5">
-                            <span class="text-[11px] text-black/40 dark:text-white/40 font-medium">Pilihan Cepat:</span>
+                            <span class="text-[11px] text-black/40 dark:text-white/40 font-medium">{{ __('dashboard.quick_choices') }}</span>
                             <div
                                 class="inline-flex p-0.5 rounded-[8px] bg-black/[0.05] dark:bg-white/[0.06] text-[11px] font-semibold">
                                 <template x-for="preset in [30, 40, 50, 60]">
@@ -1168,34 +1134,31 @@
                 <div
                     class="grid grid-cols-3 gap-2 sm:gap-4 p-3 sm:p-4 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 transition-colors">
                     <div>
-                        <div class="text-[11px] font-medium text-black/45 dark:text-white/45 truncate">Harga Rekomendasi
+                        <div class="text-[11px] font-medium text-black/45 dark:text-white/45 truncate">{{ __('dashboard.rec_price') }}
                         </div>
                         <div
                             class="text-[16px] sm:text-[20px] font-bold text-[#34C759] dark:text-[#30D158] tabular-nums mt-0.5 truncate">
-                            Rp <span x-text="calculatedPrice.toLocaleString('id-ID')"></span>
+                            Rp <span x-text="calculatedPrice.toLocaleString(document.documentElement.lang === 'en' ? 'en-US' : 'id-ID')"></span>
                         </div>
-                        <div class="text-[10px] text-black/35 dark:text-white/35 mt-0.5 hidden sm:block">Modal / (1 -
-                            Margin%)</div>
+                        <div class="text-[10px] text-black/35 dark:text-white/35 mt-0.5 hidden sm:block">{{ __('dashboard.formula_cogs') }}</div>
                     </div>
 
                     <div>
-                        <div class="text-[11px] font-medium text-black/45 dark:text-white/45 truncate">Laba Kotor / Satuan
+                        <div class="text-[11px] font-medium text-black/45 dark:text-white/45 truncate">{{ __('dashboard.gross_profit_unit') }}
                         </div>
                         <div class="text-[16px] sm:text-[20px] font-bold text-[#007AFF] tabular-nums mt-0.5 truncate">
-                            Rp <span x-text="grossProfit.toLocaleString('id-ID')"></span>
+                            Rp <span x-text="grossProfit.toLocaleString(document.documentElement.lang === 'en' ? 'en-US' : 'id-ID')"></span>
                         </div>
-                        <div class="text-[10px] text-black/35 dark:text-white/35 mt-0.5 hidden sm:block">Estimasi nominal
-                            untung</div>
+                        <div class="text-[10px] text-black/35 dark:text-white/35 mt-0.5 hidden sm:block">{{ __('dashboard.est_profit') }}</div>
                     </div>
 
                     <div>
-                        <div class="text-[11px] font-medium text-black/45 dark:text-white/45 truncate">Markup Modal</div>
+                        <div class="text-[11px] font-medium text-black/45 dark:text-white/45 truncate">{{ __('dashboard.markup_cogs') }}</div>
                         <div
                             class="text-[16px] sm:text-[20px] font-bold text-[#FF9500] dark:text-[#FF9F0A] tabular-nums mt-0.5 truncate">
                             <span x-text="markupEquivalent"></span>%
                         </div>
-                        <div class="text-[10px] text-black/35 dark:text-white/35 mt-0.5 hidden sm:block">Kenaikan harga
-                            dasar</div>
+                        <div class="text-[10px] text-black/35 dark:text-white/35 mt-0.5 hidden sm:block">{{ __('dashboard.price_increase') }}</div>
                     </div>
                 </div>
             </div>
@@ -1204,9 +1167,8 @@
             <div
                 class="rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 sm:p-6 flex flex-col justify-between space-y-4 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
                 <div>
-                    <h2 class="text-[15px] font-semibold text-black dark:text-white tracking-tight mb-1">Pintasan Menu
-                        Cepat</h2>
-                    <p class="text-[12px] text-black/50 dark:text-white/50">Akses cepat ke modul analisis &amp; laporan</p>
+                    <h2 class="text-[15px] font-semibold text-black dark:text-white tracking-tight mb-1">{{ __('dashboard.shortcuts_title') }}</h2>
+                    <p class="text-[12px] text-black/50 dark:text-white/50">{{ __('dashboard.shortcuts_sub') }}</p>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2">
@@ -1218,7 +1180,7 @@
                                     class="w-7 h-7 rounded-[7px] bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] flex items-center justify-center shrink-0">
                                     <i data-lucide="boxes" class="w-3.5 h-3.5"></i>
                                 </div>
-                                <span class="truncate">Bahan Baku &amp; Riwayat</span>
+                                <span class="truncate">{{ __('dashboard.shortcut_materials') }}</span>
                             </div>
                             <i data-lucide="arrow-right"
                                 class="w-3.5 h-3.5 text-black/30 dark:text-white/30 group-hover:text-[#007AFF] transition-colors shrink-0"></i>
@@ -1233,7 +1195,7 @@
                                     class="w-7 h-7 rounded-[7px] bg-[#007AFF]/12 text-[#007AFF] flex items-center justify-center shrink-0">
                                     <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
                                 </div>
-                                <span class="truncate">Simulator What-If</span>
+                                <span class="truncate">{{ __('dashboard.shortcut_what_if') }}</span>
                             </div>
                             <i data-lucide="arrow-right"
                                 class="w-3.5 h-3.5 text-black/30 dark:text-white/30 group-hover:text-[#007AFF] transition-colors shrink-0"></i>
@@ -1246,7 +1208,7 @@
                                     class="w-7 h-7 rounded-[7px] bg-[#AF52DE]/12 text-[#AF52DE] dark:text-[#BF5AF2] flex items-center justify-center shrink-0">
                                     <i data-lucide="pie-chart" class="w-3.5 h-3.5"></i>
                                 </div>
-                                <span class="truncate">BEP Titik Impas</span>
+                                <span class="truncate">{{ __('dashboard.shortcut_bep') }}</span>
                             </div>
                             <i data-lucide="arrow-right"
                                 class="w-3.5 h-3.5 text-black/30 dark:text-white/30 group-hover:text-[#AF52DE] transition-colors shrink-0"></i>
@@ -1261,7 +1223,7 @@
                                     class="w-7 h-7 rounded-[7px] bg-[#FF9500]/12 text-[#B25E00] dark:text-[#FF9F0A] flex items-center justify-center shrink-0">
                                     <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>
                                 </div>
-                                <span class="truncate">Laporan Laba &amp; HPP</span>
+                                <span class="truncate">{{ __('dashboard.shortcut_reports') }}</span>
                             </div>
                             <i data-lucide="arrow-right"
                                 class="w-3.5 h-3.5 text-black/30 dark:text-white/30 group-hover:text-[#FF9500] transition-colors shrink-0"></i>

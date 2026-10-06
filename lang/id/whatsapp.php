@@ -355,4 +355,13 @@ return [
     'error_rate_limit_override'        => 'Batas pengalihan nomor struk tercapai untuk shift ini (maksimal 5 kali). Silakan hubungi Supervisor.',
     'error_invalid_credentials'        => 'Kredensial Meta WhatsApp tidak valid atau ditolak oleh Meta Graph API.',
     'error_onboarding_failed'          => 'Gagal menyelesaikan otorisasi Embedded Signup Meta.',
+
+    // Modal & Simulator Extra
+    'show_preview'                     => 'Lihat Simulasi Pesan WhatsApp',
+    'hide_preview'                     => 'Sembunyikan Simulasi Pesan',
+    'disconnect_supervisor_modal_sub'  => 'Putuskan koneksi Meta WhatsApp resmi',
+    'supervisor_pin_label'             => 'PIN Supervisor',
+    'verifying'                        => 'Memverifikasi...',
+    'disconnect_action_btn'            => 'Putuskan Koneksi',
+    'error_network_disconnect'         => 'Terjadi kesalahan jaringan saat memutuskan koneksi.',
 ];

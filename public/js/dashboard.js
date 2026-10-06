@@ -588,9 +588,9 @@
         var html = '';
         for (var i = 0; i < insights.length; i++) {
             var ins = insights[i];
-            var iconName = ins.icon || 'sparkles';
+            var iconName = ins.icon || 'compass';
             html += '<div class="insight-chip">' +
-                '<i data-lucide="' + iconName + '" class="w-4 h-4 text-[#AF52DE] dark:text-[#BF5AF2] shrink-0"></i>' +
+                '<i data-lucide="' + iconName + '" class="w-4 h-4 text-[#007AFF] dark:text-[#0A84FF] shrink-0"></i>' +
                 '<span class="insight-label">' + escapeHtml(ins.label) + '</span>' +
                 '<span class="insight-value">' + escapeHtml(ins.value) + '</span>' +
                 '</div>';

@@ -44,7 +44,7 @@
                 <div class="rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-sm p-5 sm:p-7 space-y-5 transition-colors">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-black/5 dark:border-white/10">
                         <div class="flex items-center gap-3.5">
-                            <div class="w-12 h-12 rounded-[16px] bg-gradient-to-br from-[#1877F2] to-[#007AFF] text-white flex items-center justify-center shrink-0 shadow-md shadow-[#1877F2]/25">
+                            <div class="w-12 h-12 rounded-[16px] bg-[#007AFF]/12 text-[#007AFF] border border-[#007AFF]/20 flex items-center justify-center shrink-0">
                                 <i data-lucide="shield-check" class="w-6 h-6"></i>
                             </div>
                             <div>
@@ -76,7 +76,7 @@
                     </div>
 
                     <!-- EMBEDDED SIGNUP FLOW (1-CLICK ONBOARDING) -->
-                    <div class="p-5 sm:p-6 rounded-[18px] bg-gradient-to-br from-[#1877F2]/10 via-white dark:via-[#1C1C1E] to-[#007AFF]/8 border border-[#1877F2]/25 space-y-4">
+                    <div class="p-5 sm:p-6 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/10 space-y-4">
                         <div class="flex items-center justify-between">
                             <div class="space-y-0.5">
                                 <h3 class="text-[15px] font-bold text-black dark:text-white">{{ __('whatsapp.embedded_signup_title') }}</h3>
@@ -447,6 +447,69 @@
             </div>
         </div>
 
+        <!-- Teleported Supervisor PIN Disconnect Modal -->
+        <template x-teleport="body">
+            <div x-show="showDisconnectModal" x-cloak
+                class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 dark:bg-black/75 backdrop-blur-md"
+                x-transition:enter="ease-out duration-200"
+                x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100"
+                x-transition:leave="ease-in duration-150"
+                x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0">
+                <div @click.away="showDisconnectModal = false"
+                    class="w-full max-w-md rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-2xl p-6 space-y-4"
+                    x-transition:enter="ease-out duration-200"
+                    x-transition:enter-start="opacity-0 scale-95"
+                    x-transition:enter-end="opacity-100 scale-100"
+                    x-transition:leave="ease-in duration-150"
+                    x-transition:leave-start="opacity-100 scale-100"
+                    x-transition:leave-end="opacity-0 scale-95">
+                    
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-[#FF3B30]/12 text-[#FF3B30] flex items-center justify-center shrink-0">
+                            <i data-lucide="lock" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-[16px] font-bold text-black dark:text-white">{{ __('whatsapp.disconnect_supervisor_title') }}</h3>
+                            <p class="text-[12px] text-black/55 dark:text-white/55">{{ __('whatsapp.disconnect_supervisor_modal_sub') }}</p>
+                        </div>
+                    </div>
+
+                    <p class="text-[12.5px] text-black/70 dark:text-white/70 leading-relaxed">
+                        {{ __('whatsapp.disconnect_supervisor_desc') }}
+                    </p>
+
+                    <div class="space-y-1.5">
+                        <label class="block text-[11.5px] font-bold text-black/60 dark:text-white/60 uppercase">{{ __('whatsapp.supervisor_pin_label') }}</label>
+                        <input type="password" maxlength="6" inputmode="numeric" x-model="disconnectPin"
+                            @keydown.enter.prevent="submitDisconnectWithPin()"
+                            placeholder="••••••"
+                            class="w-full h-12 text-center tracking-[0.5em] text-xl font-mono rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/15 focus:outline-none focus:ring-2 focus:ring-[#FF3B30] text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30">
+                    </div>
+
+                    <template x-if="disconnectError">
+                        <div class="p-3 rounded-[10px] bg-[#FF3B30]/10 text-[#C41E17] dark:text-[#FF453A] text-xs font-semibold flex items-center gap-2">
+                            <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
+                            <span x-text="disconnectError"></span>
+                        </div>
+                    </template>
+
+                    <div class="flex items-center justify-end gap-3 pt-2">
+                        <button type="button" @click="showDisconnectModal = false"
+                            class="min-h-[44px] px-4 rounded-[12px] text-[13px] font-semibold text-black/70 dark:text-white/70 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] transition">
+                            {{ __('whatsapp.cancel_btn') }}
+                        </button>
+                        <button type="button" @click="submitDisconnectWithPin()" :disabled="disconnectLoading || !disconnectPin.trim()"
+                            class="min-h-[44px] px-5 rounded-[12px] text-[13px] font-bold text-white bg-[#FF3B30] hover:bg-[#E0352B] active:scale-[0.98] transition shadow-md shadow-[#FF3B30]/25 disabled:opacity-50 flex items-center gap-2">
+                            <i data-lucide="unlink" class="w-4 h-4"></i>
+                            <span x-text="disconnectLoading ? '{{ __('whatsapp.verifying') }}' : '{{ __('whatsapp.disconnect_action_btn') }}'"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </template>
+
     </div>
 @endsection
 
@@ -468,6 +531,10 @@
                 embeddedLoading: false,
                 embeddedError: null,
                 embeddedSuccess: null,
+                showDisconnectModal: false,
+                disconnectPin: '',
+                disconnectLoading: false,
+                disconnectError: '',
                 metaEmbeddedPhoneId: null,
                 metaEmbeddedWabaId: null,
                 @php
@@ -668,33 +735,47 @@
                     });
                 },
 
-                async disconnectMeta() {
-                    let pin = '';
+                disconnectMeta() {
                     const hasPin = {{ $business->hasSupervisorPin() ? 'true' : 'false' }};
-                    
                     if (hasPin) {
-                        pin = prompt({{ Js::from(__('whatsapp.disconnect_supervisor_desc')) }});
-                        if (pin === null) return;
-                        if (!pin.trim()) {
-                            alert({{ Js::from(__('whatsapp.supervisor_pin_required')) }});
-                            return;
-                        }
+                        this.disconnectPin = '';
+                        this.disconnectError = '';
+                        this.showDisconnectModal = true;
                     } else {
-                        let confirmed = false;
-                        if (window.AppAlert) {
-                            confirmed = await AppAlert.confirm({
-                                title: {{ Js::from(__('whatsapp.disconnect_confirm_title')) }},
-                                message: {{ Js::from(__('whatsapp.disconnect_confirm_desc')) }},
-                                type: 'danger',
-                                confirmText: {{ Js::from(__('whatsapp.disconnect_btn')) }},
-                                cancelText: {{ Js::from(__('whatsapp.cancel_btn')) }}
-                            });
-                        } else {
-                            confirmed = confirm({{ Js::from(__('whatsapp.disconnect_confirm_desc')) }});
-                        }
-                        if (!confirmed) return;
+                        this.confirmDisconnectDirect();
                     }
+                },
 
+                async confirmDisconnectDirect() {
+                    let confirmed = false;
+                    if (window.AppAlert) {
+                        confirmed = await AppAlert.confirm({
+                            title: {{ Js::from(__('whatsapp.disconnect_confirm_title')) }},
+                            message: {{ Js::from(__('whatsapp.disconnect_confirm_desc')) }},
+                            type: 'danger',
+                            confirmText: {{ Js::from(__('whatsapp.disconnect_btn')) }},
+                            cancelText: {{ Js::from(__('whatsapp.cancel_btn')) }}
+                        });
+                    } else {
+                        confirmed = confirm({{ Js::from(__('whatsapp.disconnect_confirm_desc')) }});
+                    }
+                    if (!confirmed) return;
+                    this.executeDisconnect('');
+                },
+
+                async submitDisconnectWithPin() {
+                    if (this.disconnectLoading) return;
+                    if (!this.disconnectPin.trim()) {
+                        this.disconnectError = {{ Js::from(__('whatsapp.supervisor_pin_required')) }};
+                        return;
+                    }
+                    this.disconnectLoading = true;
+                    this.disconnectError = '';
+                    await this.executeDisconnect(this.disconnectPin);
+                    this.disconnectLoading = false;
+                },
+
+                async executeDisconnect(pin) {
                     try {
                         const res = await fetch('{{ route('whatsapp.meta.disconnect') }}', {
                             method: 'POST',
@@ -707,6 +788,7 @@
                         });
                         const data = await res.json();
                         if (res.ok && data.success) {
+                            this.showDisconnectModal = false;
                             this.metaAccount = null;
                             this.isActive = false;
                             this.status = 'disconnected';
@@ -715,14 +797,23 @@
                                 window.CoocaBus.emitDataMutated('whatsapp', { disconnected: true });
                             }
                         } else {
-                            alert(data.message || {{ Js::from(__('whatsapp.supervisor_pin_invalid')) }});
+                            const errMsg = data.message || {{ Js::from(__('whatsapp.supervisor_pin_invalid')) }};
+                            if (this.showDisconnectModal) {
+                                this.disconnectError = errMsg;
+                            } else {
+                                alert(errMsg);
+                            }
                         }
                     } catch (e) {
                         console.error('Failed to disconnect Meta account', e);
+                        if (this.showDisconnectModal) {
+                            this.disconnectError = {{ Js::from(__('whatsapp.error_network_disconnect')) }};
+                        }
                     }
                 },
 
                 async sendTest() {
+                    if (this.testLoading) return;
                     if (!this.testPhone.trim() || !this.testMessage.trim()) {
                         this.testResult = {{ Js::from(__('whatsapp.test_validation_error')) }};
                         this.testOk = false;

@@ -33,6 +33,9 @@
                     <i data-lucide="arrow-left" class="w-4 h-4"></i>
                 </a>
                 <div>
+                    <span class="text-[11px] sm:text-[12px] font-semibold uppercase tracking-wider text-black/40 dark:text-white/40 block mb-0.5">
+                        {{ __('whatsapp.tab_broadcast') }} &bull; {{ __('whatsapp.breadcrumb_detail') }}
+                    </span>
                     <div class="flex items-center gap-2.5 flex-wrap">
                         <h1 class="text-[20px] sm:text-[22px] font-bold text-black dark:text-white tracking-tight">
                             {{ $campaign->title }}
@@ -235,7 +238,53 @@
                     {{ __('whatsapp.empty_recipients_desc') }}
                 </div>
             @else
-                <div class="overflow-x-auto">
+                @php
+                    $isOwner = \App\Support\Context::isOwner();
+                @endphp
+
+                {{-- Mobile Summary Card View (Zero Horizontal Scroll) --}}
+                <div class="sm:hidden divide-y divide-black/[0.04] dark:divide-white/[0.06]">
+                    @foreach ($recipients as $item)
+                        @php
+                            $rawPhone = (string) $item->phone_number;
+                            $len = strlen($rawPhone);
+                            $maskedPhone = $len <= 7
+                                ? substr($rawPhone, 0, 2) . '••••' . substr($rawPhone, -2)
+                                : substr($rawPhone, 0, 4) . '••••' . substr($rawPhone, -4);
+                            $displayPhone = $isOwner ? $rawPhone : $maskedPhone;
+                        @endphp
+                        <div class="p-4 space-y-2">
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="font-bold text-[14px] text-black dark:text-white truncate">
+                                    {{ $item->customer_name ?? ($item->customer?->name ?? __('whatsapp.default_customer_name')) }}
+                                </span>
+                                @if ($item->status === 'sent')
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] shrink-0">
+                                        <i data-lucide="check" class="w-3 h-3"></i>
+                                        <span>{{ __('whatsapp.col_sent') }}</span>
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#FF3B30]/12 text-[#C41E17] dark:text-[#FF453A] shrink-0">
+                                        <i data-lucide="x" class="w-3 h-3"></i>
+                                        <span>{{ __('whatsapp.status_failed') }}</span>
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="flex items-center justify-between text-[12px] text-black/60 dark:text-white/60">
+                                <span class="font-mono">{{ $displayPhone }}</span>
+                                <span class="tabular-nums">{{ $item->sent_at ? $item->sent_at->format('d/m/y H:i') : '-' }}</span>
+                            </div>
+                            @if ($item->error_message)
+                                <p class="text-[11.5px] text-[#FF3B30] dark:text-[#FF453A] bg-[#FF3B30]/10 rounded-[8px] p-2 leading-relaxed">
+                                    {{ $item->error_message }}
+                                </p>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+
+                {{-- Desktop Table View --}}
+                <div class="hidden sm:block overflow-x-auto">
                     <table class="w-full text-left text-[13.5px] min-w-[600px]">
                         <thead>
                             <tr
@@ -248,9 +297,6 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
-                            @php
-                                $isOwner = \App\Support\Context::isOwner();
-                            @endphp
                             @foreach ($recipients as $item)
                                 @php
                                     $rawPhone = (string) $item->phone_number;
@@ -315,23 +361,49 @@
                 successRate: {{ $initialRate }},
                 localeCode: '{{ app()->getLocale() === 'en' ? 'en-US' : 'id-ID' }}',
                 pollTimer: null,
+                pollCount: 0,
+                maxPolls: 60,
 
                 init() {
                     if (this.status === 'processing') {
                         this.startPolling();
                     }
+                    document.addEventListener('visibilitychange', () => {
+                        if (document.hidden) {
+                            this.stopPolling();
+                        } else if (this.status === 'processing') {
+                            this.startPolling();
+                        }
+                    });
+                    window.addEventListener('beforeunload', () => {
+                        this.stopPolling();
+                    });
                     this.$nextTick(() => {
                         if (window.lucide) lucide.createIcons();
                     });
                 },
 
                 startPolling() {
+                    if (this.pollTimer) return;
                     this.pollTimer = setInterval(() => {
+                        if (document.hidden) return;
                         this.pollStatus();
-                    }, 3000);
+                    }, 3500);
+                },
+
+                stopPolling() {
+                    if (this.pollTimer) {
+                        clearInterval(this.pollTimer);
+                        this.pollTimer = null;
+                    }
                 },
 
                 async pollStatus() {
+                    this.pollCount++;
+                    if (this.pollCount > this.maxPolls) {
+                        this.stopPolling();
+                        return;
+                    }
                     try {
                         const res = await fetch('{{ route('whatsapp.broadcast.show', $campaign) }}', {
                             headers: { 'Accept': 'application/json' }
@@ -347,13 +419,14 @@
                         }
 
                         if (this.status === 'completed' || this.status === 'failed') {
-                            clearInterval(this.pollTimer);
-                            this.pollTimer = null;
+                            this.stopPolling();
                             if (window.CoocaBus) {
                                 window.CoocaBus.emitDataMutated('whatsapp-broadcast', { id: '{{ $campaign->id }}', status: this.status });
                             }
                         }
-                    } catch (e) {}
+                    } catch (e) {
+                        // Silent catch on transient network drop
+                    }
                 }
             };
         }

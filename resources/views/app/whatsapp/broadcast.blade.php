@@ -326,16 +326,17 @@
         <!-- =================================================================== -->
         <!-- 4. MODAL-FIRST: FULL-SIZE XXL BENTO COMPOSER SHEET (Desktop & Mobile) -->
         <!-- =================================================================== -->
-        <div x-show="createModalOpen" x-cloak
-            class="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 lg:p-6 overflow-hidden"
-            @keydown.escape.window="closeCreateModal()">
+        <template x-teleport="body">
+            <div x-show="createModalOpen" x-cloak
+                class="fixed inset-0 z-[200] flex items-center justify-center p-0 sm:p-4 lg:p-6 overflow-hidden"
+                @keydown.escape.window="closeCreateModal()">
 
             <!-- Backdrop Frosted Glass -->
             <div x-show="createModalOpen" x-transition:enter="ease-out duration-200"
                 x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
                 x-transition:leave="ease-in duration-150" x-transition:leave-start="opacity-100"
                 x-transition:leave-end="opacity-0" @click="closeCreateModal()"
-                class="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm"></div>
+                class="fixed inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-md"></div>
 
             <!-- XXL Bento Canvas Container -->
             <div x-show="createModalOpen" x-transition:enter="ease-out duration-200"
@@ -719,7 +720,7 @@
                             <!-- RIGHT PREVIEW COLUMN (5 cols) -->
                             <div class="lg:col-span-5">
                                 <div class="lg:sticky lg:top-2 space-y-3">
-                                    <div class="flex items-center justify-between text-[12px] font-bold text-black/50 dark:text-white/50 uppercase tracking-wide px-1">
+                                    <div class="hidden lg:flex items-center justify-between text-[12px] font-bold text-black/50 dark:text-white/50 uppercase tracking-wide px-1">
                                         <span>{{ __('whatsapp.simulator_header') }}</span>
                                         <span class="text-[#34C759] lowercase font-semibold flex items-center gap-1" x-show="broadcastMode === 'template'">
                                             <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
@@ -727,9 +728,20 @@
                                         </span>
                                     </div>
 
-                                    <!-- Phone Mockup Frame -->
-                                    <div class="relative mx-auto max-w-[280px] rounded-[32px] bg-[#1C1C1E] border-[4px] border-black/80 dark:border-white/10 shadow-2xl overflow-hidden"
-                                        style="height: 500px;">
+                                    <!-- Mobile Toggle Simulator (Thumb-zone friendly) -->
+                                    <button type="button" @click="showMobilePreview = !showMobilePreview; $nextTick(() => { if (window.lucide) lucide.createIcons(); })"
+                                        class="lg:hidden w-full min-h-[44px] px-4 py-2.5 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 flex items-center justify-between text-[12.5px] font-semibold text-black dark:text-white transition active:scale-[0.98]">
+                                        <span class="flex items-center gap-2">
+                                            <i data-lucide="smartphone" class="w-4 h-4 text-[#007AFF]"></i>
+                                            <span x-text="showMobilePreview ? '{{ __('whatsapp.hide_preview') }}' : '{{ __('whatsapp.show_preview') }}'"></span>
+                                        </span>
+                                        <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200" :class="showMobilePreview ? 'rotate-180' : ''"></i>
+                                    </button>
+
+                                    <!-- Phone Mockup Frame (Always on Desktop, Collapsible on Mobile) -->
+                                    <div :class="showMobilePreview ? 'block' : 'hidden lg:block'" class="space-y-3">
+                                        <div class="relative mx-auto max-w-[280px] rounded-[32px] bg-[#1C1C1E] border-[4px] border-black/80 dark:border-white/10 shadow-2xl overflow-hidden"
+                                            style="height: 500px;">
 
                                         <!-- Top Notch -->
                                         <div class="absolute top-2 left-1/2 -translate-x-1/2 w-20 h-3.5 bg-black rounded-full z-20"></div>
@@ -808,6 +820,7 @@
                                     <p class="text-center text-[11px] text-black/50 dark:text-white/50">
                                         {{ $previewExampleNote }}
                                     </p>
+                                    </div>
                                 </div>
                             </div>
 
@@ -846,6 +859,7 @@
 
             </div>
         </div>
+        </template>
 
     </div>
 @endsection
@@ -853,8 +867,17 @@
 @push('scripts')
     <script>
         function broadcastManager() {
+            @php
+                $mergedTargetCounts = $tierCounts + ['all' => $customerCount];
+                if (!empty($locations)) {
+                    foreach ($locations as $loc) {
+                        $mergedTargetCounts['outlet:' . $loc->id] = $outletCounts[$loc->id] ?? 0;
+                    }
+                }
+            @endphp
             return {
                 createModalOpen: {{ (request()->boolean('open_composer') || request()->boolean('create')) ? 'true' : 'false' }},
+                showMobilePreview: false,
                 isQuietHours: false,
                 broadcastMode: 'template',
                 selectedTemplateName: 'cooca_promo_broadcast',
@@ -872,7 +895,7 @@
                 previewMessage: '',
                 submitting: false,
                 estimatedCount: {{ $customerCount }},
-                tierCounts: @json($tierCounts + ['all' => $customerCount]),
+                tierCounts: @json($mergedTargetCounts),
 
                 init() {
                     const currentHour = new Date().getHours();

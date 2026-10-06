@@ -355,4 +355,13 @@ return [
     'error_rate_limit_override'        => 'Receipt phone override limit reached for this shift (max 5 times). Contact Supervisor.',
     'error_invalid_credentials'        => 'Invalid Meta WhatsApp credentials or rejected by Meta Graph API.',
     'error_onboarding_failed'          => 'Failed to complete Meta Embedded Signup authorization.',
+
+    // Modal & Simulator Extra
+    'show_preview'                     => 'View WhatsApp Message Simulation',
+    'hide_preview'                     => 'Hide Message Simulation',
+    'disconnect_supervisor_modal_sub'  => 'Disconnect official Meta WhatsApp connection',
+    'supervisor_pin_label'             => 'Supervisor PIN',
+    'verifying'                        => 'Verifying...',
+    'disconnect_action_btn'            => 'Disconnect',
+    'error_network_disconnect'         => 'A network error occurred while disconnecting.',
 ];

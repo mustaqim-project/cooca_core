@@ -1,45 +1,122 @@
 @extends('layouts.app', [
-    'title' => 'Kalkulator HPP - Cooca',
-    'headerTitle' => 'Kalkulator HPP & Penetapan Harga',
-    'headerSubtitle' => 'Hitung modal bersih per porsi/pcs secara mudah dan tentukan harga jual yang menguntungkan',
+    'title' => __('calculator.title'),
+    'headerTitle' => __('calculator.header_title'),
+    'headerSubtitle' => __('calculator.header_subtitle'),
 ])
 
 @section('content')
+    @php
+        $isFoodBiz = $business?->isFoodIndustry() ?? true;
+        $isWorkshopBiz = $business?->isWorkshop() ?? false;
+        $isLaundryBiz = $business?->isLaundry() ?? false;
+
+        $initialQuickName = $isWorkshopBiz ? __('calculator.preset_workshop_oil') : ($isLaundryBiz ? __('calculator.preset_laundry_regular') : __('calculator.preset_fnb_coffee'));
+        $initialQuickMat  = $isWorkshopBiz ? 45000 : ($isLaundryBiz ? 2500 : 4500);
+        $initialQuickLab  = $isWorkshopBiz ? 25000 : ($isLaundryBiz ? 3000 : 1000);
+        $initialQuickOver = $isWorkshopBiz ? 5000 : ($isLaundryBiz ? 1500 : 500);
+        $initialQuickMargin = $isWorkshopBiz ? 35 : ($isLaundryBiz ? 40 : 40);
+    @endphp
+
     <div class="max-w-[1360px] mx-auto space-y-6 pb-28 sm:pb-32 lg:pb-12" x-data="{
         activeTab: '{{ $tab }}', // 'quick' or 'advanced'
+
+        setTab(tab) {
+            this.activeTab = tab;
+            const url = new URL(window.location);
+            url.searchParams.set('tab', tab);
+            window.history.replaceState({}, '', url);
+            this.$nextTick(() => {
+                if (window.lucide) {
+                    lucide.createIcons();
+                }
+            });
+        },
     
-        // QUICK MODE STATE
-        quickName: 'Kopi Susu Gula Aren',
-        quickMaterial: 4500,
-        quickLabor: 1000,
-        quickOverhead: 500,
-        quickMargin: 40,
-        quickSellOnline: true,
+        // QUICK MODE STATE (Adaptive Per Business Industry)
+        quickName: {{ Js::from($initialQuickName) }},
+        quickMaterial: {{ $initialQuickMat }},
+        quickLabor: {{ $initialQuickLab }},
+        quickOverhead: {{ $initialQuickOver }},
+        quickMargin: {{ $initialQuickMargin }},
+        quickSellOnline: {{ $isFoodBiz ? 'true' : 'false' }},
         quickOnlineFeePct: 20,
         quickMonthlyFixedCost: 1500000,
     
-        // Quick presets
+        // Quick presets (Multi-Industry: F&B, Workshop, Laundry, Retail)
         applyPreset(preset) {
-            if (preset === 'kopi') {
-                this.quickName = 'Kopi Susu Gula Aren';
+            // Workshop Presets
+            if (preset === 'oli') {
+                this.quickName = {{ Js::from(__('calculator.preset_workshop_oil')) }};
+                this.quickMaterial = 45000;
+                this.quickLabor = 25000;
+                this.quickOverhead = 5000;
+                this.quickMargin = 35;
+            } else if (preset === 'tuneup') {
+                this.quickName = {{ Js::from(__('calculator.preset_workshop_tuneup')) }};
+                this.quickMaterial = 30000;
+                this.quickLabor = 50000;
+                this.quickOverhead = 10000;
+                this.quickMargin = 40;
+            } else if (preset === 'rem') {
+                this.quickName = {{ Js::from(__('calculator.preset_workshop_brake')) }};
+                this.quickMaterial = 65000;
+                this.quickLabor = 20000;
+                this.quickOverhead = 5000;
+                this.quickMargin = 35;
+            } else if (preset === 'servis_berkala') {
+                this.quickName = {{ Js::from(__('calculator.preset_workshop_periodic')) }};
+                this.quickMaterial = 95000;
+                this.quickLabor = 60000;
+                this.quickOverhead = 15000;
+                this.quickMargin = 35;
+            }
+            // Laundry Presets
+            else if (preset === 'kiloan') {
+                this.quickName = {{ Js::from(__('calculator.preset_laundry_regular')) }};
+                this.quickMaterial = 2500;
+                this.quickLabor = 3000;
+                this.quickOverhead = 1500;
+                this.quickMargin = 40;
+            } else if (preset === 'bedcover') {
+                this.quickName = {{ Js::from(__('calculator.preset_laundry_bedcover')) }};
+                this.quickMaterial = 6000;
+                this.quickLabor = 8000;
+                this.quickOverhead = 4000;
+                this.quickMargin = 45;
+            } else if (preset === 'dryclean') {
+                this.quickName = {{ Js::from(__('calculator.preset_laundry_dryclean')) }};
+                this.quickMaterial = 8000;
+                this.quickLabor = 15000;
+                this.quickOverhead = 5000;
+                this.quickMargin = 50;
+            } else if (preset === 'sepatu') {
+                this.quickName = {{ Js::from(__('calculator.preset_laundry_shoes')) }};
+                this.quickMaterial = 5000;
+                this.quickLabor = 12000;
+                this.quickOverhead = 3000;
+                this.quickMargin = 50;
+            }
+            // F&B / Retail / General Presets
+            else if (preset === 'kopi') {
+                this.quickName = {{ Js::from(__('calculator.preset_fnb_coffee')) }};
                 this.quickMaterial = 4500;
                 this.quickLabor = 1000;
                 this.quickOverhead = 500;
                 this.quickMargin = 40;
             } else if (preset === 'geprek') {
-                this.quickName = 'Paket Ayam Geprek Nasi';
+                this.quickName = {{ Js::from(__('calculator.preset_fnb_chicken')) }};
                 this.quickMaterial = 8500;
                 this.quickLabor = 2000;
                 this.quickOverhead = 1000;
                 this.quickMargin = 35;
             } else if (preset === 'kaos') {
-                this.quickName = 'Kaos Polos Sablon Distro';
+                this.quickName = {{ Js::from(__('calculator.preset_general_tshirt')) }};
                 this.quickMaterial = 38000;
                 this.quickLabor = 8000;
                 this.quickOverhead = 4000;
                 this.quickMargin = 45;
             } else if (preset === 'kue') {
-                this.quickName = 'Brownies Fudgy Panggang (Box)';
+                this.quickName = {{ Js::from(__('calculator.preset_fnb_cake')) }};
                 this.quickMaterial = 24000;
                 this.quickLabor = 5000;
                 this.quickOverhead = 3000;
@@ -106,11 +183,13 @@
         quickSaveErrorMsg: '',
     
         saveQuickProduct() {
+            if (this.quickSaveLoading) return;
             if (!this.quickName.trim()) {
+                const errMsg = {{ Js::from(__('calculator.err_enter_product_name')) }};
                 if (window.AppAlert) {
-                    AppAlert.warning('Silakan masukkan nama produk terlebih dahulu.');
+                    AppAlert.warning(errMsg);
                 } else {
-                    alert('Silakan masukkan nama produk terlebih dahulu.');
+                    alert(errMsg);
                 }
                 return;
             }
@@ -120,7 +199,7 @@
     
             const token = document.querySelector('meta[name=csrf-token]')?.getAttribute('content') || '';
     
-            fetch('/calculator/quick-create-product', {
+            fetch('{{ route('calculator.quick-create-product') }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -151,7 +230,7 @@
                             this.quickSaveSuccessMsg = '';
                         }, 1800);
                     } else {
-                        this.quickSaveErrorMsg = data.message || 'Gagal menyimpan produk.';
+                        this.quickSaveErrorMsg = data.message || {{ Js::from(__('calculator.err_save_failed')) }};
                         if (window.coocaToast) {
                             window.coocaToast(this.quickSaveErrorMsg, 'error');
                         }
@@ -159,7 +238,7 @@
                 })
                 .catch(err => {
                     this.quickSaveLoading = false;
-                    this.quickSaveErrorMsg = 'Terjadi kesalahan sistem.';
+                    this.quickSaveErrorMsg = {{ Js::from(__('calculator.err_system_error')) }};
                     if (window.coocaToast) {
                         window.coocaToast(this.quickSaveErrorMsg, 'error');
                     }
@@ -224,7 +303,7 @@
         runCalculation() {
             if (!this.selectedCostModel) return;
             this.isCalculating = true;
-            fetch(`/calculator/calculate/${this.selectedCostModel.id}`)
+            fetch(`{{ url('calculator/calculate') }}/${this.selectedCostModel.id}`)
                 .then(res => res.json())
                 .then(data => {
                     this.calcResult = data.result;
@@ -242,6 +321,7 @@
         },
     
         applyToProduct() {
+            if (this.isApplying) return;
             if (!this.selectedProduct || !this.calcResult) return;
             this.isApplying = true;
             this.applySuccessMsg = '';
@@ -249,7 +329,7 @@
     
             const token = document.querySelector('meta[name=csrf-token]')?.getAttribute('content') || '';
     
-            fetch('/calculator/apply-to-product', {
+            fetch('{{ route('calculator.apply-to-product') }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -271,7 +351,7 @@
                         }
                         setTimeout(() => { this.applySuccessMsg = ''; }, 4000);
                     } else {
-                        this.applyErrorMsg = data.message || 'Gagal menerapkan harga.';
+                        this.applyErrorMsg = data.message || {{ Js::from(__('calculator.err_apply_failed')) }};
                         if (window.coocaToast) {
                             window.coocaToast(this.applyErrorMsg, 'error');
                         }
@@ -279,7 +359,7 @@
                 })
                 .catch(() => {
                     this.isApplying = false;
-                    this.applyErrorMsg = 'Gagal memproses permohonan.';
+                    this.applyErrorMsg = {{ Js::from(__('calculator.err_process_failed')) }};
                     if (window.coocaToast) {
                         window.coocaToast(this.applyErrorMsg, 'error');
                     }
@@ -287,6 +367,7 @@
         },
     
         saveResult() {
+            if (this.isSaving) return;
             if (!this.selectedCostModel) return;
             this.isSaving = true;
             this.saveSuccessMsg = '';
@@ -294,7 +375,7 @@
     
             const token = document.querySelector('meta[name=csrf-token]')?.getAttribute('content') || '';
     
-            fetch('/calculator/save', {
+            fetch('{{ route('calculator.save') }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -323,7 +404,7 @@
                             this.saveNotes = '';
                         }, 1800);
                     } else {
-                        this.saveErrorMsg = data.message || 'Gagal menyimpan riwayat kalkulasi.';
+                        this.saveErrorMsg = data.message || {{ Js::from(__('calculator.err_save_run_failed')) }};
                         if (window.coocaToast) {
                             window.coocaToast(this.saveErrorMsg, 'error');
                         }
@@ -331,7 +412,7 @@
                 })
                 .catch(() => {
                     this.isSaving = false;
-                    this.saveErrorMsg = 'Terjadi kesalahan sistem saat menyimpan.';
+                    this.saveErrorMsg = {{ Js::from(__('calculator.err_system_save_run')) }};
                     if (window.coocaToast) {
                         window.coocaToast(this.saveErrorMsg, 'error');
                     }
@@ -346,9 +427,9 @@
             aria-label="Breadcrumb">
             <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors font-medium">Dashboard</a>
             <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
-            <span class="text-black/60 dark:text-white/60 font-medium">Biaya &amp; Penetapan Harga</span>
+            <span class="text-black/60 dark:text-white/60 font-medium">{{ __('calculator.breadcrumb_costing') }}</span>
             <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
-            <span class="text-black/80 dark:text-white/80 font-medium">Kalkulator HPP &amp; Penetapan Harga</span>
+            <span class="text-black/80 dark:text-white/80 font-medium">{{ __('calculator.breadcrumb_calculator') }}</span>
         </nav>
 
         <!-- ===================================================== -->
@@ -357,24 +438,16 @@
         <header
             class="rounded-[16px] backdrop-blur-md bg-white/80 dark:bg-[#1C1C1E]/80 border border-black/5 dark:border-white/10 p-5 sm:p-6 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
             <div class="space-y-1.5 max-w-2xl">
-                <div class="flex flex-wrap items-center gap-2">
-                    <span
-                        class="rounded-full px-2.5 py-0.5 text-[11px] font-semibold inline-flex items-center gap-1.5 bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF]">
-                        <span class="w-1.5 h-1.5 rounded-full bg-[#007AFF]"></span>
-                        <span>Biaya &amp; Penetapan Harga</span>
-                    </span>
-                    <span
-                        class="rounded-full px-2.5 py-0.5 text-[11px] font-semibold inline-flex items-center gap-1.5 bg-[#AF52DE]/10 text-[#AF52DE] dark:text-[#BF5AF2]">
-                        <span class="w-1.5 h-1.5 rounded-full bg-[#AF52DE]"></span>
-                        <span>Smart Profit Coach</span>
+                <div class="flex items-center gap-2">
+                    <span class="text-[11px] sm:text-[12px] font-semibold uppercase tracking-wider text-black/40 dark:text-white/40">
+                        {{ __('calculator.category_pricing') }}
                     </span>
                 </div>
                 <h1 class="text-[20px] sm:text-[24px] font-bold text-black dark:text-white tracking-tight">
-                    Kalkulator HPP &amp; Strategi Harga Jual
+                    {{ __('calculator.toolbar_title') }}
                 </h1>
                 <p class="text-[13px] text-black/60 dark:text-white/60 leading-relaxed">
-                    Hitung modal bersih per porsi/unit (Bahan Baku, Tenaga Kerja, Operasional) secara presisi, tentukan
-                    margin keuntungan sehat, dan simulasi harga jual online tanpa boncos potongan komisi aplikasi.
+                    {{ __('calculator.toolbar_desc') }}
                 </p>
             </div>
 
@@ -384,14 +457,14 @@
                     <a href="{{ route('calculator.export-excel') }}"
                         class="col-span-1 h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
                         <i data-lucide="download" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
-                        <span>Export (.CSV)</span>
+                        <span>{{ __('calculator.export_csv') }}</span>
                     </a>
                 @endif
                 @if (\App\Support\Context::hasPermission('products.view'))
                     <a href="{{ route('products.index') }}"
                         class="col-span-1 h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
                         <i data-lucide="package" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
-                        <span>Katalog Produk</span>
+                        <span>{{ __('calculator.product_catalog') }}</span>
                     </a>
                 @endif
             </div>
@@ -405,14 +478,14 @@
                 <a href="{{ route('calculator.index') }}"
                     class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('calculator*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
                     <i data-lucide="calculator" class="w-4 h-4 {{ request()->routeIs('calculator*') ? 'text-[#007AFF]' : 'text-black/40 dark:text-white/40' }}"></i>
-                    <span>Kalkulator HPP &amp; Harga</span>
+                    <span>{{ __('calculator.tab_calc_price') }}</span>
                 </a>
 
                 @if((\App\Support\Context::hasPermission('labor_machines.view') || \App\Support\Context::hasPermission('costing.manage')) && (request()->routeIs('labor-machines.*') || (\App\Support\Context::business()?->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_LABOR_MACHINES) ?? true)))
                 <a href="{{ route('labor-machines.index') }}"
                     class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('labor-machines.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
                     <i data-lucide="cog" class="w-4 h-4 {{ request()->routeIs('labor-machines.*') ? 'text-[#FF9500]' : 'text-black/40 dark:text-white/40' }}"></i>
-                    <span>Upah Kerja &amp; Mesin</span>
+                    <span>{{ __('calculator.tab_labor_machines') }}</span>
                 </a>
                 @endif
 
@@ -420,7 +493,7 @@
                 <a href="{{ route('profitability.index') }}"
                     class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('profitability.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
                     <i data-lucide="trending-up" class="w-4 h-4 {{ request()->routeIs('profitability.*') ? 'text-[#34C759]' : 'text-black/40 dark:text-white/40' }}"></i>
-                    <span>Analisis BEP &amp; Margin</span>
+                    <span>{{ __('calculator.tab_bep_margin') }}</span>
                 </a>
                 @endif
             </div>
@@ -434,34 +507,31 @@
             <div
                 class="inline-flex p-1 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] border border-black/5 dark:border-white/5 w-full sm:w-auto text-[13px] font-medium">
                 <button type="button"
-                    @click="activeTab = 'quick'; $nextTick(() => { if (window.lucide) lucide.createIcons(); })"
+                    @click="setTab('quick')"
                     :class="activeTab === 'quick' ?
                         'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]' :
                         'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
                     class="h-8 px-4 rounded-[9px] transition-all flex items-center justify-center gap-2 flex-1 sm:flex-none cursor-pointer active:scale-[0.97] active:opacity-80">
                     <i data-lucide="zap" class="w-3.5 h-3.5 text-[#FF9500] dark:text-[#FF9F0A]"></i>
-                    <span>Mode Cepat (3 Pilar HPP)</span>
-                    <span
-                        class="rounded-full px-1.5 py-0.2 text-[10px] font-semibold bg-[#007AFF]/10 text-[#007AFF]">Simpel</span>
+                    <span>{{ __('calculator.mode_quick') }}</span>
                 </button>
 
                 <button type="button"
-                    @click="activeTab = 'advanced'; $nextTick(() => { if (window.lucide) lucide.createIcons(); })"
+                    @click="setTab('advanced')"
                     :class="activeTab === 'advanced' ?
                         'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]' :
                         'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
                     class="h-8 px-4 rounded-[9px] transition-all flex items-center justify-center gap-2 flex-1 sm:flex-none cursor-pointer active:scale-[0.97] active:opacity-80">
                     <i data-lucide="layers" class="w-3.5 h-3.5 text-[#5856D6] dark:text-[#5E5CE6]"></i>
-                    <span>Mode Detail Resep (BOM)</span>
+                    <span>{{ __('calculator.mode_advanced') }}</span>
                 </button>
             </div>
 
             <div class="flex items-center gap-2 text-[13px] text-black/50 dark:text-white/50 px-1">
                 <i data-lucide="info" class="w-4 h-4 text-[#007AFF] shrink-0"></i>
                 <span class="text-[12px] sm:text-[13px]">
-                    <span x-show="activeTab === 'quick'">Simulasi instan 3 pilar modal tanpa perlu input katalog</span>
-                    <span x-show="activeTab === 'advanced'">Kalkulasi otomatis dari Bill of Materials &amp; alokasi
-                        mesin</span>
+                    <span x-show="activeTab === 'quick'">{{ __('calculator.mode_quick_desc') }}</span>
+                    <span x-show="activeTab === 'advanced'">{{ __('calculator.mode_advanced_desc') }}</span>
                 </span>
             </div>
         </div>
@@ -478,7 +548,7 @@
                     class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 sm:p-5 flex flex-col justify-between shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
                     <div>
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-[12px] font-medium text-black/50 dark:text-white/50">Total Modal (HPP)</span>
+                            <span class="text-[12px] font-medium text-black/50 dark:text-white/50">{{ __('calculator.kpi_total_cogs') }}</span>
                             <div
                                 class="w-7 h-7 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.08] flex items-center justify-center text-black/60 dark:text-white/60">
                                 <i data-lucide="calculator" class="w-3.5 h-3.5"></i>
@@ -491,9 +561,9 @@
                     </div>
                     <div
                         class="mt-3 pt-2.5 border-t border-black/5 dark:border-white/5 text-[11px] text-black/50 dark:text-white/50 flex items-center justify-between">
-                        <span>Bahan: <strong class="tabular-nums font-semibold text-black dark:text-white"
+                        <span>{{ __('calculator.kpi_materials') }}: <strong class="tabular-nums font-semibold text-black dark:text-white"
                                 x-text="quickMaterialPct + '%'"></strong></span>
-                        <span class="font-medium text-black/40 dark:text-white/40">Per Unit</span>
+                        <span class="font-medium text-black/40 dark:text-white/40">{{ __('calculator.kpi_per_unit') }}</span>
                     </div>
                 </div>
 
@@ -502,7 +572,7 @@
                     class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 sm:p-5 flex flex-col justify-between shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
                     <div>
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-[12px] font-medium text-black/50 dark:text-white/50">Rekomendasi Kasir</span>
+                            <span class="text-[12px] font-medium text-black/50 dark:text-white/50">{{ __('calculator.kpi_pos_rec') }}</span>
                             <div
                                 class="w-7 h-7 rounded-[8px] bg-[#007AFF]/10 flex items-center justify-center text-[#007AFF]">
                                 <i data-lucide="store" class="w-3.5 h-3.5"></i>
@@ -515,9 +585,9 @@
                     </div>
                     <div
                         class="mt-3 pt-2.5 border-t border-black/5 dark:border-white/5 text-[11px] text-black/50 dark:text-white/50 flex items-center justify-between">
-                        <span>Markup: <strong class="tabular-nums font-semibold text-black dark:text-white"
+                        <span>{{ __('calculator.kpi_markup') }}: <strong class="tabular-nums font-semibold text-black dark:text-white"
                                 x-text="quickMarkupPct + '%'"></strong></span>
-                        <span class="font-medium text-[#007AFF]">Toko Offline</span>
+                        <span class="font-medium text-[#007AFF]">{{ __('calculator.kpi_offline_store') }}</span>
                     </div>
                 </div>
 
@@ -526,8 +596,7 @@
                     class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 sm:p-5 flex flex-col justify-between shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
                     <div>
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-[12px] font-medium text-black/50 dark:text-white/50">Untung Bersih /
-                                Pcs</span>
+                            <span class="text-[12px] font-medium text-black/50 dark:text-white/50">{{ __('calculator.kpi_net_profit') }}</span>
                             <div
                                 class="w-7 h-7 rounded-[8px] bg-[#34C759]/12 flex items-center justify-center text-[#34C759] dark:text-[#30D158]">
                                 <i data-lucide="trending-up" class="w-3.5 h-3.5"></i>
@@ -542,7 +611,7 @@
                         class="mt-3 pt-2.5 border-t border-black/5 dark:border-white/5 text-[11px] text-black/50 dark:text-white/50 flex items-center justify-between">
                         <span>Margin: <strong class="tabular-nums font-semibold text-[#34C759] dark:text-[#30D158]"
                                 x-text="quickMargin + '%'"></strong></span>
-                        <span class="font-medium text-[#34C759] dark:text-[#30D158]">Nett Profit</span>
+                        <span class="font-medium text-[#34C759] dark:text-[#30D158]">{{ __('calculator.kpi_net_profit_badge') }}</span>
                     </div>
                 </div>
 
@@ -551,8 +620,7 @@
                     class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 sm:p-5 flex flex-col justify-between shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
                     <div>
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-[12px] font-medium text-black/50 dark:text-white/50">Target Balik Modal
-                                (BEP)</span>
+                            <span class="text-[12px] font-medium text-black/50 dark:text-white/50">{{ __('calculator.kpi_target_bep') }}</span>
                             <div
                                 class="w-7 h-7 rounded-[8px] bg-[#5856D6]/10 flex items-center justify-center text-[#5856D6] dark:text-[#5E5CE6]">
                                 <i data-lucide="target" class="w-3.5 h-3.5"></i>
@@ -561,14 +629,14 @@
                         <div
                             class="text-[20px] sm:text-[26px] font-bold tabular-nums text-black dark:text-white tracking-tight truncate">
                             <span x-text="quickBepUnitsDaily"></span> <span
-                                class="text-[13px] font-medium text-black/50 dark:text-white/50">pcs/hari</span>
+                                class="text-[13px] font-medium text-black/50 dark:text-white/50">{{ __('calculator.kpi_bep_unit_day') }}</span>
                         </div>
                     </div>
                     <div
                         class="mt-3 pt-2.5 border-t border-black/5 dark:border-white/5 text-[11px] text-black/50 dark:text-white/50 flex items-center justify-between">
                         <span>Bulan: <strong class="tabular-nums font-semibold text-black dark:text-white"
                                 x-text="quickBepUnitsMonthly"></strong> pcs</span>
-                        <span class="font-medium text-[#5856D6]">Beban Rutin</span>
+                        <span class="font-medium text-[#5856D6]">{{ __('calculator.kpi_fixed_overhead') }}</span>
                     </div>
                 </div>
             </div>
@@ -577,29 +645,73 @@
             <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5 whitespace-nowrap text-[12px]">
                 <span
                     class="text-black/40 dark:text-white/40 font-semibold uppercase tracking-wider text-[11px] shrink-0 flex items-center gap-1.5 px-1">
-                    <i data-lucide="sparkles" class="w-3.5 h-3.5 text-[#FF9500]"></i>
-                    <span>Preset Cepat:</span>
+                    <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5 text-[#007AFF]"></i>
+                    <span>{{ __('calculator.preset_label') }}</span>
                 </span>
-                <button type="button" @click="applyPreset('kopi')"
-                    class="h-8 px-3 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
-                    <i data-lucide="coffee" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
-                    <span>Kopi Susu Aren</span>
-                </button>
-                <button type="button" @click="applyPreset('geprek')"
-                    class="h-8 px-3 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
-                    <i data-lucide="utensils" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
-                    <span>Paket Ayam Geprek</span>
-                </button>
-                <button type="button" @click="applyPreset('kaos')"
-                    class="h-8 px-3 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
-                    <i data-lucide="shirt" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
-                    <span>Kaos Sablon Distro</span>
-                </button>
-                <button type="button" @click="applyPreset('kue')"
-                    class="h-8 px-3 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
-                    <i data-lucide="cookie" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
-                    <span>Brownies Panggang</span>
-                </button>
+                @if ($isWorkshopBiz)
+                    <button type="button" @click="applyPreset('oli')"
+                        class="h-8 px-3 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        <i data-lucide="droplet" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
+                        <span>{{ __('calculator.preset_workshop_oil') }}</span>
+                    </button>
+                    <button type="button" @click="applyPreset('tuneup')"
+                        class="h-8 px-3 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        <i data-lucide="wrench" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
+                        <span>{{ __('calculator.preset_workshop_tuneup') }}</span>
+                    </button>
+                    <button type="button" @click="applyPreset('rem')"
+                        class="h-8 px-3 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        <i data-lucide="disc" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
+                        <span>{{ __('calculator.preset_workshop_brake') }}</span>
+                    </button>
+                    <button type="button" @click="applyPreset('servis_berkala')"
+                        class="h-8 px-3 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        <i data-lucide="activity" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
+                        <span>{{ __('calculator.preset_workshop_periodic') }}</span>
+                    </button>
+                @elseif ($isLaundryBiz)
+                    <button type="button" @click="applyPreset('kiloan')"
+                        class="h-8 px-3 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        <i data-lucide="shirt" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
+                        <span>{{ __('calculator.preset_laundry_regular') }}</span>
+                    </button>
+                    <button type="button" @click="applyPreset('bedcover')"
+                        class="h-8 px-3 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        <i data-lucide="layers" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
+                        <span>{{ __('calculator.preset_laundry_bedcover') }}</span>
+                    </button>
+                    <button type="button" @click="applyPreset('dryclean')"
+                        class="h-8 px-3 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        <i data-lucide="sparkle" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
+                        <span>{{ __('calculator.preset_laundry_dryclean') }}</span>
+                    </button>
+                    <button type="button" @click="applyPreset('sepatu')"
+                        class="h-8 px-3 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        <i data-lucide="footprints" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
+                        <span>{{ __('calculator.preset_laundry_shoes') }}</span>
+                    </button>
+                @else
+                    <button type="button" @click="applyPreset('kopi')"
+                        class="h-8 px-3 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        <i data-lucide="coffee" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
+                        <span>{{ __('calculator.preset_fnb_coffee') }}</span>
+                    </button>
+                    <button type="button" @click="applyPreset('geprek')"
+                        class="h-8 px-3 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        <i data-lucide="utensils" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
+                        <span>{{ __('calculator.preset_fnb_chicken') }}</span>
+                    </button>
+                    <button type="button" @click="applyPreset('kaos')"
+                        class="h-8 px-3 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        <i data-lucide="shirt" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
+                        <span>{{ __('calculator.preset_general_tshirt') }}</span>
+                    </button>
+                    <button type="button" @click="applyPreset('kue')"
+                        class="h-8 px-3 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        <i data-lucide="cookie" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
+                        <span>{{ __('calculator.preset_fnb_cake') }}</span>
+                    </button>
+                @endif
             </div>
 
             <!-- Main 3-Pillar Calculator Grid -->
@@ -614,9 +726,9 @@
                         <label
                             class="block text-[12px] font-semibold text-black/70 dark:text-white/70 uppercase tracking-wide flex items-center gap-1.5">
                             <i data-lucide="tag" class="w-3.5 h-3.5 text-[#007AFF]"></i>
-                            <span>Nama Produk / Menu Yang Dihitung *</span>
+                            <span>{{ __('calculator.input_product_name') }}</span>
                         </label>
-                        <input type="text" x-model="quickName" placeholder="Contoh: Kopi Susu Gula Aren 250ml"
+                        <input type="text" x-model="quickName" placeholder="{{ __('calculator.input_product_name_placeholder') }}"
                             class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[10px] px-3.5 text-[16px] sm:text-[15px] font-semibold text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition">
                     </div>
 
@@ -626,9 +738,9 @@
                         <div class="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-3">
                             <h2 class="text-[14px] font-semibold text-black dark:text-white flex items-center gap-2">
                                 <i data-lucide="calculator" class="w-4 h-4 text-[#007AFF]"></i>
-                                <span>3 Komponen Modal Bersih (HPP)</span>
+                                <span>{{ __('calculator.three_pillars_title') }}</span>
                             </h2>
-                            <span class="text-[12px] text-black/40 dark:text-white/40">Per 1 Porsi / Pcs</span>
+                            <span class="text-[12px] text-black/40 dark:text-white/40">{{ __('calculator.per_portion_unit') }}</span>
                         </div>
 
                         <!-- PILAR 1: Bahan & Kemasan (Teal Accent) -->
@@ -641,10 +753,8 @@
                                         1
                                     </div>
                                     <div>
-                                        <div class="font-semibold text-[13px] text-black dark:text-white">Biaya Bahan Baku
-                                            &amp; Kemasan</div>
-                                        <div class="text-[11px] text-black/50 dark:text-white/50">Bahan utama, bumbu, cup,
-                                            botol, plastik, label kemasan</div>
+                                        <div class="font-semibold text-[13px] text-black dark:text-white">{{ __('calculator.pillar_material_title') }}</div>
+                                        <div class="text-[11px] text-black/50 dark:text-white/50">{{ __('calculator.pillar_material_desc') }}</div>
                                     </div>
                                 </div>
                                 <span class="text-[12px] font-semibold tabular-nums text-[#30B0C7] dark:text-[#40C8E0]"
@@ -670,10 +780,8 @@
                                         2
                                     </div>
                                     <div>
-                                        <div class="font-semibold text-[13px] text-black dark:text-white">Biaya Upah &amp;
-                                            Tenaga Kerja</div>
-                                        <div class="text-[11px] text-black/50 dark:text-white/50">Ongkos masak, barista,
-                                            penjahit per pcs (isi 0 jika dikerjakan mandiri)</div>
+                                        <div class="font-semibold text-[13px] text-black dark:text-white">{{ __('calculator.pillar_labor_title') }}</div>
+                                        <div class="text-[11px] text-black/50 dark:text-white/50">{{ __('calculator.pillar_labor_desc') }}</div>
                                     </div>
                                 </div>
                                 <span class="text-[12px] font-semibold tabular-nums text-[#5856D6] dark:text-[#5E5CE6]"
@@ -699,10 +807,8 @@
                                         3
                                     </div>
                                     <div>
-                                        <div class="font-semibold text-[13px] text-black dark:text-white">Biaya Operasional
-                                            &amp; Utilitas</div>
-                                        <div class="text-[11px] text-black/50 dark:text-white/50">Alokasi gas elpiji,
-                                            listrik, air, sewa tempat per porsi</div>
+                                        <div class="font-semibold text-[13px] text-black dark:text-white">{{ __('calculator.pillar_overhead_title') }}</div>
+                                        <div class="text-[11px] text-black/50 dark:text-white/50">{{ __('calculator.pillar_overhead_desc') }}</div>
                                     </div>
                                 </div>
                                 <span class="text-[12px] font-semibold tabular-nums text-[#FF9500] dark:text-[#FF9F0A]"
@@ -721,32 +827,32 @@
                         <!-- Visual Proportion Bar (Apple Continuous Bar) -->
                         <div class="space-y-2 pt-3 border-t border-black/5 dark:border-white/10">
                             <div class="flex justify-between text-[12px] font-medium">
-                                <span class="text-black/60 dark:text-white/60">Komposisi Pengeluaran Modal:</span>
+                                <span class="text-black/60 dark:text-white/60">{{ __('calculator.cost_composition_title') }}</span>
                                 <span class="tabular-nums font-semibold text-black dark:text-white">Total: Rp <span
                                         x-text="quickTotalHpp.toLocaleString('id-ID')"></span></span>
                             </div>
                             <div
                                 class="w-full h-2.5 rounded-full bg-black/[0.06] dark:bg-white/[0.08] overflow-hidden flex">
                                 <div :style="'width: ' + quickMaterialPct + '%'"
-                                    class="bg-[#30B0C7] transition-all duration-300" title="Bahan Baku"></div>
+                                    class="bg-[#30B0C7] transition-all duration-300" title="{{ __('calculator.comp_material') }}"></div>
                                 <div :style="'width: ' + quickLaborPct + '%'"
-                                    class="bg-[#5856D6] transition-all duration-300" title="Upah Kerja"></div>
+                                    class="bg-[#5856D6] transition-all duration-300" title="{{ __('calculator.comp_labor') }}"></div>
                                 <div :style="'width: ' + quickOverheadPct + '%'"
-                                    class="bg-[#FF9500] transition-all duration-300" title="Operasional"></div>
+                                    class="bg-[#FF9500] transition-all duration-300" title="{{ __('calculator.comp_overhead') }}"></div>
                             </div>
                             <div
                                 class="flex flex-wrap items-center justify-between gap-2 text-[11px] text-black/50 dark:text-white/50 pt-1">
                                 <div class="flex items-center gap-1.5">
-                                    <div class="w-2 h-2 rounded-full bg-[#30B0C7]"></div><span>Bahan (<span
+                                    <div class="w-2 h-2 rounded-full bg-[#30B0C7]"></div><span>{{ __('calculator.comp_material') }} (<span
                                             class="tabular-nums font-medium"
                                             x-text="quickMaterialPct + '%'"></span>)</span>
                                 </div>
                                 <div class="flex items-center gap-1.5">
-                                    <div class="w-2 h-2 rounded-full bg-[#5856D6]"></div><span>Upah (<span
+                                    <div class="w-2 h-2 rounded-full bg-[#5856D6]"></div><span>{{ __('calculator.comp_labor') }} (<span
                                             class="tabular-nums font-medium" x-text="quickLaborPct + '%'"></span>)</span>
                                 </div>
                                 <div class="flex items-center gap-1.5">
-                                    <div class="w-2 h-2 rounded-full bg-[#FF9500]"></div><span>Operasional (<span
+                                    <div class="w-2 h-2 rounded-full bg-[#FF9500]"></div><span>{{ __('calculator.comp_overhead') }} (<span
                                             class="tabular-nums font-medium"
                                             x-text="quickOverheadPct + '%'"></span>)</span>
                                 </div>
@@ -762,14 +868,13 @@
                             <i data-lucide="sparkles" class="w-4 h-4"></i>
                         </div>
                         <div class="space-y-0.5 text-[13px]">
-                            <h3 class="font-semibold text-black dark:text-white">Kesimpulan Modal Bersih</h3>
+                            <h3 class="font-semibold text-black dark:text-white">{{ __('calculator.cogs_summary_title') }}</h3>
                             <p class="text-black/70 dark:text-white/70 leading-relaxed text-[13px]">
-                                Untuk menghasilkan 1 porsi <strong class="text-black dark:text-white font-semibold"
-                                    x-text="quickName"></strong>, modal riil yang Anda keluarkan adalah <strong
-                                    class="text-[#34C759] dark:text-[#30D158] tabular-nums font-bold">Rp <span
-                                        x-text="quickTotalHpp.toLocaleString('id-ID')"></span></strong>.
-                                Sebesar <strong class="text-black dark:text-white tabular-nums font-bold"
-                                    x-text="quickMaterialPct + '%'"></strong> uang terserap untuk bahan baku &amp; kemasan.
+                                {{ __('calculator.cogs_summary_desc', [
+                                    'name' => '<strong class="text-black dark:text-white font-semibold" x-text="quickName"></strong>',
+                                    'total' => '<strong class="text-[#34C759] dark:text-[#30D158] tabular-nums font-bold"><span x-text="quickTotalHpp.toLocaleString(\'id-ID\')"></span></strong>',
+                                    'material' => '<strong class="text-black dark:text-white tabular-nums font-bold" x-text="quickMaterialPct + \'%\'"></strong>'
+                                ]) }}
                             </p>
                         </div>
                     </div>
@@ -785,19 +890,14 @@
                         <div class="border-b border-black/5 dark:border-white/10 pb-3 flex items-center justify-between">
                             <h2 class="text-[14px] font-semibold text-black dark:text-white flex items-center gap-2">
                                 <i data-lucide="trending-up" class="w-4 h-4 text-[#34C759]"></i>
-                                <span>Target Untung &amp; Harga Jual</span>
+                                <span>{{ __('calculator.target_margin_title') }}</span>
                             </h2>
-                            <span
-                                class="rounded-full px-2 py-0.5 text-[11px] font-semibold bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]">
-                                Smart Coach
-                            </span>
                         </div>
 
                         <!-- Margin Slider Control -->
                         <div class="space-y-3">
                             <div class="flex items-center justify-between">
-                                <span class="text-[12px] font-medium text-black/60 dark:text-white/60">Target Margin Laba
-                                    Bersih:</span>
+                                <span class="text-[12px] font-medium text-black/60 dark:text-white/60">{{ __('calculator.target_margin_label') }}</span>
                                 <div class="flex items-baseline gap-0.5">
                                     <span class="text-[24px] font-bold tabular-nums text-[#34C759] dark:text-[#30D158]"
                                         x-text="quickMargin"></span>
@@ -818,14 +918,11 @@
                                         25 && quickMargin <= 60,
                                     'bg-[#AF52DE]/10 text-[#7C3AA6] dark:text-[#BF5AF2] border border-[#AF52DE]/20': quickMargin >
                                         60
-                                }">
+                                Dark: border-transparent': false }">
                                 <i data-lucide="info" class="w-4 h-4 shrink-0"></i>
-                                <span x-show="quickMargin < 25"><strong>Margin Tipis:</strong> Rawan rugi jika terjadi
-                                    kenaikan harga bahan baku supplier.</span>
-                                <span x-show="quickMargin >= 25 && quickMargin <= 60"><strong>Sehat &amp; Ideal:</strong>
-                                    Standar rasio laba kotor UMKM, kuliner &amp; ritel.</span>
-                                <span x-show="quickMargin > 60"><strong>Margin Premium:</strong> Keuntungan tinggi,
-                                    pastikan kemasan &amp; kualitas rasa bersaing.</span>
+                                <span x-show="quickMargin < 25">{{ __('calculator.margin_thin_warning') }}</span>
+                                <span x-show="quickMargin >= 25 && quickMargin <= 60">{{ __('calculator.margin_ideal_info') }}</span>
+                                <span x-show="quickMargin > 60">{{ __('calculator.margin_premium_info') }}</span>
                             </div>
                         </div>
 
@@ -833,8 +930,7 @@
                         <div
                             class="p-4 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-3">
                             <div>
-                                <div class="text-[11px] font-medium text-black/50 dark:text-white/50">Harga Jual
-                                    Rekomendasi (Kasir / Toko)</div>
+                                <div class="text-[11px] font-medium text-black/50 dark:text-white/50">{{ __('calculator.recommended_price_title') }}</div>
                                 <div
                                     class="text-[26px] sm:text-[30px] font-bold tabular-nums text-black dark:text-white tracking-tight mt-0.5">
                                     Rp <span x-text="quickOfflinePrice.toLocaleString('id-ID')"></span>
@@ -843,14 +939,14 @@
 
                             <div class="pt-3 border-t border-black/5 dark:border-white/10 space-y-1.5 text-[12px]">
                                 <div class="flex justify-between items-center">
-                                    <span class="text-black/60 dark:text-white/60">Untung Bersih per Pcs:</span>
+                                    <span class="text-black/60 dark:text-white/60">{{ __('calculator.net_profit_per_unit') }}</span>
                                     <span class="tabular-nums font-bold text-[#34C759] dark:text-[#30D158]">+ Rp <span
                                             x-text="quickOfflineProfit.toLocaleString('id-ID')"></span></span>
                                 </div>
                                 <div class="flex justify-between items-center">
-                                    <span class="text-black/60 dark:text-white/60">Markup dari Modal:</span>
+                                    <span class="text-black/60 dark:text-white/60">{{ __('calculator.markup_from_cogs') }}</span>
                                     <span class="tabular-nums font-semibold text-black dark:text-white"><span
-                                            x-text="quickMarkupPct"></span>% dari HPP</span>
+                                            x-text="quickMarkupPct"></span>{{ __('calculator.markup_of_cogs_suffix') }}</span>
                                 </div>
                             </div>
                         </div>
@@ -861,8 +957,7 @@
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-2">
                                     <i data-lucide="bike" class="w-4 h-4 text-[#AF52DE]"></i>
-                                    <span class="text-[13px] font-semibold text-black dark:text-white">Jual di Ojek Online?
-                                        (GoFood/Grab)</span>
+                                    <span class="text-[13px] font-semibold text-black dark:text-white">{{ __('calculator.sell_online_switch') }}</span>
                                 </div>
                                 <label class="relative inline-flex items-center cursor-pointer">
                                     <input type="checkbox" x-model="quickSellOnline" class="sr-only peer">
@@ -876,29 +971,27 @@
                                 class="space-y-3 pt-3 border-t border-black/5 dark:border-white/10 text-[12px]"
                                 style="display: none;">
                                 <div class="flex items-center justify-between gap-2">
-                                    <span class="text-black/60 dark:text-white/60">Komisi Aplikasi:</span>
+                                    <span class="text-black/60 dark:text-white/60">{{ __('calculator.app_fee_label') }}</span>
                                     <select x-model.number="quickOnlineFeePct"
                                         class="h-8 bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 rounded-[8px] px-2.5 text-black dark:text-white text-[12px] font-medium focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition">
-                                        <option :value="20">20% (Standar GoFood / GrabFood / ShopeeFood)</option>
-                                        <option :value="15">15% (Promo Merchant)</option>
-                                        <option :value="10">10% (Marketplace Toko Online)</option>
+                                        <option :value="20">{{ __('calculator.app_fee_opt_20') }}</option>
+                                        <option :value="15">{{ __('calculator.app_fee_opt_15') }}</option>
+                                        <option :value="10">{{ __('calculator.app_fee_opt_10') }}</option>
                                     </select>
                                 </div>
 
                                 <div class="p-3.5 rounded-[10px] bg-[#AF52DE]/10 border border-[#AF52DE]/20 space-y-1">
-                                    <div class="text-[11px] text-[#AF52DE] dark:text-[#BF5AF2] font-semibold">Harga Wajib
-                                        Pasang di Aplikasi Online:</div>
+                                    <div class="text-[11px] text-[#AF52DE] dark:text-[#BF5AF2] font-semibold">{{ __('calculator.online_must_price_title') }}</div>
                                     <div class="text-[22px] font-bold tabular-nums text-[#AF52DE] dark:text-[#BF5AF2]">
                                         Rp <span x-text="quickOnlinePrice.toLocaleString('id-ID')"></span>
                                     </div>
                                     <p class="text-[11px] text-black/60 dark:text-white/60 leading-tight pt-1">
-                                        Pasang Rp <span class="tabular-nums font-semibold"
-                                            x-text="quickOnlinePrice.toLocaleString('id-ID')"></span> &rarr; potongan
-                                         komisi 20% (Rp <span class="tabular-nums"
-                                            x-text="quickOnlineFeeNominal.toLocaleString('id-ID')"></span>) &rarr; omzet
-                                        bersih <strong class="text-black dark:text-white tabular-nums">tetap utuh Rp <span
-                                                x-text="quickOfflinePrice.toLocaleString('id-ID')"></span></strong> tanpa
-                                        boncos komisi!
+                                        {!! __('calculator.online_must_price_desc', [
+                                            'online' => '<span class="tabular-nums font-semibold" x-text="quickOnlinePrice.toLocaleString(\'id-ID\')"></span>',
+                                            'fee' => '<span x-text="quickOnlineFeePct"></span>',
+                                            'cut' => '<span class="tabular-nums" x-text="quickOnlineFeeNominal.toLocaleString(\'id-ID\')"></span>',
+                                            'offline' => '<strong class="text-black dark:text-white tabular-nums">Rp <span x-text="quickOfflinePrice.toLocaleString(\'id-ID\')"></span></strong>'
+                                        ]) !!}
                                     </p>
                                 </div>
                             </div>
@@ -910,22 +1003,20 @@
                             <div class="flex items-center justify-between">
                                 <span class="font-semibold text-black dark:text-white flex items-center gap-1.5">
                                     <i data-lucide="target" class="w-3.5 h-3.5 text-[#007AFF]"></i>
-                                    <span>Target Balik Modal (BEP)</span>
+                                    <span>{{ __('calculator.kpi_target_bep') }}</span>
                                 </span>
-                                <span class="text-[11px] text-black/40 dark:text-white/40">Beban Rutin</span>
+                                <span class="text-[11px] text-black/40 dark:text-white/40">{{ __('calculator.bep_routine_fixed') }}</span>
                             </div>
                             <div class="flex flex-wrap items-center justify-between gap-2">
-                                <span class="text-black/60 dark:text-white/60 text-[11px]">Beban Sewa/Listrik Bln:</span>
+                                <span class="text-black/60 dark:text-white/60 text-[11px]">{{ __('calculator.bep_monthly_rent_label') }}</span>
                                 <input type="number" x-model.number="quickMonthlyFixedCost" step="100000"
                                     class="w-full sm:w-36 h-8 bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 rounded-[8px] px-2.5 text-right text-[16px] sm:text-[12px] font-semibold tabular-nums text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition">
                             </div>
                             <div class="pt-1 text-[11px] text-black/60 dark:text-white/60 leading-relaxed">
-                                Jual minimal <strong
-                                    class="text-[#34C759] dark:text-[#30D158] font-semibold tabular-nums"><span
-                                        x-text="quickBepUnitsDaily"></span> pcs/hari</strong> (atau <span
-                                    class="tabular-nums font-semibold" x-text="quickBepUnitsMonthly"></span> pcs/bulan)
-                                agar impas beban rutin. Penjualan berikutnya adalah <strong
-                                    class="text-black dark:text-white">keuntungan bersih Anda!</strong>
+                                {!! __('calculator.bep_explanation', [
+                                    'daily' => '<strong class="text-[#34C759] dark:text-[#30D158] font-semibold tabular-nums"><span x-text="quickBepUnitsDaily"></span></strong>',
+                                    'monthly' => '<span class="tabular-nums font-semibold" x-text="quickBepUnitsMonthly"></span>'
+                                ]) !!}
                             </div>
                         </div>
 
@@ -935,7 +1026,7 @@
                                 class="w-full h-11 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 shadow-[0_1px_2px_rgba(0,122,255,0.25)] transition-all cursor-pointer flex items-center justify-center gap-2 group">
                                 <i data-lucide="plus-circle"
                                     class="w-4 h-4 group-hover:scale-105 transition-transform"></i>
-                                <span>Simpan Jadi Produk Baru di Kasir</span>
+                                <span>{{ __('calculator.save_to_pos_product_btn') }}</span>
                             </button>
                         @endif
                     </div>
@@ -960,17 +1051,15 @@
                         <i data-lucide="layers" class="w-5 h-5"></i>
                     </div>
                     <div>
-                        <h2 class="text-[14px] font-semibold text-black dark:text-white">Pilih Produk Dari Katalog Master
-                        </h2>
-                        <p class="text-[12px] text-black/50 dark:text-white/50">Sistem otomatis menghitung resep terperinci
-                            (BOM) dan alokasi tarif mesin</p>
+                        <h2 class="text-[14px] font-semibold text-black dark:text-white">{{ __('calculator.advanced_catalog_title') }}</h2>
+                        <p class="text-[12px] text-black/50 dark:text-white/50">{{ __('calculator.advanced_catalog_desc') }}</p>
                     </div>
                 </div>
 
                 <div class="flex items-center gap-2 flex-wrap w-full md:w-auto">
                     <select x-model="selectedProductId" @change="selectProduct($event.target.value)"
                         class="h-9 px-3 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[10px] text-[13px] font-medium text-black dark:text-white w-full sm:w-auto min-w-0 sm:min-w-[260px] focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition">
-                        <option value="">-- Pilih Produk Terdaftar --</option>
+                        <option value="">{{ __('calculator.advanced_select_placeholder') }}</option>
                         <template x-for="p in products" :key="p.id">
                             <option :value="p.id"
                                 x-text="p.name + ' (' + (p.output_unit ? p.output_unit.name : 'pcs') + ')'"></option>
@@ -980,17 +1069,17 @@
                     <template x-if="selectedProduct">
                         <div class="flex items-center gap-2">
                             @if (\App\Support\Context::hasPermission('products.manage') || \App\Support\Context::hasPermission('costing.manage'))
-                                <a :href="'/products/' + selectedProduct.slug + '/bom'"
+                                <a :href="'{{ url('products') }}/' + selectedProduct.slug + '/bom'"
                                     class="h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5">
                                     <i data-lucide="edit-3" class="w-3.5 h-3.5 text-black/60 dark:text-white/60"></i>
-                                    <span>Edit Resep BOM</span>
+                                    <span>{{ __('calculator.edit_bom_recipe') }}</span>
                                 </a>
                             @endif
                             @if (\App\Support\Context::hasPermission('products.edit'))
-                                <a :href="'/products?edit=' + selectedProduct.id"
+                                <a :href="'{{ url('products') }}?edit=' + selectedProduct.id"
                                     class="h-9 px-3.5 rounded-[10px] text-[13px] font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5">
                                     <i data-lucide="pencil-line" class="w-3.5 h-3.5"></i>
-                                    <span>Edit Harga</span>
+                                    <span>{{ __('calculator.edit_price') }}</span>
                                 </a>
                             @endif
                         </div>
@@ -1007,8 +1096,7 @@
                             class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 sm:p-5 flex flex-col justify-between shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
                             <div>
                                 <div class="flex items-center justify-between mb-2">
-                                    <span class="text-[12px] font-medium text-black/50 dark:text-white/50">HPP per
-                                        Unit</span>
+                                    <span class="text-[12px] font-medium text-black/50 dark:text-white/50">{{ __('calculator.cogs_per_unit_title') }}</span>
                                     <div
                                         class="w-7 h-7 rounded-[8px] bg-[#34C759]/12 flex items-center justify-center text-[#34C759] dark:text-[#30D158]">
                                         <i data-lucide="coins" class="w-3.5 h-3.5"></i>
@@ -1021,8 +1109,7 @@
                             </div>
                             <div
                                 class="mt-3 pt-2.5 border-t border-black/5 dark:border-white/5 text-[11px] text-black/50 dark:text-white/50">
-                                Satuan: <strong class="text-black dark:text-white font-medium"
-                                    x-text="selectedProduct.output_unit ? selectedProduct.output_unit.name : 'pcs'"></strong>
+                                {!! __('calculator.unit_label', ['unit' => '<strong class="text-black dark:text-white font-medium" x-text="selectedProduct.output_unit ? selectedProduct.output_unit.name : \'pcs\'"></strong>']) !!}
                             </div>
                         </div>
 
@@ -1030,8 +1117,7 @@
                             class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 sm:p-5 flex flex-col justify-between shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
                             <div>
                                 <div class="flex items-center justify-between mb-2">
-                                    <span class="text-[12px] font-medium text-black/50 dark:text-white/50">Bahan Baku
-                                        (Material)</span>
+                                    <span class="text-[12px] font-medium text-black/50 dark:text-white/50">{{ __('calculator.raw_materials_title') }}</span>
                                     <div
                                         class="w-7 h-7 rounded-[8px] bg-[#007AFF]/10 flex items-center justify-center text-[#007AFF]">
                                         <i data-lucide="package" class="w-3.5 h-3.5"></i>
@@ -1046,7 +1132,7 @@
                             <div
                                 class="mt-3 pt-2.5 border-t border-black/5 dark:border-white/5 text-[11px] text-[#007AFF] font-semibold tabular-nums">
                                 <span
-                                    x-text="((calcResult.total_material_cost / calcResult.total_hpp) * 100).toFixed(1) + '% porsi modal'"></span>
+                                    x-text="((calcResult.total_material_cost / calcResult.total_hpp) * 100).toFixed(1) + '% {{ __('calculator.portion_of_cogs', ['pct' => '']) }}'"></span>
                             </div>
                         </div>
 
@@ -1054,8 +1140,7 @@
                             class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 sm:p-5 flex flex-col justify-between shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
                             <div>
                                 <div class="flex items-center justify-between mb-2">
-                                    <span class="text-[12px] font-medium text-black/50 dark:text-white/50">Upah Kerja &amp;
-                                        Mesin</span>
+                                    <span class="text-[12px] font-medium text-black/50 dark:text-white/50">{{ __('calculator.labor_and_machines_title') }}</span>
                                     <div
                                         class="w-7 h-7 rounded-[8px] bg-[#5856D6]/10 flex items-center justify-center text-[#5856D6] dark:text-[#5E5CE6]">
                                         <i data-lucide="users" class="w-3.5 h-3.5"></i>
@@ -1069,7 +1154,7 @@
                             </div>
                             <div
                                 class="mt-3 pt-2.5 border-t border-black/5 dark:border-white/5 text-[11px] text-black/50 dark:text-white/50">
-                                Tenaga Kerja &amp; Utilitas
+                                {{ __('calculator.labor_and_utilities') }}
                             </div>
                         </div>
 
@@ -1077,8 +1162,7 @@
                             class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 sm:p-5 flex flex-col justify-between shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
                             <div>
                                 <div class="flex items-center justify-between mb-2">
-                                    <span class="text-[12px] font-medium text-black/50 dark:text-white/50">Alokasi
-                                        Overhead</span>
+                                    <span class="text-[12px] font-medium text-black/50 dark:text-white/50">{{ __('calculator.overhead_alloc_title') }}</span>
                                     <div
                                         class="w-7 h-7 rounded-[8px] bg-[#FF9500]/10 flex items-center justify-center text-[#FF9500] dark:text-[#FF9F0A]">
                                         <i data-lucide="pie-chart" class="w-3.5 h-3.5"></i>
@@ -1092,7 +1176,7 @@
                             </div>
                             <div
                                 class="mt-3 pt-2.5 border-t border-black/5 dark:border-white/5 text-[11px] text-black/50 dark:text-white/50">
-                                Pabrikasi / Operasional
+                                {{ __('calculator.overhead_factory_ops') }}
                             </div>
                         </div>
                     </div>
@@ -1105,24 +1189,23 @@
                             <div>
                                 <h2 class="text-[14px] font-semibold text-black dark:text-white flex items-center gap-2">
                                     <i data-lucide="list-checks" class="w-4 h-4 text-[#5856D6]"></i>
-                                    <span>Rincian Komponen Resep Terdaftar</span>
+                                    <span>{{ __('calculator.recipe_breakdown_title') }}</span>
                                 </h2>
-                                <p class="text-[12px] text-black/50 dark:text-white/50">Komposisi perhitungan HPP
-                                    berdasarkan kartu Bill of Materials (BOM)</p>
+                                <p class="text-[12px] text-black/50 dark:text-white/50">{{ __('calculator.recipe_breakdown_desc') }}</p>
                             </div>
                             <div class="flex items-center gap-2 flex-wrap w-full sm:w-auto">
                                 @if (\App\Support\Context::hasPermission('costing.manage'))
                                     <button type="button" @click="showSaveModal = true"
                                         class="h-8 px-3 rounded-[8px] text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 flex-1 sm:flex-none">
                                         <i data-lucide="bookmark" class="w-3.5 h-3.5 text-[#007AFF]"></i>
-                                        <span>Simpan Riwayat</span>
+                                        <span>{{ __('calculator.btn_save_run') }}</span>
                                     </button>
                                 @endif
                                 @if (\App\Support\Context::hasPermission('costing.manage') || \App\Support\Context::hasPermission('products.edit'))
                                     <button type="button" @click="applyToProduct()" :disabled="isApplying"
                                         class="h-8 px-3.5 rounded-[8px] text-[12px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 disabled:opacity-50 flex-1 sm:flex-none">
                                         <i data-lucide="check" class="w-3.5 h-3.5"></i>
-                                        <span x-text="isApplying ? 'Menerapkan...' : 'Terapkan ke Produk'"></span>
+                                        <span x-text="isApplying ? '{{ __('calculator.btn_applying') }}' : '{{ __('calculator.btn_apply_to_product') }}'"></span>
                                     </button>
                                 @endif
                             </div>
@@ -1133,10 +1216,10 @@
                                 <thead>
                                     <tr
                                         class="border-b border-black/5 dark:border-white/10 text-black/40 dark:text-white/40 uppercase tracking-wide text-[11px] font-semibold">
-                                        <th class="px-4 py-2.5 w-12 text-center">No</th>
-                                        <th class="px-4 py-2.5">Nama Komponen / Bahan</th>
-                                        <th class="px-4 py-2.5">Kategori</th>
-                                        <th class="px-4 py-2.5 text-right">Biaya Nominal (HPP)</th>
+                                        <th class="px-4 py-2.5 w-12 text-center">{{ __('calculator.col_no') }}</th>
+                                        <th class="px-4 py-2.5">{{ __('calculator.col_component_name') }}</th>
+                                        <th class="px-4 py-2.5">{{ __('calculator.col_category') }}</th>
+                                        <th class="px-4 py-2.5 text-right">{{ __('calculator.col_nominal_cogs') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
@@ -1181,7 +1264,7 @@
                                         class="border-t border-black/10 dark:border-white/10 bg-black/[0.01] dark:bg-white/[0.02] font-semibold text-[13px]">
                                         <td colspan="3"
                                             class="px-4 py-3 text-right uppercase tracking-wide text-[11px] text-black/50 dark:text-white/50">
-                                            Total HPP Keseluruhan:
+                                            {{ __('calculator.total_cogs_all') }}
                                         </td>
                                         <td
                                             class="px-4 py-3 text-right tabular-nums text-[#34C759] dark:text-[#30D158] text-[15px] font-bold">
@@ -1202,10 +1285,9 @@
                             <div>
                                 <h3 class="text-[14px] font-semibold text-black dark:text-white flex items-center gap-2">
                                     <i data-lucide="history" class="w-4 h-4 text-black/50 dark:text-white/50"></i>
-                                    <span>Riwayat Kalkulasi HPP Tersimpan</span>
+                                    <span>{{ __('calculator.saved_runs_title') }}</span>
                                 </h3>
-                                <p class="text-[12px] text-black/50 dark:text-white/50">Arsip riwayat kalkulasi yang pernah
-                                    dicatat untuk audit biaya bisnis</p>
+                                <p class="text-[12px] text-black/50 dark:text-white/50">{{ __('calculator.saved_runs_desc') }}</p>
                             </div>
                         </div>
 
@@ -1214,11 +1296,11 @@
                                 <thead>
                                     <tr
                                         class="border-b border-black/5 dark:border-white/10 text-black/40 dark:text-white/40 uppercase tracking-wide text-[11px] font-semibold">
-                                        <th class="px-4 py-2.5">Tanggal</th>
-                                        <th class="px-4 py-2.5">Produk Terkait</th>
-                                        <th class="px-4 py-2.5">Catatan</th>
-                                        <th class="px-4 py-2.5 text-right">HPP / Unit</th>
-                                        <th class="px-4 py-2.5 text-right">Total HPP</th>
+                                        <th class="px-4 py-2.5">{{ __('calculator.col_date') }}</th>
+                                        <th class="px-4 py-2.5">{{ __('calculator.col_related_product') }}</th>
+                                        <th class="px-4 py-2.5">{{ __('calculator.col_notes') }}</th>
+                                        <th class="px-4 py-2.5 text-right">{{ __('calculator.col_unit_cogs') }}</th>
+                                        <th class="px-4 py-2.5 text-right">{{ __('calculator.col_total_cogs') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
@@ -1246,8 +1328,7 @@
                                     <tr x-show="!recentRuns || recentRuns.length === 0">
                                         <td colspan="5"
                                             class="px-4 py-8 text-center text-black/40 dark:text-white/40 text-[13px]">
-                                            Belum ada riwayat kalkulasi yang disimpan. Klik tombol "Simpan Riwayat" untuk
-                                            mengarsipkan hasil kalkulasi.
+                                            {{ __('calculator.saved_runs_empty') }}
                                         </td>
                                     </tr>
                                 </tbody>
@@ -1266,17 +1347,16 @@
                         <i data-lucide="package-search" class="w-7 h-7"></i>
                     </div>
                     <div class="space-y-1 max-w-md mx-auto">
-                        <h3 class="text-[16px] font-semibold text-black dark:text-white">Belum Ada Produk Dipilih</h3>
+                        <h3 class="text-[16px] font-semibold text-black dark:text-white">{{ __('calculator.no_product_selected_title') }}</h3>
                         <p class="text-[13px] text-black/50 dark:text-white/50 leading-relaxed">
-                            Silakan pilih salah satu produk terdaftar pada menu dropdown di atas untuk melihat rincian
-                            kalkulasi bahan baku (BOM), tarif upah kerja, dan alokasi mesin secara otomatis.
+                            {{ __('calculator.no_product_selected_desc') }}
                         </p>
                     </div>
                     <div class="pt-2 flex justify-center">
                         <a href="{{ route('products.index') }}"
                             class="h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5">
                             <i data-lucide="plus-circle" class="w-4 h-4 text-[#007AFF]"></i>
-                            <span>Kelola Master Produk &amp; Resep</span>
+                            <span>{{ __('calculator.btn_manage_products') }}</span>
                         </a>
                     </div>
                 </div>
@@ -1287,296 +1367,300 @@
         <!-- MODAL 1: SIMPAN JADI PRODUK BARU (Apple Bento XXL Sheet) -->
         <!-- ===================================================== -->
         @if (\App\Support\Context::hasPermission('products.create'))
-            <div x-show="showQuickSaveModal" x-cloak
-                class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/50 backdrop-blur-md"
-                x-transition:enter="transition ease-out duration-200"
-                x-transition:enter-start="opacity-0"
-                x-transition:enter-end="opacity-100"
-                x-transition:leave="transition ease-in duration-150"
-                x-transition:leave-start="opacity-100"
-                x-transition:leave-end="opacity-0"
-                style="display: none;">
-                <div @click.away="showQuickSaveModal = false"
-                    class="w-full max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1350px] max-h-[92vh] rounded-[24px] bg-white/98 dark:bg-[#1C1C1E]/98 backdrop-blur-2xl border border-black/[0.08] dark:border-white/[0.12] flex flex-col shadow-[0_25px_60px_rgba(0,0,0,0.35)] overflow-hidden"
+            <template x-teleport="body">
+                <div x-show="showQuickSaveModal" x-cloak
+                    class="fixed inset-0 z-[200] flex items-center justify-center p-3 sm:p-6 bg-black/60 dark:bg-black/75 backdrop-blur-md"
+                    role="dialog" aria-modal="true" aria-labelledby="quick-save-modal-title"
                     x-transition:enter="transition ease-out duration-200"
-                    x-transition:enter-start="opacity-0 scale-95"
-                    x-transition:enter-end="opacity-100 scale-100"
+                    x-transition:enter-start="opacity-0"
+                    x-transition:enter-end="opacity-100"
                     x-transition:leave="transition ease-in duration-150"
-                    x-transition:leave-start="opacity-100 scale-100"
-                    x-transition:leave-end="opacity-0 scale-95">
-                    
-                    {{-- Modal Header Bar --}}
-                    <div class="px-6 py-4.5 sm:px-8 sm:py-5 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between gap-4 shrink-0 bg-slate-50/50 dark:bg-white/[0.02]">
-                        <div class="flex items-center gap-3.5">
-                            <div class="w-11 h-11 rounded-[14px] bg-[#007AFF]/12 text-[#007AFF] flex items-center justify-center shrink-0 border border-[#007AFF]/20">
-                                <i data-lucide="sparkles" class="w-5 h-5"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-                                    <span>Simpan Jadi Produk Baru di Master Katalog</span>
-                                    <span class="text-[11px] font-semibold text-[#34C759] bg-[#34C759]/12 px-2.5 py-0.5 rounded-full">Siap Dijual</span>
-                                </h3>
-                                <p class="text-xs text-slate-500 dark:text-slate-400">
-                                    Daftarkan formula HPP dan harga jual ini langsung ke master data produk untuk digunakan di Kasir POS.
-                                </p>
-                            </div>
-                        </div>
-                        <button type="button" @click="showQuickSaveModal = false"
-                            class="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer">
-                            <i data-lucide="x" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-
-                    {{-- Modal Scrollable Body (2-Column Bento on Desktop) --}}
-                    <div class="p-6 sm:p-8 overflow-y-auto space-y-6 flex-1">
-                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                            
-                            {{-- Kolom Kiri: Form & Konfirmasi Parameter (7 Kolom) --}}
-                            <div class="lg:col-span-7 space-y-5">
-                                <div class="rounded-[18px] bg-slate-50/80 dark:bg-[#2C2C2E]/60 border border-black/[0.06] dark:border-white/[0.08] p-5 space-y-4">
-                                    <div class="flex items-center gap-2">
-                                        <i data-lucide="tag" class="w-4 h-4 text-[#007AFF]"></i>
-                                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Identitas Produk Baru</span>
-                                    </div>
-
-                                    <div>
-                                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                                            Nama Produk <span class="text-[#FF3B30]">*</span>
-                                        </label>
-                                        <input type="text" x-model="quickName" placeholder="Contoh: Kopi Susu Aren 500ml..."
-                                            class="w-full h-12 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[12px] px-4 text-[16px] sm:text-sm font-semibold text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
-                                        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
-                                            SKU dan Barcode produk akan digenerate otomatis secara unik oleh sistem Cooca.
-                                        </p>
-                                    </div>
-
-                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-                                        <div class="p-3.5 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08]">
-                                            <span class="text-[11px] text-slate-500 dark:text-slate-400 block mb-0.5">Bahan Baku (Modal)</span>
-                                            <span class="text-xs font-bold text-slate-900 dark:text-white tabular-nums">Rp <span x-text="Number(quickMaterial || 0).toLocaleString('id-ID')"></span></span>
-                                        </div>
-                                        <div class="p-3.5 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08]">
-                                            <span class="text-[11px] text-slate-500 dark:text-slate-400 block mb-0.5">Tenaga Kerja</span>
-                                            <span class="text-xs font-bold text-slate-900 dark:text-white tabular-nums">Rp <span x-text="Number(quickLabor || 0).toLocaleString('id-ID')"></span></span>
-                                        </div>
-                                        <div class="p-3.5 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08]">
-                                            <span class="text-[11px] text-slate-500 dark:text-slate-400 block mb-0.5">Overhead Pabrik</span>
-                                            <span class="text-xs font-bold text-slate-900 dark:text-white tabular-nums">Rp <span x-text="Number(quickOverhead || 0).toLocaleString('id-ID')"></span></span>
-                                        </div>
-                                    </div>
+                    x-transition:leave-start="opacity-100"
+                    x-transition:leave-end="opacity-0"
+                    style="display: none;">
+                    <div @click.away="showQuickSaveModal = false"
+                        class="w-full max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1350px] max-h-[92vh] rounded-[24px] bg-white/98 dark:bg-[#1C1C1E]/98 backdrop-blur-2xl border border-black/[0.08] dark:border-white/[0.12] flex flex-col shadow-[0_25px_60px_rgba(0,0,0,0.35)] overflow-hidden"
+                        x-transition:enter="transition ease-out duration-200"
+                        x-transition:enter-start="opacity-0 scale-95"
+                        x-transition:enter-end="opacity-100 scale-100"
+                        x-transition:leave="transition ease-in duration-150"
+                        x-transition:leave-start="opacity-100 scale-100"
+                        x-transition:leave-end="opacity-0 scale-95">
+                        
+                        {{-- Modal Header Bar --}}
+                        <div class="px-6 py-4.5 sm:px-8 sm:py-5 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between gap-4 shrink-0 bg-black/[0.02] dark:bg-white/[0.02]">
+                            <div class="flex items-center gap-3.5">
+                                <div class="w-11 h-11 rounded-[14px] bg-[#007AFF]/12 text-[#007AFF] flex items-center justify-center shrink-0 border border-[#007AFF]/20">
+                                    <i data-lucide="package-plus" class="w-5 h-5"></i>
                                 </div>
-
-                                {{-- Feedback Alert Messages --}}
-                                <template x-if="quickSaveSuccessMsg">
-                                    <div class="p-4 rounded-[14px] bg-[#34C759]/12 border border-[#34C759]/30 text-[#248A3D] dark:text-[#30D158] text-xs font-semibold flex items-center gap-3">
-                                        <i data-lucide="check-circle" class="w-5 h-5 shrink-0"></i>
-                                        <span x-text="quickSaveSuccessMsg"></span>
-                                    </div>
-                                </template>
-
-                                <template x-if="quickSaveErrorMsg">
-                                    <div class="p-4 rounded-[14px] bg-[#FF3B30]/12 border border-[#FF3B30]/30 text-[#C41E17] dark:text-[#FF453A] text-xs font-semibold flex items-center gap-3">
-                                        <i data-lucide="alert-circle" class="w-5 h-5 shrink-0"></i>
-                                        <span x-text="quickSaveErrorMsg"></span>
-                                    </div>
-                                </template>
-
-                                <div class="rounded-[16px] bg-[#007AFF]/5 dark:bg-[#007AFF]/10 border border-[#007AFF]/20 p-4 flex items-start gap-3">
-                                    <i data-lucide="info" class="w-4 h-4 text-[#007AFF] shrink-0 mt-0.5"></i>
-                                    <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                                        Setelah disimpan, produk langsung aktif di <strong>Terminal Kasir POS</strong> dengan harga jual Rp <strong class="text-slate-900 dark:text-white tabular-nums" x-text="quickOfflinePrice.toLocaleString('id-ID')"></strong> dan formula HPP sederhana tercatat di master data.
+                                <div>
+                                    <h3 id="quick-save-modal-title" class="text-base sm:text-lg font-bold text-black dark:text-white tracking-tight">
+                                        {{ __('calculator.quick_save_modal_title') }}
+                                    </h3>
+                                    <p class="text-xs text-black/55 dark:text-white/55">
+                                        {{ __('calculator.quick_save_modal_desc') }}
                                     </p>
                                 </div>
                             </div>
+                            <button type="button" @click="showQuickSaveModal = false"
+                                class="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-black/55 dark:text-white/55 hover:text-black dark:hover:text-white transition cursor-pointer">
+                                <i data-lucide="x" class="w-4 h-4"></i>
+                            </button>
+                        </div>
 
-                            {{-- Kolom Kanan: Bento Live Preview Card (5 Kolom) --}}
-                            <div class="lg:col-span-5 space-y-4">
-                                <div class="rounded-[20px] bg-linear-to-br from-slate-900 to-slate-800 text-white p-6 shadow-xl space-y-4 relative overflow-hidden">
-                                    <div class="flex items-center justify-between">
-                                        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Preview Kartu Kasir POS</span>
-                                        <span class="w-2 h-2 rounded-full bg-[#34C759] animate-pulse"></span>
-                                    </div>
+                        {{-- Modal Scrollable Body (2-Column Bento on Desktop) --}}
+                        <div class="p-6 sm:p-8 overflow-y-auto space-y-6 flex-1">
+                            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                                
+                                {{-- Kolom Kiri: Form & Konfirmasi Parameter (7 Kolom) --}}
+                                <div class="lg:col-span-7 space-y-5">
+                                    <div class="rounded-[18px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/[0.08] p-5 space-y-4">
+                                        <div class="flex items-center gap-2">
+                                            <i data-lucide="tag" class="w-4 h-4 text-[#007AFF]"></i>
+                                            <span class="text-xs font-bold uppercase tracking-wider text-black/55 dark:text-white/55">{{ __('calculator.product_identity_title') }}</span>
+                                        </div>
 
-                                    <div>
-                                        <h4 class="text-lg font-black tracking-tight text-white line-clamp-1" x-text="quickName || 'Nama Produk'"></h4>
-                                        <span class="text-xs text-slate-300">Satuan: Pieces (Pcs)</span>
-                                    </div>
-
-                                    <div class="pt-2 border-t border-white/10 flex items-baseline justify-between">
                                         <div>
-                                            <span class="text-[10px] uppercase font-bold text-slate-400 block">Harga Jual Kasir</span>
-                                            <span class="text-2xl font-black text-white tabular-nums">
-                                                Rp <span x-text="quickOfflinePrice.toLocaleString('id-ID')"></span>
+                                            <label class="block text-xs font-semibold text-black/80 dark:text-white/80 mb-1.5">
+                                                {{ __('calculator.product_name_label') }} <span class="text-[#FF3B30]">*</span>
+                                            </label>
+                                            <input type="text" x-model="quickName" placeholder="Contoh: Kopi Susu Aren 500ml..."
+                                                class="w-full h-12 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[12px] px-4 text-[16px] sm:text-sm font-semibold text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
+                                            <p class="text-[11px] text-black/50 dark:text-white/50 mt-1">
+                                                {{ __('calculator.sku_barcode_generated_note') }}
+                                            </p>
+                                        </div>
+
+                                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                                            <div class="p-3.5 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08]">
+                                                <span class="text-[11px] text-black/55 dark:text-white/55 block mb-0.5">{{ __('calculator.modal_material_label') }}</span>
+                                                <span class="text-xs font-bold text-black dark:text-white tabular-nums">Rp <span x-text="Number(quickMaterial || 0).toLocaleString('id-ID')"></span></span>
+                                            </div>
+                                            <div class="p-3.5 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08]">
+                                                <span class="text-[11px] text-black/55 dark:text-white/55 block mb-0.5">{{ __('calculator.modal_labor_label') }}</span>
+                                                <span class="text-xs font-bold text-black dark:text-white tabular-nums">Rp <span x-text="Number(quickLabor || 0).toLocaleString('id-ID')"></span></span>
+                                            </div>
+                                            <div class="p-3.5 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08]">
+                                                <span class="text-[11px] text-black/55 dark:text-white/55 block mb-0.5">{{ __('calculator.modal_overhead_label') }}</span>
+                                                <span class="text-xs font-bold text-black dark:text-white tabular-nums">Rp <span x-text="Number(quickOverhead || 0).toLocaleString('id-ID')"></span></span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- Feedback Alert Messages --}}
+                                    <template x-if="quickSaveSuccessMsg">
+                                        <div class="p-4 rounded-[14px] bg-[#34C759]/12 border border-[#34C759]/30 text-[#248A3D] dark:text-[#30D158] text-xs font-semibold flex items-center gap-3">
+                                            <i data-lucide="check-circle" class="w-5 h-5 shrink-0"></i>
+                                            <span x-text="quickSaveSuccessMsg"></span>
+                                        </div>
+                                    </template>
+
+                                    <template x-if="quickSaveErrorMsg">
+                                        <div class="p-4 rounded-[14px] bg-[#FF3B30]/12 border border-[#FF3B30]/30 text-[#C41E17] dark:text-[#FF453A] text-xs font-semibold flex items-center gap-3">
+                                            <i data-lucide="alert-circle" class="w-5 h-5 shrink-0"></i>
+                                            <span x-text="quickSaveErrorMsg"></span>
+                                        </div>
+                                    </template>
+
+                                    <div class="rounded-[16px] bg-[#007AFF]/5 dark:bg-[#007AFF]/10 border border-[#007AFF]/20 p-4 flex items-start gap-3">
+                                        <i data-lucide="info" class="w-4 h-4 text-[#007AFF] shrink-0 mt-0.5"></i>
+                                        <p class="text-xs text-black/70 dark:text-white/70 leading-relaxed">
+                                            {!! __('calculator.modal_active_pos_info', ['price' => '<strong class="text-black dark:text-white tabular-nums" x-text="quickOfflinePrice.toLocaleString(\'id-ID\')"></strong>']) !!}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {{-- Kolom Kanan: Bento Live Preview Card (5 Kolom) --}}
+                                <div class="lg:col-span-5 space-y-4">
+                                    <div class="rounded-[20px] bg-[#1C1C1E] text-white p-6 shadow-xl border border-white/10 space-y-4 relative overflow-hidden">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-[11px] font-bold uppercase tracking-wider text-white/60">{{ __('calculator.card_pos_preview') }}</span>
+                                            <span class="w-2 h-2 rounded-full bg-[#34C759]"></span>
+                                        </div>
+
+                                        <div>
+                                            <h4 class="text-lg font-bold tracking-tight text-white line-clamp-1" x-text="quickName || '{{ __('calculator.product_name_label') }}'"></h4>
+                                            <span class="text-xs text-white/60">{{ __('calculator.unit_pcs') }}</span>
+                                        </div>
+
+                                        <div class="pt-2 border-t border-white/10 flex items-baseline justify-between">
+                                            <div>
+                                                <span class="text-[10px] uppercase font-bold text-white/50 block">{{ __('calculator.pos_selling_price_label') }}</span>
+                                                <span class="text-2xl font-bold text-white tabular-nums">
+                                                    Rp <span x-text="quickOfflinePrice.toLocaleString('id-ID')"></span>
+                                                </span>
+                                            </div>
+                                            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-[#34C759]/20 text-[#30D158] border border-[#34C759]/30 tabular-nums">
+                                                Margin <span x-text="quickMargin"></span>%
                                             </span>
                                         </div>
-                                        <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-[#34C759]/20 text-[#30D158] border border-[#34C759]/30 tabular-nums">
-                                            Margin <span x-text="quickMargin"></span>%
-                                        </span>
+
+                                        <div class="grid grid-cols-2 gap-2 pt-2 border-t border-white/10 text-xs">
+                                            <div class="p-2.5 rounded-[10px] bg-white/5">
+                                                <span class="text-[10px] text-white/50 block">{{ __('calculator.net_cogs_modal') }}</span>
+                                                <span class="font-bold text-white tabular-nums">Rp <span x-text="quickTotalHpp.toLocaleString('id-ID')"></span></span>
+                                            </div>
+                                            <div class="p-2.5 rounded-[10px] bg-white/5">
+                                                <span class="text-[10px] text-white/50 block">{{ __('calculator.gross_profit_unit') }}</span>
+                                                <span class="font-bold text-[#30D158] tabular-nums">+Rp <span x-text="quickOfflineProfit.toLocaleString('id-ID')"></span></span>
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    <div class="grid grid-cols-2 gap-2 pt-2 border-t border-white/10 text-xs">
-                                        <div class="p-2.5 rounded-[10px] bg-white/5">
-                                            <span class="text-[10px] text-slate-400 block">Modal HPP Bersih</span>
-                                            <span class="font-bold text-white tabular-nums">Rp <span x-text="quickTotalHpp.toLocaleString('id-ID')"></span></span>
+                                    <div class="rounded-[16px] bg-black/[0.03] dark:bg-[#2C2C2E] border border-black/[0.06] dark:border-white/[0.08] p-4 text-xs space-y-2">
+                                        <div class="flex justify-between items-center text-black/60 dark:text-white/60">
+                                            <span>{{ __('calculator.monthly_bep_target') }}</span>
+                                            <span class="font-bold text-black dark:text-white tabular-nums"><span x-text="quickBepUnitsMonthly"></span> {{ __('calculator.portion_per_month') }}</span>
                                         </div>
-                                        <div class="p-2.5 rounded-[10px] bg-white/5">
-                                            <span class="text-[10px] text-slate-400 block">Laba Kotor/Porsi</span>
-                                            <span class="font-bold text-[#30D158] tabular-nums">+Rp <span x-text="quickOfflineProfit.toLocaleString('id-ID')"></span></span>
+                                        <div class="flex justify-between items-center text-black/60 dark:text-white/60">
+                                            <span>{{ __('calculator.daily_avg_sales') }}</span>
+                                            <span class="font-bold text-[#007AFF] tabular-nums"><span x-text="quickBepUnitsDaily"></span> {{ __('calculator.portion_per_day') }}</span>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="rounded-[16px] bg-slate-50 dark:bg-[#2C2C2E] border border-black/[0.06] dark:border-white/[0.08] p-4 text-xs space-y-2">
-                                    <div class="flex justify-between items-center text-slate-600 dark:text-slate-400">
-                                        <span>Target BEP Balik Modal:</span>
-                                        <span class="font-bold text-slate-900 dark:text-white tabular-nums"><span x-text="quickBepUnitsMonthly"></span> porsi / bulan</span>
-                                    </div>
-                                    <div class="flex justify-between items-center text-slate-600 dark:text-slate-400">
-                                        <span>Rata-rata Penjualan Harian:</span>
-                                        <span class="font-bold text-[#007AFF] tabular-nums"><span x-text="quickBepUnitsDaily"></span> porsi / hari</span>
-                                    </div>
-                                </div>
                             </div>
-
                         </div>
-                    </div>
 
-                    {{-- Modal Footer Actions --}}
-                    <div class="px-6 py-4 sm:px-8 sm:py-4.5 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-end gap-3 shrink-0 bg-slate-50/50 dark:bg-white/[0.02]">
-                        <button type="button" @click="showQuickSaveModal = false"
-                            class="min-h-[44px] h-11 px-5 rounded-[12px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer">
-                            Batal
-                        </button>
-                        <button type="button" @click="saveQuickProduct()" :disabled="quickSaveLoading"
-                            class="min-h-[44px] h-11 px-6 rounded-[12px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all shadow-[0_2px_4px_rgba(0,122,255,0.3)] flex items-center gap-2 cursor-pointer disabled:opacity-50">
-                            <i data-lucide="plus-circle" class="w-4 h-4"></i>
-                            <span x-text="quickSaveLoading ? 'Mendaftarkan Produk...' : 'Ya, Daftarkan Produk Sekarang'"></span>
-                        </button>
-                    </div>
+                        {{-- Modal Footer Actions --}}
+                        <div class="px-6 py-4 sm:px-8 sm:py-4.5 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-end gap-3 shrink-0 bg-black/[0.02] dark:bg-white/[0.02]">
+                            <button type="button" @click="showQuickSaveModal = false"
+                                class="min-h-[44px] h-11 px-5 rounded-[12px] text-xs font-semibold text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] transition cursor-pointer">
+                                {{ __('calculator.btn_cancel') }}
+                            </button>
+                            <button type="button" @click="saveQuickProduct()" :disabled="quickSaveLoading"
+                                class="min-h-[44px] h-11 px-6 rounded-[12px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all shadow-[0_2px_4px_rgba(0,122,255,0.3)] flex items-center gap-2 cursor-pointer disabled:opacity-50">
+                                <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                                <span x-text="quickSaveLoading ? '{{ __('calculator.btn_saving_product') }}' : '{{ __('calculator.btn_save_product_confirm') }}'"></span>
+                            </button>
+                        </div>
 
+                    </div>
                 </div>
-            </div>
+            </template>
         @endif
 
         <!-- ===================================================== -->
         <!-- MODAL 2: SIMPAN RIWAYAT KALKULASI BOM (Apple Bento XXL)-->
         <!-- ===================================================== -->
         @if (\App\Support\Context::hasPermission('costing.manage'))
-            <div x-show="showSaveModal" x-cloak
-                class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/50 backdrop-blur-md"
-                x-transition:enter="transition ease-out duration-200"
-                x-transition:enter-start="opacity-0"
-                x-transition:enter-end="opacity-100"
-                x-transition:leave="transition ease-in duration-150"
-                x-transition:leave-start="opacity-100"
-                x-transition:leave-end="opacity-0"
-                style="display: none;">
-                <div @click.away="showSaveModal = false"
-                    class="w-full max-w-[95vw] lg:max-w-4xl xl:max-w-5xl max-h-[92vh] rounded-[24px] bg-white/98 dark:bg-[#1C1C1E]/98 backdrop-blur-2xl border border-black/[0.08] dark:border-white/[0.12] flex flex-col shadow-[0_25px_60px_rgba(0,0,0,0.35)] overflow-hidden"
+            <template x-teleport="body">
+                <div x-show="showSaveModal" x-cloak
+                    class="fixed inset-0 z-[200] flex items-center justify-center p-3 sm:p-6 bg-black/60 dark:bg-black/75 backdrop-blur-md"
+                    role="dialog" aria-modal="true" aria-labelledby="save-run-modal-title"
                     x-transition:enter="transition ease-out duration-200"
-                    x-transition:enter-start="opacity-0 scale-95"
-                    x-transition:enter-end="opacity-100 scale-100"
+                    x-transition:enter-start="opacity-0"
+                    x-transition:enter-end="opacity-100"
                     x-transition:leave="transition ease-in duration-150"
-                    x-transition:leave-start="opacity-100 scale-100"
-                    x-transition:leave-end="opacity-0 scale-95">
-                    
-                    {{-- Modal Header Bar --}}
-                    <div class="px-6 py-4.5 sm:px-8 sm:py-5 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between gap-4 shrink-0 bg-slate-50/50 dark:bg-white/[0.02]">
-                        <div class="flex items-center gap-3.5">
-                            <div class="w-11 h-11 rounded-[14px] bg-[#007AFF]/12 text-[#007AFF] flex items-center justify-center shrink-0 border border-[#007AFF]/20">
-                                <i data-lucide="bookmark" class="w-5 h-5"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-                                    <span>Simpan Riwayat Kalkulasi HPP &amp; Pricing</span>
-                                    <span class="text-[11px] font-semibold text-[#007AFF] bg-[#007AFF]/12 px-2.5 py-0.5 rounded-full">Arsip Resmi</span>
-                                </h3>
-                                <p class="text-xs text-slate-500 dark:text-slate-400">
-                                    Simpan hasil kalkulasi ini sebagai arsip periodik untuk membandingkan kenaikan harga bahan baku dan biaya operasional.
-                                </p>
-                            </div>
-                        </div>
-                        <button type="button" @click="showSaveModal = false"
-                            class="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer">
-                            <i data-lucide="x" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-
-                    {{-- Modal Body --}}
-                    <div class="p-6 sm:p-8 overflow-y-auto space-y-5 flex-1">
-                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                            
-                            <div class="lg:col-span-7 space-y-4">
-                                <div class="rounded-[18px] bg-slate-50/80 dark:bg-[#2C2C2E]/60 border border-black/[0.06] dark:border-white/[0.08] p-5 space-y-3.5">
-                                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                                        Catatan / Keterangan Kalkulasi (Opsional)
-                                    </label>
-                                    <textarea x-model="saveNotes" rows="4"
-                                        placeholder="Contoh: Penyesuaian tarif listrik &amp; kenaikan harga bahan baku triwulan 1 2026..."
-                                        class="w-full bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[12px] p-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition resize-none"></textarea>
-                                    <p class="text-[11px] text-slate-500 dark:text-slate-400">
-                                        Catatan ini akan tersimpan permanen dalam audit trail riwayat biaya dan laporan ekspor CSV.
+                    x-transition:leave-start="opacity-100"
+                    x-transition:leave-end="opacity-0"
+                    style="display: none;">
+                    <div @click.away="showSaveModal = false"
+                        class="w-full max-w-[95vw] lg:max-w-4xl xl:max-w-5xl max-h-[92vh] rounded-[24px] bg-white/98 dark:bg-[#1C1C1E]/98 backdrop-blur-2xl border border-black/[0.08] dark:border-white/[0.12] flex flex-col shadow-[0_25px_60px_rgba(0,0,0,0.35)] overflow-hidden"
+                        x-transition:enter="transition ease-out duration-200"
+                        x-transition:enter-start="opacity-0 scale-95"
+                        x-transition:enter-end="opacity-100 scale-100"
+                        x-transition:leave="transition ease-in duration-150"
+                        x-transition:leave-start="opacity-100 scale-100"
+                        x-transition:leave-end="opacity-0 scale-95">
+                        
+                        {{-- Modal Header Bar --}}
+                        <div class="px-6 py-4.5 sm:px-8 sm:py-5 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between gap-4 shrink-0 bg-black/[0.02] dark:bg-white/[0.02]">
+                            <div class="flex items-center gap-3.5">
+                                <div class="w-11 h-11 rounded-[14px] bg-[#007AFF]/12 text-[#007AFF] flex items-center justify-center shrink-0 border border-[#007AFF]/20">
+                                    <i data-lucide="bookmark" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <h3 id="save-run-modal-title" class="text-base sm:text-lg font-bold text-black dark:text-white tracking-tight">
+                                        {{ __('calculator.save_run_modal_title') }}
+                                    </h3>
+                                    <p class="text-xs text-black/55 dark:text-white/55">
+                                        {{ __('calculator.save_run_modal_desc') }}
                                     </p>
                                 </div>
-
-                                <template x-if="saveSuccessMsg">
-                                    <div class="p-4 rounded-[14px] bg-[#34C759]/12 border border-[#34C759]/30 text-[#248A3D] dark:text-[#30D158] text-xs font-semibold flex items-center gap-3">
-                                        <i data-lucide="check-circle" class="w-5 h-5 shrink-0"></i>
-                                        <span x-text="saveSuccessMsg"></span>
-                                    </div>
-                                </template>
-
-                                <template x-if="saveErrorMsg">
-                                    <div class="p-4 rounded-[14px] bg-[#FF3B30]/12 border border-[#FF3B30]/30 text-[#C41E17] dark:text-[#FF453A] text-xs font-semibold flex items-center gap-3">
-                                        <i data-lucide="alert-circle" class="w-5 h-5 shrink-0"></i>
-                                        <span x-text="saveErrorMsg"></span>
-                                    </div>
-                                </template>
                             </div>
+                            <button type="button" @click="showSaveModal = false"
+                                class="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-black/55 dark:text-white/55 hover:text-black dark:hover:text-white transition cursor-pointer">
+                                <i data-lucide="x" class="w-4 h-4"></i>
+                            </button>
+                        </div>
 
-                            <div class="lg:col-span-5 space-y-3.5">
-                                <div class="rounded-[18px] bg-slate-50 dark:bg-[#2C2C2E] border border-black/[0.06] dark:border-white/[0.08] p-5 space-y-3 text-xs">
-                                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">Ringkasan Kalkulasi yang Disimpan</span>
-                                    
-                                    <div class="space-y-2 divide-y divide-black/[0.04] dark:divide-white/[0.04]">
-                                        <div class="flex justify-between items-center pt-1.5">
-                                            <span class="text-slate-600 dark:text-slate-400">Model Biaya:</span>
-                                            <span class="font-bold text-slate-900 dark:text-white" x-text="selectedModel ? selectedModel.name : 'Model Terpilih'"></span>
+                        {{-- Modal Body --}}
+                        <div class="p-6 sm:p-8 overflow-y-auto space-y-5 flex-1">
+                            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                                
+                                <div class="lg:col-span-7 space-y-4">
+                                    <div class="rounded-[18px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/[0.08] p-5 space-y-3.5">
+                                        <label class="block text-xs font-semibold text-black/80 dark:text-white/80">
+                                            {{ __('calculator.run_notes_label') }}
+                                        </label>
+                                        <textarea x-model="saveNotes" rows="4"
+                                            placeholder="{{ __('calculator.run_notes_placeholder') }}"
+                                            class="w-full bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[12px] p-3.5 text-[16px] sm:text-xs text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition resize-none"></textarea>
+                                        <p class="text-[11px] text-black/50 dark:text-white/50">
+                                            {{ __('calculator.run_notes_audit_note') }}
+                                        </p>
+                                    </div>
+
+                                    <template x-if="saveSuccessMsg">
+                                        <div class="p-4 rounded-[14px] bg-[#34C759]/12 border border-[#34C759]/30 text-[#248A3D] dark:text-[#30D158] text-xs font-semibold flex items-center gap-3">
+                                            <i data-lucide="check-circle" class="w-5 h-5 shrink-0"></i>
+                                            <span x-text="saveSuccessMsg"></span>
                                         </div>
-                                        <div class="flex justify-between items-center pt-1.5">
-                                            <span class="text-slate-600 dark:text-slate-400">Total HPP Batch:</span>
-                                            <span class="font-bold text-slate-900 dark:text-white tabular-nums" x-text="costResult ? formatRupiah(costResult.totalHpp) : 'Rp 0'"></span>
+                                    </template>
+
+                                    <template x-if="saveErrorMsg">
+                                        <div class="p-4 rounded-[14px] bg-[#FF3B30]/12 border border-[#FF3B30]/30 text-[#C41E17] dark:text-[#FF453A] text-xs font-semibold flex items-center gap-3">
+                                            <i data-lucide="alert-circle" class="w-5 h-5 shrink-0"></i>
+                                            <span x-text="saveErrorMsg"></span>
                                         </div>
-                                        <div class="flex justify-between items-center pt-1.5">
-                                            <span class="text-slate-600 dark:text-slate-400">HPP Bersih / Unit:</span>
-                                            <span class="font-bold text-[#007AFF] dark:text-[#0A84FF] tabular-nums" x-text="costResult ? formatRupiah(costResult.hppPerUnit) : 'Rp 0'"></span>
-                                        </div>
-                                        <div class="flex justify-between items-center pt-1.5">
-                                            <span class="text-slate-600 dark:text-slate-400">Waktu Simpan:</span>
-                                            <span class="font-medium text-slate-900 dark:text-white">{{ date('d M Y H:i') }}</span>
+                                    </template>
+                                </div>
+
+                                <div class="lg:col-span-5 space-y-3.5">
+                                    <div class="rounded-[18px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/[0.08] p-5 space-y-3 text-xs">
+                                        <span class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50 block">{{ __('calculator.run_summary_title') }}</span>
+                                        
+                                        <div class="space-y-2 divide-y divide-black/[0.04] dark:divide-white/[0.04]">
+                                            <div class="flex justify-between items-center pt-1.5">
+                                                <span class="text-black/60 dark:text-white/60">{{ __('calculator.run_cost_model_label') }}</span>
+                                                <span class="font-bold text-black dark:text-white" x-text="selectedCostModel ? selectedCostModel.name : (selectedProduct ? selectedProduct.name : 'Model Terpilih')"></span>
+                                            </div>
+                                            <div class="flex justify-between items-center pt-1.5">
+                                                <span class="text-black/60 dark:text-white/60">{{ __('calculator.run_total_batch_label') }}</span>
+                                                <span class="font-bold text-black dark:text-white tabular-nums" x-text="calcResult ? ('Rp ' + Math.round(calcResult.total_hpp || 0).toLocaleString('id-ID')) : 'Rp 0'"></span>
+                                            </div>
+                                            <div class="flex justify-between items-center pt-1.5">
+                                                <span class="text-black/60 dark:text-white/60">{{ __('calculator.run_unit_cogs_label') }}</span>
+                                                <span class="font-bold text-[#007AFF] dark:text-[#0A84FF] tabular-nums" x-text="calcResult ? ('Rp ' + Math.round(calcResult.hpp_per_unit || 0).toLocaleString('id-ID')) : 'Rp 0'"></span>
+                                            </div>
+                                            <div class="flex justify-between items-center pt-1.5">
+                                                <span class="text-black/60 dark:text-white/60">{{ __('calculator.run_save_time_label') }}</span>
+                                                <span class="font-medium text-black dark:text-white">{{ date('d M Y H:i') }}</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
+
                             </div>
-
                         </div>
-                    </div>
 
-                    {{-- Modal Footer --}}
-                    <div class="px-6 py-4 sm:px-8 sm:py-4.5 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-end gap-3 shrink-0 bg-slate-50/50 dark:bg-white/[0.02]">
-                        <button type="button" @click="showSaveModal = false"
-                            class="min-h-[44px] h-11 px-5 rounded-[12px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer">
-                            Batal
-                        </button>
-                        <button type="button" @click="saveResult()" :disabled="isSaving"
-                            class="min-h-[44px] h-11 px-6 rounded-[12px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all shadow-[0_2px_4px_rgba(0,122,255,0.3)] flex items-center gap-2 cursor-pointer disabled:opacity-50">
-                            <i data-lucide="bookmark-check" class="w-4 h-4"></i>
-                            <span x-text="isSaving ? 'Menyimpan Riwayat...' : 'Simpan Riwayat Sekarang'"></span>
-                        </button>
-                    </div>
+                        {{-- Modal Footer --}}
+                        <div class="px-6 py-4 sm:px-8 sm:py-4.5 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-end gap-3 shrink-0 bg-black/[0.02] dark:bg-white/[0.02]">
+                            <button type="button" @click="showSaveModal = false"
+                                class="min-h-[44px] h-11 px-5 rounded-[12px] text-xs font-semibold text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] transition cursor-pointer">
+                                {{ __('calculator.btn_cancel') }}
+                            </button>
+                            <button type="button" @click="saveResult()" :disabled="isSaving"
+                                class="min-h-[44px] h-11 px-6 rounded-[12px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all shadow-[0_2px_4px_rgba(0,122,255,0.3)] flex items-center gap-2 cursor-pointer disabled:opacity-50">
+                                <i data-lucide="bookmark-check" class="w-4 h-4"></i>
+                                <span x-text="isSaving ? '{{ __('calculator.btn_saving_run') }}' : '{{ __('calculator.btn_save_run_confirm') }}'"></span>
+                            </button>
+                        </div>
 
+                    </div>
                 </div>
-            </div>
+            </template>
         @endif
 
     </div>

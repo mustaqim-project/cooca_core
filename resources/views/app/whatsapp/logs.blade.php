@@ -296,16 +296,17 @@
         <!-- =================================================================== -->
         <!-- 3. LOG INSPECTOR MODAL SHEET (Apple HIG Detail Inspector Sheet)     -->
         <!-- =================================================================== -->
-        <div x-show="inspectorOpen" x-cloak
-            class="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 lg:p-6 overflow-hidden"
-            @keydown.escape.window="closeInspector()">
+        <template x-teleport="body">
+            <div x-show="inspectorOpen" x-cloak
+                class="fixed inset-0 z-[200] flex items-center justify-center p-0 sm:p-4 lg:p-6 overflow-hidden"
+                @keydown.escape.window="closeInspector()">
 
             <!-- Backdrop -->
             <div x-show="inspectorOpen" x-transition:enter="ease-out duration-200"
                 x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
                 x-transition:leave="ease-in duration-150" x-transition:leave-start="opacity-100"
                 x-transition:leave-end="opacity-0" @click="closeInspector()"
-                class="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm"></div>
+                class="fixed inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-md"></div>
 
             <!-- Inspector Dialog Canvas -->
             <div x-show="inspectorOpen" x-transition:enter="ease-out duration-200"
@@ -408,13 +409,15 @@
 
             </div>
         </div>
+        </template>
 
         <!-- ===================================================== -->
         <!-- 4. STORAGE PRUNING PREVIEW MODAL                      -->
         <!-- ===================================================== -->
-        <div x-show="openPruneModal" x-transition.opacity.duration.200ms
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
-            @click.self="openPruneModal = false" style="display: none;">
+        <template x-teleport="body">
+            <div x-show="openPruneModal" x-transition.opacity.duration.200ms
+                class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 dark:bg-black/75 backdrop-blur-md"
+                @click.self="openPruneModal = false" style="display: none;">
             <div role="dialog" aria-modal="true" aria-labelledby="pruneModalTitle"
                 class="w-full max-w-[500px] rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-2xl p-6 sm:p-7 space-y-5 animate-in fade-in zoom-in-95 duration-200">
                 <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
@@ -454,13 +457,14 @@
                     <button type="button" @click="openPruneModal = false" class="min-h-[44px] px-5 rounded-[12px] text-[13px] font-semibold text-black/70 dark:text-white/70 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] transition">
                         {{ __('whatsapp.cancel_btn') }}
                     </button>
-                    <button type="button" @click="openPruneModal = false; alert('{{ addslashes(__('whatsapp.prune_safe_alert')) }}')"
+                    <button type="button" @click="handlePruneConfirm()"
                         class="min-h-[44px] px-5 rounded-[12px] bg-[#FF9500] hover:bg-[#E08500] text-white font-bold text-[13px] shadow-sm transition active:scale-[0.98]">
                         {{ __('whatsapp.prune_btn') }}
                     </button>
                 </div>
             </div>
         </div>
+        </template>
 
     </div>
 @endsection
@@ -502,6 +506,16 @@
                         this.copied = true;
                         setTimeout(() => this.copied = false, 2000);
                     } catch (e) {}
+                },
+
+                handlePruneConfirm() {
+                    this.openPruneModal = false;
+                    const msg = {{ Js::from(__('whatsapp.prune_safe_alert')) }};
+                    if (window.AppAlert) {
+                        AppAlert.info(msg);
+                    } else {
+                        alert(msg);
+                    }
                 }
             };
         }

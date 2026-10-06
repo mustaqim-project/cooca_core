@@ -36,6 +36,45 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 #### 4. System Impacts
 
+### [WORK-2026-10-06-313] Audit Komprehensif Sistem Penuh & Implementasi Refactoring UI/UX Apple Bento HIG, Anti-Slop, Multi-Industri, dan Perlindungan Fraud (Dashboard, Kalkulator HPP, WhatsApp Suite)
+
+- **Date:** 2026-10-06
+- **Status:** COMPLETED
+- **Module:** Cockpit & Operasional Bisnis (`resources/views/app/dashboard.blade.php`, `resources/views/app/calculator.blade.php`, `resources/views/app/whatsapp/broadcast.blade.php`, `resources/views/app/whatsapp/broadcast_detail.blade.php`, `resources/views/app/whatsapp/index.blade.php`, `resources/views/app/whatsapp/logs.blade.php`)
+- **Feature:** Rekayasa perbaikan menyeluruh standar Apple HIG Bento, eliminasi AI-slop, adaptasi konteks multi-industri dinamis, dan hardening keamanan frontend:
+  1. **Dashboard Cockpit 360° (`resources/views/app/dashboard.blade.php`)**:
+     - Mengganti eyebrow pill badge dekoratif di atas H1 dengan pure typographic overline (`text-[11px] sm:text-[12px] font-semibold uppercase tracking-wider text-black/40 dark:text-white/40`).
+     - Menghapus fake pulse dot pada status shift dan menstandarkan ke solid status badge.
+     - Membersihkan pill badges statis redundan pada 6 KPI cards ("Penjualan", "Estimasi Laba Bersih", "Volume", "Pengeluaran", "Valuasi Aset Stok").
+     - Mengubah Donut 2 ("Metode Pelayanan") menjadi adaptif terhadap industri bisnis (`isFoodIndustry()`, `isWorkshop()`, `isLaundry()`, dsb.) dengan ikon kontekstual (`utensils`, `wrench`, `shirt`, `tag`).
+     - Mengubah modul "Cooca AI Business Advisor" (sparkles slop) menjadi "Sorotan & Evaluasi Operasional" yang elegan dan berwibawa dengan ikon Lucide `compass`.
+     - Menstandarkan widget kalkulator cepat (mengganti ikon sparkles menjadi `calculator` dan judul menjadi "Simulasi Margin & Harga Jual").
+  2. **Kalkulator HPP & Pricing (`resources/views/app/calculator.blade.php`)**:
+     - Deteksi dinamis template industri bisnis (`$isFoodBiz`, `$isWorkshopBiz`, `$isLaundryBiz`) dan inisialisasi default Alpine.js sesuai domain bisnis pengguna.
+     - Penambahan 1-click preset chips dinamis multi-industri (Bengkel: Paket Ganti Oli, Tune Up, Kampas Rem, Servis Berkala; Laundry: Cuci Kiloan, Bed Cover, Dry Clean, Cuci Sepatu; F&B: Kopi Susu, Paket Ayam Geprek, Sablon Distro, Brownies).
+     - Menghapus eyebrow pill "Biaya & Penetapan Harga", "Smart Profit Coach", "Simpel", serta badge marketing fluff "Smart Coach".
+     - Menstandarkan token backdrop Modal 1 & Modal 2 ke `bg-black/60 dark:bg-black/75 backdrop-blur-md`, mengganti ikon `sparkles` menjadi `package-plus`, serta membersihkan badge statis "Siap Dijual" dan "Arsip Resmi".
+     - Menambahkan perlindungan double-submit async AJAX (`if (this.quickSaveLoading) return;`, dsb.).
+  3. **WhatsApp Suite (`broadcast.blade.php`, `broadcast_detail.blade.php`, `index.blade.php`, `logs.blade.php`)**:
+     - Standardisasi backdrop token seluruh modal sheet ke `bg-black/60 dark:bg-black/75 backdrop-blur-md` (mengeliminasi `bg-black/40 backdrop-blur-sm`).
+     - Penambahan pure typographic overline pada toolbar header detail broadcast.
+     - Proteksi double-submit pada PIN supervisor modal disconnect (`submitDisconnectWithPin()`) dan test message sender (`sendTest()`).
+     - Verifikasi zero emoji Unicode (100% konsisten menggunakan ikon Lucide SVG).
+     - Proteksi PII masking nomor WhatsApp penerima broadcast & log audit trail berdasarkan role context.
+  4. **Multi-Language (i18n) & Catalog Translation Standardization**:
+     - Membangun katalog translasi dua bahasa penuh (`id` dan `en`):
+       * `lang/id/dashboard.php` & `lang/en/dashboard.php`: Meliputi seluruh label metrik, filter tanggal, tab visualisasi, status shift, breakdown industri, operasional highlights, dan modal feedback.
+       * `lang/id/calculator.php` & `lang/en/calculator.php`: Meliputi header, tabs, mode switch, formula 3 pilar (Bahan Baku, Tenaga Kerja, Overhead), biaya platform online (Grab/GoFood/ShopeeFood), simulasi BEP rutin, kartu preview POS, resep terdaftar BOM, riwayat tersimpan, serta Modal 1 & Modal 2.
+       * `lang/id/whatsapp.php` & `lang/en/whatsapp.php`: Melengkapi key supervisor PIN modal (`disconnect_supervisor_modal_sub`, `supervisor_pin_label`, `verifying`, `disconnect_action_btn`, `error_network_disconnect`) dan toggle preview mobile (`show_preview`, `hide_preview`).
+     - Standardisasi seluruh teks hardcoded pada `resources/views/app/dashboard.blade.php`, `resources/views/app/calculator.blade.php`, dan WhatsApp blade templates menggunakan helper `__('...')`.
+     - Standardisasi route client-side AJAX (`route('calculator.quick-create-product')`, `url('calculator/calculate')`, dsb.) untuk mencegah kerentanan multi-tenant path routing.
+  5. **Verifikasi Sistem & Automated Testing**:
+     - `php artisan view:clear` sukses (exit code 0).
+     - `tests/Feature/DashboardOverviewTest.php`: 8 passed (49 assertions).
+     - `tests/Feature/SimplifiedHppCalculatorTest.php` & `tests/Feature/ProductCalculatorIntegrationTest.php`: 11 passed (49 assertions).
+     - `tests/Feature/WhatsApp`: 58 passed (369 assertions).
+     - Total verifikasi test otomatis: **77 passed (467 assertions, 100% success rate)** tanpa regresi fungsional atau kegagalan isolasi tenant.
+
 ### [WORK-2026-10-06-312] Perbaikan Styling Modal Form Cabang (Apple Bento HIG), Eliminasi Celah Putih Topbar (Alpine.js x-teleport), & Standardisasi Input Administratif
 
 - **Date:** 2026-10-06
