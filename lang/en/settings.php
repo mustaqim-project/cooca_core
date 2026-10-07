@@ -276,7 +276,7 @@ return [
     'tab_branches' => 'Branches & Outlets',
     'branch_management_title' => 'Branch & Outlet Management',
     'branch_management_desc' => 'Manage all physical branches, POS outlets, employee geofence locations, and delivery origins. One branch can contain multiple logistics warehouses.',
-    'add_branch_button' => '+ Add New Branch',
+    'add_branch_button' => 'Add Branch',
     'create_branch_title' => 'Add New Branch',
     'edit_branch_title' => 'Edit Branch Details',
     'branch_type_outlet' => 'Branch / Outlet',

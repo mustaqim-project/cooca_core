@@ -68,8 +68,8 @@ return [
     'actions' => [
         'back' => 'Kembali',
         'back_to_list' => 'Daftar Gudang',
-        'add_outlet' => '+ Cabang / Outlet',
-        'add_warehouse' => '+ Gudang Logistik',
+        'add_outlet' => 'Cabang / Outlet Baru',
+        'add_warehouse' => 'Gudang Logistik Baru',
         'create_outlet_title' => 'Tambah Cabang / Outlet Baru',
         'create_warehouse_title' => 'Tambah Gudang Logistik Baru',
         'edit_location' => 'Edit Lokasi',

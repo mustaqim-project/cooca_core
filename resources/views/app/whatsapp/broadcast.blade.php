@@ -14,13 +14,13 @@
             :subtitle="__('whatsapp.broadcast_subtitle')">
             <x-slot:actions>
                 <a href="{{ route('whatsapp.logs.index') }}"
-                    class="min-h-[44px] px-4 rounded-[12px] text-[13px] font-semibold text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.98] transition-all flex items-center justify-center gap-2 w-full sm:w-auto">
+                    class="min-h-[44px] px-4 rounded-[12px] text-[13px] font-semibold text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.98] transition-all flex items-center justify-center gap-2 w-full sm:w-auto shrink-0 whitespace-nowrap">
                     <i data-lucide="history" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
                     <span>{{ __('whatsapp.tab_logs') }}</span>
                 </a>
                 @if (\App\Support\Context::hasPermission('whatsapp.manage'))
                     <button type="button" @click="openCreateModal()"
-                        class="min-h-[44px] px-5 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white font-bold text-[13.5px] shadow-md shadow-[#007AFF]/25 flex items-center justify-center gap-2 transition-all active:scale-[0.98] w-full sm:w-auto">
+                        class="min-h-[44px] px-5 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white font-bold text-[13.5px] shadow-md shadow-[#007AFF]/25 flex items-center justify-center gap-2 transition-all active:scale-[0.98] w-full sm:w-auto shrink-0 whitespace-nowrap">
                         <i data-lucide="plus" class="w-4 h-4"></i>
                         <span>{{ __('whatsapp.new_broadcast_btn') }}</span>
                     </button>

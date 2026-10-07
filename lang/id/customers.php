@@ -7,7 +7,7 @@ return [
     'subtitle' => 'Kelola direktori kontak pelanggan, profil perusahaan B2B, termin tempo pembayaran, dan catatan piutang komersial.',
     'directory_title' => 'Direktori Klien & Pelanggan',
     'add_customer' => 'Tambah Pelanggan',
-    'add_first_customer' => '+ Tambah Pelanggan Pertama',
+    'add_first_customer' => 'Tambah Pelanggan Pertama',
     'add_customer_title' => 'Tambah Pelanggan Baru',
     'add_customer_subtitle' => 'Lengkapi data dasar untuk mulai melayani transaksi pelanggan.',
     'edit_customer' => 'Edit Profil Pelanggan',

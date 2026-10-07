@@ -20,7 +20,7 @@ return [
     'tab_labor_machines'               => 'Upah Kerja & Mesin',
     'tab_bep_margin'                   => 'Analisis BEP & Margin',
     'mode_quick'                       => 'Mode Cepat (3 Pilar HPP)',
-    'mode_advanced'                    => 'Mode Detail Resep (BOM)',
+    'mode_advanced'                    => 'Resep & BOM',
     'mode_quick_desc'                  => 'Simulasi instan 3 pilar modal tanpa perlu input katalog',
     'mode_advanced_desc'               => 'Kalkulasi otomatis dari Bill of Materials & alokasi mesin',
 

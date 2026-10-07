@@ -14,12 +14,13 @@ return [
     'cashier_active'                   => 'Active Cashier (:name • :time)',
     'cashier_closed'                   => 'Cashier Not Open',
     'banner_desc'                      => 'Monitor revenue, gross profit, material turnover, and outlet stock instantly & accurately.',
-    'action_pos'                       => 'POS Cashier Terminal',
+    'action_pos'                       => 'POS Terminal',
     'action_calculator'                => 'COGS Calculator',
-    'action_record_expense'            => '+ Record Expense',
-    'action_record_income'             => '+ Record Cash In',
-    'action_add_stock'                 => '+ Add Stock',
-    'action_new_invoice'               => '+ New Invoice',
+    'action_quick_actions'             => 'Quick Actions',
+    'action_record_expense'            => 'Record Expense',
+    'action_record_income'             => 'Record Cash In',
+    'action_add_stock'                 => 'Add Stock',
+    'action_new_invoice'               => 'New Invoice',
 
     // Analytics Cockpit
     'loading_analytics'                => 'Updating period analytics data...',

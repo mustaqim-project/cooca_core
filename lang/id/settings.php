@@ -276,7 +276,7 @@ return [
     'tab_branches' => 'Cabang & Toko',
     'branch_management_title' => 'Manajemen Cabang & Toko',
     'branch_management_desc' => 'Kelola seluruh cabang, titik outlet kasir, lokasi presensi karyawan, dan titik pengiriman toko online. Satu cabang dapat memiliki beberapa gudang logistik.',
-    'add_branch_button' => '+ Tambah Cabang Baru',
+    'add_branch_button' => 'Tambah Cabang',
     'create_branch_title' => 'Tambah Cabang Baru',
     'edit_branch_title' => 'Edit Data Cabang',
     'branch_type_outlet' => 'Cabang / Outlet',

@@ -456,15 +456,15 @@
             <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 w-full lg:w-auto">
                 @if (\App\Support\Context::hasPermission('reports.export') || \App\Support\Context::hasPermission('costing.manage'))
                     <a href="{{ route('calculator.export-excel') }}"
-                        class="col-span-1 h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
-                        <i data-lucide="download" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
+                        class="col-span-1 min-h-[44px] sm:min-h-0 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 whitespace-nowrap">
+                        <i data-lucide="download" class="w-4 h-4 text-black/60 dark:text-white/60 shrink-0"></i>
                         <span>{{ __('calculator.export_csv') }}</span>
                     </a>
                 @endif
                 @if (\App\Support\Context::hasPermission('products.view'))
                     <a href="{{ route('products.index') }}"
-                        class="col-span-1 h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
-                        <i data-lucide="package" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
+                        class="col-span-1 min-h-[44px] sm:min-h-0 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 whitespace-nowrap">
+                        <i data-lucide="package" class="w-4 h-4 text-black/60 dark:text-white/60 shrink-0"></i>
                         <span>{{ __('calculator.product_catalog') }}</span>
                     </a>
                 @endif
@@ -477,23 +477,23 @@
         <div class="overflow-x-auto pb-1 scrollbar-none">
             <div class="inline-flex p-1 rounded-[14px] bg-black/[0.05] dark:bg-white/[0.07] border border-black/5 dark:border-white/10 text-[13px] font-medium whitespace-nowrap">
                 <a href="{{ route('calculator.index') }}"
-                    class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('calculator*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
-                    <i data-lucide="calculator" class="w-4 h-4 {{ request()->routeIs('calculator*') ? 'text-[#007AFF]' : 'text-black/40 dark:text-white/40' }}"></i>
+                    class="min-h-[44px] sm:min-h-[36px] px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('calculator*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
+                    <i data-lucide="calculator" class="w-4 h-4 {{ request()->routeIs('calculator*') ? 'text-[#007AFF]' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
                     <span>{{ __('calculator.tab_calc_price') }}</span>
                 </a>
 
                 @if((\App\Support\Context::hasPermission('labor_machines.view') || \App\Support\Context::hasPermission('costing.manage')) && (request()->routeIs('labor-machines.*') || (\App\Support\Context::business()?->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_LABOR_MACHINES) ?? true)))
                 <a href="{{ route('labor-machines.index') }}"
-                    class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('labor-machines.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
-                    <i data-lucide="cog" class="w-4 h-4 {{ request()->routeIs('labor-machines.*') ? 'text-[#FF9500]' : 'text-black/40 dark:text-white/40' }}"></i>
+                    class="min-h-[44px] sm:min-h-[36px] px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('labor-machines.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
+                    <i data-lucide="cog" class="w-4 h-4 {{ request()->routeIs('labor-machines.*') ? 'text-[#FF9500]' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
                     <span>{{ __('calculator.tab_labor_machines') }}</span>
                 </a>
                 @endif
 
                 @if(\App\Support\Context::hasPermission('costing.view_margin') || \App\Support\Context::hasPermission('reports.costing') || \App\Support\Context::hasPermission('costing.manage'))
                 <a href="{{ route('profitability.index') }}"
-                    class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('profitability.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
-                    <i data-lucide="trending-up" class="w-4 h-4 {{ request()->routeIs('profitability.*') ? 'text-[#34C759]' : 'text-black/40 dark:text-white/40' }}"></i>
+                    class="min-h-[44px] sm:min-h-[36px] px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('profitability.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
+                    <i data-lucide="trending-up" class="w-4 h-4 {{ request()->routeIs('profitability.*') ? 'text-[#34C759]' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
                     <span>{{ __('calculator.tab_bep_margin') }}</span>
                 </a>
                 @endif
@@ -504,33 +504,33 @@
         <!-- 2. SEGMENTED MODE SWITCHER (Apple Segmented Control)  -->
         <!-- ===================================================== -->
         <div
-            class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-3 sm:p-3.5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+            class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-2 sm:p-3 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2.5 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
             <div
-                class="inline-flex p-1 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] border border-black/5 dark:border-white/5 w-full sm:w-auto text-[13px] font-medium">
+                class="inline-flex p-1 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] border border-black/5 dark:border-white/5 w-full md:w-auto text-[13px] font-medium shrink-0">
                 <button type="button"
                     @click="setTab('quick')"
                     :class="activeTab === 'quick' ?
-                        'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]' :
+                        'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' :
                         'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
-                    class="h-8 px-4 rounded-[9px] transition-all flex items-center justify-center gap-2 flex-1 sm:flex-none cursor-pointer active:scale-[0.97] active:opacity-80">
-                    <i data-lucide="zap" class="w-3.5 h-3.5 text-[#FF9500] dark:text-[#FF9F0A]"></i>
+                    class="min-h-[44px] sm:min-h-[36px] px-3.5 sm:px-4 rounded-[9px] transition-all flex items-center justify-center gap-2 flex-1 md:flex-none cursor-pointer active:scale-[0.97] active:opacity-80 whitespace-nowrap">
+                    <i data-lucide="zap" class="w-3.5 h-3.5 text-[#FF9500] dark:text-[#FF9F0A] shrink-0"></i>
                     <span>{{ __('calculator.mode_quick') }}</span>
                 </button>
 
                 <button type="button"
                     @click="setTab('advanced')"
                     :class="activeTab === 'advanced' ?
-                        'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]' :
+                        'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' :
                         'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
-                    class="h-8 px-4 rounded-[9px] transition-all flex items-center justify-center gap-2 flex-1 sm:flex-none cursor-pointer active:scale-[0.97] active:opacity-80">
-                    <i data-lucide="layers" class="w-3.5 h-3.5 text-[#5856D6] dark:text-[#5E5CE6]"></i>
+                    class="min-h-[44px] sm:min-h-[36px] px-3.5 sm:px-4 rounded-[9px] transition-all flex items-center justify-center gap-2 flex-1 md:flex-none cursor-pointer active:scale-[0.97] active:opacity-80 whitespace-nowrap">
+                    <i data-lucide="layers" class="w-3.5 h-3.5 text-[#5856D6] dark:text-[#5E5CE6] shrink-0"></i>
                     <span>{{ __('calculator.mode_advanced') }}</span>
                 </button>
             </div>
 
-            <div class="flex items-center gap-2 text-[13px] text-black/50 dark:text-white/50 px-1">
-                <i data-lucide="info" class="w-4 h-4 text-[#007AFF] shrink-0"></i>
-                <span class="text-[12px] sm:text-[13px]">
+            <div class="hidden sm:flex items-center gap-2 text-[12px] text-black/50 dark:text-white/50 px-2 min-w-0">
+                <i data-lucide="info" class="w-3.5 h-3.5 text-[#007AFF] shrink-0"></i>
+                <span class="truncate">
                     <span x-show="activeTab === 'quick'">{{ __('calculator.mode_quick_desc') }}</span>
                     <span x-show="activeTab === 'advanced'">{{ __('calculator.mode_advanced_desc') }}</span>
                 </span>

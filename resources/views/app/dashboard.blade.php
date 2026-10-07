@@ -65,54 +65,92 @@
                 </p>
             </div>
 
-            <!-- Quick Action Buttons Hub (Apple HIG macOS Toolbar on Desktop, iOS 18 Control Center Bento on Mobile) -->
-            <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 w-full lg:w-auto z-10">
+            <!-- Quick Action Buttons Hub (Apple HIG macOS Toolbar on Desktop, Clean Group on Mobile) -->
+            <div class="flex items-center gap-2 w-full lg:w-auto z-20 flex-wrap sm:flex-nowrap" x-data="{ quickMenuOpen: false }">
                 @if (\App\Support\Context::hasPermission('pos.terminal'))
                     <a href="{{ route('pos.terminal') }}"
-                        class="col-span-2 sm:col-span-1 min-h-[44px] px-4 py-2.5 rounded-[12px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] transition-all flex items-center justify-center gap-2 shadow-[0_1px_2px_rgba(0,122,255,0.25)] shrink-0">
-                        <i data-lucide="calculator" class="w-4 h-4"></i>
-                        <span>{{ __('dashboard.action_pos') }}</span>
+                        class="min-h-[44px] px-4 py-2.5 rounded-[12px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] transition-all flex items-center justify-center gap-2 shadow-[0_1px_2px_rgba(0,122,255,0.25)] flex-1 sm:flex-none shrink-0">
+                        <i data-lucide="calculator" class="w-4 h-4 shrink-0"></i>
+                        <span class="whitespace-nowrap">{{ __('dashboard.action_pos') }}</span>
                     </a>
                 @endif
 
                 @if (\App\Support\Context::hasPermission('costing.view_margin'))
                     <a href="{{ route('calculator.index') }}"
-                        class="col-span-1 min-h-[44px] px-3.5 py-2.5 rounded-[12px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#AF52DE] transition-all flex items-center justify-center gap-2 shrink-0">
-                        <i data-lucide="calculator" class="w-4 h-4 text-[#AF52DE] dark:text-[#BF5AF2]"></i>
-                        <span>{{ __('dashboard.action_calculator') }}</span>
+                        class="min-h-[44px] px-3.5 py-2.5 rounded-[12px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#AF52DE] transition-all flex items-center justify-center gap-2 flex-1 sm:flex-none shrink-0">
+                        <i data-lucide="calculator" class="w-4 h-4 text-[#AF52DE] dark:text-[#BF5AF2] shrink-0"></i>
+                        <span class="whitespace-nowrap">{{ __('dashboard.action_calculator') }}</span>
                     </a>
                 @endif
 
-                @if (\App\Support\Context::hasPermission('expenses.manage') || \App\Support\Context::hasPermission('expenses.view'))
-                    <button type="button" @click="$dispatch('open-quick-expense')"
-                        class="col-span-1 min-h-[44px] px-3.5 py-2.5 rounded-[12px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF3B30] transition-all flex items-center justify-center gap-2 shrink-0">
-                        <i data-lucide="receipt" class="w-4 h-4 text-[#FF3B30] dark:text-[#FF453A]"></i>
-                        <span>{{ __('dashboard.action_record_expense') }}</span>
-                    </button>
-                @endif
+                @php
+                    $hasAnyQuickAction = \App\Support\Context::hasPermission('expenses.manage') ||
+                        \App\Support\Context::hasPermission('expenses.view') ||
+                        \App\Support\Context::hasPermission('finance.cash_bank') ||
+                        \App\Support\Context::isOwner() ||
+                        \App\Support\Context::hasPermission('inventory.manage') ||
+                        \App\Support\Context::hasPermission('purchasing.manage') ||
+                        \App\Support\Context::hasPermission('invoices.create');
+                @endphp
 
-                @if (\App\Support\Context::hasPermission('finance.cash_bank') || \App\Support\Context::hasPermission('expenses.manage') || \App\Support\Context::isOwner())
-                    <button type="button" @click="$dispatch('open-quick-income')"
-                        class="col-span-1 min-h-[44px] px-3.5 py-2.5 rounded-[12px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#34C759] transition-all flex items-center justify-center gap-2 shrink-0">
-                        <i data-lucide="arrow-down-left" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i>
-                        <span>{{ __('dashboard.action_record_income') }}</span>
-                    </button>
-                @endif
+                @if ($hasAnyQuickAction)
+                    <div class="relative flex-1 sm:flex-none shrink-0">
+                        <button type="button" @click="quickMenuOpen = !quickMenuOpen"
+                            class="w-full sm:w-auto min-h-[44px] px-3.5 py-2.5 rounded-[12px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] transition-all flex items-center justify-center gap-2">
+                            <i data-lucide="plus" class="w-4 h-4 text-[#007AFF] shrink-0"></i>
+                            <span class="whitespace-nowrap">{{ __('dashboard.action_quick_actions') }}</span>
+                            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-black/40 dark:text-white/40 transition-transform duration-200" :class="quickMenuOpen ? 'rotate-180' : ''"></i>
+                        </button>
 
-                @if (\App\Support\Context::hasPermission('inventory.manage') || \App\Support\Context::hasPermission('purchasing.manage'))
-                    <button type="button" @click="$dispatch('open-quick-stockin')"
-                        class="col-span-1 min-h-[44px] px-3.5 py-2.5 rounded-[12px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#34C759] transition-all flex items-center justify-center gap-2 shrink-0">
-                        <i data-lucide="package-plus" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i>
-                        <span>{{ __('dashboard.action_add_stock') }}</span>
-                    </button>
-                @endif
+                        <!-- Apple HIG Dropdown Menu Popover -->
+                        <div x-show="quickMenuOpen" x-cloak
+                            @click.outside="quickMenuOpen = false"
+                            @keydown.escape.window="quickMenuOpen = false"
+                            x-transition:enter="transition ease-out duration-150"
+                            x-transition:enter-start="opacity-0 scale-95 translate-y-1"
+                            x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-100"
+                            x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                            x-transition:leave-end="opacity-0 scale-95 translate-y-1"
+                            class="absolute right-0 mt-2 w-56 rounded-[16px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/10 dark:border-white/10 shadow-2xl p-1.5 z-50 divide-y divide-black/5 dark:divide-white/5">
+                            
+                            <div class="py-1">
+                                @if (\App\Support\Context::hasPermission('expenses.manage') || \App\Support\Context::hasPermission('expenses.view'))
+                                    <button type="button" @click="quickMenuOpen = false; $dispatch('open-quick-expense')"
+                                        class="w-full min-h-[40px] px-3 py-2 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 hover:bg-black/[0.05] dark:hover:bg-white/[0.08] flex items-center gap-2.5 transition text-left">
+                                        <i data-lucide="receipt" class="w-4 h-4 text-[#FF3B30] shrink-0"></i>
+                                        <span>{{ __('dashboard.action_record_expense') }}</span>
+                                    </button>
+                                @endif
 
-                @if (\App\Support\Context::hasPermission('invoices.create'))
-                    <a href="{{ route('invoices.create') }}"
-                        class="col-span-1 min-h-[44px] px-3.5 py-2.5 rounded-[12px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] transition-all flex items-center justify-center gap-2 shrink-0">
-                        <i data-lucide="file-text" class="w-4 h-4 text-[#007AFF] dark:text-[#0A84FF]"></i>
-                        <span>{{ __('dashboard.action_new_invoice') }}</span>
-                    </a>
+                                @if (\App\Support\Context::hasPermission('finance.cash_bank') || \App\Support\Context::hasPermission('expenses.manage') || \App\Support\Context::isOwner())
+                                    <button type="button" @click="quickMenuOpen = false; $dispatch('open-quick-income')"
+                                        class="w-full min-h-[40px] px-3 py-2 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 hover:bg-black/[0.05] dark:hover:bg-white/[0.08] flex items-center gap-2.5 transition text-left">
+                                        <i data-lucide="arrow-down-left" class="w-4 h-4 text-[#34C759] shrink-0"></i>
+                                        <span>{{ __('dashboard.action_record_income') }}</span>
+                                    </button>
+                                @endif
+                            </div>
+
+                            <div class="py-1">
+                                @if (\App\Support\Context::hasPermission('inventory.manage') || \App\Support\Context::hasPermission('purchasing.manage'))
+                                    <button type="button" @click="quickMenuOpen = false; $dispatch('open-quick-stockin')"
+                                        class="w-full min-h-[40px] px-3 py-2 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 hover:bg-black/[0.05] dark:hover:bg-white/[0.08] flex items-center gap-2.5 transition text-left">
+                                        <i data-lucide="package-plus" class="w-4 h-4 text-[#34C759] shrink-0"></i>
+                                        <span>{{ __('dashboard.action_add_stock') }}</span>
+                                    </button>
+                                @endif
+
+                                @if (\App\Support\Context::hasPermission('invoices.create'))
+                                    <a href="{{ route('invoices.create') }}"
+                                        class="w-full min-h-[40px] px-3 py-2 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 hover:bg-black/[0.05] dark:hover:bg-white/[0.08] flex items-center gap-2.5 transition text-left">
+                                        <i data-lucide="file-text" class="w-4 h-4 text-[#007AFF] shrink-0"></i>
+                                        <span>{{ __('dashboard.action_new_invoice') }}</span>
+                                    </a>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
                 @endif
             </div>
         </div>

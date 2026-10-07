@@ -68,8 +68,8 @@ return [
     'actions' => [
         'back' => 'Back',
         'back_to_list' => 'Warehouse List',
-        'add_outlet' => '+ Branch / Outlet',
-        'add_warehouse' => '+ Logistics Warehouse',
+        'add_outlet' => 'New Branch / Outlet',
+        'add_warehouse' => 'New Logistics Warehouse',
         'create_outlet_title' => 'Add New Branch / Outlet',
         'create_warehouse_title' => 'Add New Logistics Warehouse',
         'edit_location' => 'Edit Location',

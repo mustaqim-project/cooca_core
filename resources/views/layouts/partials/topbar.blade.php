@@ -218,17 +218,17 @@
         @endif
 
         @if (\App\Support\Context::hasPermission('pos.terminal'))
-            <!-- Primary Action CTA: Kasir POS -->
+            <!-- Primary Action CTA: Kasir POS (Desktop md+) -->
             <a href="{{ route('pos.terminal') }}"
-                class="hidden sm:flex h-8 px-3 rounded-[9px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[12px] font-semibold shadow-[0_1px_2px_rgba(0,122,255,0.25)] active:scale-[0.97] active:opacity-80 items-center gap-1.5 transition-all shrink-0 cursor-pointer"
+                class="hidden md:flex h-8 px-3 rounded-[9px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[12px] font-semibold shadow-[0_1px_2px_rgba(0,122,255,0.25)] active:scale-[0.97] active:opacity-80 items-center gap-1.5 transition-all shrink-0 cursor-pointer"
                 title="{{ __('navigation.open_pos') }}">
                 <i data-lucide="calculator" class="w-3.5 h-3.5 shrink-0"></i>
-                <span>{{ __('navigation.open_pos') }}</span>
+                <span class="whitespace-nowrap">{{ __('navigation.open_pos') }}</span>
             </a>
 
-            <!-- Mobile Quick Action CTA: Kasir POS -->
+            <!-- Mobile Quick Action CTA: Kasir POS (Compact Icon on mobile & tablet) -->
             <a href="{{ route('pos.terminal') }}" aria-label="{{ __('navigation.open_pos') }}" title="{{ __('navigation.open_pos') }}"
-                class="sm:hidden h-8 w-9 rounded-[9px] bg-[#007AFF] hover:bg-[#0071E3] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)] active:scale-[0.97] active:opacity-80 inline-flex items-center justify-center transition-all shrink-0 cursor-pointer">
+                class="md:hidden h-8 w-8 rounded-[9px] bg-[#007AFF] hover:bg-[#0071E3] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)] active:scale-[0.97] active:opacity-80 inline-flex items-center justify-center transition-all shrink-0 cursor-pointer">
                 <i data-lucide="calculator" class="w-4 h-4"></i>
             </a>
         @elseif (\App\Support\Context::hasPermission('costing.view_margin'))

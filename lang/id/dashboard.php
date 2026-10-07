@@ -14,12 +14,13 @@ return [
     'cashier_active'                   => 'Kasir Aktif (:name • :time)',
     'cashier_closed'                   => 'Kasir Belum Buka',
     'banner_desc'                      => 'Pantau omzet, laba kotor, perputaran bahan, dan stok outlet secara instan & akurat.',
-    'action_pos'                       => 'Terminal Kasir POS',
+    'action_pos'                       => 'Terminal Kasir',
     'action_calculator'                => 'Kalkulator HPP',
-    'action_record_expense'            => '+ Catat Biaya',
-    'action_record_income'             => '+ Catat Kas Masuk',
-    'action_add_stock'                 => '+ Tambah Stok',
-    'action_new_invoice'               => '+ Faktur Baru',
+    'action_quick_actions'             => 'Aksi Cepat',
+    'action_record_expense'            => 'Catat Beban',
+    'action_record_income'             => 'Kas Masuk',
+    'action_add_stock'                 => 'Tambah Stok',
+    'action_new_invoice'               => 'Faktur Baru',
 
     // Analytics Cockpit
     'loading_analytics'                => 'Memperbarui data analitik periode...',

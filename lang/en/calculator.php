@@ -19,8 +19,8 @@ return [
     'tab_calc_price'                   => 'COGS & Price Calculator',
     'tab_labor_machines'               => 'Labor & Machine Rates',
     'tab_bep_margin'                   => 'BEP & Margin Analysis',
-    'mode_quick'                       => 'Quick Mode (3 Cost Pillars)',
-    'mode_advanced'                    => 'Recipe BOM Mode',
+    'mode_quick'                       => 'Quick Mode',
+    'mode_advanced'                    => 'Recipe & BOM',
     'mode_quick_desc'                  => 'Instant 3-pillar simulation without catalog input',
     'mode_advanced_desc'               => 'Automated calculation from Bill of Materials & machine allocation',
 

@@ -7,7 +7,7 @@ return [
     'subtitle' => 'Manage customer contacts, B2B company profiles, payment terms, and commercial credit receivables.',
     'directory_title' => 'Client & Customer Directory',
     'add_customer' => 'Add Customer',
-    'add_first_customer' => '+ Add First Customer',
+    'add_first_customer' => 'Add First Customer',
     'add_customer_title' => 'Add New Customer',
     'add_customer_subtitle' => 'Complete basic details to start serving customer transactions.',
     'edit_customer' => 'Edit Customer Profile',
