@@ -164,6 +164,30 @@ class TikTokClient
     }
 
     /**
+     * Fetch user profile info including follower_count, following_count, likes_count, video_count.
+     * Requires scope: user.info.stats / user.info.profile
+     *
+     * @return array<string, mixed>
+     */
+    public function getUserInfo(string $accessToken): array
+    {
+        $fields = 'open_id,union_id,avatar_url,display_name,bio_description,profile_deep_link,is_verified,username,follower_count,following_count,likes_count,video_count';
+
+        $response = Http::withToken($accessToken)
+            ->get($this->endpoint('user/info/'), [
+                'fields' => $fields,
+            ]);
+
+        if (! $response->successful()) {
+            Log::warning('TikTok getUserInfo failed', ['status' => $response->status(), 'body' => $response->body()]);
+
+            return [];
+        }
+
+        return $response->json('data.user') ?: ($response->json('data') ?: []);
+    }
+
+    /**
      * Direct Post: Publish video to TikTok using PULL_FROM_URL.
      *
      * @param  array<string, mixed>  $options

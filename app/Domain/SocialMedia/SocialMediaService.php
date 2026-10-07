@@ -374,13 +374,28 @@ class SocialMediaService
             } elseif ($channel === 'tiktok') {
                 $provider = $this->socialMediaManager->getProvider('tiktok');
                 $creatorInfo = $provider->getCreatorInfo($account);
+
+                // Fetch user stats (followers, likes, video count) from separate endpoint
+                $userInfo = [];
+                try {
+                    $userInfo = $this->socialMediaManager->getTikTokProvider()->getClient()->getUserInfo((string) $account->access_token);
+                } catch (\Throwable $e) {
+                    Log::warning("TikTok getUserInfo failed for account {$account->id}: {$e->getMessage()}");
+                }
+
                 $metrics = [
-                    'nickname'        => $creatorInfo['creator_nickname'] ?? $creatorInfo['display_name'] ?? $account->account_name,
-                    'username'        => $creatorInfo['creator_username'] ?? $creatorInfo['username'] ?? $account->username,
-                    'avatar_url'      => $creatorInfo['creator_avatar_url'] ?? $creatorInfo['avatar_url'] ?? $account->profile_picture_url,
+                    'nickname'        => $creatorInfo['creator_nickname'] ?? $userInfo['display_name'] ?? $account->account_name,
+                    'username'        => $creatorInfo['creator_username'] ?? $userInfo['username'] ?? $account->username,
+                    'avatar_url'      => $creatorInfo['creator_avatar_url'] ?? $userInfo['avatar_url'] ?? $account->profile_picture_url,
                     'privacy_level'   => $creatorInfo['privacy_level_options'] ?? [],
                     'duet_disabled'   => (bool) ($creatorInfo['duet_disabled'] ?? false),
                     'stitch_disabled' => (bool) ($creatorInfo['stitch_disabled'] ?? false),
+                    // Stats from user/info/ endpoint
+                    'followers_count' => (int) ($userInfo['follower_count'] ?? 0),
+                    'following_count' => (int) ($userInfo['following_count'] ?? 0),
+                    'likes_count'     => (int) ($userInfo['likes_count'] ?? 0),
+                    'video_count'     => (int) ($userInfo['video_count'] ?? 0),
+                    'is_verified'     => (bool) ($userInfo['is_verified'] ?? false),
                     'synced_at'       => now()->toIso8601String(),
                 ];
 
