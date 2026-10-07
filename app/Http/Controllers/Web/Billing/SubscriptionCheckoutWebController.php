@@ -74,7 +74,23 @@ final class SubscriptionCheckoutWebController extends Controller
         // 100% Exclusive TriPay Automatic Payment Gateway Channels - Dynamically Filter Active Channels Only
         $activeTripayChannels = $this->tripayService->getActiveChannels();
 
-        $paymentAccounts = collect($activeTripayChannels)->map(function ($method) {
+        // De-duplicate multiple QRIS channels (e.g. TriPay returns both QRIS and QRIS2) into one single premier option
+        $seenQris = false;
+        $filteredTripayChannels = [];
+        foreach ($activeTripayChannels as $ch) {
+            $code = strtolower((string) ($ch['code'] ?? ''));
+            $isQris = str_contains($code, 'qris') || ($ch['type'] ?? '') === 'qris';
+            if ($isQris) {
+                if ($seenQris) {
+                    continue; // Skip secondary duplicate QRIS channel
+                }
+                $seenQris = true;
+                $ch['code'] = 'qris';
+            }
+            $filteredTripayChannels[] = $ch;
+        }
+
+        $paymentAccounts = collect($filteredTripayChannels)->map(function ($method) {
             $code = strtolower((string) ($method['code'] ?? 'qris'));
             $isQris = str_contains($code, 'qris') || ($method['type'] ?? '') === 'qris';
 
@@ -279,7 +295,9 @@ final class SubscriptionCheckoutWebController extends Controller
 
         // Automatically trigger TriPay transaction for all non-free TriPay orders
         $isTripayChannel = array_key_exists($payment->payment_method, SubscriptionPayment::TRIPAY_CHANNELS)
-            || str_starts_with($payment->payment_method, 'tripay_');
+            || array_key_exists($payment->payment_method, SubscriptionPayment::PAYMENT_METHODS)
+            || str_starts_with($payment->payment_method, 'tripay_')
+            || in_array(strtolower((string) $payment->payment_method), ['qris', 'qris2', 'bcava', 'mandiriva', 'briva', 'bniva', 'permatava'], true);
 
         if ($payment->payment_method !== SubscriptionPayment::METHOD_FREE_PROMO && $isTripayChannel) {
             $channelCode = $payment->getTripayChannelCode();
@@ -298,10 +316,10 @@ final class SubscriptionCheckoutWebController extends Controller
                         'admin_notes'       => null,
                     ]);
 
-                    // Direct to TriPay if checkout_url is provided
-                    if (!empty($tripayRes['checkout_url'])) {
-                        return redirect()->away($tripayRes['checkout_url']);
-                    }
+                    // Seamless in-app presentation (adopted from qr-order/menu.blade.php)
+                    // Keep user in-app on billing.payment.show to display dynamic QRIS & live status
+                    return redirect()->route('billing.payment.show', $payment)
+                        ->with('success', __('billing.order_created_success', ['order' => $payment->order_number]));
                 } else {
                     $errorMsg = $tripayRes['message'] ?? 'Gagal membuat tagihan TriPay';
                     $payment->update([
@@ -339,7 +357,9 @@ final class SubscriptionCheckoutWebController extends Controller
         abort_unless($payment->business_id === $business->id, 403);
 
         $isTripayChannel = array_key_exists($payment->payment_method, SubscriptionPayment::TRIPAY_CHANNELS)
-            || str_starts_with($payment->payment_method, 'tripay_');
+            || array_key_exists($payment->payment_method, SubscriptionPayment::PAYMENT_METHODS)
+            || str_starts_with($payment->payment_method, 'tripay_')
+            || in_array(strtolower((string) $payment->payment_method), ['qris', 'qris2', 'bcava', 'mandiriva', 'briva', 'bniva', 'permatava'], true);
 
         // If payment gateway not initialized and order is pending, try initialize TriPay
         if ($isTripayChannel && empty($payment->gateway_reference) && $payment->status === SubscriptionPayment::STATUS_PENDING && $payment->payment_method !== SubscriptionPayment::METHOD_FREE_PROMO) {
@@ -384,7 +404,9 @@ final class SubscriptionCheckoutWebController extends Controller
         abort_unless($payment->business_id === $business->id, 403);
 
         $isTripayChannel = array_key_exists($payment->payment_method, SubscriptionPayment::TRIPAY_CHANNELS)
-            || str_starts_with($payment->payment_method, 'tripay_');
+            || array_key_exists($payment->payment_method, SubscriptionPayment::PAYMENT_METHODS)
+            || str_starts_with($payment->payment_method, 'tripay_')
+            || in_array(strtolower((string) $payment->payment_method), ['qris', 'qris2', 'bcava', 'mandiriva', 'briva', 'bniva', 'permatava'], true);
 
         // If not initialized yet, try to initialize TriPay on status check as well
         if ($isTripayChannel && empty($payment->gateway_reference) && $payment->status === SubscriptionPayment::STATUS_PENDING && $payment->payment_method !== SubscriptionPayment::METHOD_FREE_PROMO) {

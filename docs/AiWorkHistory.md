@@ -34,7 +34,51 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 - **Database Changes:** Tabel baru, migrasi skema, kolom tambahan, atau indexing.
 - **API / Route Changes:** Endpoint baru atau perubahan signature HTTP.
 
+### [WORK-2026-10-07-322] Unifikasi QRIS Checkout, Seamless In-App TriPay QR Presentation & Auto-Polling (Adopsi Konsep QR Order)
+
+- **Date:** 2026-10-07
+- **Status:** COMPLETED
+- **Module:** Billing, SaaS Subscription, Payment Gateway TriPay, Storefront / QR Order
+- **Feature:** Unified QRIS Dinamis Channel, In-App Native QRIS Display, 15-Minute Countdown Timer, 3-Second Real-Time Status Polling
+- **Work Type:** Feature | Architecture | UI/UX | Bug Fix
+
+#### 1. Business Context & Objective
+- **Konteks:** Pada halaman checkout langganan (`/patungan` atau `/billing/checkout`), pengguna menemukan duplikasi opsi metode pembayaran QRIS (karena TriPay sandbox/production menyediakan channel `QRIS` ShopeePay dan `QRIS2`). Selain itu, memilih opsi pertama mengalihkan pengguna ke situs eksternal TriPay (`checkout_url`), sementara opsi kedua mengarah ke halaman internal invoice namun tanpa kode QR bayar karena tidak terpetakan di model.
+- **Masalah/Target:**
+  1. Menghilangkan duplikasi opsi QRIS di UI checkout: unifikasi menjadi 1 opsi premier "QRIS Dinamis (GoPay, OVO, ShopeePay, BCA, Livin Mandiri, BRImo)".
+  2. Mengadopsi konsep pembayaran QRIS langsung seperti pada modul Self-Order Meja Pelanggan (`resources/views/public/qr-order/menu.blade.php`).
+  3. Alur baru (workflow): Saat menekan "Proceed to TriPay Payment", transaksi TriPay langsung dibuat di backend, tetapi pengguna **tetap berada di dalam aplikasi Cooca** dan diarahkan ke `/billing/payments/{uuid}`.
+  4. Pada halaman `/billing/payments/{uuid}`, kode QRIS dinamis langsung ditampilkan di layar (white squircle canvas) lengkap dengan countdown timer 15 menit, nominal presisi dengan 1-click copy, tombol unduh QR, dan polling status otomatis setiap 3 detik yang seketika mengaktifkan langganan saat pembayaran terdeteksi.
+
+#### 2. What Was Done
+1. **Unifikasi & De-duplikasi Channel QRIS di Checkout**:
+   - Memodifikasi `SubscriptionCheckoutWebController::checkout` untuk menyaring dan mende-duplikasi channel QRIS yang dikembalikan oleh TriPay API sehingga hanya satu opsi QRIS Dinamis premier yang muncul bagi pelanggan.
+2. **Dukungan Channel & Auto-Init TriPay pada Model `SubscriptionPayment`**:
+   - Menambahkan konstanta `METHOD_QRIS2 = 'qris2'` dan memetakan `qris2` ke channel code `QRIS2` di `getTripayChannelCode()`.
+   - Menyesuaikan `getPaymentMethodDetails()` agar secara otomatis mendeteksi semua varian QRIS sebagai `type => 'qris'`, memastikan kartu QRIS selalu dirender.
+3. **Penyelarasan Alur Redirect Tanpa Keluar Aplikasi**:
+   - Mengubah `SubscriptionCheckoutWebController::store` agar tidak melakukan `redirect()->away($tripayRes['checkout_url'])`, melainkan selalu mengarahkan ke internal route `billing.payment.show`.
+   - Memastikan method `payment` dan `checkStatus` secara otomatis menginisialisasi transaksi TriPay pada invoice pending yang belum memiliki referensi gateway.
+4. **Adopsi Tampilan & Polling QRIS dari `qr-order/menu.blade.php`**:
+   - Memperbarui [resources/views/app/billing/payment.blade.php](file:///c:/laragon/www/cooca_core/resources/views/app/billing/payment.blade.php):
+     - Menambahkan countdown timer 15:00 (`qrisCountdownFormatted`).
+     - Menambahkan rapid adaptive polling setiap 3 detik (`billing.payment.status`) yang menghentikan timer dan mengaktifkan status hijau Bento Apple HIG seketika pembayaran lunas.
+     - Binding reaktif URL QR code dan tombol unduh/simpan QR.
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `app/Http/Controllers/Web/Billing/SubscriptionCheckoutWebController.php`
+  - `app/Models/SubscriptionPayment.php`
+  - `resources/views/app/billing/payment.blade.php`
+  - `docs/AiWorkHistory.md`
+
+#### 4. System Impacts
+- Pengalaman checkout langganan menjadi 100% konsisten, bersih, dan seamless tanpa melempar pengguna keluar dari antarmuka Cooca.
+
+---
+
 ### [WORK-2026-10-07-321] Production Hotfix: Resolusi RouteNotFoundException [admin.promos.index] & Auto-Purge Stale Route Cache
+
 
 - **Date:** 2026-10-07
 - **Status:** COMPLETED

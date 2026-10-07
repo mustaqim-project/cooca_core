@@ -33,11 +33,41 @@
         checkingStatus: false,
         checkStatusFeedback: '',
         pollTimer: null,
+        countdownTimer: null,
+        qrisCountdown: {{ max(0, $payment->gateway_expired_at ? (int) now()->diffInSeconds($payment->gateway_expired_at, false) : 900) }},
+        qrisCountdownFormatted: '15:00',
+        qrUrl: '{{ $payment->gateway_qr_url }}',
 
         init() {
+            this.updateCountdownText();
             if (!this.isPaid) {
+                this.startCountdown();
                 this.startAdaptivePolling();
             }
+        },
+
+        formatCountdown(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return (mins < 10 ? '0' : '') + mins + ':' + (secs < 10 ? '0' : '') + secs;
+        },
+
+        updateCountdownText() {
+            this.qrisCountdownFormatted = this.formatCountdown(Math.max(0, this.qrisCountdown));
+        },
+
+        startCountdown() {
+            if (this.countdownTimer) clearInterval(this.countdownTimer);
+            this.updateCountdownText();
+            this.countdownTimer = setInterval(() => {
+                if (this.qrisCountdown > 0) {
+                    this.qrisCountdown--;
+                    this.updateCountdownText();
+                } else {
+                    clearInterval(this.countdownTimer);
+                    if (this.pollTimer) clearInterval(this.pollTimer);
+                }
+            }, 1000);
         },
 
         startAdaptivePolling() {
@@ -49,11 +79,15 @@
                     });
                     if (res.ok) {
                         const data = await res.json();
+                        if (data.qr_url && !this.qrUrl) {
+                            this.qrUrl = data.qr_url;
+                        }
                         if (data.is_paid) {
                             this.isPaid = true;
                             this.orderStatus = 'approved';
                             this.checkStatusFeedback = window.COOCA_I18N?.billing?.payment_verified_success || '{{ __('billing.payment_verified_success') }}';
                             if (this.pollTimer) clearInterval(this.pollTimer);
+                            if (this.countdownTimer) clearInterval(this.countdownTimer);
                             this.$nextTick(() => {
                                 if (window.lucide) window.lucide.createIcons();
                             });
@@ -62,7 +96,7 @@
                 } catch(e) {}
             };
 
-            this.pollTimer = setInterval(doPoll, 4000);
+            this.pollTimer = setInterval(doPoll, 3000);
             document.addEventListener('visibilitychange', () => {
                 if (!document.hidden && !this.isPaid) doPoll();
             });
@@ -76,11 +110,15 @@
                     headers: { 'Accept': 'application/json' }
                 });
                 const data = await res.json();
+                if (data.qr_url && !this.qrUrl) {
+                    this.qrUrl = data.qr_url;
+                }
                 if (data.is_paid) {
                     this.isPaid = true;
                     this.orderStatus = 'approved';
                     this.checkStatusFeedback = window.COOCA_I18N?.billing?.payment_verified_success || '{{ __('billing.payment_verified_success') }}';
                     if (this.pollTimer) clearInterval(this.pollTimer);
+                    if (this.countdownTimer) clearInterval(this.countdownTimer);
                     this.$nextTick(() => {
                         if (window.lucide) window.lucide.createIcons();
                     });
@@ -436,7 +474,7 @@
                         </div>
                     @endif
 
-                    @if (($methodDetails['type'] ?? '') !== 'qris' && $payment->payment_method !== 'qris')
+                    @if (($methodDetails['type'] ?? '') !== 'qris' && !str_contains(strtolower($payment->payment_method ?? ''), 'qris'))
                         <!-- Account Number Display with Copy Action (Only for Non-QRIS Accounts) -->
                         <div class="space-y-2">
                             <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300">
@@ -471,7 +509,7 @@
                     @endif
 
                     <!-- QRIS Visual Card if QRIS selected (Direct UI Presentation matching menu.blade.php concept) -->
-                    @if (($methodDetails['type'] ?? '') === 'qris' || $payment->payment_method === 'qris')
+                    @if (($methodDetails['type'] ?? '') === 'qris' || str_contains(strtolower($payment->payment_method ?? ''), 'qris'))
                         <div
                             class="p-5 sm:p-6 rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] text-slate-950 dark:text-white space-y-4 shadow-sm">
                             
@@ -522,39 +560,45 @@
                                             : (!empty($methodDetails['qr_image_url']) ? $methodDetails['qr_image_url'] : null));
                                 @endphp
 
-                                @if ($qrSrc)
-                                    <img src="{{ $qrSrc }}" alt="QRIS Code" class="w-60 h-60 object-contain rounded-lg">
-                                @else
-                                    <div class="w-60 h-60 flex flex-col items-center justify-center text-center p-4">
-                                        <i data-lucide="qr-code" class="w-24 h-24 text-black/20 mx-auto" aria-hidden="true"></i>
-                                        <span class="text-xs font-semibold text-amber-600 mt-2 block">{{ __('billing.checking_gateway') }}</span>
-                                    </div>
-                                @endif
+                                <template x-if="qrUrl">
+                                    <img :src="qrUrl" alt="QRIS Code" class="w-60 h-60 object-contain rounded-lg">
+                                </template>
+                                <template x-if="!qrUrl">
+                                    @if ($qrSrc)
+                                        <img src="{{ $qrSrc }}" alt="QRIS Code" class="w-60 h-60 object-contain rounded-lg">
+                                    @else
+                                        <div class="w-60 h-60 flex flex-col items-center justify-center text-center p-4">
+                                            <i data-lucide="qr-code" class="w-24 h-24 text-black/20 mx-auto" aria-hidden="true"></i>
+                                            <span class="text-xs font-semibold text-amber-600 mt-2 block">{{ __('billing.checking_gateway') }}</span>
+                                        </div>
+                                    @endif
+                                </template>
 
-                                @if(!$payment->isPaid())
-                                    <div class="mt-3 text-[11px] font-bold text-gray-600 uppercase tracking-widest flex items-center gap-2">
-                                        <span class="w-2 h-2 rounded-full bg-[#007AFF] animate-ping"></span>
-                                        <span>{{ __('billing.qris_waiting_payment') }}</span>
-                                    </div>
-                                @endif
+                                <div x-show="!isPaid" class="mt-3 text-[11px] font-bold text-gray-600 uppercase tracking-widest flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-[#007AFF] animate-ping"></span>
+                                    <span>{{ __('billing.qris_waiting_payment') }}</span>
+                                </div>
                             </div>
 
-                            <!-- Auto-Verification Notice -->
-                            <div class="space-y-1 text-center max-w-sm mx-auto">
-                                <p class="text-[11px] text-black/50 dark:text-white/50 leading-relaxed">
+                            <!-- Countdown Timer & Auto Polling Notice (concept from menu.blade.php) -->
+                            <div class="space-y-1.5 text-xs text-center max-w-sm mx-auto pt-1" x-show="!isPaid">
+                                <div class="flex items-center justify-center gap-1.5 text-black/70 dark:text-white/70 font-semibold">
+                                    <span>Sisa Waktu Bayar:</span>
+                                    <span class="font-mono text-[#FF9500] font-extrabold text-sm tabular-nums" x-text="qrisCountdownFormatted">15:00</span>
+                                </div>
+                                <p class="text-[11px] text-black/45 dark:text-white/45 leading-relaxed">
                                     {{ __('billing.qris_auto_verify_notice') }}
                                 </p>
                             </div>
 
                             <!-- Actions (Unduh QR & Cek Status) -->
-                            <div class="pt-2 flex flex-col sm:flex-row gap-2 max-w-sm mx-auto">
-                                @if ($qrSrc)
-                                    <a href="{{ $qrSrc }}" download="qris-cooca-{{ $payment->order_number }}.png" target="_blank"
-                                        class="flex-1 h-10 rounded-[12px] bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 text-black dark:text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition active:scale-[0.98]">
-                                        <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                                        <span>{{ __('billing.action_download_qr') }}</span>
-                                    </a>
-                                @endif
+                            <div class="pt-2 flex flex-col sm:flex-row gap-2 max-w-sm mx-auto" x-show="!isPaid">
+                                <a :href="qrUrl || '{{ $qrSrc }}'" download="qris-cooca-{{ $payment->order_number }}.png" target="_blank"
+                                    x-show="qrUrl || '{{ $qrSrc }}'"
+                                    class="flex-1 h-10 rounded-[12px] bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 text-black dark:text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition active:scale-[0.98]">
+                                    <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                                    <span>{{ __('billing.action_download_qr') }}</span>
+                                </a>
                                 <button type="button" @click="checkPaymentStatus()" :disabled="checkingStatus"
                                     class="flex-1 h-10 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition active:scale-[0.98] disabled:opacity-60 cursor-pointer">
                                     <i data-lucide="refresh-cw" class="w-3.5 h-3.5" :class="checkingStatus ? 'animate-spin' : ''"></i>

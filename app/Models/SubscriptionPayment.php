@@ -22,6 +22,7 @@ class SubscriptionPayment extends Model
     public const STATUS_CANCELLED = 'cancelled';
 
     public const METHOD_QRIS = 'qris';
+    public const METHOD_QRIS2 = 'qris2';
     public const METHOD_BCA_VA = 'bca_va';
     public const METHOD_MANDIRI_VA = 'mandiri_va';
     public const METHOD_BRI_VA = 'bri_va';
@@ -43,7 +44,18 @@ class SubscriptionPayment extends Model
             'type' => 'qris',
             'bank_name' => 'QRIS Nasional (NMID: ID1020304050)',
             'account_number' => 'Scan QR Code Cooca Pay',
-            'account_name' => 'COOCA.ID INDONESIA',
+            'account_name' => 'Cooca ID',
+            'icon' => 'qr-code',
+            'color' => 'emerald',
+            'instructions' => 'Buka aplikasi m-Banking atau e-Wallet apa pun, scan kode QRIS dinamis di layar. Pembayaran terverifikasi otomatis seketika.',
+        ],
+        self::METHOD_QRIS2 => [
+            'code' => self::METHOD_QRIS2,
+            'name' => 'QRIS Dinamis (GoPay, OVO, ShopeePay, BCA, Livin, BRImo)',
+            'type' => 'qris',
+            'bank_name' => 'QRIS Nasional (NMID: ID1020304050)',
+            'account_number' => 'Scan QR Code Cooca Pay',
+            'account_name' => 'Cooca ID',
             'icon' => 'qr-code',
             'color' => 'emerald',
             'instructions' => 'Buka aplikasi m-Banking atau e-Wallet apa pun, scan kode QRIS dinamis di layar. Pembayaran terverifikasi otomatis seketika.',
@@ -54,7 +66,7 @@ class SubscriptionPayment extends Model
             'type' => 'virtual_account',
             'bank_name' => 'Bank Central Asia (BCA)',
             'account_number' => 'Nomor VA Otomatis',
-            'account_name' => 'COOCA INDONESIA',
+            'account_name' => 'Cooca ID',
             'icon' => 'credit-card',
             'color' => 'blue',
             'instructions' => 'Salin nomor Virtual Account BCA dan bayar melalui BCA Mobile, KlikBCA, atau ATM BCA. Verifikasi otomatis.',
@@ -65,7 +77,7 @@ class SubscriptionPayment extends Model
             'type' => 'virtual_account',
             'bank_name' => 'Bank Mandiri',
             'account_number' => 'Nomor VA Otomatis',
-            'account_name' => 'COOCA INDONESIA',
+            'account_name' => 'Cooca ID',
             'icon' => 'credit-card',
             'color' => 'amber',
             'instructions' => 'Bayar melalui Livin by Mandiri atau ATM Mandiri ke nomor Mandiri Virtual Account. Verifikasi otomatis.',
@@ -76,7 +88,7 @@ class SubscriptionPayment extends Model
             'type' => 'virtual_account',
             'bank_name' => 'Bank Rakyat Indonesia (BRI)',
             'account_number' => 'Nomor BRIVA Otomatis',
-            'account_name' => 'COOCA INDONESIA',
+            'account_name' => 'Cooca ID',
             'icon' => 'credit-card',
             'color' => 'cyan',
             'instructions' => 'Bayar melalui BRImo atau ATM BRI ke nomor BRIVA yang tertera. Verifikasi otomatis seketika.',
@@ -87,7 +99,7 @@ class SubscriptionPayment extends Model
             'type' => 'virtual_account',
             'bank_name' => 'Bank Negara Indonesia (BNI)',
             'account_number' => 'Nomor VA Otomatis',
-            'account_name' => 'COOCA INDONESIA',
+            'account_name' => 'Cooca ID',
             'icon' => 'credit-card',
             'color' => 'orange',
             'instructions' => 'Bayar melalui BNI Mobile Banking atau ATM BNI ke nomor BNI Virtual Account. Verifikasi otomatis seketika.',
@@ -98,7 +110,7 @@ class SubscriptionPayment extends Model
             'type' => 'virtual_account',
             'bank_name' => 'Bank Permata',
             'account_number' => 'Nomor VA Otomatis',
-            'account_name' => 'COOCA INDONESIA',
+            'account_name' => 'Cooca ID',
             'icon' => 'credit-card',
             'color' => 'violet',
             'instructions' => 'Bayar melalui PermataMobile X atau transfer antar-bank ke nomor Permata VA.',
@@ -109,7 +121,7 @@ class SubscriptionPayment extends Model
             'type' => 'retail',
             'bank_name' => 'Indomaret Payment Point',
             'account_number' => 'Kode Pembayaran Kasir',
-            'account_name' => 'COOCA INDONESIA',
+            'account_name' => 'Cooca ID',
             'icon' => 'store',
             'color' => 'blue',
             'instructions' => 'Tunjukkan kode bayar kepada kasir Indomaret terdekat dan lakukan pembayaran tunai/non-tunai.',
@@ -120,7 +132,7 @@ class SubscriptionPayment extends Model
             'type' => 'retail',
             'bank_name' => 'Alfamart / Alfamidi',
             'account_number' => 'Kode Pembayaran Kasir',
-            'account_name' => 'COOCA INDONESIA',
+            'account_name' => 'Cooca ID',
             'icon' => 'store',
             'color' => 'red',
             'instructions' => 'Tunjukkan kode bayar kepada kasir Alfamart/Alfamidi terdekat dan lakukan pembayaran.',
@@ -131,7 +143,7 @@ class SubscriptionPayment extends Model
             'type' => 'virtual_account',
             'bank_name' => 'Bank Central Asia (BCA)',
             'account_number' => 'Nomor VA Otomatis',
-            'account_name' => 'COOCA INDONESIA',
+            'account_name' => 'Cooca ID',
             'icon' => 'credit-card',
             'color' => 'blue',
             'instructions' => 'Bayar ke nomor Virtual Account BCA resmi Cooca. Verifikasi instan otomatis.',
@@ -142,7 +154,7 @@ class SubscriptionPayment extends Model
             'type' => 'virtual_account',
             'bank_name' => 'Bank Mandiri',
             'account_number' => 'Nomor VA Otomatis',
-            'account_name' => 'COOCA INDONESIA',
+            'account_name' => 'Cooca ID',
             'icon' => 'credit-card',
             'color' => 'amber',
             'instructions' => 'Bayar ke nomor Virtual Account Mandiri resmi Cooca. Verifikasi instan otomatis.',
@@ -153,7 +165,7 @@ class SubscriptionPayment extends Model
             'type' => 'virtual_account',
             'bank_name' => 'Bank Rakyat Indonesia (BRI)',
             'account_number' => 'Nomor BRIVA Otomatis',
-            'account_name' => 'COOCA INDONESIA',
+            'account_name' => 'Cooca ID',
             'icon' => 'credit-card',
             'color' => 'cyan',
             'instructions' => 'Bayar ke nomor BRIVA resmi Cooca. Verifikasi instan otomatis.',
@@ -336,16 +348,18 @@ class SubscriptionPayment extends Model
 
     public function getTripayChannelCode(): string
     {
-        return match ($this->payment_method) {
-            self::METHOD_QRIS => 'QRIS',
-            self::METHOD_BCA_VA, self::METHOD_BCA => 'BCAVA',
-            self::METHOD_MANDIRI_VA, self::METHOD_MANDIRI => 'MANDIRIVA',
+        $m = strtolower((string) $this->payment_method);
+        return match ($m) {
+            'qris2' => 'QRIS2',
+            self::METHOD_QRIS, 'qris' => 'QRIS',
+            self::METHOD_BCA_VA, self::METHOD_BCA, 'bcava' => 'BCAVA',
+            self::METHOD_MANDIRI_VA, self::METHOD_MANDIRI, 'mandiriva' => 'MANDIRIVA',
             self::METHOD_BRI_VA, self::METHOD_BRI, 'briva' => 'BRIVA',
-            self::METHOD_BNI_VA => 'BNIVA',
-            self::METHOD_PERMATA_VA => 'PERMATAVA',
+            self::METHOD_BNI_VA, 'bniva' => 'BNIVA',
+            self::METHOD_PERMATA_VA, 'permatava' => 'PERMATAVA',
             self::METHOD_INDOMARET => 'INDOMARET',
             self::METHOD_ALFAMART => 'ALFAMART',
-            default => 'QRIS',
+            default => str_starts_with($m, 'tripay_') ? strtoupper(substr($m, 7)) : 'QRIS',
         };
     }
 
@@ -369,20 +383,21 @@ class SubscriptionPayment extends Model
 
         $normMethod = strtolower(str_replace(['tripay_', 'va'], ['', '_va'], $this->payment_method ?? ''));
         $normRaw = strtolower(str_replace('tripay_', '', $this->payment_method ?? ''));
+        $isQrisMethod = str_contains($normRaw, 'qris') || str_contains($normMethod, 'qris');
 
-        if ($this->payment_gateway === self::GATEWAY_TRIPAY || str_starts_with($this->payment_method ?? '', 'tripay_')) {
+        if ($this->payment_gateway === self::GATEWAY_TRIPAY || str_starts_with($this->payment_method ?? '', 'tripay_') || $isQrisMethod) {
             $base = self::PAYMENT_METHODS[$normRaw] 
                 ?? self::PAYMENT_METHODS[$normMethod] 
                 ?? self::PAYMENT_METHODS[$this->payment_method] 
                 ?? [
                     'code' => $this->payment_method,
-                    'name' => strtoupper($normRaw),
-                    'type' => 'gateway',
-                    'bank_name' => 'TriPay Gateway',
+                    'name' => $isQrisMethod ? 'QRIS Dinamis' : strtoupper($normRaw),
+                    'type' => $isQrisMethod ? 'qris' : 'gateway',
+                    'bank_name' => $isQrisMethod ? 'QRIS Nasional (Standar BI)' : 'TriPay Gateway',
                     'account_number' => $this->gateway_pay_code ?: '-',
-                    'account_name' => 'COOCA INDONESIA',
-                    'icon' => 'credit-card',
-                    'color' => 'blue',
+                    'account_name' => 'Cooca ID',
+                    'icon' => $isQrisMethod ? 'qr-code' : 'credit-card',
+                    'color' => $isQrisMethod ? 'emerald' : 'blue',
                     'instructions' => 'Selesaikan pembayaran via TriPay sebelum batas waktu.',
                     'qr_image_url' => $this->gateway_qr_url,
                 ];
@@ -392,6 +407,9 @@ class SubscriptionPayment extends Model
             }
             if ($this->gateway_qr_url) {
                 $base['qr_image_url'] = $this->gateway_qr_url;
+            }
+            if ($isQrisMethod) {
+                $base['type'] = 'qris';
             }
             return $base;
         }
