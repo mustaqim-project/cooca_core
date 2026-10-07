@@ -5,7 +5,7 @@
 ])
 
 @section('content')
-    <div class="max-w-[1360px] mx-auto space-y-6 pb-28 lg:pb-12" x-data="socialPostsManager()">
+    <div class="max-w-[1360px] mx-auto space-y-6 pb-36 lg:pb-12" x-data="socialPostsManager()">
 
         {{-- MODULE HEADER & PERSISTENT COMMUNICATION TABS --}}
         <x-module-header
@@ -134,7 +134,7 @@
 
         {{-- 4. POSTS LIST / FEED CARDS --}}
         @if($posts->isEmpty())
-            <div class="rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-12 text-center shadow-sm space-y-4">
+            <div class="rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-6 sm:p-12 text-center shadow-sm space-y-4">
                 <div class="w-16 h-16 rounded-[20px] bg-black/[0.04] dark:bg-white/[0.06] text-black/40 dark:text-white/40 flex items-center justify-center mx-auto">
                     <i data-lucide="inbox" class="w-8 h-8"></i>
                 </div>

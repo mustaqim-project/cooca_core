@@ -285,7 +285,7 @@ return [
     ],
 
     // Flash Messages
-    'simulation_calculated' => 'Tax compliance simulation calculated successfully.',
+    'simulation_calculated' => 'Tax compliance simulation has been calculated successfully.',
     'settings_saved' => 'Tax configuration settings saved successfully.',
     'export_success' => 'Tax compliance report exported successfully.',
     'invalid_period' => 'Invalid tax year or month period.',

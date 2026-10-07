@@ -5,7 +5,7 @@
 ])
 
 @section('content')
-    <div class="max-w-[1360px] mx-auto space-y-6 pb-28 sm:pb-32 lg:pb-12" x-data="waGateway()" x-init="init()">
+    <div class="max-w-[1360px] mx-auto space-y-6 pb-36 lg:pb-12" x-data="waGateway()" x-init="init()">
 
         {{-- MODULE HEADER & PERSISTENT COMMUNICATION TABS --}}
         <x-module-header
@@ -14,13 +14,13 @@
             :subtitle="__('whatsapp.subtitle', ['business' => $business->name])">
             <x-slot:actions>
                 <a href="{{ route('whatsapp.logs.index') }}"
-                    class="min-h-[44px] px-4 rounded-[12px] text-[13px] font-semibold text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.98] transition-all flex items-center justify-center gap-2 w-full sm:w-auto">
+                    class="flex-1 sm:flex-initial min-h-[44px] px-4 rounded-[12px] text-[13px] font-semibold text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.98] transition-all flex items-center justify-center gap-2 w-full sm:w-auto">
                     <i data-lucide="history" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
                     <span>{{ __('whatsapp.tab_logs') }}</span>
                 </a>
                 @if (\App\Support\Context::hasPermission('pos.terminal'))
                     <a href="{{ route('pos.terminal') }}"
-                        class="min-h-[44px] px-4 rounded-[12px] text-[13px] font-semibold text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.98] transition-all flex items-center justify-center gap-2 w-full sm:w-auto">
+                        class="flex-1 sm:flex-initial min-h-[44px] px-4 rounded-[12px] text-[13px] font-semibold text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.98] transition-all flex items-center justify-center gap-2 w-full sm:w-auto">
                         <i data-lucide="calculator" class="w-4 h-4 text-[#007AFF]"></i>
                         <span>{{ __('whatsapp.open_pos') }}</span>
                     </a>

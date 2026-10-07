@@ -760,7 +760,7 @@ return [
     'supervisor_pin_required' => 'Supervisor PIN is required.',
     'supervisor_pin_invalid_attempts' => 'Supervisor PIN incorrect. :remaining attempt(s) remaining before lockout.',
     'supervisor_auth_verified' => 'Supervisor Authorization Verified.',
-    'order_voided_successfully' => 'Order #:order_number voided successfully.',
+    'order_voided_successfully' => 'Transaction #:order_number has been voided successfully.',
     'order_refunded_successfully' => 'Order #:order_number refunded successfully.',
     'partial_refund_successful' => 'Partial refund for #:order_number processed successfully.',
     'void_reason_mandatory' => 'Reason for void is mandatory.',

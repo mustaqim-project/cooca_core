@@ -5,7 +5,7 @@
 ])
 
 @section('content')
-    <div class="max-w-[1360px] mx-auto space-y-6 pb-28 lg:pb-12" x-data="socialInsightsManager()">
+    <div class="max-w-[1360px] mx-auto space-y-6 pb-36 lg:pb-12" x-data="socialInsightsManager()">
 
         {{-- MODULE HEADER & PERSISTENT COMMUNICATION TABS --}}
         <x-module-header
@@ -14,13 +14,13 @@
             :subtitle="__('social_media.insights_subtitle')">
             <x-slot:actions>
                 <button @click="syncAccountsMetrics()" :disabled="isSyncingAccounts"
-                    class="min-h-[44px] sm:min-h-0 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-semibold text-black/70 dark:text-white/70 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 shadow-xs disabled:opacity-50 cursor-pointer">
+                    class="flex-1 sm:flex-initial min-h-[44px] sm:min-h-0 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-semibold text-black/70 dark:text-white/70 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 shadow-xs disabled:opacity-50 cursor-pointer">
                     <i data-lucide="radio" class="w-4 h-4 text-[#007AFF]" :class="{'animate-pulse': isSyncingAccounts}"></i>
                     <span x-text="isSyncingAccounts ? '{{ __('social_media.syncing_accounts_metrics_btn') }}' : '{{ __('social_media.sync_accounts_metrics_btn') }}'">{{ __('social_media.sync_accounts_metrics_btn') }}</span>
                 </button>
 
                 <button @click="refreshAllInsights()" :disabled="isRefreshingAll"
-                    class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-black dark:bg-white dark:text-black hover:opacity-90 active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 shadow-sm disabled:opacity-50 cursor-pointer">
+                    class="flex-1 sm:flex-initial min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-black dark:bg-white dark:text-black hover:opacity-90 active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 shadow-sm disabled:opacity-50 cursor-pointer">
                     <i data-lucide="refresh-cw" class="w-4 h-4" :class="{'animate-spin': isRefreshingAll}"></i>
                     <span x-text="isRefreshingAll ? '{{ __('social_media.refreshing_data_btn') }}' : '{{ __('social_media.refresh_data_btn') }}'">{{ __('social_media.refresh_data_btn') }}</span>
                 </button>

@@ -1166,7 +1166,7 @@
 
             <!-- Main Page Content -->
             <main id="main-content"
-                class="flex-1 min-w-0 pb-28 lg:pb-10 {{ (request()->routeIs('cooca-ai.*') || request()->routeIs('ai.*')) ? 'p-2 sm:p-4 lg:p-6 max-w-none w-full space-y-4' : 'p-3.5 sm:p-5 md:p-6 lg:p-7 space-y-5 sm:space-y-6 max-w-[1440px] w-full mx-auto' }}">
+                class="flex-1 min-w-0 pb-36 lg:pb-10 {{ (request()->routeIs('cooca-ai.*') || request()->routeIs('ai.*')) ? 'p-2 sm:p-4 lg:p-6 max-w-none w-full space-y-4' : 'p-3.5 sm:p-5 md:p-6 lg:p-7 space-y-5 sm:space-y-6 max-w-[1440px] w-full mx-auto' }}">
                 {{-- Flash success & error notifications are handled by AppAlert floating toasts in footer scripts to avoid duplicate UI banners --}}
                 @if (isset($errors) && $errors->any())
                     <div
@@ -2100,7 +2100,7 @@
 
             <!-- Footer (macOS Minimalist Footnote) -->
             <footer
-                class="px-6 lg:px-10 py-4 border-t border-black/5 dark:border-white/5 text-black/45 dark:text-white/45 text-[12px] flex flex-col sm:flex-row items-center justify-between gap-2 mb-16 lg:mb-0">
+                class="px-6 lg:px-10 py-4 border-t border-black/5 dark:border-white/5 text-black/45 dark:text-white/45 text-[12px] flex flex-col sm:flex-row items-center justify-between gap-2 mb-24 lg:mb-0">
                 <div>&copy; {{ date('Y') }} Cooca (cooca.id). {{ __('common.copyright_footer') ?? 'Business Operating System.' }}</div>
                 <div class="flex items-center gap-3">
                     <a href="{{ url('/api/v1/docs') }}" target="_blank"

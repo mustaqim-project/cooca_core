@@ -200,6 +200,8 @@ return [
     'mode_template_title'              => 'Official Meta Template (WABA Anti-Ban)',
     'recommended_badge'                => 'Recommended',
     'mode_freetext_title'              => 'Free Text (Active Customers < 24 Hours Only)',
+    'waba_official_template_only_title'=> 'Official Meta Template Required (WABA Compliant)',
+    'waba_official_template_only_desc' => 'Per Meta WhatsApp Business API policy, mass broadcasts must use pre-approved templates to guarantee 100% delivery and prevent number bans.',
     'contacts_ready'                   => 'Contacts Ready',
     'contacts_unit'                    => 'Contacts',
     'field_title_label'                => 'Campaign Title',

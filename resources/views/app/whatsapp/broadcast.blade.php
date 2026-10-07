@@ -5,7 +5,7 @@
 ])
 
 @section('content')
-    <div class="max-w-[1360px] mx-auto space-y-6 pb-28 sm:pb-32 lg:pb-12" x-data="broadcastManager()">
+    <div class="max-w-[1360px] mx-auto space-y-6 pb-36 lg:pb-12" x-data="broadcastManager()">
 
         {{-- MODULE HEADER & PERSISTENT COMMUNICATION TABS --}}
         <x-module-header
@@ -14,13 +14,13 @@
             :subtitle="__('whatsapp.broadcast_subtitle')">
             <x-slot:actions>
                 <a href="{{ route('whatsapp.logs.index') }}"
-                    class="min-h-[44px] px-4 rounded-[12px] text-[13px] font-semibold text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.98] transition-all flex items-center justify-center gap-2 w-full sm:w-auto shrink-0 whitespace-nowrap">
+                    class="flex-1 sm:flex-initial min-h-[44px] px-4 rounded-[12px] text-[13px] font-semibold text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.98] transition-all flex items-center justify-center gap-2 w-full sm:w-auto shrink-0 whitespace-nowrap">
                     <i data-lucide="history" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
                     <span>{{ __('whatsapp.tab_logs') }}</span>
                 </a>
                 @if (\App\Support\Context::hasPermission('whatsapp.manage'))
                     <button type="button" @click="openCreateModal()"
-                        class="min-h-[44px] px-5 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white font-bold text-[13.5px] shadow-md shadow-[#007AFF]/25 flex items-center justify-center gap-2 transition-all active:scale-[0.98] w-full sm:w-auto shrink-0 whitespace-nowrap">
+                        class="flex-1 sm:flex-initial min-h-[44px] px-5 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white font-bold text-[13.5px] shadow-md shadow-[#007AFF]/25 flex items-center justify-center gap-2 transition-all active:scale-[0.98] w-full sm:w-auto shrink-0 whitespace-nowrap">
                         <i data-lucide="plus" class="w-4 h-4"></i>
                         <span>{{ __('whatsapp.new_broadcast_btn') }}</span>
                     </button>
@@ -459,21 +459,20 @@
                         @submit.prevent="submitBlast">
                         @csrf
 
-                        {{-- Mode Selector (Apple HIG Segmented Control) --}}
-                        <div class="p-1.5 bg-black/[0.05] dark:bg-white/[0.07] rounded-[16px] flex flex-col sm:flex-row items-center gap-1.5 shadow-inner mb-6">
-                            <button type="button" @click="setBroadcastMode('template')"
-                                :class="broadcastMode === 'template' ? 'bg-white dark:bg-[#1C1C1E] text-black dark:text-white shadow-sm font-bold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
-                                class="w-full sm:flex-1 min-h-[44px] px-4 rounded-[12px] text-[13px] flex items-center justify-center gap-2 transition-all">
-                                <i data-lucide="shield-check" class="w-4 h-4 text-[#34C759]"></i>
-                                <span>{{ __('whatsapp.mode_template_title') }}</span>
-                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158]">{{ __('whatsapp.recommended_badge') }}</span>
-                            </button>
-                            <button type="button" @click="setBroadcastMode('free_text')"
-                                :class="broadcastMode === 'free_text' ? 'bg-white dark:bg-[#1C1C1E] text-black dark:text-white shadow-sm font-bold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
-                                class="w-full sm:flex-1 min-h-[44px] px-4 rounded-[12px] text-[13px] flex items-center justify-center gap-2 transition-all">
-                                <i data-lucide="message-square" class="w-4 h-4 text-[#FF9500]"></i>
-                                <span>{{ __('whatsapp.mode_freetext_title') }}</span>
-                            </button>
+                        {{-- Meta WABA Compliance Header Pill --}}
+                        <div class="p-3.5 rounded-[16px] bg-[#34C759]/10 border border-[#34C759]/25 text-[#248A3D] dark:text-[#30D158] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 mb-6 shadow-xs">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-8 h-8 rounded-[10px] bg-[#34C759]/15 flex items-center justify-center shrink-0">
+                                    <i data-lucide="shield-check" class="w-4.5 h-4.5"></i>
+                                </div>
+                                <div>
+                                    <div class="text-[13px] font-bold">{{ __('whatsapp.waba_official_template_only_title') }}</div>
+                                    <div class="text-[11.5px] opacity-85 leading-tight">{{ __('whatsapp.waba_official_template_only_desc') }}</div>
+                                </div>
+                            </div>
+                            <span class="px-2.5 py-1 rounded-full text-[10.5px] font-bold bg-[#34C759] text-white shrink-0 shadow-xs">
+                                Meta WABA Approved
+                            </span>
                         </div>
 
                         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -567,9 +566,9 @@
                                 </div>
 
                                 <!-- ============================================================== -->
-                                <!-- MODE 1: TEMPLATE RESMI META (ANTI-BLOKIR SYSTEM)               -->
+                                <!-- TEMPLATE RESMI META (ANTI-BLOKIR WABA SYSTEM)                   -->
                                 <!-- ============================================================== -->
-                                <div x-show="broadcastMode === 'template'" class="space-y-5">
+                                <div class="space-y-5">
                                     <input type="hidden" name="template_name" :value="selectedTemplateName">
                                     <input type="hidden" name="template_language" value="id">
                                     <input type="hidden" name="template_params[offer]" :value="templateParams.offer">
@@ -628,106 +627,73 @@
                                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                                 <div>
                                                     <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
-                                                        {{ __('whatsapp.template_voucher_label') }} *
-                                                    </label>
-                                                    <input type="text" x-model="templateParams.voucher_code" @input="updateTemplatePreview()"
-                                                        placeholder="{{ __('whatsapp.template_voucher_placeholder') }}"
-                                                        class="w-full min-h-[44px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[14px] font-mono font-bold uppercase text-[#007AFF] focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-colors">
-                                                </div>
+                                                    {{ __('whatsapp.template_voucher_label') }} *
+                                                </label>
+                                                <input type="text" x-model="templateParams.voucher_code" @input="updateTemplatePreview()"
+                                                    placeholder="{{ __('whatsapp.template_voucher_placeholder') }}"
+                                                    class="w-full min-h-[44px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[14px] font-mono font-bold uppercase text-[#007AFF] focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-colors">
+                                            </div>
 
-                                                <div>
-                                                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
-                                                        {{ __('whatsapp.template_valid_label') }} *
-                                                    </label>
-                                                    <input type="text" x-model="templateParams.valid_until" @input="updateTemplatePreview()"
-                                                        placeholder="{{ __('whatsapp.template_valid_placeholder') }}"
-                                                        class="w-full min-h-[44px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[14px] font-medium text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-colors">
-                                                </div>
+                                            <div>
+                                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                                    {{ __('whatsapp.template_valid_label') }} *
+                                                </label>
+                                                <input type="text" x-model="templateParams.valid_until" @input="updateTemplatePreview()"
+                                                    placeholder="{{ __('whatsapp.template_valid_placeholder') }}"
+                                                    class="w-full min-h-[44px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[14px] font-medium text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-colors">
                                             </div>
                                         </div>
 
-                                        {{-- Anti-Blokir Assurance Badge --}}
-                                        <div class="p-3.5 rounded-[14px] bg-[#34C759]/10 border border-[#34C759]/25 text-[#248A3D] dark:text-[#30D158] text-[12px] flex items-start gap-2.5">
-                                            <i data-lucide="shield-check" class="w-4 h-4 shrink-0 mt-0.5"></i>
-                                            <div class="leading-relaxed">
-                                                <strong>{{ __('whatsapp.anti_ban_active_title') }}</strong> {{ __('whatsapp.anti_ban_active_desc') }}
+                                        {{-- Tag Variabel Parameter Kontekstual Industri WABA --}}
+                                        <div class="pt-3 border-t border-black/5 dark:border-white/10 space-y-2">
+                                            <div class="flex items-center justify-between">
+                                                <span class="text-[11.5px] font-semibold text-black/60 dark:text-white/60">
+                                                    {{ __('whatsapp.context_tags_title') ?? 'Tag Variabel Kontekstual:' }}
+                                                </span>
+                                                <span class="text-[10px] text-[#34C759] font-bold uppercase tracking-wider">
+                                                    Meta WABA Auto-Map
+                                                </span>
+                                            </div>
+                                            <div class="flex flex-wrap gap-1.5">
+                                                @foreach ($contextVars as $var)
+                                                    <span class="px-2 py-0.5 rounded-[6px] text-[11px] font-mono font-medium bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 border border-black/5 dark:border-white/10">
+                                                        {{ $var }}
+                                                    </span>
+                                                @endforeach
                                             </div>
                                         </div>
                                     </div>
 
-                                    <!-- Card: Banner URL -->
-                                    <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 space-y-2">
-                                        <label class="block text-[12.5px] font-bold text-black/70 dark:text-white/70">{{ __('whatsapp.field_media_label') }} <span class="text-black/40 dark:text-white/40 font-normal text-[11.5px]">{{ __('whatsapp.field_media_sublabel') }}</span></label>
-                                        <input type="url" name="media_url" x-model="mediaUrl" @input="updateTemplatePreview()"
-                                            placeholder="{{ __('whatsapp.field_media_placeholder') }}"
-                                            class="w-full min-h-[44px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 placeholder:text-black/35 dark:placeholder:text-white/35 transition-colors">
+                                    {{-- Anti-Blokir Assurance Badge --}}
+                                    <div class="p-3.5 rounded-[14px] bg-[#34C759]/10 border border-[#34C759]/25 text-[#248A3D] dark:text-[#30D158] text-[12px] flex items-start gap-2.5">
+                                        <i data-lucide="shield-check" class="w-4 h-4 shrink-0 mt-0.5"></i>
+                                        <div class="leading-relaxed">
+                                            <strong>{{ __('whatsapp.anti_ban_active_title') }}</strong> {{ __('whatsapp.anti_ban_active_desc') }}
+                                        </div>
                                     </div>
                                 </div>
 
-                                <!-- ============================================================== -->
-                                <!-- MODE 2: TEKS BEBAS (HANYA UNTUK PELANGGAN AKTIF 24 JAM)        -->
-                                <!-- ============================================================== -->
-                                <div x-show="broadcastMode === 'free_text'" class="space-y-5">
-                                    {{-- 24-Hour Policy Alert --}}
-                                    <div class="p-4 rounded-[16px] bg-[#FF9500]/12 border border-[#FF9500]/25 text-[#B25E00] dark:text-[#FF9F0A] text-[12.5px] space-y-1">
-                                        <div class="font-bold flex items-center gap-1.5">
-                                            <i data-lucide="alert-triangle" class="w-4 h-4 shrink-0"></i>
-                                            <span>{{ __('whatsapp.window_24h_warning_title') }}</span>
-                                        </div>
-                                        <p class="leading-relaxed">
-                                            {{ __('whatsapp.window_24h_warning_desc') }}
-                                        </p>
-                                    </div>
-
-                                    <!-- Card: Pesan Bebas -->
-                                    <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 space-y-3">
-                                        <div class="flex items-center justify-between">
-                                            <label class="block text-[12.5px] font-bold text-black/70 dark:text-white/70">{{ __('whatsapp.field_free_text_label') }}</label>
-                                        </div>
-
-                                        <!-- Variable insertion chips (Context-Aware 20 Industri) -->
-                                        <div class="flex flex-wrap items-center gap-1.5 pt-1">
-                                            <span class="text-[11.5px] text-black/50 dark:text-white/50 font-semibold mr-1">{{ __('whatsapp.personal_tags_header') }}</span>
-                                            @foreach ($contextVars as $var)
-                                                <button type="button" @click="insertVar('{{ $var }}')"
-                                                    class="min-h-[28px] px-2.5 rounded-[8px] bg-black/[0.05] hover:bg-black/[0.08] dark:bg-white/[0.08] dark:hover:bg-white/[0.12] text-black/80 dark:text-white/80 text-[12px] font-mono transition active:scale-[0.97]">
-                                                    {{ $var }}
-                                                </button>
-                                            @endforeach
-                                        </div>
-
-                                        <textarea id="modalMsgTextarea" x-model="freeTextMessage" rows="5"
-                                            placeholder="{{ $contextPlaceholder }}"
-                                            @input="updateFreeTextPreview()"
-                                            class="w-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] p-3.5 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 resize-none font-sans placeholder:text-black/35 dark:placeholder:text-white/35 leading-relaxed transition-colors"></textarea>
-
-                                        <div class="flex items-center justify-between text-[11px] text-black/40 dark:text-white/40">
-                                            <span>{{ __('whatsapp.formatting_hint') }}</span>
-                                            <span x-text="freeTextMessage.length + ' / 2000 ' + {{ Js::from(__('whatsapp.chars_unit')) }}" class="tabular-nums font-semibold"></span>
-                                        </div>
-                                    </div>
-
-                                    <!-- Card: Banner URL -->
-                                    <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 space-y-2">
-                                        <label class="block text-[12.5px] font-bold text-black/70 dark:text-white/70">{{ __('whatsapp.field_media_label') }} <span class="text-black/40 dark:text-white/40 font-normal text-[11.5px]">{{ __('whatsapp.field_media_sublabel') }}</span></label>
-                                        <input type="url" x-model="mediaUrl" @input="updateFreeTextPreview()"
-                                            placeholder="{{ __('whatsapp.field_media_placeholder') }}"
-                                            class="w-full min-h-[44px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 placeholder:text-black/35 dark:placeholder:text-white/35 transition-colors">
-                                    </div>
+                                <!-- Card: Banner URL -->
+                                <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 space-y-2">
+                                    <label class="block text-[12.5px] font-bold text-black/70 dark:text-white/70">{{ __('whatsapp.field_media_label') }} <span class="text-black/40 dark:text-white/40 font-normal text-[11.5px]">{{ __('whatsapp.field_media_sublabel') }}</span></label>
+                                    <input type="url" name="media_url" x-model="mediaUrl" @input="updateTemplatePreview()"
+                                        placeholder="{{ __('whatsapp.field_media_placeholder') }}"
+                                        class="w-full min-h-[44px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 placeholder:text-black/35 dark:placeholder:text-white/35 transition-colors">
                                 </div>
-
                             </div>
 
-                            <!-- RIGHT PREVIEW COLUMN (5 cols) -->
-                            <div class="lg:col-span-5">
-                                <div class="lg:sticky lg:top-2 space-y-3">
-                                    <div class="hidden lg:flex items-center justify-between text-[12px] font-bold text-black/50 dark:text-white/50 uppercase tracking-wide px-1">
-                                        <span>{{ __('whatsapp.simulator_header') }}</span>
-                                        <span class="text-[#34C759] lowercase font-semibold flex items-center gap-1" x-show="broadcastMode === 'template'">
-                                            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
-                                            <span>{{ __('whatsapp.meta_verified_badge') }}</span>
-                                        </span>
-                                    </div>
+                        </div>
+
+                        <!-- RIGHT PREVIEW COLUMN (5 cols) -->
+                        <div class="lg:col-span-5">
+                            <div class="lg:sticky lg:top-2 space-y-3">
+                                <div class="hidden lg:flex items-center justify-between text-[12px] font-bold text-black/50 dark:text-white/50 uppercase tracking-wide px-1">
+                                    <span>{{ __('whatsapp.simulator_header') }}</span>
+                                    <span class="text-[#34C759] lowercase font-semibold flex items-center gap-1">
+                                        <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                                        <span>{{ __('whatsapp.meta_verified_badge') }}</span>
+                                    </span>
+                                </div>
 
                                     <!-- Mobile Toggle Simulator (Thumb-zone friendly) -->
                                     <button type="button" @click="showMobilePreview = !showMobilePreview; $nextTick(() => { if (window.lucide) lucide.createIcons(); })"
@@ -770,7 +736,7 @@
                                                 <div class="max-w-[92%] rounded-[14px] rounded-tr-[3px] bg-[#DCF8C6] dark:bg-[#005c4b] p-3 shadow-sm text-black dark:text-white space-y-1.5">
                                                     
                                                     {{-- Meta Standard Badge in Preview --}}
-                                                    <div x-show="broadcastMode === 'template'" class="flex items-center gap-1 px-1.5 py-0.5 rounded-[5px] bg-[#34C759]/20 text-[#248A3D] dark:text-[#30D158] text-[9px] font-bold w-fit">
+                                                    <div class="flex items-center gap-1 px-1.5 py-0.5 rounded-[5px] bg-[#34C759]/20 text-[#248A3D] dark:text-[#30D158] text-[9px] font-bold w-fit">
                                                         <i data-lucide="shield-check" class="w-2.5 h-2.5"></i>
                                                         <span x-text="selectedTemplateName || 'cooca_promo_broadcast'"></span>
                                                     </div>
@@ -785,8 +751,7 @@
                                                         x-html="formatSimulatorText(previewMessage)"></p>
 
                                                     {{-- Opt-Out Footer Preview for Marketing Template --}}
-                                                    <div x-show="broadcastMode === 'template'"
-                                                        class="text-[9.5px] text-black/50 dark:text-white/60 pt-1 border-t border-black/10 dark:border-white/10 italic">
+                                                    <div class="text-[9.5px] text-black/50 dark:text-white/60 pt-1 border-t border-black/10 dark:border-white/10 italic">
                                                         {{ __('whatsapp.opt_out_footer_text') }}
                                                     </div>
 
@@ -796,7 +761,7 @@
                                                     </div>
 
                                                     {{-- Action Button Preview --}}
-                                                    <div x-show="broadcastMode === 'template'" class="pt-1">
+                                                    <div class="pt-1">
                                                         <div class="w-full py-1.5 px-3 rounded-[8px] bg-white dark:bg-[#1F2C34] text-center text-[10.5px] font-bold text-[#007AFF] shadow-xs flex items-center justify-center gap-1">
                                                             <i data-lucide="tag" class="w-3 h-3"></i>
                                                             <span>{{ __('whatsapp.claim_offer_btn') }}</span>
@@ -889,7 +854,6 @@
                     voucher_code: 'HEMAT25',
                     valid_until: {{ Js::from(__('whatsapp.default_tpl_valid')) }}
                 },
-                freeTextMessage: '',
                 title: {{ Js::from(__('whatsapp.default_campaign_title')) }},
                 targetFilter: 'all',
                 message: '',
@@ -906,21 +870,6 @@
                     this.$watch('targetFilter', (val) => {
                         this.estimatedCount = this.tierCounts[val] ?? 0;
                     });
-                    this.$nextTick(() => {
-                        if (window.lucide) lucide.createIcons();
-                    });
-                },
-
-                setBroadcastMode(mode) {
-                    this.broadcastMode = mode;
-                    if (mode === 'template') {
-                        this.updateTemplatePreview();
-                    } else {
-                        if (!this.freeTextMessage) {
-                            this.freeTextMessage = {{ Js::from(__('whatsapp.default_freetext_template', ['business' => $business->name])) }};
-                        }
-                        this.updateFreeTextPreview();
-                    }
                     this.$nextTick(() => {
                         if (window.lucide) lucide.createIcons();
                     });
@@ -994,29 +943,6 @@
                     });
                 },
 
-                updateFreeTextPreview() {
-                    this.message = this.freeTextMessage;
-                    this.previewMessage = this.freeTextMessage
-                        .replace(/\{nama\}/g, 'Budi Santoso')
-                        .replace(/\{poin\}/g, '1.250')
-                        .replace(/\{tier\}/g, 'Gold')
-                        .replace(/\{bisnis\}/g, {{ Js::from($business->name) }})
-                        .replace(/\{meja\}/g, 'Meja 08')
-                        .replace(/\{nopol\}/g, 'B 1234 XYZ')
-                        .replace(/\{servis_terakhir\}/g, 'Ganti Oli & Filter')
-                        .replace(/\{no_rak\}/g, 'RAK-B3')
-                        .replace(/\{berat_kg\}/g, '4.5 kg')
-                        .replace(/\{no_spk\}/g, 'SPK-2026/09/042')
-                        .replace(/\{produk\}/g, 'Kemeja Katun Bordir')
-                        .replace(/\{proyek\}/g, 'Renovasi Ruko Blok A')
-                        .replace(/\{termin\}/g, 'Termin 2')
-                        .replace(/\{no_resep\}/g, 'RSP-8821');
-
-                    this.$nextTick(() => {
-                        if (window.lucide) lucide.createIcons();
-                    });
-                },
-
                 formatSimulatorText(text) {
                     if (!text) return '<span class="text-black/35 dark:text-white/35 italic">' + {{ Js::from(__('whatsapp.simulator_empty_placeholder')) }} + '</span>';
                     const escaped = String(text)
@@ -1040,39 +966,16 @@
                     this.createModalOpen = false;
                 },
 
-                insertVar(v) {
-                    const ta = document.getElementById('modalMsgTextarea');
-                    if (!ta) return;
-                    const start = ta.selectionStart;
-                    const end = ta.selectionEnd;
-                    this.freeTextMessage = this.freeTextMessage.substring(0, start) + v + this.freeTextMessage.substring(end);
-                    this.$nextTick(() => {
-                        ta.selectionStart = ta.selectionEnd = start + v.length;
-                        ta.focus();
-                        this.updateFreeTextPreview();
-                    });
-                },
-
                 async submitBlast() {
                     if (this.submitting || !this.title.trim()) return;
 
-                    if (this.broadcastMode === 'template') {
-                        if (!this.templateParams.offer.trim() || !this.templateParams.voucher_code.trim()) {
-                            alert({{ Js::from(__('whatsapp.alert_template_fields_required')) }});
-                            return;
-                        }
-                    } else {
-                        if (!this.freeTextMessage.trim()) {
-                            alert({{ Js::from(__('whatsapp.alert_freetext_field_required')) }});
-                            return;
-                        }
+                    if (!this.templateParams.offer.trim() || !this.templateParams.voucher_code.trim()) {
+                        alert({{ Js::from(__('whatsapp.alert_template_fields_required')) }});
+                        return;
                     }
 
                     let confirmed = false;
-                    const modeDesc = this.broadcastMode === 'template' 
-                        ? {{ Js::from(__('whatsapp.mode_template_title')) }} 
-                        : {{ Js::from(__('whatsapp.mode_freetext_title')) }};
-
+                    const modeDesc = {{ Js::from(__('whatsapp.mode_template_title')) }};
                     const msgTemplate = {{ Js::from(__('whatsapp.confirm_send_broadcast_msg')) }};
                     const confirmMsg = msgTemplate.replace(':mode', modeDesc).replace(':count', this.estimatedCount.toLocaleString(this.localeCode));
 

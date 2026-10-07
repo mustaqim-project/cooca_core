@@ -25,7 +25,7 @@
         }
     @endphp
 
-    <div class="max-w-[1360px] mx-auto space-y-6 pb-28 lg:pb-12">
+    <div class="max-w-[1360px] mx-auto space-y-6 pb-36 lg:pb-12">
 
         {{-- MODULE HEADER & PERSISTENT COMMUNICATION TABS --}}
         <x-module-header

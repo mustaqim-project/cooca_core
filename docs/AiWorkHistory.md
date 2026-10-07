@@ -32,7 +32,72 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 - **Files Affected:** Daftar berkas controller, service, model, blade, atau route yang dimodifikasi.
 - **Database Changes:** Tabel baru, migrasi skema, kolom tambahan, atau indexing.
-- **API / Route Changes:** Endpoint baru atau perubahan signature HTTP.
+### [WORK-2026-10-07-328] Eliminasi Mode Teks Bebas Modal WhatsApp Broadcast (Kepatuhan Penuh WABA Meta) & Perbaikan Komprehensif Tumpang Tindih (Overlap) Tampilan Mobile
+
+- **Date:** 2026-10-07
+- **Status:** COMPLETED
+- **Module:** WhatsApp Gateway & Saluran Komunikasi (`resources/views/app/whatsapp/broadcast.blade.php`, `resources/views/components/module-tabs.blade.php`, `resources/views/components/module-header.blade.php`, `resources/views/layouts/app.blade.php`, `posts.blade.php`, `inbox.blade.php`, `insights.blade.php`, `calendar.blade.php`, `index.blade.php`, `lang/id/whatsapp.php`, `lang/en/whatsapp.php`)
+- **Feature:** 100% Official Meta WABA Approved Templates for Broadcast Modal, Active Tab Mobile Auto-Scroll (`scrollIntoView`), Safe-Area Bottom Navigation Bar Clearance, Responsive Header Titles & Action Grids.
+- **Work Type:** UI/UX (Apple HIG / Mobile-First) | Bug Fix | Architecture | Security & Compliance | Localization
+
+#### 1. Business Context & Objective
+
+- **Konteks:** 
+  1. Pada modal formulir buat kampanye siaran pesan (`/whatsapp/broadcast`), sebelumnya masih tersedia opsi toggle "Teks Bebas (Khusus Pelanggan Aktif < 24 Jam)" dengan kotak input pesan mentah dan peringatan customer window. Berdasarkan regulasi ketat Meta WhatsApp Business API (WABA), inisiasi pengiriman pesan siaran promosi/blast massal ke pelanggan WAJIB menggunakan Template Resmi Meta yang telah disetujui (Pre-approved WABA Templates) guna menghindari pemblokiran nomor (anti-ban). User meminta seluruh input teks bebas dieliminasi sehingga formulir murni menggunakan template resmi WABA Meta.
+  2. Pada tampilan perangkat mobile (smartphone/tablet), terdapat beberapa isu tumpang tindih visual (overlap):
+     - Bilah navigasi bawah iOS/Android (`fixed inset-x-0 bottom-0 z-40`) menutupi bagian bawah kartu konten dan status kosong (empty state) karena kurangnya jarak ruang aman (*safe-area clearance*).
+     - Bilah tab navigasi modul komunikasi (`x-module-tabs`) pada layar HP selalu tertahan di posisi paling kiri (`scrollLeft = 0`), sehingga tab aktif yang berada di sebelah kanan (seperti *Kotak Masuk*, *Analitik Metrik*, *WhatsApp Gateway*, dan *Siaran Pesan*) tidak terlihat oleh pengguna.
+     - Judul header halaman pada layar HP terpotong di tengah kata akibat CSS `truncate`.
+     - Tombol aksi header mengalami desak-desakan (*squeezed*) pada layar kecil.
+
+#### 2. What Was Done
+
+1. **Eliminasi Total Mode Teks Bebas pada Modal Broadcast WhatsApp:**
+   - Menghapus komponen switch toggle ("Template Resmi Meta" vs "Teks Bebas").
+   - Menghapus textarea pesan bebas, peringatan 24-jam Meta, tombol tag personal mentah, serta seluruh variabel dan metode Alpine.js yang terkait (`freeTextMessage`, `setBroadcastMode`, `updateFreeTextPreview`, `insertVar`).
+   - Menyematkan header kepatuhan resmi dengan lencana hijau `Meta WABA Approved` dan banner transparansi anti-blokir.
+   - Mengintegrasikan tag parameter dinamis kontekstual industri (`{nama}`, `{nopol}`, `{servis_terakhir}`, `{no_resep}`, `{meja}`, `{no_rak}`, `{berat_kg}`, dll.) langsung ke dalam kartu parameter resmi Meta, sehingga nilai variabel template otomatis dipetakan ke profil pelanggan tanpa input bebas yang melanggar kebijakan Meta.
+   - Memutakhirkan `submitBlast()` agar memvalidasi kelengkapan parameter resmi template Meta (`offer`, `voucher_code`) dan menampilkan dialog konfirmasi pengiriman resmi WABA.
+
+2. **Auto-Scroll Otomatis Tab Aktif pada Mobile (`x-module-tabs`):**
+   - Menambahkan atribut `data-active-tab="true|false"` dan kelas `shrink-0` pada setiap tombol tab di `module-tabs.blade.php`.
+   - Mengintegrasikan hook Alpine.js `x-init` dengan `scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'instant' })` sehingga saat halaman dibuka pada HP, tab aktif (misal: *WhatsApp Gateway* atau *Analitik Metrik*) langsung otomatis digeser ke tengah layar tanpa tersembunyi di sisi kanan.
+   - Menambahkan kelas touch scrolling halus: `overscroll-x-contain touch-pan-x`.
+
+3. **Penyelesaian Tumpang Tindih Bilah Navigasi Bawah Mobile (Safe-Area Clearance):**
+   - Menambah padding bawah elemen `<main id="main-content">` di `layouts/app.blade.php` dari `pb-28` menjadi `pb-36 lg:pb-10` (144px ruang bebas di mobile).
+   - Menambah margin bawah footer dari `mb-16` menjadi `mb-24 lg:mb-0` untuk memberikan jarak aman dari tombol aksi melayang `+` (`-mt-5`) dan tab bar frosted glass bawah.
+   - Menyelaraskan padding bawah container seluruh halaman komunikasi (`posts`, `inbox`, `insights`, `calendar`, `index`, `broadcast`) ke `pb-36 lg:pb-12`.
+   - Mengubah padding kartu status kosong (*empty state*) dari `p-12` menjadi `p-6 sm:p-12` agar pas dan tidak terdorong keluar layar pada HP.
+
+4. **Pencegahan Judul Terpotong & Penataan Tombol Aksi Header:**
+   - Memperbaiki `<h1>` pada `module-header.blade.php` dari `truncate` menjadi `break-words sm:truncate` agar judul panjang tidak terpotong di tengah kata pada layar HP.
+   - Memberikan kelas `flex-1 sm:flex-initial` pada tombol aksi header di halaman *Analitik Metrik* dan *WhatsApp Gateway* agar tersusun rapi dan proporsional di mobile.
+
+#### 3. Technical Changes
+
+- **Files Affected:**
+  - `resources/views/app/whatsapp/broadcast.blade.php`
+  - `resources/views/components/module-tabs.blade.php`
+  - `resources/views/components/module-header.blade.php`
+  - `resources/views/layouts/app.blade.php`
+  - `resources/views/app/social_media/posts.blade.php`
+  - `resources/views/app/social_media/inbox.blade.php`
+  - `resources/views/app/social_media/insights.blade.php`
+  - `resources/views/app/social_media/calendar.blade.php`
+  - `resources/views/app/social_media/index.blade.php`
+  - `resources/views/app/whatsapp/index.blade.php`
+  - `lang/id/whatsapp.php`
+  - `lang/en/whatsapp.php`
+  - `lang/en/pos.php`
+  - `lang/en/tax.php`
+- **Testing & Verification:**
+  - `tests/Feature/WhatsApp`: 58 tests, 369 assertions — **100% PASSED**.
+  - `tests/Feature/SocialMedia`: 75 tests, 439 assertions — **100% PASSED**.
+  - `tests/Feature/SharedNavigationComponentsTest.php`: 5 tests, 25 assertions — **100% PASSED**.
+  - `tests/Feature/ComprehensiveLocalizationAndErgonomicsTest.php`: 3 tests, 59 assertions — **100% PASSED**.
+
+---
 
 ### [WORK-2026-10-07-327] Standarisasi Aspek Rasio & Ukuran Multi-Format Live Preview Media Sosial (Feed IG 4:5, Square 1:1, Reels 9:16, Landscape 16:9)
 

@@ -5,7 +5,7 @@
 ])
 
 @section('content')
-    <div class="max-w-[1360px] mx-auto space-y-6 pb-28 lg:pb-12" x-data="socialMediaGateway()" x-init="init()">
+    <div class="max-w-[1360px] mx-auto space-y-6 pb-36 lg:pb-12" x-data="socialMediaGateway()" x-init="init()">
 
         {{-- MODULE HEADER & PERSISTENT COMMUNICATION TABS --}}
         <x-module-header

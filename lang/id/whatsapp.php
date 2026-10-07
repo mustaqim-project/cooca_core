@@ -200,6 +200,8 @@ return [
     'mode_template_title'              => 'Template Resmi Meta (Anti-Blokir WABA)',
     'recommended_badge'                => 'Direkomendasikan',
     'mode_freetext_title'              => 'Teks Bebas (Khusus Pelanggan Aktif < 24 Jam)',
+    'waba_official_template_only_title'=> 'Wajib Menggunakan Template Resmi Meta (WABA Compliant)',
+    'waba_official_template_only_desc' => 'Sesuai regulasi resmi Meta WhatsApp Business API, broadcast massal wajib menggunakan template terverifikasi untuk menjamin pengiriman 100% dan mencegah pemblokiran nomor.',
     'contacts_ready'                   => 'Kontak Siap',
     'contacts_unit'                    => 'Kontak',
     'field_title_label'                => 'Judul Kampanye',
