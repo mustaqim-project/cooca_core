@@ -34,6 +34,7 @@
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Plus Jakarta Sans", sans-serif;
+            overflow-x: hidden;
         }
 
         @page {
@@ -45,14 +46,310 @@
             background-color: #ffffff !important;
             color: #0f172a !important;
             width: 100% !important;
-            max-width: 800px !important;
-            min-width: 740px !important;
+            max-width: 820px !important;
+            min-width: 0 !important;
             margin: 0 auto !important;
             box-sizing: border-box !important;
-            padding: 36px 40px !important;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            padding: 16px 14px !important;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
             border-radius: 16px;
         }
+
+        @media (min-width: 640px) {
+            .print-sheet {
+                padding: 24px 22px !important;
+            }
+        }
+
+        @media (min-width: 840px) {
+            .print-sheet {
+                padding: 36px 40px !important;
+            }
+        }
+
+        .invoice-header-grid {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 2px solid #000000;
+            padding-bottom: 16px;
+            margin-bottom: 18px;
+            gap: 16px;
+        }
+
+        .invoice-header-left {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .invoice-header-right {
+            flex-shrink: 0;
+            text-align: right;
+            max-width: 48%;
+            word-break: break-word;
+        }
+
+        .invoice-party-grid {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            font-size: 11px;
+            margin-bottom: 20px;
+            gap: 16px;
+        }
+
+        .invoice-party-col {
+            flex: 1;
+            min-width: 0;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .invoice-party-col.party-right {
+            flex-shrink: 0;
+            text-align: right;
+            max-width: 48%;
+        }
+
+        .party-meta-row {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .invoice-table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+            font-size: 11px;
+            table-layout: auto;
+        }
+
+        .invoice-table th,
+        .invoice-table td {
+            padding: 8px 8px;
+            vertical-align: top;
+            box-sizing: border-box;
+        }
+
+        @media (min-width: 768px) {
+            .invoice-table th,
+            .invoice-table td {
+                padding: 8px 10px;
+            }
+        }
+
+        .col-no { width: 32px; text-align: center; }
+        .col-desc { text-align: left; }
+        .col-durasi { width: 95px; text-align: center; }
+        .col-qty { width: 36px; text-align: right; }
+        .col-tarif { width: 95px; text-align: right; }
+        .col-jumlah { width: 105px; text-align: right; }
+
+        .invoice-bottom-grid {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .invoice-bottom-left {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .invoice-bottom-right {
+            width: 42%;
+            max-width: 42%;
+            flex-shrink: 0;
+        }
+
+        .invoice-signatures-grid {
+            margin-top: 32px;
+            padding-top: 16px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            text-align: center;
+            font-size: 11px;
+            gap: 20px;
+        }
+
+        .invoice-signature-col {
+            width: 46%;
+        }
+
+        @media (max-width: 767px) {
+            .invoice-bottom-grid {
+                flex-direction: column !important;
+                gap: 16px !important;
+            }
+            .invoice-bottom-left,
+            .invoice-bottom-right {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+        }
+
+        @media (max-width: 639px) {
+            .invoice-header-grid {
+                flex-direction: column !important;
+                gap: 12px !important;
+            }
+            .invoice-header-left,
+            .invoice-header-right {
+                width: 100% !important;
+                max-width: 100% !important;
+                text-align: left !important;
+            }
+            .invoice-header-right {
+                border-top: 1px dashed #e2e8f0;
+                padding-top: 10px;
+            }
+            .invoice-party-grid {
+                flex-direction: column !important;
+                gap: 12px !important;
+            }
+            .invoice-party-col,
+            .invoice-party-col.party-right {
+                width: 100% !important;
+                max-width: 100% !important;
+                text-align: left !important;
+            }
+            .invoice-party-col.party-right {
+                border-top: 1px dashed #f1f5f9;
+                padding-top: 8px;
+            }
+            .party-meta-row {
+                justify-content: space-between !important;
+            }
+            .invoice-table {
+                font-size: 10px;
+            }
+            .invoice-table th,
+            .invoice-table td {
+                padding: 6px 4px;
+            }
+            .col-no { width: 24px; }
+            .col-durasi { width: 72px; }
+            .col-qty { width: 26px; }
+            .col-tarif { width: 76px; }
+            .col-jumlah { width: 80px; }
+        }
+
+        @media (max-width: 539px) {
+            .invoice-signatures-grid {
+                flex-direction: column !important;
+                gap: 24px !important;
+            }
+            .invoice-signature-col {
+                width: 100% !important;
+            }
+        }
+
+        /* Saat render PDF via html2pdf atau Print, kunci kembali ke standar layout A4 portrait desktop */
+        .print-sheet.pdf-render-mode {
+            width: 794px !important;
+            max-width: 794px !important;
+            min-width: 794px !important;
+            padding: 36px 40px !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+        }
+
+        .print-sheet.pdf-render-mode .invoice-header-grid {
+            display: flex !important;
+            flex-direction: row !important;
+            justify-content: space-between !important;
+            align-items: flex-start !important;
+            gap: 16px !important;
+        }
+
+        .print-sheet.pdf-render-mode .invoice-header-left {
+            width: 58% !important;
+            max-width: 58% !important;
+            flex: none !important;
+        }
+
+        .print-sheet.pdf-render-mode .invoice-header-right {
+            width: 40% !important;
+            max-width: 40% !important;
+            text-align: right !important;
+            border-top: none !important;
+            padding-top: 0 !important;
+            flex: none !important;
+        }
+
+        .print-sheet.pdf-render-mode .invoice-party-grid {
+            display: flex !important;
+            flex-direction: row !important;
+            justify-content: space-between !important;
+            align-items: flex-start !important;
+            gap: 16px !important;
+        }
+
+        .print-sheet.pdf-render-mode .invoice-party-col {
+            width: 48% !important;
+            flex: none !important;
+        }
+
+        .print-sheet.pdf-render-mode .invoice-party-col.party-right {
+            width: 48% !important;
+            text-align: right !important;
+            border-top: none !important;
+            padding-top: 0 !important;
+            flex: none !important;
+        }
+
+        .print-sheet.pdf-render-mode .party-meta-row {
+            justify-content: flex-end !important;
+        }
+
+        .print-sheet.pdf-render-mode .invoice-bottom-grid {
+            display: flex !important;
+            flex-direction: row !important;
+            justify-content: space-between !important;
+            align-items: flex-start !important;
+            gap: 20px !important;
+        }
+
+        .print-sheet.pdf-render-mode .invoice-bottom-left {
+            width: 54% !important;
+            max-width: 54% !important;
+            flex: none !important;
+        }
+
+        .print-sheet.pdf-render-mode .invoice-bottom-right {
+            width: 42% !important;
+            max-width: 42% !important;
+            flex: none !important;
+        }
+
+        .print-sheet.pdf-render-mode .invoice-signatures-grid {
+            display: flex !important;
+            flex-direction: row !important;
+            justify-content: space-between !important;
+            text-align: center !important;
+        }
+
+        .print-sheet.pdf-render-mode .invoice-signature-col {
+            width: 46% !important;
+        }
+
+        .print-sheet.pdf-render-mode .invoice-table {
+            font-size: 11px !important;
+        }
+
+        .print-sheet.pdf-render-mode .invoice-table th,
+        .print-sheet.pdf-render-mode .invoice-table td {
+            padding: 8px 10px !important;
+        }
+
+        .print-sheet.pdf-render-mode .col-no { width: 36px !important; }
+        .print-sheet.pdf-render-mode .col-durasi { width: 110px !important; }
+        .print-sheet.pdf-render-mode .col-qty { width: 44px !important; }
+        .print-sheet.pdf-render-mode .col-tarif { width: 110px !important; }
+        .print-sheet.pdf-render-mode .col-jumlah { width: 120px !important; }
 
         @media print {
             html,
@@ -80,12 +377,103 @@
                 min-width: 0 !important;
             }
 
-            table {
+            .invoice-header-grid {
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                align-items: flex-start !important;
+                gap: 16px !important;
+            }
+
+            .invoice-header-left {
+                width: 58% !important;
+                max-width: 58% !important;
+                flex: none !important;
+            }
+
+            .invoice-header-right {
+                width: 40% !important;
+                max-width: 40% !important;
+                text-align: right !important;
+                border-top: none !important;
+                padding-top: 0 !important;
+                flex: none !important;
+            }
+
+            .invoice-party-grid {
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                align-items: flex-start !important;
+                gap: 16px !important;
+            }
+
+            .invoice-party-col {
+                width: 48% !important;
+                flex: none !important;
+            }
+
+            .invoice-party-col.party-right {
+                width: 48% !important;
+                text-align: right !important;
+                border-top: none !important;
+                padding-top: 0 !important;
+                flex: none !important;
+            }
+
+            .party-meta-row {
+                justify-content: flex-end !important;
+            }
+
+            .invoice-bottom-grid {
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                align-items: flex-start !important;
+                gap: 20px !important;
+            }
+
+            .invoice-bottom-left {
+                width: 54% !important;
+                max-width: 54% !important;
+                flex: none !important;
+            }
+
+            .invoice-bottom-right {
+                width: 42% !important;
+                max-width: 42% !important;
+                flex: none !important;
+            }
+
+            .invoice-signatures-grid {
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                text-align: center !important;
+            }
+
+            .invoice-signature-col {
+                width: 46% !important;
+            }
+
+            .invoice-table {
                 width: 100% !important;
                 border-collapse: collapse !important;
+                font-size: 11px !important;
                 page-break-inside: auto !important;
                 break-inside: auto !important;
             }
+
+            .invoice-table th,
+            .invoice-table td {
+                padding: 8px 10px !important;
+            }
+
+            .col-no { width: 36px !important; }
+            .col-durasi { width: 110px !important; }
+            .col-qty { width: 44px !important; }
+            .col-tarif { width: 110px !important; }
+            .col-jumlah { width: 120px !important; }
 
             tr {
                 page-break-inside: avoid !important;
@@ -109,7 +497,7 @@
 </head>
 
 <body
-    class="bg-[#F2F2F7] dark:bg-[#1E1E1E] text-black dark:text-white py-4 sm:py-8 px-3 sm:px-6 transition-colors">
+    class="bg-[#F2F2F7] dark:bg-[#1E1E1E] text-black dark:text-white py-3 sm:py-8 px-2 sm:px-6 transition-colors overflow-x-hidden min-h-screen">
 
     @php
         $badge = $payment->getStatusBadge();
@@ -151,24 +539,26 @@
 
     <!-- Floating Top Action Bar -->
     <header
-        class="no-print max-w-4xl mx-auto mb-6 bg-white dark:bg-[#1C1C1E] text-black dark:text-white p-4 rounded-[20px] shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-black/[0.06] dark:border-white/[0.08] space-y-3 backdrop-blur-xl">
+        class="no-print max-w-4xl mx-auto mb-5 sm:mb-6 bg-white dark:bg-[#1C1C1E] text-black dark:text-white p-3.5 sm:p-4 rounded-[18px] sm:rounded-[20px] shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-black/[0.06] dark:border-white/[0.08] space-y-3 backdrop-blur-xl">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 shrink-0">
                 <span
                     class="w-2.5 h-2.5 rounded-full {{ $isApproved ? 'bg-[#34C759]' : ($payment->isRejected() ? 'bg-[#FF3B30]' : 'bg-[#FF9500]') }}"
                     aria-hidden="true"></span>
                 <span class="text-xs font-semibold tracking-tight text-gray-800 dark:text-gray-200">{{ __('billing.invoice_official_title') }}</span>
             </div>
 
-            <div class="flex flex-wrap items-center gap-2.5">
+            <div class="grid grid-cols-3 sm:flex sm:items-center gap-2 sm:gap-2.5 w-full sm:w-auto shrink-0">
                 <a href="{{ route('billing.payment.show', $payment) }}"
-                    class="min-h-[44px] px-4 rounded-[12px] bg-black/[0.03] hover:bg-black/[0.06] dark:bg-white/[0.06] dark:hover:bg-white/[0.1] text-xs font-semibold active:scale-[0.98] transition-all text-gray-700 dark:text-gray-300 border border-black/[0.06] dark:border-white/[0.08] cursor-pointer flex items-center justify-center">
-                    {{ __('billing.back') }}
+                    class="h-9 sm:h-10 px-3 sm:px-4 rounded-[10px] sm:rounded-[12px] bg-black/[0.04] hover:bg-black/[0.08] dark:bg-white/[0.06] dark:hover:bg-white/[0.1] text-xs font-semibold active:scale-[0.98] transition-all text-gray-700 dark:text-gray-300 border border-black/[0.06] dark:border-white/[0.08] cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                    <span>{{ __('billing.back') }}</span>
                 </a>
                 <button type="button" onclick="window.print()"
-                    class="min-h-[44px] px-4 rounded-[12px] bg-black/[0.03] hover:bg-black/[0.06] dark:bg-white/[0.06] dark:hover:bg-white/[0.1] text-gray-700 dark:text-gray-300 text-xs font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition-all border border-black/[0.06] dark:border-white/[0.08] cursor-pointer">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500 dark:text-gray-400" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    class="h-9 sm:h-10 px-3 sm:px-4 rounded-[10px] sm:rounded-[12px] bg-black/[0.04] hover:bg-black/[0.08] dark:bg-white/[0.06] dark:hover:bg-white/[0.1] text-gray-700 dark:text-gray-300 text-xs font-semibold flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all border border-black/[0.06] dark:border-white/[0.08] cursor-pointer whitespace-nowrap">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-500 dark:text-gray-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
                         <path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6" />
                         <rect x="6" y="14" width="12" height="8" rx="1" />
@@ -176,9 +566,8 @@
                     <span>{{ __('billing.action_print_printer') }}</span>
                 </button>
                 <button id="btnDownloadPdf" type="button" onclick="downloadPDF()"
-                    class="min-h-[44px] px-4.5 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-xs font-bold shadow-xs flex items-center justify-center gap-2 active:scale-[0.98] transition-all cursor-pointer">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    class="h-9 sm:h-10 px-3 sm:px-4 rounded-[10px] sm:rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                         <polyline points="7 10 12 15 17 10" />
                         <line x1="12" y1="15" x2="12" y2="3" />
@@ -190,51 +579,26 @@
 
         <div
             class="pt-2 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center gap-2 text-[11px] text-gray-500 dark:text-gray-400">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#007AFF] shrink-0"
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-[#007AFF] shrink-0"
                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                 stroke-linejoin="round">
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
             </svg>
-            <span>{!! __('billing.invoice_download_pdf_hint') !!}</span>
+            <span class="truncate sm:whitespace-normal">{!! __('billing.invoice_download_pdf_hint') !!}</span>
         </div>
     </header>
 
-    <!-- Mobile Fast Summary Bento Card (Visible only on screens < 640px, Hidden in Print) -->
-    <div class="sm:hidden no-print max-w-4xl mx-auto mb-4 bg-white dark:bg-[#1C1C1E] p-4 rounded-[18px] border border-black/[0.08] dark:border-white/[0.08] shadow-xs space-y-3">
-        <div class="flex items-center justify-between">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-gray-500">{{ __('billing.invoice_summary') }}</span>
-            <span class="px-2 py-0.5 rounded-[8px] text-[10px] font-bold font-mono uppercase {{ $badge['class'] ?? ($isApproved ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800') }}">
-                {{ $badge['label'] ?? strtoupper($payment->status) }}
-            </span>
-        </div>
-        <div>
-            <div class="text-xs text-gray-500 font-mono">{{ $payment->order_number }}</div>
-            <div class="text-base font-black text-black dark:text-white">{{ $payment->package_name ?? 'Cooca SaaS Subscription' }}</div>
-            <div class="text-xs text-gray-600 dark:text-gray-300 font-mono mt-0.5">{{ __('billing.duration_label') }} {{ $durationText }}</div>
-        </div>
-        <div class="pt-2 border-t border-black/[0.06] dark:border-white/[0.08] flex items-baseline justify-between">
-            <span class="text-xs text-gray-500">{{ __('billing.total_bill') }}</span>
-            <span class="text-lg font-black font-mono text-black dark:text-white tabular-nums">Rp {{ number_format((float) $payment->total_payable, 0, ',', '.') }}</span>
-        </div>
-        <div class="flex items-center gap-1.5 text-[11px] text-gray-500 dark:text-gray-400 bg-black/[0.02] dark:bg-white/[0.04] p-2 rounded-[10px]">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-[#007AFF] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
-            </svg>
-            <span>{{ __('billing.invoice_horizontal_scroll_hint') }}</span>
-        </div>
-    </div>
-
     <!-- Outer responsive wrapper -->
-    <div class="max-w-4xl mx-auto overflow-x-auto pb-6">
+    <div class="w-full max-w-4xl mx-auto pb-6">
         <!-- Paper Sheet Container (Strict A4 Layout on Paper & Screen, Zero Overlap) -->
         <main class="print-sheet bg-white text-black"
             aria-label="{{ __('billing.invoice_official_aria_label') }}">
 
             <!-- Header / Kop Surat Resmi Cooca ID -->
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #000000; padding-bottom: 16px; margin-bottom: 18px;">
-                <div style="width: 58%; max-width: 58%;">
+            <div class="invoice-header-grid">
+                <div class="invoice-header-left">
                     <div style="margin-bottom: 8px;">
-                        <img src="{{ $coocaLogoBase64 }}" alt="COOCA" style="height: 40px; width: auto; max-width: 190px; object-fit: contain; display: block;">
+                        <img src="{{ $coocaLogoBase64 }}" alt="COOCA" style="height: 38px; width: auto; max-width: 180px; object-fit: contain; display: block;">
                     </div>
                     <div style="font-size: 11px; color: #475569; line-height: 1.45;">
                         <p style="margin: 0; font-weight: 500;">{{ __('billing.company_tagline') }}</p>
@@ -242,14 +606,14 @@
                     </div>
                 </div>
 
-                <div style="width: 40%; max-width: 40%; text-align: right;">
-                    <div style="font-size: 18px; font-weight: 900; letter-spacing: 0.05em; color: #000000; text-transform: uppercase;">
+                <div class="invoice-header-right">
+                    <div style="font-size: 17px; font-weight: 900; letter-spacing: 0.05em; color: #000000; text-transform: uppercase;">
                         {{ __('billing.invoice_header_title') }}
                     </div>
                     <div style="font-size: 13px; font-family: monospace; font-weight: 800; color: #000000; margin-top: 2px;">
                         {{ $payment->order_number }}
                     </div>
-                    <div style="font-size: 11px; color: #64748b; font-family: monospace; margin-top: 2px;">
+                    <div style="font-size: 10.5px; color: #64748b; font-family: monospace; margin-top: 2px; word-break: break-all;">
                         {{ __('billing.transaction_id') }} #{{ $payment->id }}
                     </div>
                     <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; color: #475569;">
@@ -261,32 +625,32 @@
             </div>
 
             <!-- Detail Pihak Tertagih & Tanggal Tagihan -->
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; font-size: 11px; margin-bottom: 20px;">
-                <div style="width: 48%; line-height: 1.5;">
+            <div class="invoice-party-grid">
+                <div class="invoice-party-col">
                     <div style="font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; font-size: 10px; margin-bottom: 2px;">
                         {{ __('billing.bill_to') }}
                     </div>
                     <div style="font-size: 13px; font-weight: 800; color: #000000; font-family: monospace;">{{ $business->name }}</div>
                     <div style="font-weight: 700; color: #1e293b;">{{ $payment->user?->name ?? __('billing.business_owner') }}</div>
-                    <div style="color: #475569; font-family: monospace;">Email: {{ $payment->user?->email ?? '-' }}</div>
-                    <div style="color: #64748b; font-family: monospace;">{{ __('billing.workspace_id') }} {{ $business->id }}</div>
+                    <div style="color: #475569; font-family: monospace; word-break: break-all;">Email: {{ $payment->user?->email ?? '-' }}</div>
+                    <div style="color: #64748b; font-family: monospace; word-break: break-all;">{{ __('billing.workspace_id') }} {{ $business->id }}</div>
                 </div>
 
-                <div style="width: 48%; text-align: right; line-height: 1.5;">
-                    <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                <div class="invoice-party-col party-right" style="line-height: 1.5;">
+                    <div class="party-meta-row">
                         <span style="color: #64748b;">{{ __('billing.invoice_date') }}</span>
                         <span style="font-family: monospace; font-weight: 700; color: #000000;">{{ $createdAtWib?->translatedFormat('d F Y') }}</span>
                     </div>
-                    <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 2px;">
+                    <div class="party-meta-row" style="margin-top: 2px;">
                         <span style="color: #64748b;">{{ __('billing.due_date') }}</span>
                         <span style="font-family: monospace; font-weight: 700; color: #000000;">{{ $dueDateWib?->translatedFormat('d F Y') }}</span>
                     </div>
-                    <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 2px;">
+                    <div class="party-meta-row" style="margin-top: 2px;">
                         <span style="color: #64748b;">{{ __('billing.payment_method_label') }}</span>
                         <span style="font-weight: 700; color: #1e293b;">{{ $methodDetails['name'] ?? strtoupper($payment->payment_method) }}</span>
                     </div>
                     @if ($approvedAtWib)
-                        <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 2px;">
+                        <div class="party-meta-row" style="margin-top: 2px;">
                             <span style="color: #64748b;">{{ __('billing.payment_time') }}</span>
                             <span style="font-family: monospace; font-weight: 800; color: #16a34a;">
                                 {{ $approvedAtWib->translatedFormat('d F Y, H:i') }} WIB
@@ -298,59 +662,59 @@
 
             <!-- Tabel Rincian Paket Layanan SaaS -->
             <div style="margin-bottom: 20px;">
-                <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+                <table class="invoice-table">
                     <thead>
                         <tr style="border-top: 2px solid #000000; border-bottom: 2px solid #000000; background-color: #f8fafc; color: #000000;">
-                            <th style="padding: 8px 10px; font-weight: 700; width: 36px; text-align: center;">{{ __('billing.table_no') }}</th>
-                            <th style="padding: 8px 10px; font-weight: 700; text-align: left;">{{ __('billing.table_description') }}</th>
-                            <th style="padding: 8px 10px; font-weight: 700; text-align: center; width: 110px;">{{ __('billing.table_duration_unit') }}</th>
-                            <th style="padding: 8px 10px; font-weight: 700; text-align: right; width: 44px;">{{ __('billing.table_qty') }}</th>
-                            <th style="padding: 8px 10px; font-weight: 700; text-align: right; width: 110px; white-space: nowrap;">{{ __('billing.table_unit_price') }}</th>
-                            <th style="padding: 8px 10px; font-weight: 700; text-align: right; width: 120px; white-space: nowrap;">{{ __('billing.table_amount') }}</th>
+                            <th class="col-no">{{ __('billing.table_no') }}</th>
+                            <th class="col-desc">{{ __('billing.table_description') }}</th>
+                            <th class="col-durasi">{{ __('billing.table_duration_unit') }}</th>
+                            <th class="col-qty">{{ __('billing.table_qty') }}</th>
+                            <th class="col-tarif">{{ __('billing.table_unit_price') }}</th>
+                            <th class="col-jumlah">{{ __('billing.table_amount') }}</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr style="border-bottom: 1px solid #e2e8f0; vertical-align: top;">
-                            <td style="padding: 10px 10px; text-align: center; font-family: monospace; color: #64748b;">1</td>
-                            <td style="padding: 10px 10px;">
+                            <td class="col-no" style="font-family: monospace; color: #64748b;">1</td>
+                            <td class="col-desc">
                                 <div style="font-weight: 800; color: #000000; line-height: 1.25;">
                                     {{ $payment->package_name ?? ($payment->cycle === 'annual' ? __('billing.plan_core_annual') : ($payment->cycle === 'monthly' ? __('billing.plan_core_monthly') : __('billing.topup_business_quota'))) }}
                                 </div>
                             </td>
-                            <td style="padding: 10px 10px; text-align: center; font-family: monospace; color: #334155; text-transform: uppercase;">
+                            <td class="col-durasi" style="font-family: monospace; color: #334155; text-transform: uppercase;">
                                 {{ $durationText }}
                             </td>
-                            <td style="padding: 10px 10px; text-align: right; font-family: monospace; font-weight: 600; color: #000000;">
+                            <td class="col-qty" style="font-family: monospace; font-weight: 600; color: #000000;">
                                 1
                             </td>
-                            <td style="padding: 10px 10px; text-align: right; font-family: monospace; color: #334155; white-space: nowrap;">
+                            <td class="col-tarif" style="font-family: monospace; color: #334155; white-space: nowrap;">
                                 Rp {{ number_format((float) $payment->amount, 0, ',', '.') }}
                             </td>
-                            <td style="padding: 10px 10px; text-align: right; font-family: monospace; font-weight: 800; color: #000000; white-space: nowrap;">
+                            <td class="col-jumlah" style="font-family: monospace; font-weight: 800; color: #000000; white-space: nowrap;">
                                 Rp {{ number_format((float) $payment->amount, 0, ',', '.') }}
                             </td>
                         </tr>
 
                         @if ($payment->hasDiscount())
                             <tr style="border-bottom: 1px solid #e2e8f0; vertical-align: top;">
-                                <td style="padding: 10px 10px; text-align: center; font-family: monospace; color: #64748b;">2</td>
-                                <td style="padding: 10px 10px;">
+                                <td class="col-no" style="font-family: monospace; color: #64748b;">2</td>
+                                <td class="col-desc">
                                     <div style="font-weight: 800; color: #16a34a; line-height: 1.25;">Voucher Promo Diskon ({{ $payment->promo_code }})</div>
                                     <div style="font-size: 10px; color: #64748b; font-family: monospace; margin-top: 2px;">KODE: {{ $payment->promo_code }}</div>
                                     <div style="font-size: 10px; color: #475569; margin-top: 4px; line-height: 1.4;">
                                         Insentif subsidi promo langganan resmi Cooca.
                                     </div>
                                 </td>
-                                <td style="padding: 10px 10px; text-align: center; font-family: monospace; color: #334155; text-transform: uppercase;">
+                                <td class="col-durasi" style="font-family: monospace; color: #334155; text-transform: uppercase;">
                                     Voucher
                                 </td>
-                                <td style="padding: 10px 10px; text-align: right; font-family: monospace; font-weight: 600; color: #000000;">
+                                <td class="col-qty" style="font-family: monospace; font-weight: 600; color: #000000;">
                                     1
                                 </td>
-                                <td style="padding: 10px 10px; text-align: right; font-family: monospace; font-weight: 600; color: #16a34a; white-space: nowrap;">
+                                <td class="col-tarif" style="font-family: monospace; font-weight: 600; color: #16a34a; white-space: nowrap;">
                                     -Rp {{ number_format((float) $payment->discount_amount, 0, ',', '.') }}
                                 </td>
-                                <td style="padding: 10px 10px; text-align: right; font-family: monospace; font-weight: 800; color: #16a34a; white-space: nowrap;">
+                                <td class="col-jumlah" style="font-family: monospace; font-weight: 800; color: #16a34a; white-space: nowrap;">
                                     -Rp {{ number_format((float) $payment->discount_amount, 0, ',', '.') }}
                                 </td>
                             </tr>
@@ -358,24 +722,24 @@
 
                         @if ($payment->unique_code > 0)
                             <tr style="border-bottom: 1px solid #e2e8f0; vertical-align: top;">
-                                <td style="padding: 10px 10px; text-align: center; font-family: monospace; color: #64748b;">{{ $payment->hasDiscount() ? '3' : '2' }}</td>
-                                <td style="padding: 10px 10px;">
+                                <td class="col-no" style="font-family: monospace; color: #64748b;">{{ $payment->hasDiscount() ? '3' : '2' }}</td>
+                                <td class="col-desc">
                                     <div style="font-weight: 800; color: #000000; line-height: 1.25;">{{ __('billing.unique_code_desc_title') }}</div>
                                     <div style="font-size: 10px; color: #64748b; font-family: monospace; margin-top: 2px;">{{ __('billing.code_label') }} VERIF-AUTO</div>
                                     <div style="font-size: 10px; color: #475569; margin-top: 4px; line-height: 1.4;">
                                         {{ __('billing.unique_code_explanation') }}
                                     </div>
                                 </td>
-                                <td style="padding: 10px 10px; text-align: center; font-family: monospace; color: #334155; text-transform: uppercase;">
+                                <td class="col-durasi" style="font-family: monospace; color: #334155; text-transform: uppercase;">
                                     Trans
                                 </td>
-                                <td style="padding: 10px 10px; text-align: right; font-family: monospace; font-weight: 600; color: #000000;">
+                                <td class="col-qty" style="font-family: monospace; font-weight: 600; color: #000000;">
                                     1
                                 </td>
-                                <td style="padding: 10px 10px; text-align: right; font-family: monospace; font-weight: 600; color: #d97706; white-space: nowrap;">
+                                <td class="col-tarif" style="font-family: monospace; font-weight: 600; color: #d97706; white-space: nowrap;">
                                     +Rp {{ $uniqueStr }}
                                 </td>
-                                <td style="padding: 10px 10px; text-align: right; font-family: monospace; font-weight: 800; color: #d97706; white-space: nowrap;">
+                                <td class="col-jumlah" style="font-family: monospace; font-weight: 800; color: #d97706; white-space: nowrap;">
                                     +Rp {{ $uniqueStr }}
                                 </td>
                             </tr>
@@ -386,10 +750,10 @@
 
             <!-- Footer: Informasi Pembayaran Sistem & Kalkulasi Finansial (Zero Overlap) -->
             <div class="keep-together" style="margin-top: 8px;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; border-top: 2px solid #000000; padding-top: 14px; gap: 20px;">
+                <div class="invoice-bottom-grid" style="border-top: 2px solid #000000; padding-top: 14px;">
 
                     <!-- Left: Informasi Transaksi & Pembayaran Sistem -->
-                    <div style="width: 54%; max-width: 54%;">
+                    <div class="invoice-bottom-left">
                         <div style="padding: 12px 14px; background-color: #f8fafc; border-radius: 0 10px 10px 0; border: 1px solid #e2e8f0; border-left: 3px solid #0f172a;">
                             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; margin-bottom: 8px;">
                                 <div style="font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #0f172a;">
@@ -409,7 +773,7 @@
                                     <tr>
                                         <td style="color: #64748b; padding: 2px 0; font-weight: 500;">No. Referensi</td>
                                         <td style="color: #94a3b8; padding: 2px 0;">:</td>
-                                        <td style="color: #0f172a; padding: 2px 0; font-family: monospace; font-weight: 700;">
+                                        <td style="color: #0f172a; padding: 2px 0; font-family: monospace; font-weight: 700; word-break: break-all;">
                                             {{ $payment->gateway_reference ?: ($payment->tripay_reference ?: $payment->order_number) }}
                                         </td>
                                     </tr>
@@ -417,7 +781,7 @@
                                         <tr>
                                             <td style="color: #64748b; padding: 2px 0; font-weight: 500;">Kode / No. VA</td>
                                             <td style="color: #94a3b8; padding: 2px 0;">:</td>
-                                            <td style="color: #0f172a; padding: 2px 0; font-family: monospace; font-weight: 700; letter-spacing: 0.05em;">
+                                            <td style="color: #0f172a; padding: 2px 0; font-family: monospace; font-weight: 700; letter-spacing: 0.05em; word-break: break-all;">
                                                 {{ $payment->gateway_pay_code }}
                                             </td>
                                         </tr>
@@ -472,7 +836,7 @@
                     </div>
 
                     <!-- Right: Financial Ledger Calculation -->
-                    <div style="width: 42%; max-width: 42%;">
+                    <div class="invoice-bottom-right">
                         <table style="width: 100%; border-collapse: collapse; font-size: 12px; line-height: 1.6;">
                             <tbody>
                                 <tr>
@@ -532,21 +896,21 @@
                 </div>
 
                 <!-- Digital Signatures & Authorization Blocks -->
-                <div style="margin-top: 32px; padding-top: 16px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; text-align: center; font-size: 11px;">
-                    <div style="width: 45%;">
+                <div class="invoice-signatures-grid">
+                    <div class="invoice-signature-col">
                         <div style="color: #64748b; margin-bottom: 4px;">{{ __('billing.accepted_and_approved_by') }}</div>
                         <div style="font-weight: 700; color: #000000; font-family: monospace; font-size: 12px;">
                             {{ $business->name }}
                         </div>
-                        <div style="margin-top: 48px; border-top: 1px solid #94a3b8; width: 180px; margin-left: auto; margin-right: auto; padding-top: 4px; font-weight: 600; color: #334155;">
+                        <div style="margin-top: 48px; border-top: 1px solid #94a3b8; width: 180px; max-width: 90%; margin-left: auto; margin-right: auto; padding-top: 4px; font-weight: 600; color: #334155;">
                             ( {{ $payment->user?->name ?? __('billing.business_owner') }} )
                         </div>
                     </div>
 
-                    <div style="width: 45%;">
+                    <div class="invoice-signature-col">
                         <div style="color: #64748b; margin-bottom: 4px;">{{ __('billing.cooca_company_name') }}</div>
                         <div style="font-weight: 700; color: #000000; font-size: 12px;">{{ __('billing.billing_finance_department') }}</div>
-                        <div style="margin-top: 48px; border-top: 1px solid #94a3b8; width: 200px; margin-left: auto; margin-right: auto; padding-top: 4px; font-weight: 600; color: #334155;">
+                        <div style="margin-top: 48px; border-top: 1px solid #94a3b8; width: 200px; max-width: 90%; margin-left: auto; margin-right: auto; padding-top: 4px; font-weight: 600; color: #334155;">
                             {{ __('billing.cooca_digital_auth_system') }}
                         </div>
                     </div>
@@ -573,6 +937,9 @@
 
             const element = document.querySelector('.print-sheet');
             const filename = 'Faktur-Cooca-{{ $payment->order_number }}.pdf';
+
+            // Kunci layout dokumen ke format A4 portrait presisi sebelum capture
+            element.classList.add('pdf-render-mode');
 
             // Options calibrated for exact A4 output with zero overlap
             const opt = {
@@ -602,6 +969,7 @@
 
             if (typeof html2pdf !== 'undefined') {
                 html2pdf().set(opt).from(element).save().then(() => {
+                    element.classList.remove('pdf-render-mode');
                     btn.disabled = false;
                     btn.classList.remove('opacity-75', 'cursor-wait');
                     btn.innerHTML = `
@@ -613,12 +981,14 @@
                     }, 3500);
                 }).catch(err => {
                     console.error('html2pdf error:', err);
+                    element.classList.remove('pdf-render-mode');
                     btn.disabled = false;
                     btn.classList.remove('opacity-75', 'cursor-wait');
                     btn.innerHTML = originalHtml;
                     window.print();
                 });
             } else {
+                element.classList.remove('pdf-render-mode');
                 btn.disabled = false;
                 btn.classList.remove('opacity-75', 'cursor-wait');
                 btn.innerHTML = originalHtml;
