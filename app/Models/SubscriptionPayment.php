@@ -40,7 +40,7 @@ class SubscriptionPayment extends Model
     public const PAYMENT_METHODS = [
         self::METHOD_QRIS => [
             'code' => self::METHOD_QRIS,
-            'name' => 'QRIS Dinamis (GoPay, OVO, ShopeePay, BCA, Livin, BRImo)',
+            'name' => 'Qris',
             'type' => 'qris',
             'bank_name' => 'QRIS Nasional (NMID: ID1020304050)',
             'account_number' => 'Scan QR Code Cooca Pay',
@@ -51,7 +51,7 @@ class SubscriptionPayment extends Model
         ],
         self::METHOD_QRIS2 => [
             'code' => self::METHOD_QRIS2,
-            'name' => 'QRIS Dinamis (GoPay, OVO, ShopeePay, BCA, Livin, BRImo)',
+            'name' => 'Qris',
             'type' => 'qris',
             'bank_name' => 'QRIS Nasional (NMID: ID1020304050)',
             'account_number' => 'Scan QR Code Cooca Pay',
