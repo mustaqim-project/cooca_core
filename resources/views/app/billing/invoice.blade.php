@@ -390,7 +390,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; border-top: 2px solid #000000; padding-top: 14px; gap: 20px;">
 
                     <!-- Left: Informasi Transaksi & Pembayaran Sistem -->
-                    <div style="width: 54%; max-width: 54%;">
+                    {{-- <div style="width: 54%; max-width: 54%;">
                         <div style="padding: 12px 14px; background-color: #f8fafc; border-radius: 0 10px 10px 0; border: 1px solid #e2e8f0; border-left: 3px solid #0f172a;">
                             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; margin-bottom: 8px;">
                                 <div style="font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #0f172a;">
@@ -480,7 +480,7 @@
                                 </div>
                             </div>
                         @endif
-                    </div>
+                    </div> --}}
 
                     <!-- Right: Financial Ledger Calculation -->
                     <div style="width: 42%; max-width: 42%;">
