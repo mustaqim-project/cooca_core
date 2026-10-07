@@ -34,9 +34,50 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 - **Database Changes:** Tabel baru, migrasi skema, kolom tambahan, atau indexing.
 - **API / Route Changes:** Endpoint baru atau perubahan signature HTTP.
 
+### [WORK-2026-10-07-321] Production Hotfix: Resolusi RouteNotFoundException [admin.promos.index] & Auto-Purge Stale Route Cache
+
+- **Date:** 2026-10-07
+- **Status:** COMPLETED
+- **Module:** Admin Panel, Production Infrastructure, Caching & Deployment
+- **Feature:** Admin Sidebar Defensive Route Guard & Auto-Purge Compiled Route Cache
+- **Work Type:** Bug Fix | Security | Production Hardening | DevOps
+
+#### 1. Business Context & Objective
+- **Konteks:** Setelah rilis modul manajemen kode promo langganan (`admin.promos.*`), produksi Hostinger (`cooca.id`) mengalami exception `RouteNotFoundException: Route [admin.promos.index] not defined` di halaman admin panel akibat adanya berkas cache rute lama (`bootstrap/cache/routes-v7.php`, 1.65 MB) yang tertinggal dari deployment terdahulu.
+- **Masalah/Target:**
+  1. Halaman admin panel tidak boleh melempar 500 error ketika route cache di server tertinggal atau sedang menunggu sinkronisasi rute baru.
+  2. Sidebar layout admin harus menerapkan pengecekan defensif via `Route::has('admin.promos.index')` dengan graceful fallback ke `url('/admin/promos')`.
+  3. Mengotomasi pembersihan berkas stale route cache (`routes-v7.php`) via `cron.sh` dan bootstrap console `routes/console.php` sehingga deployment Git otomatis tidak terblokir oleh cache rute usang.
+  4. Memulihkan kelancaran akses seluruh panel admin di produksi `https://cooca.id/admin`.
+
+#### 2. What Was Done
+1. **Defensive Route Guard pada Sidebar Admin Layout**:
+   - Memodifikasi [resources/views/layouts/admin.blade.php](file:///c:/laragon/www/cooca_core/resources/views/layouts/admin.blade.php) baris 516:
+     - Mengubah `route('admin.promos.index')` menjadi `Route::has('admin.promos.index') ? route('admin.promos.index') : url('/admin/promos')`.
+     - Mengubah styling active state menjadi `(request()->routeIs('admin.promos.*') || request()->is('admin/promos*'))`.
+2. **Auto-Purge Mekanisme Stale Route Cache**:
+   - Menambahkan instruksi penghapusan berkas `bootstrap/cache/routes-v7.php` pada [cron.sh](file:///c:/laragon/www/cooca_core/cron.sh) sebelum eksekusi scheduler `php artisan schedule:run`.
+   - Menambahkan guard auto-purge pada [routes/console.php](file:///c:/laragon/www/cooca_core/routes/console.php) saat runtime console boot.
+3. **Penyelarasan & Verifikasi Produksi Hostinger**:
+   - Memverifikasi auto-deployment commit `c58171c` ke server Hostinger `u218101292` / `cooca.id`.
+   - Menghapus `bootstrap/cache/routes-v7.php` yang stale dan melakukan purge cache CDN & server Hostinger (`hosting_cache_clear-website`).
+   - Melakukan live test HTTP request ke `https://cooca.id/admin` dan `https://cooca.id/admin/promos` (keduanya berhasil merespons 200 OK ke login admin console tanpa error).
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `resources/views/layouts/admin.blade.php`
+  - `cron.sh`
+  - `routes/console.php`
+  - `docs/AiWorkHistory.md`
+
 #### 4. System Impacts
+- Halaman admin panel produksi (`cooca.id/admin`) pulih 100% normal dan stabil.
+- Tidak ada lagi risiko breakdown 500 RouteNotFoundException bila deployment git berikutnya menambahkan rute baru ke aplikasi.
+
+---
 
 ### [WORK-2026-10-07-320] Implementasi Admin Billing Packages Control, Subscription Promo & Voucher Engine, serta Integrasi Pembayaran TriPay Terpadu
+
 
 - **Date:** 2026-10-07
 - **Status:** COMPLETED
