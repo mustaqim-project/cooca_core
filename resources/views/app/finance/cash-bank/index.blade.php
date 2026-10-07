@@ -146,8 +146,13 @@
                                 <p class="text-[11px] text-black/45 dark:text-white/45 font-medium uppercase tracking-wide">
                                     Saldo Berjalan
                                 </p>
-                                <p class="text-[20px] font-bold tabular-nums text-black dark:text-white mt-0.5">
-                                    Rp {{ number_format($account->current_balance, 0, ',', '.') }}
+                                <p class="text-[20px] font-bold tabular-nums mt-0.5 {{ $account->current_balance < 0 ? 'text-[#FF3B30] dark:text-[#FF453A]' : 'text-black dark:text-white' }}">
+                                    {{ $account->current_balance < 0 ? '-Rp ' . number_format(abs($account->current_balance), 0, ',', '.') : 'Rp ' . number_format($account->current_balance, 0, ',', '.') }}
+                                    @if ($account->current_balance < 0)
+                                        <span class="inline-block ml-1 px-1.5 py-0.5 rounded-[5px] text-[10px] font-semibold tracking-wide bg-[#FF3B30]/10 text-[#FF3B30] dark:bg-[#FF453A]/15 dark:text-[#FF453A] border border-[#FF3B30]/20 align-middle">
+                                            Minus
+                                        </span>
+                                    @endif
                                 </p>
                             </div>
                             <a href="{{ route('finance.cash-bank.ledger', ['account_id' => $account->id]) }}"
@@ -717,7 +722,7 @@
                                         class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#34C759]">
                                         <option value="">{{ __('finance.auto_by_method') }}</option>
                                         @foreach ($accounts as $acc)
-                                            <option value="{{ $acc->id }}">{{ $acc->name }} ({{ strtoupper($acc->type) }}) - Saldo: Rp {{ number_format($acc->current_balance, 0, ',', '.') }}</option>
+                                            <option value="{{ $acc->id }}">{{ $acc->name }} ({{ strtoupper($acc->type) }}) - Saldo: {{ $acc->current_balance < 0 ? '-Rp ' . number_format(abs($acc->current_balance), 0, ',', '.') . ' [Minus]' : 'Rp ' . number_format($acc->current_balance, 0, ',', '.') }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -841,9 +846,12 @@
                                         class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#FF3B30]">
                                         <option value="">{{ __('finance.auto_by_method') }}</option>
                                         @foreach ($accounts as $acc)
-                                            <option value="{{ $acc->id }}">{{ $acc->name }} ({{ strtoupper($acc->type) }}) - Saldo: Rp {{ number_format($acc->current_balance, 0, ',', '.') }}</option>
+                                            <option value="{{ $acc->id }}">{{ $acc->name }} ({{ strtoupper($acc->type) }}) - Saldo: {{ $acc->current_balance < 0 ? '-Rp ' . number_format(abs($acc->current_balance), 0, ',', '.') . ' [Minus]' : 'Rp ' . number_format($acc->current_balance, 0, ',', '.') }}</option>
                                         @endforeach
                                     </select>
+                                    <p class="text-[11px] text-black/45 dark:text-white/45 mt-1">
+                                        Fleksibel: pengeluaran tetap dapat dicatat jika saldo 0 (menjadi saldo minus).
+                                    </p>
                                 </div>
                                 <div>
                                     <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">{{ __('finance.payment_method') }}</label>
@@ -966,7 +974,7 @@
                                         <select name="from_account_id" required
                                             class="w-full h-11 bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
                                             @foreach ($accounts as $account)
-                                                <option value="{{ $account->id }}">{{ $account->name }} (Saldo: Rp {{ number_format($account->current_balance, 0, ',', '.') }})</option>
+                                                <option value="{{ $account->id }}">{{ $account->name }} (Saldo: {{ $account->current_balance < 0 ? '-Rp ' . number_format(abs($account->current_balance), 0, ',', '.') . ' [Minus]' : 'Rp ' . number_format($account->current_balance, 0, ',', '.') }})</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -980,7 +988,7 @@
                                         <select name="to_account_id" required
                                             class="w-full h-11 bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
                                             @foreach ($accounts as $account)
-                                                <option value="{{ $account->id }}">{{ $account->name }} (Saldo: Rp {{ number_format($account->current_balance, 0, ',', '.') }})</option>
+                                                <option value="{{ $account->id }}">{{ $account->name }} (Saldo: {{ $account->current_balance < 0 ? '-Rp ' . number_format(abs($account->current_balance), 0, ',', '.') . ' [Minus]' : 'Rp ' . number_format($account->current_balance, 0, ',', '.') }})</option>
                                             @endforeach
                                         </select>
                                     </div>

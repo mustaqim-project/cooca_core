@@ -43,8 +43,12 @@ final class CashLedgerIntegrationTest extends TestCase
         $this->assertSame($first->id, $second->id);
         $this->assertSame(75000.0, CashAccount::firstOrFail()->current_balance);
         $this->assertSame(2, CashTransaction::count());
-        $this->expectException(InvalidArgumentException::class);
-        $service->recordOutflow($this->business, 75001, 'test', 'ref-3', 'Terlalu besar', 'cash', $this->user->id);
+
+        // Outflow greater than balance succeeds with flexible negative balance (overdraft / talangan kas)
+        $overdraftTx = $service->recordOutflow($this->business, 100000, 'test', 'ref-3', 'Belanja talangan kas', 'cash', $this->user->id);
+        $this->assertSame(-25000.0, CashAccount::firstOrFail()->current_balance);
+        $this->assertSame(-25000.0, (float) $overdraftTx->balance_after);
+        $this->assertSame(3, CashTransaction::count());
     }
 
     public function test_transfer_moves_amount_between_two_accounts_atomically(): void
@@ -103,6 +107,38 @@ final class CashLedgerIntegrationTest extends TestCase
         ]);
 
         $this->assertSame(375000.0, $cash->fresh()->current_balance);
+    }
+
+    public function test_expense_store_succeeds_when_cash_balance_is_zero_resulting_in_negative_balance(): void
+    {
+        $ledger = new CashLedgerService;
+        $cash = $ledger->accountFor($this->business, 'cash');
+        // Saldo awal adalah 0
+        $this->assertSame(0.0, (float) $cash->current_balance);
+
+        $response = $this->actingAs($this->user)->post(route('finance.expenses.store'), [
+            'expense_date' => now()->toDateString(),
+            'category' => 'office_supplies',
+            'amount' => 50000,
+            'payment_method' => 'cash',
+            'cash_account_id' => $cash->id,
+            'description' => 'Beli kertas HVS talangan kas',
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('expenses', [
+            'business_id' => $this->business->id,
+            'category' => 'office_supplies',
+            'amount' => 50000,
+        ]);
+
+        // Saldo akun kas menjadi minus Rp 50.000
+        $this->assertSame(-50000.0, (float) $cash->fresh()->current_balance);
+        $lastTx = CashTransaction::where('business_id', $this->business->id)->latest('id')->first();
+        $this->assertNotNull($lastTx);
+        $this->assertSame(-50000.0, (float) $lastTx->balance_after);
     }
 
     public function test_finance_aging_views_render_successfully_with_filters(): void

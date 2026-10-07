@@ -25,18 +25,18 @@
 
         {{-- 3. FILTER PILLS --}}
         <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-4 shadow-sm flex flex-wrap items-center justify-between gap-4">
-            <div class="flex items-center gap-2">
-                <span class="text-[12px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider mr-1">Status:</span>
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="text-[12px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider mr-1">{{ __('social_media.filter_status_label') }}:</span>
                 <a href="{{ route('social-media.inbox.index', ['status' => 'all']) }}"
-                    class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors {{ $status === 'all' ? 'bg-[#007AFF] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
+                    class="min-h-[38px] sm:min-h-0 sm:h-7 px-3.5 sm:px-3 rounded-full text-[12px] font-medium transition-colors flex items-center {{ $status === 'all' ? 'bg-[#007AFF] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
                     {{ __('social_media.all_comments_filter', ['count' => $comments->total()]) }}
                 </a>
                 <a href="{{ route('social-media.inbox.index', ['status' => 'unread']) }}"
-                    class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors {{ $status === 'unread' ? 'bg-[#FF9500] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
+                    class="min-h-[38px] sm:min-h-0 sm:h-7 px-3.5 sm:px-3 rounded-full text-[12px] font-medium transition-colors flex items-center {{ $status === 'unread' ? 'bg-[#FF9500] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
                     {{ __('social_media.unread_comments_filter') }}
                 </a>
                 <a href="{{ route('social-media.inbox.index', ['status' => 'replied']) }}"
-                    class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors {{ $status === 'replied' ? 'bg-[#34C759] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
+                    class="min-h-[38px] sm:min-h-0 sm:h-7 px-3.5 sm:px-3 rounded-full text-[12px] font-medium transition-colors flex items-center {{ $status === 'replied' ? 'bg-[#34C759] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
                     {{ __('social_media.replied_comments_filter') }}
                 </a>
             </div>
@@ -138,7 +138,7 @@
         </div>
 
         {{-- 5. REPLY MODAL SHEET (Apple HIG Bento Card Design) --}}
-        <div x-show="openReplyModal" style="display: none;"
+        <div x-show="openReplyModal" x-cloak
             class="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
             <div class="relative w-full max-w-2xl rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-2xl p-6 sm:p-7 space-y-5"
                 @click.away="openReplyModal = false">
@@ -188,7 +188,7 @@
                 </div>
 
                 {{-- Status / Error notification inside modal --}}
-                <div x-show="errorMessage" style="display: none;"
+                <div x-show="errorMessage" x-cloak
                      class="p-3 rounded-[12px] bg-[#FF3B30]/10 border border-[#FF3B30]/20 text-[12.5px] text-[#FF3B30] flex items-center gap-2"
                      x-text="errorMessage"></div>
 
@@ -201,7 +201,7 @@
                     <button type="button" @click="sendReply()" :disabled="!replyText.trim() || isSubmitting"
                         class="h-9 px-5 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] disabled:opacity-50 disabled:pointer-events-none transition-all flex items-center gap-1.5 shadow-sm">
                         <i data-lucide="send" class="w-3.5 h-3.5" x-show="!isSubmitting"></i>
-                        <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin" x-show="isSubmitting" style="display: none;"></i>
+                        <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin" x-show="isSubmitting" x-cloak></i>
                         <span x-text="isSubmitting ? '{{ __('social_media.sending_reply_btn') }}' : '{{ __('social_media.send_reply_btn') }}'"></span>
                     </button>
                 </div>

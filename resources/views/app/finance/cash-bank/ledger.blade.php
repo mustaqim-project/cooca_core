@@ -44,16 +44,22 @@
                 </div>
             </div>
 
+            @php
+                $currentTotalBalance = (float) ($account ? $account->current_balance : $accounts->sum('current_balance'));
+            @endphp
             <div class="rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 flex flex-col justify-between shadow-sm">
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] uppercase tracking-wider font-semibold text-black/45 dark:text-white/45">Saldo Terkini</span>
-                    <div class="w-8 h-8 rounded-[10px] bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158] flex items-center justify-center">
+                    <div class="w-8 h-8 rounded-[10px] {{ $currentTotalBalance < 0 ? 'bg-[#FF3B30]/10 text-[#FF3B30] dark:text-[#FF453A]' : 'bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158]' }} flex items-center justify-center">
                         <i data-lucide="wallet" class="w-4 h-4"></i>
                     </div>
                 </div>
                 <div class="mt-2">
-                    <p class="text-[18px] sm:text-[20px] font-extrabold tabular-nums text-[#34C759] dark:text-[#30D158] tracking-tight">
-                        Rp {{ number_format($account ? $account->current_balance : $accounts->sum('current_balance'), 0, ',', '.') }}
+                    <p class="text-[18px] sm:text-[20px] font-extrabold tabular-nums tracking-tight {{ $currentTotalBalance < 0 ? 'text-[#FF3B30] dark:text-[#FF453A]' : 'text-[#34C759] dark:text-[#30D158]' }}">
+                        {{ $currentTotalBalance < 0 ? '-Rp ' . number_format(abs($currentTotalBalance), 0, ',', '.') : 'Rp ' . number_format($currentTotalBalance, 0, ',', '.') }}
+                        @if ($currentTotalBalance < 0)
+                            <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-[4px] bg-[#FF3B30]/10 border border-[#FF3B30]/20 ml-1">Defisit</span>
+                        @endif
                     </p>
                     <p class="text-[11px] text-black/45 dark:text-white/45 mt-0.5">
                         {{ $account ? 'Saldo akun terpilih' : 'Total likuiditas kas & bank' }}
@@ -108,7 +114,7 @@
                     <option value="">Semua Rekening</option>
                     @foreach ($accounts as $item)
                         <option value="{{ $item->id }}" @selected(request('account_id') === $item->id)>
-                            {{ $item->name }} (Rp {{ number_format($item->current_balance, 0, ',', '.') }})
+                            {{ $item->name }} ({{ $item->current_balance < 0 ? '-Rp ' . number_format(abs($item->current_balance), 0, ',', '.') . ' Defisit' : 'Rp ' . number_format($item->current_balance, 0, ',', '.') }})
                         </option>
                     @endforeach
                 </select>
@@ -220,8 +226,8 @@
                                 <td class="py-3.5 px-4 text-right tabular-nums font-bold whitespace-nowrap {{ $isOut ? 'text-[#FF3B30] dark:text-[#FF453A]' : 'text-[#34C759] dark:text-[#30D158]' }}">
                                     {{ $isOut ? '-' : '+' }} Rp {{ number_format($transaction->amount, 0, ',', '.') }}
                                 </td>
-                                <td class="py-3.5 px-4 text-right tabular-nums font-extrabold text-black dark:text-white whitespace-nowrap">
-                                    Rp {{ number_format($transaction->balance_after, 0, ',', '.') }}
+                                <td class="py-3.5 px-4 text-right tabular-nums font-extrabold whitespace-nowrap {{ $transaction->balance_after < 0 ? 'text-[#FF3B30] dark:text-[#FF453A]' : 'text-black dark:text-white' }}">
+                                    {{ $transaction->balance_after < 0 ? '-Rp ' . number_format(abs($transaction->balance_after), 0, ',', '.') : 'Rp ' . number_format($transaction->balance_after, 0, ',', '.') }}
                                 </td>
                             </tr>
                         @empty
@@ -277,8 +283,8 @@
                                 <div class="tabular-nums font-bold text-[14px] {{ $isOut ? 'text-[#FF3B30] dark:text-[#FF453A]' : 'text-[#34C759] dark:text-[#30D158]' }}">
                                     {{ $isOut ? '-' : '+' }} Rp {{ number_format($transaction->amount, 0, ',', '.') }}
                                 </div>
-                                <div class="text-[11px] text-black/45 dark:text-white/45 tabular-nums mt-0.5">
-                                    Saldo: Rp {{ number_format($transaction->balance_after, 0, ',', '.') }}
+                                <div class="text-[11px] tabular-nums mt-0.5 {{ $transaction->balance_after < 0 ? 'text-[#FF3B30] dark:text-[#FF453A] font-semibold' : 'text-black/45 dark:text-white/45' }}">
+                                    Saldo: {{ $transaction->balance_after < 0 ? '-Rp ' . number_format(abs($transaction->balance_after), 0, ',', '.') : 'Rp ' . number_format($transaction->balance_after, 0, ',', '.') }}
                                 </div>
                             </div>
                         </div>

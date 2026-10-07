@@ -688,9 +688,14 @@
                                         class="w-full h-11 bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
                                         <option value="">Otomatis Sesuai Metode</option>
                                         @foreach ($cashAccounts as $ca)
-                                            <option value="{{ $ca->id }}">{{ $ca->name }} (Saldo: Rp {{ number_format($ca->current_balance, 0, ',', '.') }})</option>
+                                            <option value="{{ $ca->id }}">
+                                                {{ $ca->name }} (Saldo: {{ $ca->current_balance < 0 ? '-Rp ' . number_format(abs($ca->current_balance), 0, ',', '.') . ' [Defisit/Minus]' : 'Rp ' . number_format($ca->current_balance, 0, ',', '.') }})
+                                            </option>
                                         @endforeach
                                     </select>
+                                    <p class="text-[11px] text-black/45 dark:text-white/45">
+                                        Fleksibel: pengeluaran tetap dapat dicatat walau saldo 0 (menjadi saldo minus / talangan kas).
+                                    </p>
                                 </div>
 
                                 <div class="space-y-1.5">

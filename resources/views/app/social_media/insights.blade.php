@@ -1114,12 +1114,12 @@
                             setTimeout(() => window.location.reload(), 800);
                         } else {
                             if (window.AppAlert) {
-                                AppAlert.error(data.error || 'Gagal menyinkronkan metrik akun.');
+                                AppAlert.error(data.error || '{{ __("social_media.sync_accounts_metrics_failed") }}');
                             }
                         }
                     } catch (e) {
                         if (window.AppAlert) {
-                            AppAlert.error('Terjadi kesalahan jaringan saat menyinkronkan akun.');
+                            AppAlert.error('{{ __("social_media.sync_network_error") }}');
                         }
                     } finally {
                         this.isSyncingAccounts = false;
@@ -1145,7 +1145,7 @@
                         setTimeout(() => window.location.reload(), 600);
                     } catch (e) {
                         if (window.AppAlert) {
-                            AppAlert.error('Sebagian pembaruan data wawasan mengalami kendala.');
+                            AppAlert.error('{{ __("social_media.sync_partial_failure") }}');
                         }
                     } finally {
                         this.isRefreshingAll = false;
@@ -1190,14 +1190,14 @@
                                 AppAlert.success('{{ __("social_media.insights_refreshed") }}');
                             }
                         } else {
-                            const errorMsg = data.error || 'Gagal memperbarui metrik postingan.';
+                            const errorMsg = data.error || '{{ __("social_media.sync_post_metrics_failed") }}';
                             if (window.AppAlert) {
                                 AppAlert.error(errorMsg);
                             }
                         }
                     } catch (e) {
                         if (window.AppAlert) {
-                            AppAlert.error('Terjadi kesalahan jaringan.');
+                            AppAlert.error('{{ __("social_media.network_error") }}');
                         }
                     } finally {
                         if (icon) icon.classList.remove('animate-spin');

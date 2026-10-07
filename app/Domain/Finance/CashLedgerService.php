@@ -35,8 +35,8 @@ final class CashLedgerService
             $ids = [$from->id, $to->id]; sort($ids);
             $accounts = CashAccount::whereIn('id', $ids)->lockForUpdate()->get()->keyBy('id');
             $source = $accounts->get($from->id); $destination = $accounts->get($to->id);
-            if (! $source || ! $destination || $source->business_id !== $destination->business_id || (float) $source->current_balance < $amount) {
-                throw new InvalidArgumentException('Saldo sumber transfer tidak mencukupi.');
+            if (! $source || ! $destination || $source->business_id !== $destination->business_id) {
+                throw new InvalidArgumentException('Akun kas sumber atau tujuan transfer tidak valid.');
             }
             $referenceId = (string) str()->uuid();
             $source->current_balance -= $amount; $source->save();
@@ -96,7 +96,6 @@ final class CashLedgerService
             $targetAccount = $account ?? $this->accountFor($business, $method);
             $targetAccount = CashAccount::whereKey($targetAccount->id)->lockForUpdate()->firstOrFail();
             $newBalance = (float) $targetAccount->current_balance + ($type === CashTransaction::TYPE_IN ? $amount : -$amount);
-            if ($newBalance < -0.005) throw new InvalidArgumentException('Saldo kas/bank tidak mencukupi.');
             $targetAccount->update(['current_balance' => $newBalance]);
             return CashTransaction::create([
                 'business_id' => $business->id,

@@ -1,7 +1,7 @@
 @extends('layouts.app', [
-    'title' => 'Posting Konten Media Sosial - ' . $business->name,
-    'headerTitle' => 'Posting Konten & Penjadwalan',
-    'headerSubtitle' => 'Publikasikan dan jadwalkan konten ke Facebook Page, Instagram, Threads, TikTok, dan LinkedIn',
+    'title' => __('social_media.posts_header_title') . ' - ' . $business->name,
+    'headerTitle' => __('social_media.posts_header_title'),
+    'headerSubtitle' => __('social_media.posts_header_subtitle'),
 ])
 
 @section('content')
@@ -10,15 +10,15 @@
         {{-- MODULE HEADER & PERSISTENT COMMUNICATION TABS --}}
         <x-module-header
             module="communication"
-            title="Publikasi Konten &amp; Jadwal Otomatis"
-            subtitle="Tulis materi promosi sekali dan sebarkan langsung ke Facebook Page, feed Instagram, Threads, TikTok, atau LinkedIn pelanggan toko Anda.">
+            :title="__('social_media.posts_title')"
+            :subtitle="__('social_media.posts_subtitle')">
             <x-slot:actions>
                 @if(isset($canSchedulePost) && !$canSchedulePost && empty($hasSocialAddon))
                     <button type="button"
                         @click="window.dispatchEvent(new CustomEvent('open-quota-modal', {
                             detail: {
-                                title: 'Kuota Posting Media Sosial Habis',
-                                desc: 'Anda telah mencapai batas 3 posting gratis bulan ini. Kuota akan otomatis di-reset pada tanggal 1 awal bulan berikutnya atau aktifkan Add-On Social Media Management untuk posting tanpa batas.',
+                                title: @js(__('social_media.quota_modal_title')),
+                                desc: @js(__('social_media.quota_modal_desc', ['limit' => $socialPostLimit ?? 3])),
                                 used: {{ $postsUsedThisMonth ?? 3 }},
                                 limit: {{ $socialPostLimit ?? 3 }},
                                 unit: 'posting',
@@ -95,33 +95,33 @@
         {{-- 3. FILTERS & SEARCH BAR --}}
         <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-4 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div class="flex flex-wrap items-center gap-2">
-                <span class="text-[12px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider mr-1">Status:</span>
+                <span class="text-[12px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider mr-1">{{ __('social_media.filter_status_label') }}:</span>
                 <a href="{{ route('social-media.posts.index', ['status' => 'all', 'platform' => $platform]) }}"
-                    class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors {{ $status === 'all' ? 'bg-[#007AFF] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
+                    class="min-h-[38px] sm:min-h-0 sm:h-7 px-3.5 sm:px-3 rounded-full text-[12px] font-medium transition-colors flex items-center {{ $status === 'all' ? 'bg-[#007AFF] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
                     {{ __('social_media.filter_status_all') }} ({{ $posts->total() }})
                 </a>
                 <a href="{{ route('social-media.posts.index', ['status' => 'published', 'platform' => $platform]) }}"
-                    class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors {{ $status === 'published' ? 'bg-[#34C759] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
+                    class="min-h-[38px] sm:min-h-0 sm:h-7 px-3.5 sm:px-3 rounded-full text-[12px] font-medium transition-colors flex items-center {{ $status === 'published' ? 'bg-[#34C759] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
                     {{ __('social_media.filter_status_published') }}
                 </a>
                 <a href="{{ route('social-media.posts.index', ['status' => 'scheduled', 'platform' => $platform]) }}"
-                    class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors {{ $status === 'scheduled' ? 'bg-[#5856D6] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
+                    class="min-h-[38px] sm:min-h-0 sm:h-7 px-3.5 sm:px-3 rounded-full text-[12px] font-medium transition-colors flex items-center {{ $status === 'scheduled' ? 'bg-[#5856D6] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
                     {{ __('social_media.filter_status_scheduled') }}
                 </a>
                 <a href="{{ route('social-media.posts.index', ['status' => 'pending_review', 'platform' => $platform]) }}"
-                    class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors {{ $status === 'pending_review' ? 'bg-[#FF9500] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
+                    class="min-h-[38px] sm:min-h-0 sm:h-7 px-3.5 sm:px-3 rounded-full text-[12px] font-medium transition-colors flex items-center {{ $status === 'pending_review' ? 'bg-[#FF9500] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
                     {{ __('social_media.filter_status_pending_review') }}
                 </a>
                 <a href="{{ route('social-media.posts.index', ['status' => 'failed', 'platform' => $platform]) }}"
-                    class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors {{ $status === 'failed' ? 'bg-[#FF3B30] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
+                    class="min-h-[38px] sm:min-h-0 sm:h-7 px-3.5 sm:px-3 rounded-full text-[12px] font-medium transition-colors flex items-center {{ $status === 'failed' ? 'bg-[#FF3B30] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
                     {{ __('social_media.filter_status_failed') }}
                 </a>
             </div>
 
             <div class="flex items-center gap-2">
-                <span class="text-[12px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider">Platform:</span>
+                <span class="text-[12px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider">{{ __('social_media.filter_platform_label') }}:</span>
                 <select onchange="window.location.href=this.value"
-                    class="h-8 px-3 rounded-[10px] text-[12.5px] font-medium bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-[#007AFF]">
+                    class="min-h-[44px] sm:min-h-0 sm:h-8 px-3 rounded-[10px] text-[12.5px] font-medium bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-[#007AFF]">
                     <option value="{{ route('social-media.posts.index', ['status' => $status, 'platform' => 'all']) }}" {{ $platform === 'all' ? 'selected' : '' }}>{{ __('social_media.filter_platform_all') }}</option>
                     <option value="{{ route('social-media.posts.index', ['status' => $status, 'platform' => 'facebook']) }}" {{ $platform === 'facebook' ? 'selected' : '' }}>Facebook</option>
                     <option value="{{ route('social-media.posts.index', ['status' => $status, 'platform' => 'instagram']) }}" {{ $platform === 'instagram' ? 'selected' : '' }}>Instagram</option>
@@ -189,59 +189,59 @@
                                     @if($post->media_type === 'carousel')
                                         <span class="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-[#FF9500]/15 text-[#FF9500] inline-flex items-center gap-1">
                                             <i data-lucide="layers" class="w-3 h-3"></i>
-                                            <span>Carousel</span>
+                                            <span>{{ __('social_media.format_carousel') }}</span>
                                         </span>
                                     @elseif($post->media_type === 'reels')
                                         <span class="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-[#AF52DE]/15 text-[#AF52DE] inline-flex items-center gap-1">
                                             <i data-lucide="film" class="w-3 h-3"></i>
-                                            <span>Reels</span>
+                                            <span>{{ __('social_media.format_reels') }}</span>
                                         </span>
                                     @elseif($post->media_type === 'video')
                                         <span class="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-[#007AFF]/15 text-[#007AFF] inline-flex items-center gap-1">
                                             <i data-lucide="video" class="w-3 h-3"></i>
-                                            <span>Video</span>
+                                            <span>{{ __('social_media.format_video') }}</span>
                                         </span>
                                     @elseif($post->media_type === 'image')
                                         <span class="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] inline-flex items-center gap-1">
                                             <i data-lucide="image" class="w-3 h-3"></i>
-                                            <span>Foto</span>
+                                            <span>{{ __('social_media.format_photo') }}</span>
                                         </span>
                                     @else
                                         <span class="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-black/5 dark:bg-white/10 text-black/60 dark:text-white/60 inline-flex items-center gap-1">
                                             <i data-lucide="align-left" class="w-3 h-3"></i>
-                                            <span>Teks</span>
+                                            <span>{{ __('social_media.format_text') }}</span>
                                         </span>
                                     @endif
 
                                     @if($post->status === 'published')
                                         <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] inline-flex items-center gap-1">
                                             <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span>
-                                            <span>Terpublikasi</span>
+                                            <span>{{ __('social_media.filter_status_published') }}</span>
                                         </span>
                                     @elseif($post->status === 'scheduled')
                                         <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#5856D6]/15 text-[#5856D6] inline-flex items-center gap-1">
                                             <i data-lucide="clock" class="w-3 h-3"></i>
-                                            <span>Jadwal: {{ $post->scheduled_at ? $post->scheduled_at->format('d M H:i') : '-' }}</span>
+                                            <span>{{ __('social_media.filter_status_scheduled') }}: {{ $post->scheduled_at ? $post->scheduled_at->format('d M H:i') : '-' }}</span>
                                         </span>
                                     @elseif($post->status === 'failed')
                                         <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#FF3B30]/15 text-[#FF3B30] inline-flex items-center gap-1">
                                             <i data-lucide="alert-triangle" class="w-3 h-3"></i>
-                                            <span>Gagal</span>
+                                            <span>{{ __('social_media.filter_status_failed') }}</span>
                                         </span>
                                     @elseif($post->status === 'partially_failed')
                                         <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#FF9500]/15 text-[#FF9500] inline-flex items-center gap-1">
                                             <i data-lucide="alert-circle" class="w-3 h-3"></i>
-                                            <span>Sebagian Gagal</span>
+                                            <span>{{ __('social_media.status_partially_failed') }}</span>
                                         </span>
                                     @elseif($post->approval_status === 'pending_review' || $post->status === 'pending_review')
                                         <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#FF9500]/15 text-[#FF9500] inline-flex items-center gap-1">
                                             <i data-lucide="shield-alert" class="w-3 h-3"></i>
-                                            <span>Menunggu Approval</span>
+                                            <span>{{ __('social_media.status_pending_approval') }}</span>
                                         </span>
                                     @elseif($post->approval_status === 'rejected' || $post->status === 'rejected')
                                         <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#FF3B30]/15 text-[#FF3B30] inline-flex items-center gap-1">
                                             <i data-lucide="x-circle" class="w-3 h-3"></i>
-                                            <span>Ditolak</span>
+                                            <span>{{ __('social_media.status_rejected') }}</span>
                                         </span>
                                     @else
                                         <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-black/10 dark:bg-white/10 text-black/60 dark:text-white/60">
@@ -266,15 +266,15 @@
                                                 @elseif($target->status === 'failed')
                                                     <form method="POST" action="{{ route('social-media.targets.retry', $target) }}" class="inline ml-1" x-data="{ isSubmitting: false }" @submit="if(isSubmitting) { $event.preventDefault(); return false; } isSubmitting = true">
                                                         @csrf
-                                                        <button type="submit" :disabled="isSubmitting" class="underline text-[#FF3B30] hover:text-black dark:hover:text-white font-bold inline-flex items-center gap-0.5 disabled:opacity-50" title="Retry Target Ini">
+                                                        <button type="submit" :disabled="isSubmitting" class="underline text-[#FF3B30] hover:text-black dark:hover:text-white font-bold inline-flex items-center gap-0.5 disabled:opacity-50" title="{{ __('social_media.retry_target_title') }}">
                                                             <i data-lucide="refresh-cw" class="w-2.5 h-2.5" :class="{ 'animate-spin': isSubmitting }"></i>
-                                                            <span>Retry</span>
+                                                            <span>{{ __('social_media.retry_target_btn') }}</span>
                                                         </button>
                                                     </form>
                                                 @elseif($target->status === 'processing')
                                                     <i data-lucide="loader-2" class="w-3 h-3 animate-spin"></i>
                                                 @else
-                                                    <span class="text-[10px] opacity-75">Antre</span>
+                                                    <span class="text-[10px] opacity-75">{{ __('social_media.status_queued') }}</span>
                                                 @endif
                                             </div>
                                         @endforeach
@@ -295,7 +295,7 @@
                                     @if(in_array($post->media_type, ['video', 'reels']))
                                         <video src="{{ $post->media_urls[0] }}" controls preload="metadata" class="w-full h-full object-cover"></video>
                                     @else
-                                        <img src="{{ $post->media_urls[0] }}" alt="Lampiran Konten" class="w-full h-full object-cover"
+                                        <img src="{{ $post->media_urls[0] }}" alt="{{ __('social_media.media_preview_alt') }}" class="w-full h-full object-cover"
                                              onerror="this.onerror=null; this.src='https://placehold.co/600x400/1C1C1E/FFF?text=Media+Preview';">
                                     @endif
                                 </div>
@@ -368,15 +368,15 @@
                             {{-- Metrics row --}}
                             <div class="flex items-center justify-between text-[12px] text-black/50 dark:text-white/50">
                                 <div class="flex items-center gap-3 font-semibold tabular-nums">
-                                    <span class="inline-flex items-center gap-1" title="Tayangan (Impressions)">
+                                    <span class="inline-flex items-center gap-1" title="{{ __('social_media.impressions_tooltip') }}">
                                         <i data-lucide="eye" class="w-3.5 h-3.5"></i>
                                         <span>{{ number_format($post->getMetric('impressions')) }}</span>
                                     </span>
-                                    <span class="inline-flex items-center gap-1" title="Suka (Likes)">
+                                    <span class="inline-flex items-center gap-1" title="{{ __('social_media.likes_tooltip') }}">
                                         <i data-lucide="heart" class="w-3.5 h-3.5"></i>
                                         <span>{{ number_format($post->getMetric('likes')) }}</span>
                                     </span>
-                                    <span class="inline-flex items-center gap-1" title="Komentar">
+                                    <span class="inline-flex items-center gap-1" title="{{ __('social_media.comments_tooltip') }}">
                                         <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
                                         <span>{{ number_format($post->getMetric('comments')) }}</span>
                                     </span>
@@ -405,9 +405,9 @@
                                             publish_now_url: '{{ route('social-media.posts.publish-now', $post) }}',
                                             destroy_url: '{{ route('social-media.posts.destroy', $post) }}'
                                         })"
-                                        class="flex-1 min-h-[36px] px-3 rounded-[9px] text-[12px] font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/20 active:scale-[0.97] transition-all inline-flex items-center justify-center gap-1.5">
+                                        class="flex-1 min-h-[44px] sm:min-h-[36px] px-3 rounded-[9px] text-[12px] font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/20 active:scale-[0.97] transition-all inline-flex items-center justify-center gap-1.5">
                                         <i data-lucide="eye" class="w-3.5 h-3.5"></i>
-                                        <span>Preview & Kelola</span>
+                                        <span>{{ __('social_media.preview_and_manage') }}</span>
                                     </button>
                                 </div>
                             @endif
@@ -1399,27 +1399,27 @@
                     <template x-if="!pmPost.media_urls || pmPost.media_urls.length === 0">
                         <div class="p-3 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 flex items-center gap-2.5 text-[12px] text-black/60 dark:text-white/60">
                             <i data-lucide="file-text" class="w-4 h-4 text-[#007AFF] shrink-0"></i>
-                            <span>Konten ini berformat teks murni (tanpa lampiran gambar atau video).</span>
+                            <span>{{ __('social_media.text_only_badge_desc') }}</span>
                         </div>
                     </template>
 
                     {{-- Caption Content --}}
                     <div class="space-y-1.5">
                         <div class="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-black/40 dark:text-white/40">
-                            <span>Isi Konten &amp; Caption</span>
-                            <span class="font-normal" x-text="(pmPost.content ? pmPost.content.length : 0) + ' karakter'"></span>
+                            <span>{{ __('social_media.content_and_caption_label') }}</span>
+                            <span class="font-normal" x-text="(pmPost.content ? pmPost.content.length : 0) + ' ' + @js(__('social_media.characters_unit'))"></span>
                         </div>
                         <div class="rounded-[16px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5 p-4 text-[13.5px] text-black/85 dark:text-white/85 leading-relaxed whitespace-pre-wrap max-h-48 overflow-y-auto" x-text="pmPost.content"></div>
                     </div>
 
                     {{-- JADWAL ULANG FORM --}}
                     <div x-show="pmTab === 'reschedule'" class="space-y-3 pt-1">
-                        <div class="text-[11px] font-bold uppercase tracking-wider text-[#5856D6]">Pilih Waktu &amp; Tanggal Baru</div>
+                        <div class="text-[11px] font-bold uppercase tracking-wider text-[#5856D6]">{{ __('social_media.select_new_datetime') }}</div>
                         <div class="space-y-2">
                             <input type="datetime-local" x-model="pmNewScheduledAt"
                                    :min="minScheduleTime"
                                    class="w-full h-11 px-4 rounded-[12px] border border-black/15 dark:border-white/15 bg-white dark:bg-[#2C2C2E] text-[13px] text-black dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-[#5856D6]/40 shadow-xs">
-                            <p class="text-[11.5px] text-black/50 dark:text-white/50 leading-relaxed">Waktu publikasi baru akan otomatis disinkronkan ke seluruh kanal tujuan yang belum terbit.</p>
+                            <p class="text-[11.5px] text-black/50 dark:text-white/50 leading-relaxed">{{ __('social_media.new_schedule_sync_info') }}</p>
                         </div>
                     </div>
 
@@ -1427,9 +1427,9 @@
                     <div x-show="pmMessage" x-cloak
                          :class="pmSuccess ? 'bg-[#34C759]/10 border-[#34C759]/25 text-[#248A3D] dark:text-[#30D158]' : 'bg-[#FF3B30]/10 border-[#FF3B30]/25 text-[#FF3B30]'"
                          class="rounded-[12px] border p-3 text-[12.5px] font-semibold flex items-center gap-2">
-                        <span x-show="pmSuccess" class="inline-flex"><i data-lucide="check-circle-2" class="w-4 h-4 shrink-0"></i></span>
-                        <span x-show="!pmSuccess" class="inline-flex"><i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i></span>
-                        <span x-text="pmMessage"></span>
+                         <span x-show="pmSuccess" class="inline-flex"><i data-lucide="check-circle-2" class="w-4 h-4 shrink-0"></i></span>
+                         <span x-show="!pmSuccess" class="inline-flex"><i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i></span>
+                         <span x-text="pmMessage"></span>
                     </div>
                 </div>
 
@@ -1440,12 +1440,12 @@
                     <div class="flex items-center gap-2">
                         <button type="button" @click="pmTab = 'preview'"
                                 :class="pmTab === 'preview' ? 'bg-black text-white dark:bg-white dark:text-black shadow-xs' : 'bg-black/5 dark:bg-white/10 text-black/70 dark:text-white/70 hover:bg-black/10'"
-                                class="h-8 px-3.5 rounded-full text-[12px] font-semibold transition-colors cursor-pointer">Preview Konten</button>
+                                class="h-8 px-3.5 rounded-full text-[12px] font-semibold transition-colors cursor-pointer">{{ __('social_media.preview_content_tab') }}</button>
                         <button type="button" @click="pmTab = 'reschedule'"
                                 :class="pmTab === 'reschedule' ? 'bg-[#5856D6] text-white shadow-xs' : 'bg-[#5856D6]/10 text-[#5856D6] hover:bg-[#5856D6]/20'"
                                 class="h-8 px-3.5 rounded-full text-[12px] font-semibold transition-colors inline-flex items-center gap-1.5 cursor-pointer">
                             <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
-                            <span>Ubah Jadwal</span>
+                            <span>{{ __('social_media.reschedule_tab') }}</span>
                         </button>
                     </div>
 
@@ -1459,7 +1459,7 @@
                                 class="flex-1 h-10 rounded-[12px] text-[13px] font-bold text-white bg-[#5856D6] hover:bg-[#4F4EC2] active:scale-[0.97] transition-all disabled:opacity-50 inline-flex items-center justify-center gap-2 cursor-pointer shadow-xs">
                             <i data-lucide="loader-2" class="w-4 h-4 animate-spin" x-show="pmLoading" x-cloak></i>
                             <i data-lucide="save" class="w-4 h-4" x-show="!pmLoading"></i>
-                            <span>Simpan Jadwal Baru</span>
+                            <span>{{ __('social_media.save_new_schedule_btn') }}</span>
                         </button>
 
                         {{-- Publish Now --}}
@@ -1469,7 +1469,7 @@
                                 class="flex-1 h-10 rounded-[12px] text-[13px] font-bold text-white bg-[#34C759] hover:bg-[#2FB34F] active:scale-[0.97] transition-all disabled:opacity-50 inline-flex items-center justify-center gap-2 cursor-pointer shadow-xs">
                             <i data-lucide="loader-2" class="w-4 h-4 animate-spin" x-show="pmLoading" x-cloak></i>
                             <i data-lucide="send" class="w-4 h-4" x-show="!pmLoading"></i>
-                            <span>Terbitkan Sekarang</span>
+                            <span>{{ __('social_media.publish_now_btn') }}</span>
                         </button>
 
                         {{-- Delete --}}
@@ -1478,7 +1478,7 @@
                                 :disabled="pmLoading"
                                 class="h-10 px-4 rounded-[12px] text-[13px] font-bold text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/20 active:scale-[0.97] transition-all disabled:opacity-50 inline-flex items-center justify-center gap-2 cursor-pointer">
                             <i data-lucide="trash-2" class="w-4 h-4"></i>
-                            <span>Hapus</span>
+                            <span>{{ __('social_media.delete_post_btn') }}</span>
                         </button>
                     </div>
                 </div>
@@ -1586,7 +1586,7 @@
                         });
                         const data = await res.json();
                         this.pmSuccess = data.success;
-                        this.pmMessage = data.success ? ('✅ ' + data.message + ' — ' + (data.scheduled_at || '')) : ('❌ ' + (data.message || data.error || 'Terjadi kesalahan.'));
+                        this.pmMessage = data.success ? ('✅ ' + data.message + ' — ' + (data.scheduled_at || '')) : ('❌ ' + (data.message || data.error || @js(__('social_media.error_occurred'))));
                         if (data.success) {
                             this.pmPost.scheduled_at_label = data.scheduled_at;
                             this.pmPost.status = 'scheduled';
@@ -1594,7 +1594,7 @@
                         }
                     } catch (e) {
                         this.pmSuccess = false;
-                        this.pmMessage = '❌ Koneksi gagal. Silakan coba lagi.';
+                        this.pmMessage = '❌ ' + @js(__('social_media.connection_error_try_again'));
                     } finally {
                         this.pmLoading = false;
                         this.$nextTick(() => { if (window.lucide) window.lucide.createIcons(); });
@@ -1602,7 +1602,20 @@
                 },
 
                 async doPublishNow() {
-                    if (!confirm('Yakin ingin menerbitkan konten ini sekarang ke semua platform tujuan?')) return;
+                    let confirmed = false;
+                    if (window.AppAlert) {
+                        confirmed = await AppAlert.confirm({
+                            title: @js(__('social_media.confirm_publish_now_title')),
+                            message: @js(__('social_media.confirm_publish_now_msg')),
+                            type: 'info',
+                            confirmText: @js(__('social_media.publish_now_btn')),
+                            cancelText: @js(__('social_media.cancel')),
+                        });
+                    } else {
+                        confirmed = confirm(@js(__('social_media.confirm_publish_now_msg')));
+                    }
+                    if (!confirmed) return;
+
                     this.pmLoading = true;
                     this.pmMessage = '';
                     try {
@@ -1613,11 +1626,11 @@
                         });
                         const data = await res.json();
                         this.pmSuccess = data.success;
-                        this.pmMessage = data.success ? '✅ Konten sedang diterbitkan! Halaman akan diperbarui…' : ('❌ ' + (data.error || 'Gagal menerbitkan.'));
+                        this.pmMessage = data.success ? ('✅ ' + @js(__('social_media.post_being_published_reload'))) : ('❌ ' + (data.error || @js(__('social_media.failed_to_publish'))));
                         if (data.success) { setTimeout(() => { window.location.reload(); }, 2000); }
                     } catch (e) {
                         this.pmSuccess = false;
-                        this.pmMessage = '❌ Koneksi gagal. Silakan coba lagi.';
+                        this.pmMessage = '❌ ' + @js(__('social_media.connection_error_try_again'));
                     } finally {
                         this.pmLoading = false;
                         this.$nextTick(() => { if (window.lucide) window.lucide.createIcons(); });
@@ -1625,7 +1638,20 @@
                 },
 
                 async doDelete() {
-                    if (!confirm('Hapus konten ini secara permanen? Tindakan ini tidak dapat dibatalkan.')) return;
+                    let confirmed = false;
+                    if (window.AppAlert) {
+                        confirmed = await AppAlert.confirm({
+                            title: @js(__('social_media.confirm_delete_post_title')),
+                            message: @js(__('social_media.confirm_delete_post_msg')),
+                            type: 'danger',
+                            confirmText: @js(__('social_media.delete_post_btn')),
+                            cancelText: @js(__('social_media.cancel')),
+                        });
+                    } else {
+                        confirmed = confirm(@js(__('social_media.confirm_delete_post_msg')));
+                    }
+                    if (!confirmed) return;
+
                     this.pmLoading = true;
                     this.pmMessage = '';
                     try {
@@ -1636,11 +1662,11 @@
                         });
                         const data = await res.json();
                         this.pmSuccess = data.success;
-                        this.pmMessage = data.success ? '✅ Konten berhasil dihapus. Halaman akan diperbarui…' : ('❌ ' + (data.error || data.message || 'Gagal menghapus.'));
+                        this.pmMessage = data.success ? ('✅ ' + @js(__('social_media.post_deleted_reload'))) : ('❌ ' + (data.error || data.message || @js(__('social_media.failed_to_delete'))));
                         if (data.success) { setTimeout(() => { window.location.reload(); }, 1500); }
                     } catch (e) {
                         this.pmSuccess = false;
-                        this.pmMessage = '❌ Koneksi gagal. Silakan coba lagi.';
+                        this.pmMessage = '❌ ' + @js(__('social_media.connection_error_try_again'));
                     } finally {
                         this.pmLoading = false;
                         this.$nextTick(() => { if (window.lucide) window.lucide.createIcons(); });

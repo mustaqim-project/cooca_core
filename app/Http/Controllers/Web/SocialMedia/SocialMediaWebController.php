@@ -17,11 +17,35 @@ use App\Support\Context;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
-class SocialMediaWebController extends Controller
+class SocialMediaWebController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware(['module:channels_marketing', 'require.permission:social_media.view']),
+            new Middleware('require.permission:social_media.manage', only: [
+                'exchangeToken',
+                'disconnect',
+                'storePost',
+                'approvePost',
+                'rejectPost',
+                'reschedulePost',
+                'publishNow',
+                'destroyPost',
+                'retryTarget',
+                'replyComment',
+            ]),
+            new Middleware('entitlement:social_post', only: ['storePost']),
+            new Middleware('throttle:15,1', only: ['replyComment']),
+            new Middleware('throttle:10,1', only: ['syncAccountsInsights', 'syncInsights']),
+        ];
+    }
+
     public function __construct(
         protected SocialMediaService $socialService,
         protected \App\Domain\SocialMedia\SocialMediaManager $socialMediaManager
@@ -1429,7 +1453,7 @@ class SocialMediaWebController extends Controller
     {
         $business = Context::requireBusiness();
         abort_unless($post->business_id === $business->id, 404);
-        abort_unless(in_array($post->status, ['scheduled', 'pending', 'failed', 'partially_failed'], true), 422, 'Hanya konten terjadwal yang dapat dijadwal ulang.');
+        abort_unless(in_array($post->status, ['scheduled', 'pending', 'failed', 'partially_failed'], true), 422, __('social_media.reschedule_invalid_status'));
 
         $validated = $request->validate([
             'scheduled_at' => ['required', 'date', 'after:now'],
@@ -1448,7 +1472,7 @@ class SocialMediaWebController extends Controller
 
         return response()->json([
             'success'      => true,
-            'message'      => 'Jadwal posting berhasil diperbarui.',
+            'message'      => __('social_media.reschedule_success'),
             'scheduled_at' => $newScheduledAt->translatedFormat('d M Y, H:i') . ' WIB',
         ]);
     }
@@ -1460,7 +1484,7 @@ class SocialMediaWebController extends Controller
     {
         $business = Context::requireBusiness();
         abort_unless($post->business_id === $business->id, 404);
-        abort_unless(in_array($post->status, ['scheduled', 'pending', 'failed', 'partially_failed'], true), 422, 'Hanya konten terjadwal atau draft yang dapat diterbitkan sekarang.');
+        abort_unless(in_array($post->status, ['scheduled', 'pending', 'failed', 'partially_failed'], true), 422, __('social_media.publish_now_invalid_status'));
 
         try {
             // Reset schedule and dispatch immediately
@@ -1478,7 +1502,7 @@ class SocialMediaWebController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Konten sedang diterbitkan ke platform.',
+                'message' => __('social_media.publish_now_dispatched'),
                 'status'  => $result->status,
             ]);
         } catch (\Throwable $e) {
@@ -1486,7 +1510,7 @@ class SocialMediaWebController extends Controller
 
             return response()->json([
                 'success' => false,
-                'error'   => 'Gagal menerbitkan: ' . $e->getMessage(),
+                'error'   => __('social_media.publish_failed_prefix', ['error' => $e->getMessage()]),
             ], 500);
         }
     }
@@ -1498,7 +1522,7 @@ class SocialMediaWebController extends Controller
     {
         $business = Context::requireBusiness();
         abort_unless($post->business_id === $business->id, 404);
-        abort_unless(! in_array($post->status, ['published', 'publishing'], true), 422, 'Konten yang sudah terpublikasi tidak dapat dihapus dari sini.');
+        abort_unless(! in_array($post->status, ['published', 'publishing'], true), 422, __('social_media.destroy_published_forbidden'));
 
         // Purge local media if any
         try {
@@ -1516,7 +1540,7 @@ class SocialMediaWebController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Konten berhasil dihapus.',
+            'message' => __('social_media.destroy_success'),
         ]);
     }
 

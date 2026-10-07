@@ -216,7 +216,16 @@
                                 <div class="flex items-center justify-between text-[11.5px]">
                                     <span class="font-bold uppercase tracking-wider text-[#007AFF]">{{ $p->platform }}</span>
                                     <span class="px-2 py-0.5 rounded-full text-[10.5px] font-bold {{ $p->status === 'published' ? 'bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]' : 'bg-black/5 text-black/50' }}">
-                                        {{ $p->status }}
+                                        {{ match($p->status) {
+                                            'published' => __('social_media.filter_status_published'),
+                                            'scheduled' => __('social_media.filter_status_scheduled'),
+                                            'failed' => __('social_media.filter_status_failed'),
+                                            'partially_failed' => __('social_media.status_partially_failed'),
+                                            'pending_review' => __('social_media.status_pending_approval'),
+                                            'rejected' => __('social_media.status_rejected'),
+                                            'publishing' => __('social_media.status_publishing'),
+                                            default => ucfirst($p->status)
+                                        } }}
                                     </span>
                                 </div>
                                 <p class="text-[12.5px] text-black/80 dark:text-white/80 line-clamp-2">{{ $p->content }}</p>
@@ -298,7 +307,7 @@
 
                         const data = await res.json();
                         if (res.ok && data.success) {
-                            this.successMessage = data.message || @js(__('social_media.post_published'));
+                            this.successMessage = data.message || @js(__('social_media.meta_connected_success'));
                             if (window.AppAlert) {
                                 AppAlert.success(this.successMessage);
                             }
@@ -325,6 +334,8 @@
                             confirmText: @js(__('social_media.disconnect_confirm_btn')),
                             cancelText: @js(__('social_media.cancel'))
                         });
+                    } else {
+                        confirmed = confirm(@js(__('social_media.disconnect_confirm_msg')));
                     }
                     if (!confirmed) return;
 
@@ -339,7 +350,7 @@
                                 pattern: '[0-9]*',
                                 maxlength: 6
                             },
-                            inputPlaceholder: 'PIN Supervisor (6 digit)',
+                            inputPlaceholder: @js(__('social_media.supervisor_pin_placeholder')),
                             showCancelButton: true,
                             confirmButtonText: @js(__('common.confirm')),
                             cancelButtonText: @js(__('common.cancel'))

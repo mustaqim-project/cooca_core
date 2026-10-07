@@ -61,18 +61,18 @@
 
             <div class="flex items-center gap-2">
                 <a href="{{ route('social-media.calendar', ['month' => $prevMonth->month, 'year' => $prevMonth->year]) }}"
-                    class="h-8 px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-black dark:text-white text-[12px] font-medium flex items-center gap-1.5 transition-colors">
+                    class="min-h-[38px] sm:min-h-0 sm:h-8 px-3.5 sm:px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-black dark:text-white text-[12px] font-medium flex items-center gap-1.5 transition-colors">
                     <i data-lucide="chevron-left" class="w-4 h-4"></i>
                     <span>{{ __('social_media.prev_month') }}</span>
                 </a>
 
                 <a href="{{ route('social-media.calendar', ['month' => now()->month, 'year' => now()->year]) }}"
-                    class="h-8 px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-black dark:text-white text-[12px] font-medium flex items-center gap-1.5 transition-colors">
+                    class="min-h-[38px] sm:min-h-0 sm:h-8 px-3.5 sm:px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-black dark:text-white text-[12px] font-medium flex items-center gap-1.5 transition-colors">
                     <span>{{ __('social_media.this_month') }}</span>
                 </a>
 
                 <a href="{{ route('social-media.calendar', ['month' => $nextMonth->month, 'year' => $nextMonth->year]) }}"
-                    class="h-8 px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-black dark:text-white text-[12px] font-medium flex items-center gap-1.5 transition-colors">
+                    class="min-h-[38px] sm:min-h-0 sm:h-8 px-3.5 sm:px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-black dark:text-white text-[12px] font-medium flex items-center gap-1.5 transition-colors">
                     <span>{{ __('social_media.next_month') }}</span>
                     <i data-lucide="chevron-right" class="w-4 h-4"></i>
                 </a>
@@ -228,7 +228,7 @@
                                     $statusLabel = match($post->status) {
                                         'published' => __('social_media.filter_status_published'),
                                         'failed' => __('social_media.filter_status_failed'),
-                                        'publishing' => 'Publishing',
+                                        'publishing' => __('social_media.status_publishing'),
                                         default => __('social_media.filter_status_scheduled')
                                     };
                                 @endphp
