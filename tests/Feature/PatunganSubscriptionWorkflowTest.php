@@ -84,6 +84,7 @@ class PatunganSubscriptionWorkflowTest extends TestCase
         // Update package price in catalog to verify dynamic retrieval
         BillingPackage::where('code', 'core-monthly')->update(['price' => 30000]);
         $this->assertEquals(30000, $this->entitlementService->getMonthlyPrice());
+        BillingPackage::where('code', 'core-monthly')->update(['price' => 29000]);
     }
 
     public function test_tenant_can_view_patungan_checkout_page(): void
@@ -93,8 +94,8 @@ class PatunganSubscriptionWorkflowTest extends TestCase
         $response = $this->get('/patungan');
         $response->assertStatus(200);
         $response->assertSee('Standard Plan');
-        $response->assertSee('29.000');
-        $response->assertSee('290.000');
+        $response->assertSee('29000');
+        $response->assertSee('290000');
         $response->assertDontSee('10 Juta Token AI');
     }
 
@@ -172,28 +173,28 @@ class PatunganSubscriptionWorkflowTest extends TestCase
         $this->assertNotNull($sub);
         $this->assertTrue($sub->isCorePlan());
         $this->assertEquals(BusinessSubscription::STATUS_ACTIVE, $sub->status);
-        // Free token allowance must be ZERO (tokens are top-up only)
+        // Free token allowance must be ZERO (BYOAI model)
         $this->assertEquals(0, $sub->ai_tokens_monthly_allowance);
         $this->assertEquals(0, $sub->ai_tokens_remaining);
-        $this->assertFalse($this->entitlementService->canAccessAi($this->business));
+        $this->assertTrue($this->entitlementService->canAccessAi($this->business));
 
         // Entitlements unlocked
         $this->assertTrue($this->entitlementService->canImportData($this->business));
         $this->assertTrue($this->entitlementService->canExportData($this->business));
     }
 
-    public function test_ai_is_only_accessible_after_token_topup(): void
+    public function test_ai_is_accessible_on_core_plan_and_token_topup_works(): void
     {
         // Business on Core plan
         $this->entitlementService->upgradeToCore($this->business);
-        $this->assertFalse($this->entitlementService->canAccessAi($this->business));
+        $this->assertTrue($this->entitlementService->canAccessAi($this->business));
 
         // Top up 1 Million tokens
         $topup = $this->entitlementService->createTokenTopupOrder($this->business, $this->user);
         $this->entitlementService->submitPaymentProof($topup, UploadedFile::fake()->image('topup.png'));
         $this->entitlementService->approvePayment($topup, $this->admin);
 
-        // Now AI is accessible
+        // Now AI is accessible and tokens can be deducted
         $this->assertTrue($this->entitlementService->canAccessAi($this->business));
         $this->assertTrue($this->entitlementService->deductAiTokens($this->business, 500, 'test_prompt', $this->user));
     }

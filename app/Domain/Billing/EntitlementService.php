@@ -421,7 +421,12 @@ final class EntitlementService
     {
         $sub = $this->getSubscription($business);
 
-        return ($sub->isCorePlan() && $sub->ai_tokens_remaining > 0)
+        // Core plans (Standard, Premium, Prestige) have full access to AI capabilities (BYOAI / unmetered)
+        if ($sub->isCorePlan()) {
+            return true;
+        }
+
+        return ($sub->ai_tokens_remaining > 0)
             || $business->aiTokenTopups()->where('remaining_tokens', '>', 0)->where('expires_at', '>', Carbon::now())->exists();
     }
 

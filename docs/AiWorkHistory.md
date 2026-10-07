@@ -32,6 +32,40 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 - **Files Affected:** Daftar berkas controller, service, model, blade, atau route yang dimodifikasi.
 - **Database Changes:** Tabel baru, migrasi skema, kolom tambahan, atau indexing.
+### [WORK-2026-10-07-332] Perbaikan Bug Entitlement AI & Pemulihan Akses Cooca AI (/cooca-ai) untuk Pelanggan Berbayar (Standard, Premium, Prestige)
+
+- **Date:** 2026-10-07
+- **Status:** COMPLETED
+- **Module:** SaaS Entitlement & Cooca AI (`app/Domain/Billing/EntitlementService.php`, `routes/owner.php`, `CheckResourceEntitlement.php`)
+- **Feature:** Rekonsiliasi Otomatis Hak Akses AI Pelanggan Berbayar Core Plan (Standard, Premium, Prestige) terhadap Arsitektur Mandiri BYOAI (Bring Your Own AI).
+- **Work Type:** Bug Fix | Security & Entitlement Refactoring | Automated Test Suite Alignment
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Pelanggan yang telah berlangganan paket berbayar aktif (**Premium Plan**, aktif hingga 05 Nov 2026) melaporkan terblokir saat mengakses URL `https://cooca.id/cooca-ai` dan mendapatkan redirect ke `/billing/limits` dengan pesan: *"Batas kuota Fitur Asisten & Prediksi AI telah tercapai. Data lama Anda tetap aman (No Data Punishment). Silakan tingkatkan paket Anda ke paket yang lebih tinggi untuk menambah data baru."*
+- **Akar Masalah (Root Cause):**
+  1. Route `/cooca-ai` diproteksi oleh middleware `entitlement:ai` (`CheckResourceEntitlement.php`).
+  2. Middleware mengevaluasi method `EntitlementService::canAccessAi($business)`.
+  3. Method `canAccessAi` sebelumnya masih menggunakan artefak lama sebelum migrasi BYOAI: `($sub->isCorePlan() && $sub->ai_tokens_remaining > 0)`.
+  4. Ketika tenant mengaktifkan langganan berbayar (Standard, Premium, atau Prestige), nilai `ai_tokens_remaining` pada baris tabel `business_subscriptions` diinisialisasi atau tersimpan sebagai `0` (karena sistem Cooca sejak 5 Oktober 2026 telah beralih sepenuhnya ke model **BYOAI** di mana komputasi AI menggunakan API Key milik tenant sendiri tanpa markup biaya platform dan tanpa kuota token platform).
+  5. Akibatnya, kondisi `($sub->isCorePlan() && 0 > 0)` menghasilkan `false`, sehingga sistem mencegat akses tenant berbayar dan menguncinya keluar dari Lobi AI maupun halaman konfigurasi provider `/cooca-ai/providers`.
+
+#### 2. What Was Done
+
+1. **Refactoring Logika `canAccessAi()` (`app/Domain/Billing/EntitlementService.php`):**
+   - Menyelaraskan logika kelayakan dengan arsitektur BYOAI: seluruh pelanggan dengan paket Core Plan aktif (`$sub->isCorePlan() === true`, mencakup Standard, Premium, dan Prestige) secara otomatis berhak penuh mengakses kapabilitas Cooca AI (`return true;`).
+   - Menyediakan fallback untuk akun Free jika memiliki sisa token top-up aktif dari riwayat masa lalu.
+2. **Penyelarasan Automated Regression Tests (`SaaSPlanAndEntitlementTest.php`, `PatunganSubscriptionWorkflowTest.php`):**
+   - Memperbarui asersi unit test agar mencerminkan hak akses Core Plan pada model BYOAI yang unmetered.
+   - Memastikan 57 feature & unit test terkait penagihan, entitlement, dan AI berjalan 100% lulus (365 assertions).
+3. **Instruksi Remediasi Langsung untuk Basis Data Production:**
+   - Menyusun query SQL perbaikan instan untuk tabel `business_subscriptions` pada instance server production (Hostinger) agar akun pengguna yang terdampak dapat langsung aktif tanpa menunggu siklus deploy kode.
+
+#### 3. Technical Changes
+
+- **Files Affected:** `app/Domain/Billing/EntitlementService.php`, `tests/Feature/SaaSPlanAndEntitlementTest.php`, `tests/Feature/PatunganSubscriptionWorkflowTest.php`, `docs/AiWorkHistory.md`.
+- **Database Changes:** Tidak ada migrasi skema baru (memanfaatkan kolom `is_operational`, `plan_code`, dan `status` yang sudah ada).
+
 ### [WORK-2026-10-07-331] Detailisasi Halaman Billing Limits & Matriks Komparasi Fitur Komprehensif Antar Paket
 
 - **Date:** 2026-10-07

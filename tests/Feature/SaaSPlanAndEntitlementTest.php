@@ -133,8 +133,8 @@ class SaaSPlanAndEntitlementTest extends TestCase
         $this->assertEquals(0, $sub->ai_tokens_monthly_allowance);
         $this->assertTrue($this->entitlementService->canCreateProduct($this->business));
 
-        // AI requires top up
-        $this->assertFalse($this->entitlementService->canAccessAi($this->business));
+        // Core plans have access to AI capabilities (BYOAI unmetered)
+        $this->assertTrue($this->entitlementService->canAccessAi($this->business));
 
         $admin = Admin::create([
             'name' => 'Super Admin',
