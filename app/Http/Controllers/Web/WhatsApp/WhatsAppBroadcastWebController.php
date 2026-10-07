@@ -32,6 +32,7 @@ class WhatsAppBroadcastWebController extends Controller implements HasMiddleware
         return [
             new Middleware('require.permission:whatsapp.manage'),
             new Middleware('entitlement:whatsapp', only: ['store']),
+            new Middleware('throttle:10,1', only: ['store']),
         ];
     }
 
@@ -153,7 +154,7 @@ class WhatsAppBroadcastWebController extends Controller implements HasMiddleware
                             return;
                         }
                     }
-                    $fail('Target audiens yang dipilih tidak valid.');
+                    $fail(__('whatsapp.error_invalid_target_audience'));
                 },
             ],
             'template_name'     => 'nullable|string|max:128',
@@ -167,21 +168,21 @@ class WhatsAppBroadcastWebController extends Controller implements HasMiddleware
             $scheme = strtolower((string) ($parsed['scheme'] ?? ''));
             if ($scheme !== 'https') {
                 throw ValidationException::withMessages([
-                    'media_url' => 'URL media wajib menggunakan protokol https:// yang aman.',
+                    'media_url' => __('whatsapp.error_media_url_https_required'),
                 ]);
             }
 
             $host = strtolower((string) ($parsed['host'] ?? ''));
             if (empty($host) || in_array($host, ['localhost', '127.0.0.1', '::1', '0.0.0.0', '169.254.169.254'], true)) {
                 throw ValidationException::withMessages([
-                    'media_url' => 'URL media tidak valid atau mengarah ke alamat jaringan lokal/privat.',
+                    'media_url' => __('whatsapp.error_media_url_private_ip'),
                 ]);
             }
 
             $ip = filter_var($host, FILTER_VALIDATE_IP) ? $host : @gethostbyname($host);
             if (! $ip || filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
                 throw ValidationException::withMessages([
-                    'media_url' => 'URL media tidak valid atau mengarah ke alamat jaringan lokal/privat.',
+                    'media_url' => __('whatsapp.error_media_url_private_ip'),
                 ]);
             }
         }
@@ -200,7 +201,7 @@ class WhatsAppBroadcastWebController extends Controller implements HasMiddleware
         $lockKey         = "broadcast_lock_{$idempotencyHash}";
         if (! Cache::add($lockKey, true, 300)) {
             return back()->withErrors([
-                'title' => 'Kampanye broadcast yang identik baru saja dijadwalkan. Mohon tunggu proses pengiriman selesai untuk mencegah pesan duplikat ke pelanggan.',
+                'title' => __('whatsapp.error_duplicate_broadcast_lock'),
             ])->withInput();
         }
 
@@ -271,7 +272,7 @@ class WhatsAppBroadcastWebController extends Controller implements HasMiddleware
                             return;
                         }
                     }
-                    $fail('Filter target audiens tidak valid.');
+                    $fail(__('whatsapp.error_invalid_target_audience'));
                 },
             ],
         ]);

@@ -33,11 +33,12 @@ final class CalculatorWebController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware('require.permission:costing.view_margin', only: ['index', 'calculate']),
+            new Middleware('require.permission:costing.view_margin', only: ['index', 'calculate', 'exportExcel']),
             new Middleware('require.permission:costing.manage', only: ['saveResult']),
             new Middleware('require.permission:products.create,products.manage', only: ['quickCreateProduct']),
             new Middleware('require.permission:products.edit,products.manage', only: ['applyToProduct']),
             new Middleware('entitlement:export', only: ['exportExcel']),
+            new Middleware('throttle:30,1', only: ['saveResult', 'applyToProduct', 'quickCreateProduct']),
         ];
     }
 
@@ -95,7 +96,7 @@ final class CalculatorWebController extends Controller implements HasMiddleware
         $business = Context::requireBusiness();
 
         if ($costModel->business_id !== $business->id) {
-            abort(403, 'Akses model biaya ditolak: data milik entitas bisnis lain.');
+            abort(403, __('calculator.access_denied'));
         }
 
         $result = $this->calculationEngine->calculate($costModel);
@@ -129,7 +130,7 @@ final class CalculatorWebController extends Controller implements HasMiddleware
 
         return response()->json([
             'success' => true,
-            'message' => 'Hasil kalkulasi HPP berhasil disimpan secara resmi.',
+            'message' => __('calculator.save_result_success'),
             'run' => [
                 'id' => $run->id,
                 'created_at' => $run->created_at?->translatedFormat('d M Y H:i'),
@@ -173,7 +174,7 @@ final class CalculatorWebController extends Controller implements HasMiddleware
         if (! $product) {
             return response()->json([
                 'success' => false,
-                'message' => 'Parameter product_id atau cost_model_id diperlukan.',
+                'message' => __('calculator.product_or_model_required'),
             ], 422);
         }
 
@@ -205,7 +206,11 @@ final class CalculatorWebController extends Controller implements HasMiddleware
 
         return response()->json([
             'success' => true,
-            'message' => "HPP (Rp " . number_format($hppPerUnit, 0, ',', '.') . ") & Harga Jual (Rp " . number_format($sellingPrice, 0, ',', '.') . ") berhasil diterapkan ke produk {$product->name}.",
+            'message' => __('calculator.applied_to_product_success', [
+                'hpp' => number_format($hppPerUnit, 0, ',', '.'),
+                'price' => number_format($sellingPrice, 0, ',', '.'),
+                'name' => $product->name,
+            ]),
             'product' => [
                 'id' => $product->id,
                 'name' => $product->name,
@@ -241,29 +246,29 @@ final class CalculatorWebController extends Controller implements HasMiddleware
             $file = fopen('php://output', 'w');
             fputs($file, "\xEF\xBB\xBF"); // UTF-8 BOM for Excel compatibility
 
-            fputcsv($file, ['DATA LENGKAP ARSIP RIWAYAT KALKULASI HPP & PRICING']);
-            fputcsv($file, ['Nama Bisnis', $business->name]);
-            fputcsv($file, ['Mata Uang', $business->currency_code . ' (' . $business->currency_symbol . ')']);
-            fputcsv($file, ['Waktu Export', date('d F Y H:i:s')]);
+            fputcsv($file, [__('calculator.csv_report_title')]);
+            fputcsv($file, [__('calculator.csv_business_name'), $business->name]);
+            fputcsv($file, [__('calculator.csv_currency'), $business->currency_code . ' (' . $business->currency_symbol . ')']);
+            fputcsv($file, [__('calculator.csv_export_time'), date('d F Y H:i:s')]);
             fputcsv($file, []);
 
             fputcsv($file, [
-                'No',
-                'Waktu Kalkulasi',
-                'Nama Produk',
-                'Kategori',
-                'Satuan',
-                'Metode HPP',
-                'Biaya Bahan Baku (Material)',
-                'Biaya Tenaga Kerja (Labor)',
-                'Biaya Mesin & Utilitas',
-                'Biaya Overhead (BOP)',
-                'Total HPP Batch',
-                'HPP per Unit (Modal Bersih)',
-                'Harga Jual Standar (Margin 40%)',
-                'Potensi Laba Kotor per Unit',
-                'Catatan Kalkulasi',
-                'Tipe Run',
+                __('calculator.csv_header_no'),
+                __('calculator.csv_header_calc_time'),
+                __('calculator.csv_header_product_name'),
+                __('calculator.csv_header_category'),
+                __('calculator.csv_header_unit'),
+                __('calculator.csv_header_method'),
+                __('calculator.csv_header_material_cost'),
+                __('calculator.csv_header_labor_cost'),
+                __('calculator.csv_header_machine_cost'),
+                __('calculator.csv_header_overhead_cost'),
+                __('calculator.csv_header_total_batch'),
+                __('calculator.csv_header_unit_cogs'),
+                __('calculator.csv_header_selling_price'),
+                __('calculator.csv_header_gross_profit'),
+                __('calculator.csv_header_notes'),
+                __('calculator.csv_header_run_type'),
             ]);
 
             $no = 1;
@@ -379,7 +384,11 @@ final class CalculatorWebController extends Controller implements HasMiddleware
 
         return response()->json([
             'success' => true,
-            'message' => "Produk '{$product->name}' berhasil dibuat dengan HPP Rp " . number_format($totalHpp, 0, ',', '.') . " dan Harga Jual Rp " . number_format($sellingPrice, 0, ',', '.') . ". Siap dijual di kasir POS!",
+            'message' => __('calculator.quick_created_success', [
+                'name' => $product->name,
+                'hpp' => number_format($totalHpp, 0, ',', '.'),
+                'price' => number_format($sellingPrice, 0, ',', '.'),
+            ]),
             'product' => [
                 'id' => $product->id,
                 'name' => $product->name,

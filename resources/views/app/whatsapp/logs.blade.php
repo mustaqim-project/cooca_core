@@ -366,7 +366,7 @@
                         <div class="flex items-center justify-between">
                             <label class="text-[12px] font-bold text-black/70 dark:text-white/70">{{ __('whatsapp.inspector_full_message') }}</label>
                             <button type="button" @click="copyMessage()"
-                                class="min-h-[36px] px-2 text-[11.5px] text-[#007AFF] hover:underline font-semibold flex items-center gap-1">
+                                class="min-h-[44px] px-2.5 rounded-[8px] text-[11.5px] text-[#007AFF] hover:bg-[#007AFF]/10 transition-colors font-semibold flex items-center gap-1">
                                 <i data-lucide="copy" class="w-3.5 h-3.5"></i>
                                 <span x-text="copied ? '{{ __('whatsapp.copied_toast') }}' : '{{ __('whatsapp.copy_message') }}'"></span>
                             </button>
@@ -417,6 +417,7 @@
         <template x-teleport="body">
             <div x-show="openPruneModal" x-transition.opacity.duration.200ms
                 class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 dark:bg-black/75 backdrop-blur-md"
+                @keydown.escape.window="openPruneModal = false"
                 @click.self="openPruneModal = false" style="display: none;">
             <div role="dialog" aria-modal="true" aria-labelledby="pruneModalTitle"
                 class="w-full max-w-[500px] rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-2xl p-6 sm:p-7 space-y-5 animate-in fade-in zoom-in-95 duration-200">

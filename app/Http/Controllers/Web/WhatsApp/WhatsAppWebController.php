@@ -30,6 +30,12 @@ class WhatsAppWebController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
+            new Middleware('require.permission:whatsapp.view', only: [
+                'index',
+                'getQr',
+                'checkStatus',
+                'logs',
+            ]),
             new Middleware('require.permission:whatsapp.manage', only: [
                 'startSession',
                 'disconnect',
@@ -37,6 +43,12 @@ class WhatsAppWebController extends Controller implements HasMiddleware
                 'testSend',
                 'verifyMetaCredentials',
             ]),
+            new Middleware('require.permission:whatsapp.view', only: ['exportLogs']),
+            new Middleware('require.permission:reports.export', only: ['exportLogs']),
+            new Middleware('entitlement:export', only: ['exportLogs']),
+            new Middleware('require.permission:pos.orders', only: ['sendOrderReceipt']),
+            new Middleware('throttle:5,1', only: ['testSend']),
+            new Middleware('throttle:10,1', only: ['startSession', 'verifyMetaCredentials', 'sendOrderReceipt']),
         ];
     }
 
@@ -290,7 +302,7 @@ class WhatsAppWebController extends Controller implements HasMiddleware
         if (empty($token) || empty($phoneId)) {
             return response()->json([
                 'success' => false,
-                'error'   => 'Token dan Phone Number ID Meta wajib diisi terlebih dahulu untuk pengujian verifikasi.',
+                'error'   => __('whatsapp.meta_token_phone_required'),
             ], 422);
         }
 

@@ -1,6 +1,6 @@
 ---
 name: cooca-agent-directive
-description: Direktif operasional WAJIB untuk AI Agent yang bekerja pada repositori COOCA (platform SaaS ERP multi-tenant untuk UMKM Indonesia). GUNAKAN SKILL INI untuk SETIAP task yang menyentuh codebase COOCA - audit sistem, penambahan/refactor fitur, perubahan route/controller/service/model/view, perubahan UI/UX (Bento Apple HIG di Desktop & Pola Adaptif Mobile: Slider, Grouped Inset List, Stepper - tidak semua harus Bento), keamanan & isolasi tenant, audit & perlindungan skema fraud internal (kasir, gudang, keuangan), arsitektur notifikasi sistem terpadu (UI in-app, email, WhatsApp), otomasi bisnis (jurnal, stok, reminder), testing, production hardening, dan dokumentasi. Trigger meskipun user hanya menyebut "Cooca", "bengkel/bagema", "bento UI", "slider", "Apple HIG", "modal sheet", "fraud", "notifikasi", atau meminta perubahan pada halaman/modul apa pun di aplikasi ini, walau tanpa menyebut kata "skill" atau "agent.md" secara eksplisit.
+description: Direktif orkestrasi operasional terpadu untuk AI Agent di repositori COOCA (platform SaaS ERP multi-tenant untuk UMKM Indonesia). Skill ini berfungsi sebagai ORKESTRATOR SISTEM yang TIDAK MEMBATASI dan WAJIB BERKOLABORASI secara sinergis dengan SELURUH skill spesialis lainnya (Design System, Taste/Minimalist, UI Layout Reorganizer, UI Simplify, Responsive UI/UX, Multi-Industry, i18n, Security & Fraud Audit, Laravel Permission, Strix AppSec). Trigger untuk setiap task yang menyentuh codebase COOCA.
 ---
 
 # COOCA - Direktif Operasional AI Agent (`docs/agent.md`)
@@ -49,6 +49,33 @@ Tujuan utama:
 > **Golden Rule:** Setiap pekerjaan harus membuat COOCA menjadi lebih aman, lebih mudah digunakan, lebih terstruktur, dan lebih mudah dipahami daripada sebelumnya. Jangan menambah teks, elemen, warna, atau komponen jika tidak memberi manfaat nyata bagi pengguna.
 
 ---
+
+## 1.1 Sinergi Penuh Antar-Skill (Multi-Skill Synergy Mandate)
+
+> ⚠️ **ATURAN MUTLAK:** `cooca-agent-directive` **DILARANG MEMBATASI, MENGGANTIKAN, ATAU MENGABAIKAN SKILL LAINNYA.** Skill ini adalah orkestrator sistemik tingkat tinggi, dan **WAJIB MENJALANKAN SERTA MENGINTEGRASIKAN SELURUH STANDAR DARI SKILL SPESIALIS TERKAIT**:
+>
+> 1. **Design System & Taste:**
+>    - `design-system` (Token architecture: primitive → semantic → component).
+>    - `taste-skill` / `design-taste-frontend` (Anti-slop frontend, non-templated craftsmanship).
+>    - `minimalist-skill` (Monochrome, typographic restraint, intentional whitespace).
+>    - `design` (Visual identity, component specifications, token consistency).
+>    - `ui-layout-hierarchy-reorganizer` (Penataan ulang hierarki visual F/Z-pattern secara non-destruktif).
+> 2. **UI/UX & Mobile Usability:**
+>    - `ui-simplify-layout` (Eliminasi total layout overlap, tombol bertumpuk, perapian button placement).
+>    - `responsive-ui-ux` (Mobile-first 360px touch targets min 44px, thumb-zone, adaptif bukan scaled-down).
+>    - `ui-panel-consistency-and-ia` (Konsistensi 3 panel: Admin, Owner Backoffice, Storefront; URL deep-linking tabs).
+>    - `ui-ux-pro-max` & `redesign-skill` (State loading/empty/error lengkap, audit micro-interaction).
+> 3. **COOCA Business & Industry Architecture:**
+>    - `cooca-system-guide` (Penyelarasan workflow POS, Billing, WA, CRM, Finance).
+>    - `multi-industry-system-audit` (Auto-hiding fitur/istilah non-relevan per tenant industri).
+>    - `multi-language-and-i18n` (Zero Hardcoded Text 100% ID & EN).
+> 4. **Security, RBAC & Anti-Fraud:**
+>    - `security-and-fraud-audit` (Skema fraud kasir/gudang/keuangan, ownership validation).
+>    - `laravel-permission` (Controller-level RBAC middleware, database seeder parity).
+>    - `application-security-testing` & `api-security-testing` (OWASP Top 10, IDOR/BOLA, rate limiting, mass assignment).
+>    - `fix-security-vulnerabilities-with-strix` & `ci-security-scanning-with-strix` (Proof-of-concept remediation & CI gates).
+>
+> **Dalam setiap task:** Buka dan baca berkas instruksi skill yang relevan, kombinasikan standar tertingginya, dan jangan pernah berasumsi bahwa `cooca-agent-directive` sudah cukup sendirian.
 
 ## 2. History-First Protocol (Wajib Sebelum Coding)
 

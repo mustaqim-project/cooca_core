@@ -394,4 +394,23 @@ return [
     'verifying'                        => 'Memverifikasi...',
     'disconnect_action_btn'            => 'Putuskan Koneksi',
     'error_network_disconnect'         => 'Terjadi kesalahan jaringan saat memutuskan koneksi.',
+
+    // Backend Controller Error & CSV Export Keys
+    'error_meta_app_id_not_configured' => 'Konfigurasi Meta App ID belum diatur di server.',
+    'error_meta_credentials_missing'   => 'Kredensial Meta App ID atau App Secret belum dikonfigurasi.',
+    'error_meta_token_missing'         => 'Token akses tidak ditemukan dalam respons Meta.',
+    'error_meta_waba_not_detected'     => 'Tidak dapat mendeteksi WhatsApp Business Account (WABA) ID dari akun Meta Anda.',
+    'error_meta_phone_details_failed'  => 'Gagal mengambil rincian nomor telepon dari akun Meta.',
+    'error_invalid_target_audience'    => 'Target audiens yang dipilih tidak valid.',
+    'error_media_url_https_required'   => 'URL media wajib menggunakan protokol https:// yang aman.',
+    'error_media_url_private_ip'       => 'URL media tidak valid atau mengarah ke alamat jaringan lokal/privat.',
+    'error_duplicate_broadcast_lock'   => 'Kampanye broadcast yang identik baru saja dijadwalkan. Mohon tunggu proses pengiriman selesai untuk mencegah pesan duplikat ke pelanggan.',
+    'meta_token_phone_required'        => 'Token dan Phone Number ID Meta wajib diisi.',
+    'csv_export_logs_title'            => 'LOG RIWAYAT PENGIRIMAN PESAN WHATSAPP',
+    'csv_logs_date'                    => 'Tanggal & Waktu',
+    'csv_logs_recipient'               => 'Nomor Penerima',
+    'csv_logs_type'                    => 'Tipe Pesan',
+    'csv_logs_status'                  => 'Status',
+    'csv_logs_meta_id'                 => 'Meta Message ID',
+    'csv_logs_error'                   => 'Respon / Error Meta',
 ];

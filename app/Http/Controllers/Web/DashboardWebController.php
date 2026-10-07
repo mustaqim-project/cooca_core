@@ -45,7 +45,11 @@ final class DashboardWebController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware('require.permission:dashboard.view', only: ['index']),
+            new Middleware('require.permission:dashboard.view', only: ['index', 'quickStats']),
+            new Middleware('require.permission:inventory.manage', only: ['quickMaterialsList', 'quickStockIn']),
+            new Middleware('require.permission:expenses.manage', only: ['quickExpense', 'quickInflow']),
+            new Middleware('require.permission:materials.create', only: ['quickMaterial']),
+            new Middleware('throttle:30,1', only: ['quickExpense', 'quickInflow', 'quickStockIn', 'quickMaterial']),
         ];
     }
 

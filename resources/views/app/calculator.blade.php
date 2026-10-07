@@ -610,7 +610,7 @@
                     </div>
                     <div
                         class="mt-3 pt-2.5 border-t border-black/5 dark:border-white/5 text-[11px] text-black/50 dark:text-white/50 flex items-center justify-between">
-                        <span>Margin: <strong class="tabular-nums font-semibold text-[#34C759] dark:text-[#30D158]"
+                        <span>{{ __('calculator.margin_label') }}: <strong class="tabular-nums font-semibold text-[#34C759] dark:text-[#30D158]"
                                 x-text="quickMargin + '%'"></strong></span>
                         <span class="font-medium text-[#34C759] dark:text-[#30D158]">{{ __('calculator.kpi_net_profit_badge') }}</span>
                     </div>
@@ -635,8 +635,8 @@
                     </div>
                     <div
                         class="mt-3 pt-2.5 border-t border-black/5 dark:border-white/5 text-[11px] text-black/50 dark:text-white/50 flex items-center justify-between">
-                        <span>Bulan: <strong class="tabular-nums font-semibold text-black dark:text-white"
-                                x-text="quickBepUnitsMonthly"></strong> pcs</span>
+                        <span>{{ app()->getLocale() === 'en' ? 'Month:' : 'Bulan:' }} <strong class="tabular-nums font-semibold text-black dark:text-white"
+                                x-text="quickBepUnitsMonthly"></strong> {{ app()->getLocale() === 'en' ? 'units' : 'pcs' }}</span>
                         <span class="font-medium text-[#5856D6]">{{ __('calculator.kpi_fixed_overhead') }}</span>
                     </div>
                 </div>
@@ -651,64 +651,64 @@
                 </span>
                 @if ($isWorkshopBiz)
                     <button type="button" @click="applyPreset('oli')"
-                        class="min-h-[38px] sm:min-h-[32px] px-3.5 py-1.5 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        class="min-h-[44px] px-4 py-2 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-2 shrink-0">
                         <i data-lucide="droplet" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
                         <span>{{ __('calculator.preset_workshop_oil') }}</span>
                     </button>
                     <button type="button" @click="applyPreset('tuneup')"
-                        class="min-h-[38px] sm:min-h-[32px] px-3.5 py-1.5 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        class="min-h-[44px] px-4 py-2 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-2 shrink-0">
                         <i data-lucide="wrench" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
                         <span>{{ __('calculator.preset_workshop_tuneup') }}</span>
                     </button>
                     <button type="button" @click="applyPreset('rem')"
-                        class="min-h-[38px] sm:min-h-[32px] px-3.5 py-1.5 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        class="min-h-[44px] px-4 py-2 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-2 shrink-0">
                         <i data-lucide="disc" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
                         <span>{{ __('calculator.preset_workshop_brake') }}</span>
                     </button>
                     <button type="button" @click="applyPreset('servis_berkala')"
-                        class="min-h-[38px] sm:min-h-[32px] px-3.5 py-1.5 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        class="min-h-[44px] px-4 py-2 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-2 shrink-0">
                         <i data-lucide="activity" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
                         <span>{{ __('calculator.preset_workshop_periodic') }}</span>
                     </button>
                 @elseif ($isLaundryBiz)
                     <button type="button" @click="applyPreset('kiloan')"
-                        class="min-h-[38px] sm:min-h-[32px] px-3.5 py-1.5 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        class="min-h-[44px] px-4 py-2 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-2 shrink-0">
                         <i data-lucide="shirt" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
                         <span>{{ __('calculator.preset_laundry_regular') }}</span>
                     </button>
                     <button type="button" @click="applyPreset('bedcover')"
-                        class="min-h-[38px] sm:min-h-[32px] px-3.5 py-1.5 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        class="min-h-[44px] px-4 py-2 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-2 shrink-0">
                         <i data-lucide="layers" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
                         <span>{{ __('calculator.preset_laundry_bedcover') }}</span>
                     </button>
                     <button type="button" @click="applyPreset('dryclean')"
-                        class="min-h-[38px] sm:min-h-[32px] px-3.5 py-1.5 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        class="min-h-[44px] px-4 py-2 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-2 shrink-0">
                         <i data-lucide="sparkle" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
                         <span>{{ __('calculator.preset_laundry_dryclean') }}</span>
                     </button>
                     <button type="button" @click="applyPreset('sepatu')"
-                        class="min-h-[38px] sm:min-h-[32px] px-3.5 py-1.5 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        class="min-h-[44px] px-4 py-2 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-2 shrink-0">
                         <i data-lucide="footprints" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
                         <span>{{ __('calculator.preset_laundry_shoes') }}</span>
                     </button>
                 @else
                     <button type="button" @click="applyPreset('kopi')"
-                        class="min-h-[38px] sm:min-h-[32px] px-3.5 py-1.5 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        class="min-h-[44px] px-4 py-2 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-2 shrink-0">
                         <i data-lucide="coffee" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
                         <span>{{ __('calculator.preset_fnb_coffee') }}</span>
                     </button>
                     <button type="button" @click="applyPreset('geprek')"
-                        class="min-h-[38px] sm:min-h-[32px] px-3.5 py-1.5 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        class="min-h-[44px] px-4 py-2 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-2 shrink-0">
                         <i data-lucide="utensils" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
                         <span>{{ __('calculator.preset_fnb_chicken') }}</span>
                     </button>
                     <button type="button" @click="applyPreset('kaos')"
-                        class="min-h-[38px] sm:min-h-[32px] px-3.5 py-1.5 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        class="min-h-[44px] px-4 py-2 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-2 shrink-0">
                         <i data-lucide="shirt" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
                         <span>{{ __('calculator.preset_general_tshirt') }}</span>
                     </button>
                     <button type="button" @click="applyPreset('kue')"
-                        class="min-h-[38px] sm:min-h-[32px] px-3.5 py-1.5 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        class="min-h-[44px] px-4 py-2 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-2 shrink-0">
                         <i data-lucide="cookie" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
                         <span>{{ __('calculator.preset_fnb_cake') }}</span>
                     </button>
@@ -1147,7 +1147,7 @@
                                 <div
                                     class="text-[20px] sm:text-[26px] font-bold tabular-nums text-black dark:text-white tracking-tight truncate">
                                     Rp <span
-                                        x-text="Math.round(calcResult.total_labor_cost + calcResult.total_machine_cost).toLocaleString('id-ID')"></span>
+                                        x-text="Math.round(calcResult.total_labor_cost + calcResult.total_machine_cost).toLocaleString(localeCode)"></span>
                                 </div>
                             </div>
                             <div
@@ -1169,7 +1169,7 @@
                                 <div
                                     class="text-[20px] sm:text-[26px] font-bold tabular-nums text-black dark:text-white tracking-tight truncate">
                                     Rp <span
-                                        x-text="Math.round(calcResult.total_overhead_cost).toLocaleString('id-ID')"></span>
+                                        x-text="Math.round(calcResult.total_overhead_cost).toLocaleString(localeCode)"></span>
                                 </div>
                             </div>
                             <div
@@ -1252,7 +1252,7 @@
                                             </td>
                                             <td
                                                 class="px-4 py-3 text-right font-semibold tabular-nums text-black dark:text-white">
-                                                Rp <span x-text="Math.round(item.cost).toLocaleString('id-ID')"></span>
+                                                Rp <span x-text="Math.round(item.cost).toLocaleString(localeCode)"></span>
                                             </td>
                                         </tr>
                                     </template>
@@ -1267,7 +1267,7 @@
                                         <td
                                             class="px-4 py-3 text-right tabular-nums text-[#34C759] dark:text-[#30D158] text-[15px] font-bold">
                                             Rp <span
-                                                x-text="Math.round(calcResult.total_hpp).toLocaleString('id-ID')"></span>
+                                                x-text="Math.round(calcResult.total_hpp).toLocaleString(localeCode)"></span>
                                         </td>
                                     </tr>
                                 </tfoot>
@@ -1314,12 +1314,12 @@
                                             <td
                                                 class="px-4 py-3 text-right font-bold tabular-nums text-[#34C759] dark:text-[#30D158] whitespace-nowrap">
                                                 Rp <span
-                                                    x-text="Math.round(run.hpp_per_unit || (run.result ? run.result.hpp_per_unit : 0)).toLocaleString('id-ID')"></span>
+                                                    x-text="Math.round(run.hpp_per_unit || (run.result ? run.result.hpp_per_unit : 0)).toLocaleString(localeCode)"></span>
                                             </td>
                                             <td
                                                 class="px-4 py-3 text-right font-semibold tabular-nums text-black dark:text-white whitespace-nowrap">
                                                 Rp <span
-                                                    x-text="Math.round(run.total_hpp || (run.result ? run.result.total_hpp : 0)).toLocaleString('id-ID')"></span>
+                                                    x-text="Math.round(run.total_hpp || (run.result ? run.result.total_hpp : 0)).toLocaleString(localeCode)"></span>
                                             </td>
                                         </tr>
                                     </template>
@@ -1489,7 +1489,7 @@
                                                 </span>
                                             </div>
                                             <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-[#34C759]/20 text-[#30D158] border border-[#34C759]/30 tabular-nums">
-                                                Margin <span x-text="quickMargin"></span>%
+                                                {{ __('calculator.margin_label') }} <span x-text="quickMargin"></span>%
                                             </span>
                                         </div>
 

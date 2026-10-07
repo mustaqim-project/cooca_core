@@ -464,6 +464,8 @@
         <!-- Teleported Supervisor PIN Disconnect Modal -->
         <template x-teleport="body">
             <div x-show="showDisconnectModal" x-cloak
+                role="dialog" aria-modal="true" aria-labelledby="disconnect-modal-title"
+                @keydown.escape.window="showDisconnectModal = false"
                 class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 dark:bg-black/75 backdrop-blur-md"
                 x-transition:enter="ease-out duration-200"
                 x-transition:enter-start="opacity-0"
@@ -485,7 +487,7 @@
                             <i data-lucide="lock" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <h3 class="text-[16px] font-bold text-black dark:text-white">{{ __('whatsapp.disconnect_supervisor_title') }}</h3>
+                            <h3 id="disconnect-modal-title" class="text-[16px] font-bold text-black dark:text-white">{{ __('whatsapp.disconnect_supervisor_title') }}</h3>
                             <p class="text-[12px] text-black/55 dark:text-white/55">{{ __('whatsapp.disconnect_supervisor_modal_sub') }}</p>
                         </div>
                     </div>

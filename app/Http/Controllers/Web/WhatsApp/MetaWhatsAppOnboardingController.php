@@ -14,6 +14,8 @@ use App\Support\Context;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -27,8 +29,28 @@ use Illuminate\Support\Facades\Log;
  * - Mendaftarkan webhook aplikasi ke WABA (subscribed_apps).
  * - Menyimpan kredensial terenkripsi ke database terisolasi per-tenant.
  */
-class MetaWhatsAppOnboardingController extends Controller
+class MetaWhatsAppOnboardingController extends Controller implements HasMiddleware
 {
+    /**
+     * Get the middleware that should be assigned to the controller.
+     */
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('require.permission:whatsapp.view', only: [
+                'getSignupConfig',
+                'getStatus',
+            ]),
+            new Middleware('require.permission:whatsapp.manage', only: [
+                'exchangeCode',
+                'disconnect',
+            ]),
+            new Middleware('throttle:10,1', only: [
+                'exchangeCode',
+                'disconnect',
+            ]),
+        ];
+    }
     protected string $graphApiBaseUrl;
     protected string $apiVersion;
 
@@ -51,7 +73,7 @@ class MetaWhatsAppOnboardingController extends Controller
         if (empty($appId)) {
             return response()->json([
                 'success' => false,
-                'error'   => 'Konfigurasi Meta App ID belum diatur di server.',
+                'error'   => __('whatsapp.error_meta_app_id_not_configured'),
             ], 500);
         }
 
@@ -86,7 +108,7 @@ class MetaWhatsAppOnboardingController extends Controller
         if (empty($appId) || empty($appSecret)) {
             return response()->json([
                 'success' => false,
-                'error'   => 'Kredensial Meta App ID atau App Secret belum dikonfigurasi.',
+                'error'   => __('whatsapp.error_meta_credentials_missing'),
             ], 500);
         }
 
@@ -124,7 +146,7 @@ class MetaWhatsAppOnboardingController extends Controller
             if (empty($accessToken)) {
                 return response()->json([
                     'success' => false,
-                    'error'   => 'Token akses tidak ditemukan dalam respons Meta.',
+                    'error'   => __('whatsapp.error_meta_token_missing'),
                 ], 400);
             }
 
@@ -139,7 +161,7 @@ class MetaWhatsAppOnboardingController extends Controller
             if (empty($wabaId)) {
                 return response()->json([
                     'success' => false,
-                    'error'   => 'Tidak dapat mendeteksi WhatsApp Business Account (WABA) ID dari akun Meta Anda.',
+                    'error'   => __('whatsapp.error_meta_waba_not_detected'),
                 ], 422);
             }
 
@@ -149,7 +171,7 @@ class MetaWhatsAppOnboardingController extends Controller
             if (! $phoneDetails) {
                 return response()->json([
                     'success' => false,
-                    'error'   => 'Tidak ditemukan nomor telepon WhatsApp Business aktif pada akun Meta Anda.',
+                    'error'   => __('whatsapp.error_meta_phone_details_failed'),
                 ], 422);
             }
 

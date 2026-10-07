@@ -534,7 +534,7 @@
                                                 <i data-lucide="store" class="w-3.5 h-3.5 text-[#007AFF]"></i>
                                                 <span>{{ __('whatsapp.target_group_outlets') }}</span>
                                             </span>
-                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-52 overflow-y-auto pr-1 overscroll-contain">
                                                 @foreach ($locations as $loc)
                                                     @php
                                                         $locFilterKey = 'outlet:' . $loc->id;
@@ -543,7 +543,7 @@
                                                     <label class="cursor-pointer select-none">
                                                         <input type="radio" name="target_filter" value="{{ $locFilterKey }}"
                                                             x-model="targetFilter" class="sr-only">
-                                                        <div class="p-3 rounded-[12px] border transition-all flex items-center justify-between gap-2"
+                                                        <div class="p-3 rounded-[12px] border transition-all flex items-center justify-between gap-2 min-h-[48px]"
                                                             :class="targetFilter === '{{ $locFilterKey }}'
                                                                 ? 'border-[#007AFF] bg-[#007AFF]/10 text-[#007AFF] font-bold shadow-sm'
                                                                 : 'border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.03] text-black/70 dark:text-white/70 hover:border-black/10'">

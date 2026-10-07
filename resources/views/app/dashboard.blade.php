@@ -69,7 +69,7 @@
             <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 w-full lg:w-auto z-10">
                 @if (\App\Support\Context::hasPermission('pos.terminal'))
                     <a href="{{ route('pos.terminal') }}"
-                        class="col-span-2 sm:col-span-1 h-10 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)] shrink-0">
+                        class="col-span-2 sm:col-span-1 min-h-[44px] px-4 py-2.5 rounded-[12px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] transition-all flex items-center justify-center gap-2 shadow-[0_1px_2px_rgba(0,122,255,0.25)] shrink-0">
                         <i data-lucide="calculator" class="w-4 h-4"></i>
                         <span>{{ __('dashboard.action_pos') }}</span>
                     </a>
@@ -77,7 +77,7 @@
 
                 @if (\App\Support\Context::hasPermission('costing.view_margin'))
                     <a href="{{ route('calculator.index') }}"
-                        class="col-span-1 h-10 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shrink-0">
+                        class="col-span-1 min-h-[44px] px-3.5 py-2.5 rounded-[12px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#AF52DE] transition-all flex items-center justify-center gap-2 shrink-0">
                         <i data-lucide="calculator" class="w-4 h-4 text-[#AF52DE] dark:text-[#BF5AF2]"></i>
                         <span>{{ __('dashboard.action_calculator') }}</span>
                     </a>
@@ -85,7 +85,7 @@
 
                 @if (\App\Support\Context::hasPermission('expenses.manage') || \App\Support\Context::hasPermission('expenses.view'))
                     <button type="button" @click="$dispatch('open-quick-expense')"
-                        class="col-span-1 h-10 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shrink-0">
+                        class="col-span-1 min-h-[44px] px-3.5 py-2.5 rounded-[12px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF3B30] transition-all flex items-center justify-center gap-2 shrink-0">
                         <i data-lucide="receipt" class="w-4 h-4 text-[#FF3B30] dark:text-[#FF453A]"></i>
                         <span>{{ __('dashboard.action_record_expense') }}</span>
                     </button>
@@ -93,7 +93,7 @@
 
                 @if (\App\Support\Context::hasPermission('finance.cash_bank') || \App\Support\Context::hasPermission('expenses.manage') || \App\Support\Context::isOwner())
                     <button type="button" @click="$dispatch('open-quick-income')"
-                        class="col-span-1 h-10 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shrink-0">
+                        class="col-span-1 min-h-[44px] px-3.5 py-2.5 rounded-[12px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#34C759] transition-all flex items-center justify-center gap-2 shrink-0">
                         <i data-lucide="arrow-down-left" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i>
                         <span>{{ __('dashboard.action_record_income') }}</span>
                     </button>
@@ -101,7 +101,7 @@
 
                 @if (\App\Support\Context::hasPermission('inventory.manage') || \App\Support\Context::hasPermission('purchasing.manage'))
                     <button type="button" @click="$dispatch('open-quick-stockin')"
-                        class="col-span-1 h-10 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shrink-0">
+                        class="col-span-1 min-h-[44px] px-3.5 py-2.5 rounded-[12px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#34C759] transition-all flex items-center justify-center gap-2 shrink-0">
                         <i data-lucide="package-plus" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i>
                         <span>{{ __('dashboard.action_add_stock') }}</span>
                     </button>
@@ -109,7 +109,7 @@
 
                 @if (\App\Support\Context::hasPermission('invoices.create'))
                     <a href="{{ route('invoices.create') }}"
-                        class="col-span-1 h-10 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shrink-0">
+                        class="col-span-1 min-h-[44px] px-3.5 py-2.5 rounded-[12px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] transition-all flex items-center justify-center gap-2 shrink-0">
                         <i data-lucide="file-text" class="w-4 h-4 text-[#007AFF] dark:text-[#0A84FF]"></i>
                         <span>{{ __('dashboard.action_new_invoice') }}</span>
                     </a>
@@ -1122,32 +1122,32 @@
                     </div>
                 </div>
 
-                <!-- Instant Calculation Result Grid (Apple Grouped Inset 3-Kolom) -->
+                <!-- Instant Calculation Result Grid (Apple Grouped Inset 3-Kolom with Responsive Flex Stack on Mobile) -->
                 <div
-                    class="grid grid-cols-3 gap-2 sm:gap-4 p-3 sm:p-4 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 transition-colors">
-                    <div>
-                        <div class="text-[11px] font-medium text-black/45 dark:text-white/45 truncate">{{ __('dashboard.rec_price') }}
+                    class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-4 p-3.5 sm:p-4 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 transition-colors">
+                    <div class="p-2 sm:p-0 rounded-lg sm:rounded-none bg-black/[0.01] sm:bg-transparent">
+                        <div class="text-[11px] font-medium text-black/50 dark:text-white/50 truncate">{{ __('dashboard.rec_price') }}
                         </div>
                         <div
-                            class="text-[16px] sm:text-[20px] font-bold text-[#34C759] dark:text-[#30D158] tabular-nums mt-0.5 truncate">
+                            class="text-[17px] sm:text-[20px] font-bold text-[#34C759] dark:text-[#30D158] tabular-nums mt-0.5">
                             Rp <span x-text="calculatedPrice.toLocaleString(document.documentElement.lang === 'en' ? 'en-US' : 'id-ID')"></span>
                         </div>
                         <div class="text-[10px] text-black/35 dark:text-white/35 mt-0.5 hidden sm:block">{{ __('dashboard.formula_cogs') }}</div>
                     </div>
 
-                    <div>
-                        <div class="text-[11px] font-medium text-black/45 dark:text-white/45 truncate">{{ __('dashboard.gross_profit_unit') }}
+                    <div class="p-2 sm:p-0 rounded-lg sm:rounded-none bg-black/[0.01] sm:bg-transparent">
+                        <div class="text-[11px] font-medium text-black/50 dark:text-white/50 truncate">{{ __('dashboard.gross_profit_unit') }}
                         </div>
-                        <div class="text-[16px] sm:text-[20px] font-bold text-[#007AFF] tabular-nums mt-0.5 truncate">
+                        <div class="text-[17px] sm:text-[20px] font-bold text-[#007AFF] tabular-nums mt-0.5">
                             Rp <span x-text="grossProfit.toLocaleString(document.documentElement.lang === 'en' ? 'en-US' : 'id-ID')"></span>
                         </div>
                         <div class="text-[10px] text-black/35 dark:text-white/35 mt-0.5 hidden sm:block">{{ __('dashboard.est_profit') }}</div>
                     </div>
 
-                    <div>
-                        <div class="text-[11px] font-medium text-black/45 dark:text-white/45 truncate">{{ __('dashboard.markup_cogs') }}</div>
+                    <div class="p-2 sm:p-0 rounded-lg sm:rounded-none bg-black/[0.01] sm:bg-transparent">
+                        <div class="text-[11px] font-medium text-black/50 dark:text-white/50 truncate">{{ __('dashboard.markup_cogs') }}</div>
                         <div
-                            class="text-[16px] sm:text-[20px] font-bold text-[#FF9500] dark:text-[#FF9F0A] tabular-nums mt-0.5 truncate">
+                            class="text-[17px] sm:text-[20px] font-bold text-[#FF9500] dark:text-[#FF9F0A] tabular-nums mt-0.5">
                             <span x-text="markupEquivalent"></span>%
                         </div>
                         <div class="text-[10px] text-black/35 dark:text-white/35 mt-0.5 hidden sm:block">{{ __('dashboard.price_increase') }}</div>

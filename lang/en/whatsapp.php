@@ -394,4 +394,23 @@ return [
     'verifying'                        => 'Verifying...',
     'disconnect_action_btn'            => 'Disconnect',
     'error_network_disconnect'         => 'A network error occurred while disconnecting.',
+
+    // Backend Controller Error & CSV Export Keys
+    'error_meta_app_id_not_configured' => 'Meta App ID configuration is not set on the server.',
+    'error_meta_credentials_missing'   => 'Meta App ID or App Secret credentials have not been configured.',
+    'error_meta_token_missing'         => 'Access token not found in Meta response.',
+    'error_meta_waba_not_detected'     => 'Cannot detect WhatsApp Business Account (WABA) ID from your Meta account.',
+    'error_meta_phone_details_failed'  => 'Failed to retrieve phone number details from Meta account.',
+    'error_invalid_target_audience'    => 'Selected target audience is invalid.',
+    'error_media_url_https_required'   => 'Media URL must use secure https:// protocol.',
+    'error_media_url_private_ip'       => 'Media URL is invalid or points to a private/local network address.',
+    'error_duplicate_broadcast_lock'   => 'An identical broadcast campaign was recently scheduled. Please wait for delivery to finish to prevent duplicate messages.',
+    'meta_token_phone_required'        => 'Meta Token and Phone Number ID are required.',
+    'csv_export_logs_title'            => 'WHATSAPP MESSAGE DISPATCH LOGS',
+    'csv_logs_date'                    => 'Date & Time',
+    'csv_logs_recipient'               => 'Recipient Number',
+    'csv_logs_type'                    => 'Message Type',
+    'csv_logs_status'                  => 'Status',
+    'csv_logs_meta_id'                 => 'Meta Message ID',
+    'csv_logs_error'                   => 'Meta Response / Error',
 ];
