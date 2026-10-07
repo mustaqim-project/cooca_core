@@ -217,10 +217,10 @@
                         <img src="{{ $coocaLogoUrl }}" alt="COOCA" class="h-10 sm:h-11 w-auto max-w-[200px] object-contain">
                     </div>
                     <div class="space-y-0.5 text-xs text-gray-600 leading-relaxed">
-                        <p class="font-medium">{{ __('billing.company_tagline') }}
-                        </p>
+                        {{-- <p class="font-medium">{{ __('billing.company_tagline') }}
+                        </p> --}}
                         <p>Website: https://cooca.id | Email: billing@cooca.id | CS: +62 852-8786-4176</p>
-                        <p class="font-mono text-[11px] tabular-nums">NPWP: 01.234.567.8-012.000 | SK Kemenkumham Terdaftar</p>
+                        {{-- <p class="font-mono text-[11px] tabular-nums">NPWP: 01.234.567.8-012.000 | SK Kemenkumham Terdaftar</p> --}}
                     </div>
                 </div>
 
