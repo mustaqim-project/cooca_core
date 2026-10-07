@@ -758,8 +758,6 @@
         [x-cloak].fixed.inset-0,
         div[x-show*="Modal"].fixed.inset-0,
         div[x-show*="modal"].fixed.inset-0,
-        div[x-show*="Modal"] > .fixed.inset-0,
-        div[x-show*="modal"] > .fixed.inset-0,
         div[x-show*="Sheet"].fixed.inset-0,
         div[x-show*="sheet"].fixed.inset-0 {
             z-index: 99999 !important;

@@ -1952,69 +1952,62 @@
         @if (\App\Support\Context::hasPermission('settings.edit'))
             <template x-teleport="body">
                 <div x-show="templateModalOpen" x-cloak
-                    class="fixed inset-0 z-[200] overflow-y-auto"
+                    class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 dark:bg-black/75 backdrop-blur-sm overflow-y-auto"
                     role="dialog"
                     aria-modal="true"
+                    @click.self="closeApplyTemplate()"
+                    @keydown.escape.window="closeApplyTemplate()"
                     x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
                     x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150"
                     x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
 
-                    <!-- Frosted Glass Backdrop -->
-                    <div class="fixed inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-sm transition-opacity"
-                         @click="closeApplyTemplate()"
-                         aria-hidden="true"></div>
+                    <div class="relative z-10 w-full max-w-lg rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-[0_24px_64px_rgba(0,0,0,0.3)] p-6 space-y-5 text-left my-auto"
+                        x-transition:enter="transition ease-out duration-200"
+                        x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+                        x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100"
+                        x-transition:leave-end="opacity-0 scale-95">
 
-                    <!-- Centering Container -->
-                    <div class="min-h-full flex items-center justify-center p-4 pointer-events-none">
-                        <div class="relative z-10 pointer-events-auto w-full max-w-lg rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-[0_24px_64px_rgba(0,0,0,0.3)] p-6 space-y-5 text-left"
-                            @keydown.escape.window="closeApplyTemplate()"
-                            x-transition:enter="transition ease-out duration-200"
-                            x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
-                            x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100"
-                            x-transition:leave-end="opacity-0 scale-95">
-
-                            <div class="flex items-start gap-3.5">
-                                <div class="w-11 h-11 rounded-[12px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center shrink-0">
-                                    <i data-lucide="layers" class="w-5 h-5"></i>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <h3 class="text-[17px] font-semibold text-black dark:text-white">{{ __('settings.apply_template_title') }}</h3>
-                                    <p class="text-[13px] text-black/55 dark:text-white/55 mt-0.5 leading-snug">
-                                        {{ __('settings.apply_template_desc') }}
-                                    </p>
-                                </div>
+                        <div class="flex items-start gap-3.5">
+                            <div class="w-11 h-11 rounded-[12px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center shrink-0">
+                                <i data-lucide="layers" class="w-5 h-5"></i>
                             </div>
-
-                            <!-- Template Details Preview Card -->
-                            <div class="p-4 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5 space-y-2">
-                                <div class="flex items-center justify-between text-[12px]">
-                                    <span class="text-black/50 dark:text-white/50">Template Terpilih:</span>
-                                    <span class="font-semibold text-black dark:text-white" x-text="selectedTemplate.name"></span>
-                                </div>
-                                <div class="flex items-center justify-between text-[12px]">
-                                    <span class="text-black/50 dark:text-white/50">Kategori Industri:</span>
-                                    <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-[#34C759]/10 text-[#34C759]" x-text="selectedTemplate.category"></span>
-                                </div>
+                            <div class="flex-1 min-w-0">
+                                <h3 class="text-[17px] font-semibold text-black dark:text-white">{{ __('settings.apply_template_title') }}</h3>
+                                <p class="text-[13px] text-black/55 dark:text-white/55 mt-0.5 leading-snug">
+                                    {{ __('settings.apply_template_desc') }}
+                                </p>
                             </div>
+                        </div>
 
-                            <!-- No-Panic Microcopy Notice -->
-                            <div class="flex items-start gap-2.5 text-[12px] text-black/60 dark:text-white/60">
-                                <i data-lucide="check-circle-2" class="w-4 h-4 text-[#34C759] shrink-0 mt-0.5"></i>
-                                <p>Data transaksi, saldo stok, dan invoice Anda yang sudah ada tetap aman dan tidak akan terhapus atau tertimpa.</p>
+                        <!-- Template Details Preview Card -->
+                        <div class="p-4 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5 space-y-2">
+                            <div class="flex items-center justify-between text-[12px]">
+                                <span class="text-black/50 dark:text-white/50">Template Terpilih:</span>
+                                <span class="font-semibold text-black dark:text-white" x-text="selectedTemplate.name"></span>
                             </div>
+                            <div class="flex items-center justify-between text-[12px]">
+                                <span class="text-black/50 dark:text-white/50">Kategori Industri:</span>
+                                <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-[#34C759]/10 text-[#34C759]" x-text="selectedTemplate.category"></span>
+                            </div>
+                        </div>
 
-                            <!-- Action Buttons -->
-                            <div class="flex items-center justify-end gap-3 pt-2 border-t border-black/5 dark:border-white/5">
-                                <button type="button" @click="closeApplyTemplate()"
-                                    class="h-11 px-5 rounded-[10px] text-[13px] font-medium text-black/70 dark:text-white/70 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 active:scale-[0.97] transition min-h-[44px]">
-                                    {{ __('settings.cancel') }}
-                                </button>
-                                <button type="button" @click="submitApplyTemplate()"
-                                    class="h-11 px-6 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition flex items-center gap-2 shadow-[0_1px_2px_rgba(0,122,255,0.25)] min-h-[44px]">
-                                    <i data-lucide="check" class="w-4 h-4"></i>
-                                    <span>{{ __('settings.confirm_apply') }}</span>
-                                </button>
-                            </div>
+                        <!-- No-Panic Microcopy Notice -->
+                        <div class="flex items-start gap-2.5 text-[12px] text-black/60 dark:text-white/60">
+                            <i data-lucide="check-circle-2" class="w-4 h-4 text-[#34C759] shrink-0 mt-0.5"></i>
+                            <p>Data transaksi, saldo stok, dan invoice Anda yang sudah ada tetap aman dan tidak akan terhapus atau tertimpa.</p>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex items-center justify-end gap-3 pt-2 border-t border-black/5 dark:border-white/5">
+                            <button type="button" @click="closeApplyTemplate()"
+                                class="h-11 px-5 rounded-[10px] text-[13px] font-medium text-black/70 dark:text-white/70 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 active:scale-[0.97] transition min-h-[44px]">
+                                {{ __('settings.cancel') }}
+                            </button>
+                            <button type="button" @click="submitApplyTemplate()"
+                                class="h-11 px-6 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition flex items-center gap-2 shadow-[0_1px_2px_rgba(0,122,255,0.25)] min-h-[44px]">
+                                <i data-lucide="check" class="w-4 h-4"></i>
+                                <span>{{ __('settings.confirm_apply') }}</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -2027,10 +2020,12 @@
         <template x-teleport="body">
             <div x-show="showCreateBranchModal"
                  x-cloak
-                 class="fixed inset-0 z-[200] overflow-y-auto"
+                 class="fixed inset-0 z-[200] flex items-center justify-center p-3 sm:p-6 bg-black/60 dark:bg-black/75 backdrop-blur-sm overflow-y-auto"
                  role="dialog"
                  aria-modal="true"
                  aria-labelledby="create-branch-modal-title"
+                 @click.self="showCreateBranchModal = false"
+                 @keydown.escape.window="showCreateBranchModal = false"
                  x-transition:enter="transition ease-out duration-200"
                  x-transition:enter-start="opacity-0"
                  x-transition:enter-end="opacity-100"
@@ -2038,15 +2033,7 @@
                  x-transition:leave-start="opacity-100"
                  x-transition:leave-end="opacity-0">
 
-                <!-- Frosted Dark Backdrop (Edge-to-Edge over topbar and layout) -->
-                <div class="fixed inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-sm transition-opacity"
-                     @click="showCreateBranchModal = false"
-                     aria-hidden="true"></div>
-
-                <!-- Centering Wrapper -->
-                <div class="min-h-full flex items-center justify-center p-3 sm:p-6 pointer-events-none">
-                    <div class="relative z-10 pointer-events-auto w-full max-w-[95vw] lg:max-w-4xl xl:max-w-5xl max-h-[92vh] rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] shadow-[0_25px_60px_rgba(0,0,0,0.35)] flex flex-col overflow-hidden"
-                         @keydown.escape.window="showCreateBranchModal = false">
+                <div class="relative z-10 w-full max-w-[95vw] lg:max-w-4xl xl:max-w-5xl max-h-[92vh] rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] shadow-[0_25px_60px_rgba(0,0,0,0.35)] flex flex-col overflow-hidden my-auto">
 
                     {{-- Header --}}
                     <div class="px-5 py-4 sm:px-6 sm:py-5 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between shrink-0 bg-slate-50/50 dark:bg-white/[0.02]">
@@ -2377,8 +2364,7 @@
                     </form>
                 </div>
             </div>
-        </div>
-    </template>
+        </template>
 
         {{-- ===================================================== --}}
         {{-- MODAL 2: EDIT DATA CABANG (APPLE BENTO MAP SHEET)     --}}
@@ -2386,10 +2372,12 @@
         <template x-teleport="body">
             <div x-show="showEditBranchModal"
                  x-cloak
-                 class="fixed inset-0 z-[200] overflow-y-auto"
+                 class="fixed inset-0 z-[200] flex items-center justify-center p-3 sm:p-6 bg-black/60 dark:bg-black/75 backdrop-blur-sm overflow-y-auto"
                  role="dialog"
                  aria-modal="true"
                  aria-labelledby="edit-branch-modal-title"
+                 @click.self="showEditBranchModal = false"
+                 @keydown.escape.window="showEditBranchModal = false"
                  x-transition:enter="transition ease-out duration-200"
                  x-transition:enter-start="opacity-0"
                  x-transition:enter-end="opacity-100"
@@ -2397,15 +2385,7 @@
                  x-transition:leave-start="opacity-100"
                  x-transition:leave-end="opacity-0">
 
-                <!-- Frosted Dark Backdrop (Edge-to-Edge over topbar and layout) -->
-                <div class="fixed inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-sm transition-opacity"
-                     @click="showEditBranchModal = false"
-                     aria-hidden="true"></div>
-
-                <!-- Centering Wrapper -->
-                <div class="min-h-full flex items-center justify-center p-3 sm:p-6 pointer-events-none">
-                    <div class="relative z-10 pointer-events-auto w-full max-w-[95vw] lg:max-w-4xl xl:max-w-5xl max-h-[92vh] rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] shadow-[0_25px_60px_rgba(0,0,0,0.35)] flex flex-col overflow-hidden"
-                         @keydown.escape.window="showEditBranchModal = false">
+                <div class="relative z-10 w-full max-w-[95vw] lg:max-w-4xl xl:max-w-5xl max-h-[92vh] rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] shadow-[0_25px_60px_rgba(0,0,0,0.35)] flex flex-col overflow-hidden my-auto">
 
                     {{-- Header --}}
                     <div class="px-5 py-4 sm:px-6 sm:py-5 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between shrink-0 bg-slate-50/50 dark:bg-white/[0.02]">
@@ -2744,8 +2724,7 @@
                     </form>
                 </div>
             </div>
-        </div>
-    </template>
+        </template>
 
         {{-- ===================================================== --}}
         {{-- MODAL 3: KONFIRMASI HAPUS CABANG (APPLE ALERT)        --}}
@@ -2753,10 +2732,12 @@
         <template x-teleport="body">
             <div x-show="deleteBranchModalOpen"
                  x-cloak
-                 class="fixed inset-0 z-[200] overflow-y-auto"
+                 class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 dark:bg-black/75 backdrop-blur-sm overflow-y-auto"
                  role="dialog"
                  aria-modal="true"
                  aria-labelledby="delete-branch-modal-title"
+                 @click.self="closeDeleteBranch()"
+                 @keydown.escape.window="closeDeleteBranch()"
                  x-transition:enter="transition ease-out duration-150"
                  x-transition:enter-start="opacity-0 scale-95"
                  x-transition:enter-end="opacity-100 scale-100"
@@ -2764,40 +2745,37 @@
                  x-transition:leave-start="opacity-100 scale-100"
                  x-transition:leave-end="opacity-0 scale-95">
 
-                <!-- Frosted Dark Backdrop (Edge-to-Edge over topbar and layout) -->
-                <div class="fixed inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-sm transition-opacity"
-                     @click="closeDeleteBranch()"
-                     aria-hidden="true"></div>
-
-                <!-- Centering Wrapper -->
-                <div class="min-h-full flex items-center justify-center p-4 pointer-events-none">
-                    <div class="relative z-10 pointer-events-auto w-full max-w-sm rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] shadow-2xl overflow-hidden text-center"
-                         @keydown.escape.window="closeDeleteBranch()">
-                        <div class="p-6">
-                            <div class="w-12 h-12 rounded-full bg-[#FF3B30]/10 text-[#FF3B30] flex items-center justify-center mx-auto mb-3.5">
-                                <i data-lucide="alert-triangle" class="w-6 h-6"></i>
-                            </div>
-                            <p class="text-base font-bold text-black dark:text-white">{{ __('settings.delete_branch_confirm_title') }}</p>
-                            <p class="text-xs text-black/60 dark:text-white/60 mt-1.5 leading-relaxed">
-                                Cabang <span x-text="branchDeleteTarget.name" class="font-bold text-black dark:text-white"></span> akan dihapus dari sistem. Jika memiliki riwayat transaksi/stok, cabang akan dinonaktifkan otomatis.
-                            </p>
+                <div class="relative z-10 w-full max-w-sm rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] shadow-2xl overflow-hidden text-center my-auto"
+                     x-transition:enter="transition ease-out duration-150"
+                     x-transition:enter-start="opacity-0 scale-95"
+                     x-transition:enter-end="opacity-100 scale-100"
+                     x-transition:leave="transition ease-in duration-100"
+                     x-transition:leave-start="opacity-100 scale-100"
+                     x-transition:leave-end="opacity-0 scale-95">
+                    <div class="p-6">
+                        <div class="w-12 h-12 rounded-full bg-[#FF3B30]/10 text-[#FF3B30] flex items-center justify-center mx-auto mb-3.5">
+                            <i data-lucide="alert-triangle" class="w-6 h-6"></i>
                         </div>
+                        <p class="text-base font-bold text-black dark:text-white">{{ __('settings.delete_branch_confirm_title') }}</p>
+                        <p class="text-xs text-black/60 dark:text-white/60 mt-1.5 leading-relaxed">
+                            Cabang <span x-text="branchDeleteTarget.name" class="font-bold text-black dark:text-white"></span> akan dihapus dari sistem. Jika memiliki riwayat transaksi/stok, cabang akan dinonaktifkan otomatis.
+                        </p>
+                    </div>
 
-                        <form x-ref="deleteBranchForm" :action="branchDeleteUrl" method="POST" class="hidden">
-                            @csrf
-                            @method('DELETE')
-                        </form>
+                    <form x-ref="deleteBranchForm" :action="branchDeleteUrl" method="POST" class="hidden">
+                        @csrf
+                        @method('DELETE')
+                    </form>
 
-                        <div class="grid grid-cols-2 border-t border-black/[0.08] dark:border-white/[0.12] text-xs font-semibold">
-                            <button type="button" @click="closeDeleteBranch()"
-                                    class="min-h-[44px] py-3.5 text-black/70 dark:text-white/70 border-r border-black/[0.08] dark:border-white/[0.12] active:bg-black/5 dark:active:bg-white/5 transition cursor-pointer flex items-center justify-center">
-                                {{ __('settings.cancel') }}
-                            </button>
-                            <button type="button" @click="submitDeleteBranch()"
-                                    class="min-h-[44px] py-3.5 text-[#FF3B30] dark:text-[#FF453A] font-bold active:bg-black/5 dark:active:bg-white/5 transition cursor-pointer flex items-center justify-center">
-                                {{ __('settings.delete_branch') }}
-                            </button>
-                        </div>
+                    <div class="grid grid-cols-2 border-t border-black/[0.08] dark:border-white/[0.12] text-xs font-semibold">
+                        <button type="button" @click="closeDeleteBranch()"
+                                class="min-h-[44px] py-3.5 text-black/70 dark:text-white/70 border-r border-black/[0.08] dark:border-white/[0.12] active:bg-black/5 dark:active:bg-white/5 transition cursor-pointer flex items-center justify-center">
+                            {{ __('settings.cancel') }}
+                        </button>
+                        <button type="button" @click="submitDeleteBranch()"
+                                class="min-h-[44px] py-3.5 text-[#FF3B30] dark:text-[#FF453A] font-bold active:bg-black/5 dark:active:bg-white/5 transition cursor-pointer flex items-center justify-center">
+                            {{ __('settings.delete_branch') }}
+                        </button>
                     </div>
                 </div>
             </div>
