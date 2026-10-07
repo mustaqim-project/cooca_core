@@ -804,6 +804,9 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
             Route::post('/posts', [SocialMediaWebController::class, 'storePost'])->middleware(['entitlement:social_post', 'require.permission:social_media.manage'])->name('posts.store');
             Route::post('/posts/{post}/approve', [SocialMediaWebController::class, 'approvePost'])->middleware('require.permission:social_media.manage')->name('posts.approve');
             Route::post('/posts/{post}/reject', [SocialMediaWebController::class, 'rejectPost'])->middleware('require.permission:social_media.manage')->name('posts.reject');
+            Route::patch('/posts/{post}/reschedule', [SocialMediaWebController::class, 'reschedulePost'])->middleware('require.permission:social_media.manage')->name('posts.reschedule');
+            Route::post('/posts/{post}/publish-now', [SocialMediaWebController::class, 'publishNow'])->middleware('require.permission:social_media.manage')->name('posts.publish-now');
+            Route::delete('/posts/{post}', [SocialMediaWebController::class, 'destroyPost'])->middleware('require.permission:social_media.manage')->name('posts.destroy');
             Route::post('/targets/{target}/retry', [SocialMediaWebController::class, 'retryTarget'])->middleware('require.permission:social_media.manage')->name('targets.retry');
             Route::get('/calendar', [SocialMediaWebController::class, 'calendar'])->name('calendar');
 

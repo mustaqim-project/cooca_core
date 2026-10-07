@@ -1421,6 +1421,105 @@ class SocialMediaWebController extends Controller
             ->with('info', __('social_media.post_rejected_info'));
     }
 
+
+    /**
+     * AJAX/PATCH: Ubah jadwal posting yang berstatus 'scheduled'.
+     */
+    public function reschedulePost(Request $request, SocialMediaPost $post): JsonResponse
+    {
+        $business = Context::requireBusiness();
+        abort_unless($post->business_id === $business->id, 404);
+        abort_unless(in_array($post->status, ['scheduled', 'pending', 'failed', 'partially_failed'], true), 422, 'Hanya konten terjadwal yang dapat dijadwal ulang.');
+
+        $validated = $request->validate([
+            'scheduled_at' => ['required', 'date', 'after:now'],
+        ]);
+
+        $newScheduledAt = \Carbon\Carbon::parse($validated['scheduled_at']);
+
+        // Update post
+        $post->update(['scheduled_at' => $newScheduledAt, 'status' => 'scheduled']);
+
+        // Update all targets that are still pending/scheduled
+        $post->targets()->whereIn('status', ['scheduled', 'pending', 'failed'])->update([
+            'scheduled_at' => $newScheduledAt,
+            'status'       => 'scheduled',
+        ]);
+
+        return response()->json([
+            'success'      => true,
+            'message'      => 'Jadwal posting berhasil diperbarui.',
+            'scheduled_at' => $newScheduledAt->translatedFormat('d M Y, H:i') . ' WIB',
+        ]);
+    }
+
+    /**
+     * AJAX/POST: Terbitkan sekarang konten yang masih terjadwal / draft.
+     */
+    public function publishNow(Request $request, SocialMediaPost $post): JsonResponse
+    {
+        $business = Context::requireBusiness();
+        abort_unless($post->business_id === $business->id, 404);
+        abort_unless(in_array($post->status, ['scheduled', 'pending', 'failed', 'partially_failed'], true), 422, 'Hanya konten terjadwal atau draft yang dapat diterbitkan sekarang.');
+
+        try {
+            // Reset schedule and dispatch immediately
+            $post->update([
+                'scheduled_at' => null,
+                'status'       => 'publishing',
+            ]);
+
+            $post->targets()->whereIn('status', ['scheduled', 'pending', 'failed'])->update([
+                'scheduled_at' => null,
+                'status'       => 'pending',
+            ]);
+
+            $result = $this->socialService->publishPost($business, $post->fresh(['targets.account', 'account', 'media']));
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Konten sedang diterbitkan ke platform.',
+                'status'  => $result->status,
+            ]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error("publishNow failed for post {$post->id}: " . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'error'   => 'Gagal menerbitkan: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * AJAX/DELETE: Hapus posting terjadwal atau draft (bukan yang sudah published).
+     */
+    public function destroyPost(Request $request, SocialMediaPost $post): JsonResponse
+    {
+        $business = Context::requireBusiness();
+        abort_unless($post->business_id === $business->id, 404);
+        abort_unless(! in_array($post->status, ['published', 'publishing'], true), 422, 'Konten yang sudah terpublikasi tidak dapat dihapus dari sini.');
+
+        // Purge local media if any
+        try {
+            $this->socialService->purgePostLocalMedia($post);
+        } catch (\Throwable) {
+            // Non-fatal: proceed with deletion
+        }
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($post) {
+            $post->comments()->delete();
+            $post->targets()->delete();
+            $post->media()->delete();
+            $post->delete();
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Konten berhasil dihapus.',
+        ]);
+    }
+
     /**
      * Scan caption for potential bank account numbers.
      *

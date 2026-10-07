@@ -363,27 +363,53 @@
                             @endif
                         </div>
 
-                        {{-- Footer Card with Metrics --}}
-                        <div class="pt-3 border-t border-black/5 dark:border-white/10 flex items-center justify-between text-[12px] text-black/50 dark:text-white/50">
-                            <div class="flex items-center gap-3 font-semibold tabular-nums">
-                                <span class="inline-flex items-center gap-1" title="Tayangan (Impressions)">
-                                    <i data-lucide="eye" class="w-3.5 h-3.5"></i>
-                                    <span>{{ number_format($post->getMetric('impressions')) }}</span>
-                                </span>
-                                <span class="inline-flex items-center gap-1" title="Suka (Likes)">
-                                    <i data-lucide="heart" class="w-3.5 h-3.5"></i>
-                                    <span>{{ number_format($post->getMetric('likes')) }}</span>
-                                </span>
-                                <span class="inline-flex items-center gap-1" title="Komentar">
-                                    <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
-                                    <span>{{ number_format($post->getMetric('comments')) }}</span>
-                                </span>
+                        {{-- Footer Card with Metrics + Quick Actions --}}
+                        <div class="pt-3 border-t border-black/5 dark:border-white/10 space-y-2.5">
+                            {{-- Metrics row --}}
+                            <div class="flex items-center justify-between text-[12px] text-black/50 dark:text-white/50">
+                                <div class="flex items-center gap-3 font-semibold tabular-nums">
+                                    <span class="inline-flex items-center gap-1" title="Tayangan (Impressions)">
+                                        <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                                        <span>{{ number_format($post->getMetric('impressions')) }}</span>
+                                    </span>
+                                    <span class="inline-flex items-center gap-1" title="Suka (Likes)">
+                                        <i data-lucide="heart" class="w-3.5 h-3.5"></i>
+                                        <span>{{ number_format($post->getMetric('likes')) }}</span>
+                                    </span>
+                                    <span class="inline-flex items-center gap-1" title="Komentar">
+                                        <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+                                        <span>{{ number_format($post->getMetric('comments')) }}</span>
+                                    </span>
+                                </div>
+                                @if($post->status === 'published' && $post->published_at)
+                                    <span class="text-[11px]">{{ $post->published_at->format('d/m/Y') }}</span>
+                                @endif
                             </div>
 
-                            @if($post->status === 'published' && $post->published_at)
-                                <span class="text-[11px]">
-                                    {{ $post->published_at->format('d/m/Y') }}
-                                </span>
+                            {{-- Quick action buttons for manageable posts --}}
+                            @if(in_array($post->status, ['scheduled', 'pending', 'failed', 'partially_failed']) && \App\Support\Context::hasPermission('social_media.manage'))
+                                <div class="flex items-center gap-2">
+                                    {{-- Preview / Kelola button --}}
+                                    <button type="button"
+                                        @click="openPostManager({
+                                            id: '{{ $post->id }}',
+                                            content: {{ Js::from($post->content) }},
+                                            status: '{{ $post->status }}',
+                                            platform: '{{ $post->platform }}',
+                                            media_type: '{{ $post->media_type }}',
+                                            media_urls: {{ Js::from($post->media_urls ?? []) }},
+                                            scheduled_at_raw: '{{ $post->scheduled_at ? $post->scheduled_at->format('Y-m-d\TH:i') : '' }}',
+                                            scheduled_at_label: '{{ $post->scheduled_at ? $post->scheduled_at->format('d M Y, H:i') : '-' }}',
+                                            account_name: '{{ $post->account ? addslashes($post->account->account_name) : ucfirst($post->platform) }}',
+                                            reschedule_url: '{{ route('social-media.posts.reschedule', $post) }}',
+                                            publish_now_url: '{{ route('social-media.posts.publish-now', $post) }}',
+                                            destroy_url: '{{ route('social-media.posts.destroy', $post) }}'
+                                        })"
+                                        class="flex-1 min-h-[36px] px-3 rounded-[9px] text-[12px] font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/20 active:scale-[0.97] transition-all inline-flex items-center justify-center gap-1.5">
+                                        <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                                        <span>Preview & Kelola</span>
+                                    </button>
+                                </div>
                             @endif
                         </div>
                     </div>
@@ -1282,6 +1308,183 @@
             </div>
         </div>
 
+        {{-- 6. POST PREVIEW & MANAGEMENT MODAL (Apple HIG Bento Bottom Sheet) --}}
+        <div x-show="postManagerOpen" style="display:none;"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-5"
+             @keydown.escape.window="postManagerOpen = false">
+
+            <div class="relative w-full sm:max-w-2xl rounded-t-[28px] sm:rounded-[26px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-2xl flex flex-col max-h-[92vh]"
+                 @click.away="postManagerOpen = false">
+
+                {{-- Drag handle (mobile) --}}
+                <div class="flex justify-center pt-3 pb-1 sm:hidden">
+                    <div class="w-10 h-1 rounded-full bg-black/20 dark:bg-white/20"></div>
+                </div>
+
+                {{-- Modal Header --}}
+                <div class="flex items-center justify-between px-6 py-4 border-b border-black/5 dark:border-white/10">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-[14px] bg-[#5856D6]/10 text-[#5856D6] flex items-center justify-center">
+                            <i data-lucide="calendar-clock" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-[16px] font-bold text-black dark:text-white">Preview &amp; Kelola Konten</h3>
+                            <div class="flex items-center gap-2 mt-0.5">
+                                <span class="text-[12px] text-black/50 dark:text-white/50" x-text="'Akun: ' + (pmPost.account_name || '-')"></span>
+                                <span class="text-black/30 dark:text-white/30">•</span>
+                                <span class="text-[11.5px] uppercase font-bold text-[#5856D6]" x-text="pmPost.platform || '-'"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" @click="postManagerOpen = false" class="w-8 h-8 rounded-full flex items-center justify-center text-black/40 dark:text-white/40 hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+
+                {{-- Modal Body --}}
+                <div class="overflow-y-auto flex-1 p-6 space-y-5">
+
+                    {{-- Status Banner & Scheduled Time --}}
+                    <div class="flex flex-wrap items-center justify-between gap-2 p-3 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[11px] font-bold uppercase tracking-wider text-black/40 dark:text-white/40">Status:</span>
+                            <span x-text="pmPost.status === 'scheduled' ? '🗓 Terjadwal' : (pmPost.status === 'pending' ? '⏳ Mengantre' : (pmPost.status === 'failed' ? '❌ Gagal' : '⚠️ Sebagian Gagal'))"
+                                  class="px-2.5 py-1 rounded-full text-[12px] font-bold"
+                                  :class="pmPost.status === 'scheduled' ? 'bg-[#5856D6]/15 text-[#5856D6]' : (pmPost.status === 'pending' ? 'bg-[#007AFF]/15 text-[#007AFF]' : 'bg-[#FF3B30]/15 text-[#FF3B30]')"></span>
+                        </div>
+                        <div x-show="pmPost.scheduled_at_label && pmPost.scheduled_at_label !== '-'" class="flex items-center gap-1.5 text-[12px] font-semibold text-black/60 dark:text-white/60">
+                            <i data-lucide="clock" class="w-3.5 h-3.5 text-[#5856D6]"></i>
+                            <span x-text="pmPost.scheduled_at_label"></span>
+                        </div>
+                    </div>
+
+                    {{-- Media Preview (Image / Video / Carousel) --}}
+                    <template x-if="pmPost.media_urls && pmPost.media_urls.length > 0">
+                        <div class="space-y-2.5">
+                            <div class="text-[11px] font-bold uppercase tracking-wider text-black/40 dark:text-white/40 flex items-center justify-between">
+                                <span>Preview Media</span>
+                                <span class="font-normal lowercase" x-text="pmPost.media_urls.length + ' file media'"></span>
+                            </div>
+                            <div class="rounded-[18px] overflow-hidden border border-black/10 dark:border-white/10 bg-black aspect-video max-h-72 flex items-center justify-center relative shadow-inner">
+                                <template x-if="pmPost.media_type === 'video' || pmPost.media_type === 'reels'">
+                                    <video :src="pmPost.media_urls[pmActiveSlide]" controls preload="metadata" class="w-full h-full object-contain"></video>
+                                </template>
+                                <template x-if="pmPost.media_type !== 'video' && pmPost.media_type !== 'reels'">
+                                    <img :src="pmPost.media_urls[pmActiveSlide]" alt="Media Preview" class="w-full h-full object-cover"
+                                         onerror="this.src='https://placehold.co/600x400/1C1C1E/FFF?text=Preview'">
+                                </template>
+                            </div>
+                            {{-- Carousel Thumbnail Strip --}}
+                            <template x-if="pmPost.media_urls.length > 1">
+                                <div class="flex items-center gap-2 overflow-x-auto py-1">
+                                    <template x-for="(url, idx) in pmPost.media_urls" :key="idx">
+                                        <button type="button" @click="pmActiveSlide = idx"
+                                                :class="pmActiveSlide === idx ? 'ring-2 ring-[#007AFF] scale-105' : 'opacity-60 hover:opacity-100'"
+                                                class="w-12 h-12 rounded-[10px] overflow-hidden border border-black/10 dark:border-white/10 shrink-0 transition-all cursor-pointer">
+                                            <img :src="url" class="w-full h-full object-cover">
+                                        </button>
+                                    </template>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+
+                    {{-- No Media Alert (Text-only) --}}
+                    <template x-if="!pmPost.media_urls || pmPost.media_urls.length === 0">
+                        <div class="p-3 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 flex items-center gap-2.5 text-[12px] text-black/60 dark:text-white/60">
+                            <i data-lucide="file-text" class="w-4 h-4 text-[#007AFF] shrink-0"></i>
+                            <span>Konten ini berformat teks murni (tanpa lampiran gambar atau video).</span>
+                        </div>
+                    </template>
+
+                    {{-- Caption Content --}}
+                    <div class="space-y-1.5">
+                        <div class="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-black/40 dark:text-white/40">
+                            <span>Isi Konten &amp; Caption</span>
+                            <span class="font-normal" x-text="(pmPost.content ? pmPost.content.length : 0) + ' karakter'"></span>
+                        </div>
+                        <div class="rounded-[16px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5 p-4 text-[13.5px] text-black/85 dark:text-white/85 leading-relaxed whitespace-pre-wrap max-h-48 overflow-y-auto" x-text="pmPost.content"></div>
+                    </div>
+
+                    {{-- JADWAL ULANG FORM --}}
+                    <div x-show="pmTab === 'reschedule'" class="space-y-3 pt-1">
+                        <div class="text-[11px] font-bold uppercase tracking-wider text-[#5856D6]">Pilih Waktu &amp; Tanggal Baru</div>
+                        <div class="space-y-2">
+                            <input type="datetime-local" x-model="pmNewScheduledAt"
+                                   :min="minScheduleTime"
+                                   class="w-full h-11 px-4 rounded-[12px] border border-black/15 dark:border-white/15 bg-white dark:bg-[#2C2C2E] text-[13px] text-black dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-[#5856D6]/40 shadow-xs">
+                            <p class="text-[11.5px] text-black/50 dark:text-white/50 leading-relaxed">Waktu publikasi baru akan otomatis disinkronkan ke seluruh kanal tujuan yang belum terbit.</p>
+                        </div>
+                    </div>
+
+                    {{-- Feedback Message --}}
+                    <div x-show="pmMessage" x-cloak
+                         :class="pmSuccess ? 'bg-[#34C759]/10 border-[#34C759]/25 text-[#248A3D] dark:text-[#30D158]' : 'bg-[#FF3B30]/10 border-[#FF3B30]/25 text-[#FF3B30]'"
+                         class="rounded-[12px] border p-3 text-[12.5px] font-semibold flex items-center gap-2">
+                        <span x-show="pmSuccess" class="inline-flex"><i data-lucide="check-circle-2" class="w-4 h-4 shrink-0"></i></span>
+                        <span x-show="!pmSuccess" class="inline-flex"><i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i></span>
+                        <span x-text="pmMessage"></span>
+                    </div>
+                </div>
+
+                {{-- Action Tabs + Buttons --}}
+                <div class="border-t border-black/5 dark:border-white/10 px-6 py-4 space-y-3 bg-white dark:bg-[#1C1C1E] rounded-b-[26px]">
+
+                    {{-- Tab switcher --}}
+                    <div class="flex items-center gap-2">
+                        <button type="button" @click="pmTab = 'preview'"
+                                :class="pmTab === 'preview' ? 'bg-black text-white dark:bg-white dark:text-black shadow-xs' : 'bg-black/5 dark:bg-white/10 text-black/70 dark:text-white/70 hover:bg-black/10'"
+                                class="h-8 px-3.5 rounded-full text-[12px] font-semibold transition-colors cursor-pointer">Preview Konten</button>
+                        <button type="button" @click="pmTab = 'reschedule'"
+                                :class="pmTab === 'reschedule' ? 'bg-[#5856D6] text-white shadow-xs' : 'bg-[#5856D6]/10 text-[#5856D6] hover:bg-[#5856D6]/20'"
+                                class="h-8 px-3.5 rounded-full text-[12px] font-semibold transition-colors inline-flex items-center gap-1.5 cursor-pointer">
+                            <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+                            <span>Ubah Jadwal</span>
+                        </button>
+                    </div>
+
+                    {{-- Primary actions --}}
+                    <div class="flex items-center gap-2">
+
+                        {{-- Reschedule confirm (only when on reschedule tab) --}}
+                        <button type="button" x-show="pmTab === 'reschedule'" x-cloak
+                                @click="doReschedule()"
+                                :disabled="pmLoading || !pmNewScheduledAt"
+                                class="flex-1 h-10 rounded-[12px] text-[13px] font-bold text-white bg-[#5856D6] hover:bg-[#4F4EC2] active:scale-[0.97] transition-all disabled:opacity-50 inline-flex items-center justify-center gap-2 cursor-pointer shadow-xs">
+                            <i data-lucide="loader-2" class="w-4 h-4 animate-spin" x-show="pmLoading" x-cloak></i>
+                            <i data-lucide="save" class="w-4 h-4" x-show="!pmLoading"></i>
+                            <span>Simpan Jadwal Baru</span>
+                        </button>
+
+                        {{-- Publish Now --}}
+                        <button type="button" x-show="pmTab === 'preview'" x-cloak
+                                @click="doPublishNow()"
+                                :disabled="pmLoading"
+                                class="flex-1 h-10 rounded-[12px] text-[13px] font-bold text-white bg-[#34C759] hover:bg-[#2FB34F] active:scale-[0.97] transition-all disabled:opacity-50 inline-flex items-center justify-center gap-2 cursor-pointer shadow-xs">
+                            <i data-lucide="loader-2" class="w-4 h-4 animate-spin" x-show="pmLoading" x-cloak></i>
+                            <i data-lucide="send" class="w-4 h-4" x-show="!pmLoading"></i>
+                            <span>Terbitkan Sekarang</span>
+                        </button>
+
+                        {{-- Delete --}}
+                        <button type="button" x-show="pmTab === 'preview'" x-cloak
+                                @click="doDelete()"
+                                :disabled="pmLoading"
+                                class="h-10 px-4 rounded-[12px] text-[13px] font-bold text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/20 active:scale-[0.97] transition-all disabled:opacity-50 inline-flex items-center justify-center gap-2 cursor-pointer">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            <span>Hapus</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script>
@@ -1341,6 +1544,108 @@
                 videoRatio: null,
                 isLandscapeVideo: false,
                 isSubmitting: false,
+
+                // ── Post Preview & Manager Modal ──
+                postManagerOpen: false,
+                pmPost: {},
+                pmTab: 'preview',
+                pmNewScheduledAt: '',
+                pmActiveSlide: 0,
+                pmLoading: false,
+                pmMessage: '',
+                pmSuccess: false,
+
+                get minScheduleTime() {
+                    const d = new Date(Date.now() + 60000);
+                    const pad = (n) => String(n).padStart(2, '0');
+                    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+                },
+
+                openPostManager(post) {
+                    this.pmPost = post;
+                    this.pmTab = 'preview';
+                    this.pmNewScheduledAt = post.scheduled_at_raw || '';
+                    this.pmActiveSlide = 0;
+                    this.pmMessage = '';
+                    this.pmSuccess = false;
+                    this.pmLoading = false;
+                    this.postManagerOpen = true;
+                    this.$nextTick(() => { if (window.lucide) window.lucide.createIcons(); });
+                },
+
+                async doReschedule() {
+                    if (!this.pmNewScheduledAt) return;
+                    this.pmLoading = true;
+                    this.pmMessage = '';
+                    try {
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+                        const res = await fetch(this.pmPost.reschedule_url, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                            body: JSON.stringify({ scheduled_at: this.pmNewScheduledAt }),
+                        });
+                        const data = await res.json();
+                        this.pmSuccess = data.success;
+                        this.pmMessage = data.success ? ('✅ ' + data.message + ' — ' + (data.scheduled_at || '')) : ('❌ ' + (data.message || data.error || 'Terjadi kesalahan.'));
+                        if (data.success) {
+                            this.pmPost.scheduled_at_label = data.scheduled_at;
+                            this.pmPost.status = 'scheduled';
+                            setTimeout(() => { window.location.reload(); }, 1800);
+                        }
+                    } catch (e) {
+                        this.pmSuccess = false;
+                        this.pmMessage = '❌ Koneksi gagal. Silakan coba lagi.';
+                    } finally {
+                        this.pmLoading = false;
+                        this.$nextTick(() => { if (window.lucide) window.lucide.createIcons(); });
+                    }
+                },
+
+                async doPublishNow() {
+                    if (!confirm('Yakin ingin menerbitkan konten ini sekarang ke semua platform tujuan?')) return;
+                    this.pmLoading = true;
+                    this.pmMessage = '';
+                    try {
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+                        const res = await fetch(this.pmPost.publish_now_url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                        });
+                        const data = await res.json();
+                        this.pmSuccess = data.success;
+                        this.pmMessage = data.success ? '✅ Konten sedang diterbitkan! Halaman akan diperbarui…' : ('❌ ' + (data.error || 'Gagal menerbitkan.'));
+                        if (data.success) { setTimeout(() => { window.location.reload(); }, 2000); }
+                    } catch (e) {
+                        this.pmSuccess = false;
+                        this.pmMessage = '❌ Koneksi gagal. Silakan coba lagi.';
+                    } finally {
+                        this.pmLoading = false;
+                        this.$nextTick(() => { if (window.lucide) window.lucide.createIcons(); });
+                    }
+                },
+
+                async doDelete() {
+                    if (!confirm('Hapus konten ini secara permanen? Tindakan ini tidak dapat dibatalkan.')) return;
+                    this.pmLoading = true;
+                    this.pmMessage = '';
+                    try {
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+                        const res = await fetch(this.pmPost.destroy_url, {
+                            method: 'DELETE',
+                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                        });
+                        const data = await res.json();
+                        this.pmSuccess = data.success;
+                        this.pmMessage = data.success ? '✅ Konten berhasil dihapus. Halaman akan diperbarui…' : ('❌ ' + (data.error || data.message || 'Gagal menghapus.'));
+                        if (data.success) { setTimeout(() => { window.location.reload(); }, 1500); }
+                    } catch (e) {
+                        this.pmSuccess = false;
+                        this.pmMessage = '❌ Koneksi gagal. Silakan coba lagi.';
+                    } finally {
+                        this.pmLoading = false;
+                        this.$nextTick(() => { if (window.lucide) window.lucide.createIcons(); });
+                    }
+                },
 
                 get uniqueHashtags() {
                     if (!this.captionText) return [];
