@@ -532,11 +532,115 @@ class SocialMediaFeatureTest extends TestCase
         $insightsRes = $this->actingAs($user)->get(route('social-media.insights.index'));
         $insightsRes->assertOk();
         $insightsRes->assertSee(__('social_media.refresh_data_btn'));
+        $insightsRes->assertSee(__('social_media.channels_hub_title'));
 
         // 5. Calendar View
         $calendarRes = $this->actingAs($user)->get(route('social-media.calendar'));
         $calendarRes->assertOk();
         $calendarRes->assertSee(__('social_media.calendar_title'));
         $calendarRes->assertSee(__('social_media.mobile_agenda_title'));
+    }
+
+    /**
+     * Test insights view displays connected accounts and live audience stats.
+     */
+    public function test_insights_view_displays_connected_accounts_and_metrics(): void
+    {
+        [$user, $business] = $this->makeMerchant('Toko Baju Pak Ruslan');
+
+        // Create connected accounts: Facebook, Instagram, TikTok, LinkedIn
+        SocialMediaAccount::create([
+            'business_id'         => $business->id,
+            'platform'            => 'facebook',
+            'account_id'          => 'fb_page_ruslan_123',
+            'account_name'        => 'Toko Baju Pak Ruslan Official',
+            'access_token'        => 'mock_fb_token',
+            'token_type'          => 'page_token',
+            'status'              => 'active',
+            'metadata'            => [
+                'metrics' => [
+                    'followers'     => 1250,
+                    'fans'          => 1200,
+                    'talking_about' => 85,
+                ],
+            ],
+        ]);
+
+        SocialMediaAccount::create([
+            'business_id'         => $business->id,
+            'platform'            => 'instagram',
+            'account_id'          => 'ig_ruslan_456',
+            'account_name'        => 'Toko Baju Pak Ruslan',
+            'username'            => '@tokobajupakruslan',
+            'access_token'        => 'mock_ig_token',
+            'token_type'          => 'page_token',
+            'status'              => 'active',
+            'metadata'            => [
+                'metrics' => [
+                    'followers'       => 3400,
+                    'following'       => 210,
+                    'media_count'     => 48,
+                    'total_likes'     => 520,
+                    'total_comments'  => 64,
+                    'engagement_rate' => 4.25,
+                ],
+            ],
+        ]);
+
+        SocialMediaAccount::create([
+            'business_id'         => $business->id,
+            'platform'            => 'tiktok',
+            'account_id'          => 'tt_ruslan_789',
+            'account_name'        => 'Pak Ruslan Fashion',
+            'username'            => '@ruslanfashion',
+            'access_token'        => 'mock_tt_token',
+            'token_type'          => 'bearer',
+            'status'              => 'active',
+        ]);
+
+        SocialMediaAccount::create([
+            'business_id'         => $business->id,
+            'platform'            => 'linkedin',
+            'account_id'          => 'li_ruslan_999',
+            'account_name'        => 'Ruslan Clothing Co',
+            'username'            => 'ruslan@tokobaju.com',
+            'access_token'        => 'mock_li_token',
+            'token_type'          => 'bearer',
+            'status'              => 'active',
+        ]);
+
+        $response = $this->actingAs($user)->get(route('social-media.insights.index'));
+
+        $response->assertOk();
+        $response->assertSee(__('social_media.channels_hub_title'));
+        $response->assertSee('Toko Baju Pak Ruslan Official');
+        $response->assertSee('@tokobajupakruslan');
+        $response->assertSee('@ruslanfashion');
+        $response->assertSee('Ruslan Clothing Co');
+        $response->assertSee('4,650'); // 1,250 FB + 3,400 IG = 4,650 total audience
+    }
+
+    /**
+     * Test AJAX endpoint to sync all accounts insights.
+     */
+    public function test_merchant_can_sync_all_accounts_insights(): void
+    {
+        [$user, $business] = $this->makeMerchant('Toko Baju Pak Ruslan');
+
+        SocialMediaAccount::create([
+            'business_id'         => $business->id,
+            'platform'            => 'tiktok',
+            'account_id'          => 'tt_ruslan_789',
+            'account_name'        => 'Pak Ruslan Fashion',
+            'username'            => '@ruslanfashion',
+            'access_token'        => 'mock_tt_token',
+            'token_type'          => 'bearer',
+            'status'              => 'active',
+        ]);
+
+        $response = $this->actingAs($user)->postJson(route('social-media.insights.accounts.sync'));
+
+        $response->assertOk();
+        $response->assertJson(['success' => true]);
     }
 }

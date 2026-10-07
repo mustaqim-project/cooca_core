@@ -23,16 +23,30 @@
 
         <x-module-tabs module="communication" />
 
-        {{-- 3. BENTO KPI GRID --}}
+        {{-- 1. BENTO HERO KPI GRID --}}
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {{-- Total Audience / Followers --}}
+            <div class="rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 shadow-sm space-y-1">
+                <div class="flex items-center justify-between text-black/50 dark:text-white/50">
+                    <span class="text-[12px] font-semibold">{{ __('social_media.kpi_total_audience') }}</span>
+                    <i data-lucide="users-round" class="w-4 h-4 text-[#007AFF]"></i>
+                </div>
+                <div class="text-[24px] font-bold text-black dark:text-white tabular-nums tracking-tight">
+                    {{ number_format($analytics['total_followers'] ?? 0) }}
+                </div>
+                <div class="text-[11px] text-black/45 dark:text-white/45">
+                    {{ __('social_media.connected_count', ['count' => $analytics['total_connected'] ?? 0]) }}
+                </div>
+            </div>
+
             {{-- Impressions --}}
             <div class="rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 shadow-sm space-y-1">
                 <div class="flex items-center justify-between text-black/50 dark:text-white/50">
                     <span class="text-[12px] font-semibold">{{ __('social_media.kpi_impressions') }}</span>
-                    <i data-lucide="eye" class="w-4 h-4 text-[#007AFF]"></i>
+                    <i data-lucide="eye" class="w-4 h-4 text-[#5856D6]"></i>
                 </div>
                 <div class="text-[24px] font-bold text-black dark:text-white tabular-nums tracking-tight">
-                    {{ number_format($analytics['total_impressions']) }}
+                    {{ number_format($analytics['total_impressions'] ?? 0) }}
                 </div>
                 <div class="text-[11px] text-black/45 dark:text-white/45">{{ __('social_media.kpi_impressions_sub') }}</div>
             </div>
@@ -44,7 +58,7 @@
                     <i data-lucide="users" class="w-4 h-4 text-[#34C759]"></i>
                 </div>
                 <div class="text-[24px] font-bold text-black dark:text-white tabular-nums tracking-tight">
-                    {{ number_format($analytics['total_reach']) }}
+                    {{ number_format($analytics['total_reach'] ?? 0) }}
                 </div>
                 <div class="text-[11px] text-black/45 dark:text-white/45">{{ __('social_media.kpi_reach_sub') }}</div>
             </div>
@@ -56,7 +70,7 @@
                     <i data-lucide="zap" class="w-4 h-4 text-[#FF9500]"></i>
                 </div>
                 <div class="text-[24px] font-bold text-black dark:text-white tabular-nums tracking-tight">
-                    {{ number_format($analytics['total_engagement']) }}
+                    {{ number_format($analytics['total_engagement'] ?? 0) }}
                 </div>
                 <div class="text-[11px] text-black/45 dark:text-white/45">{{ __('social_media.kpi_engagement_sub') }}</div>
             </div>
@@ -68,7 +82,7 @@
                     <i data-lucide="heart" class="w-4 h-4 text-[#FF2D55]"></i>
                 </div>
                 <div class="text-[24px] font-bold text-black dark:text-white tabular-nums tracking-tight">
-                    {{ number_format($analytics['total_likes']) }}
+                    {{ number_format($analytics['total_likes'] ?? 0) }}
                 </div>
                 <div class="text-[11px] text-black/45 dark:text-white/45">{{ __('social_media.kpi_likes_sub') }}</div>
             </div>
@@ -77,28 +91,261 @@
             <div class="rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 shadow-sm space-y-1">
                 <div class="flex items-center justify-between text-black/50 dark:text-white/50">
                     <span class="text-[12px] font-semibold">{{ __('social_media.kpi_comments') }}</span>
-                    <i data-lucide="message-circle" class="w-4 h-4 text-[#5856D6]"></i>
+                    <i data-lucide="message-circle" class="w-4 h-4 text-[#AF52DE]"></i>
                 </div>
                 <div class="text-[24px] font-bold text-black dark:text-white tabular-nums tracking-tight">
-                    {{ number_format($analytics['total_comments']) }}
+                    {{ number_format($analytics['total_comments'] ?? 0) }}
                 </div>
                 <div class="text-[11px] text-black/45 dark:text-white/45">{{ __('social_media.kpi_comments_sub') }}</div>
             </div>
+        </div>
 
-            {{-- Shares --}}
-            <div class="rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 shadow-sm space-y-1">
-                <div class="flex items-center justify-between text-black/50 dark:text-white/50">
-                    <span class="text-[12px] font-semibold">{{ __('social_media.kpi_shares') }}</span>
-                    <i data-lucide="share-2" class="w-4 h-4 text-[#AF52DE]"></i>
+        {{-- 2. CONNECTED CHANNELS PERFORMANCE BENTO HUB --}}
+        <div class="rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-sm p-5 sm:p-7 space-y-5">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-black/5 dark:border-white/10">
+                <div>
+                    <h2 class="text-[17px] font-bold text-black dark:text-white tracking-tight">{{ __('social_media.channels_hub_title') }}</h2>
+                    <p class="text-[12.5px] text-black/55 dark:text-white/55 mt-0.5">{{ __('social_media.channels_hub_subtitle') }}</p>
                 </div>
-                <div class="text-[24px] font-bold text-black dark:text-white tabular-nums tracking-tight">
-                    {{ number_format($analytics['total_shares']) }}
+                <button @click="syncAccountsMetrics()" :disabled="isSyncingAccounts"
+                    class="min-h-[38px] px-3.5 rounded-[10px] text-[12px] font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/20 active:scale-[0.97] transition-all inline-flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50">
+                    <i data-lucide="refresh-cw" class="w-3.5 h-3.5" :class="{'animate-spin': isSyncingAccounts}"></i>
+                    <span x-text="isSyncingAccounts ? '{{ __('social_media.syncing_accounts_metrics_btn') }}' : '{{ __('social_media.sync_accounts_metrics_btn') }}'">{{ __('social_media.sync_accounts_metrics_btn') }}</span>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {{-- Facebook Page Card --}}
+                @php
+                    $fb = $channelInsights['facebook'] ?? [];
+                    $isFbConnected = !empty($fb['connected']);
+                    $fbAccount = $fb['account'] ?? null;
+                    $fbMetrics = $fb['metrics'] ?? [];
+                @endphp
+                <div class="rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/10 p-4 space-y-3.5 flex flex-col justify-between">
+                    <div class="space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-[10px] bg-[#1877F2]/10 text-[#1877F2] flex items-center justify-center font-bold text-[14px]">
+                                    <i data-lucide="facebook" class="w-4 h-4"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-[13px] font-bold text-black dark:text-white leading-none">Facebook Page</h3>
+                                    <span class="text-[11px] text-black/45 dark:text-white/45">
+                                        {{ $isFbConnected ? ($fbAccount->account_name ?? 'Halaman FB') : __('social_media.channel_status_not_connected') }}
+                                    </span>
+                                </div>
+                            </div>
+                            @if($isFbConnected)
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#34C759]/10 text-[#34C759]">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span>
+                                    <span>{{ __('social_media.channel_status_connected') }}</span>
+                                </span>
+                            @else
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-black/5 dark:bg-white/10 text-black/50 dark:text-white/50">
+                                    {{ __('social_media.channel_status_not_connected') }}
+                                </span>
+                            @endif
+                        </div>
+
+                        @if($isFbConnected)
+                            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-black/5 dark:border-white/5">
+                                <div class="p-2 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/5 dark:border-white/5 text-center">
+                                    <div class="text-[10px] font-semibold text-black/45 dark:text-white/45 uppercase">{{ __('social_media.stat_followers') }}</div>
+                                    <div class="text-[15px] font-bold tabular-nums text-black dark:text-white mt-0.5">
+                                        {{ number_format($fb['followers'] ?? 0) }}
+                                    </div>
+                                </div>
+                                <div class="p-2 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/5 dark:border-white/5 text-center">
+                                    <div class="text-[10px] font-semibold text-black/45 dark:text-white/45 uppercase">{{ __('social_media.stat_talking_about') }}</div>
+                                    <div class="text-[15px] font-bold tabular-nums text-[#007AFF] mt-0.5">
+                                        {{ number_format($fb['talking'] ?? 0) }}
+                                    </div>
+                                </div>
+                            </div>
+                        @else
+                            <div class="py-3 text-center">
+                                <a href="{{ route('social-media.index') }}" class="text-[12px] font-semibold text-[#007AFF] hover:underline inline-flex items-center gap-1">
+                                    <span>{{ __('social_media.channel_connect_cta') }}</span>
+                                    <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                                </a>
+                            </div>
+                        @endif
+                    </div>
                 </div>
-                <div class="text-[11px] text-black/45 dark:text-white/45">{{ __('social_media.kpi_shares_sub') }}</div>
+
+                {{-- Instagram Business Card --}}
+                @php
+                    $ig = $channelInsights['instagram'] ?? [];
+                    $isIgConnected = !empty($ig['connected']);
+                    $igAccount = $ig['account'] ?? null;
+                    $igMetrics = $ig['metrics'] ?? [];
+                @endphp
+                <div class="rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/10 p-4 space-y-3.5 flex flex-col justify-between">
+                    <div class="space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-[10px] bg-[#E1306C]/10 text-[#E1306C] flex items-center justify-center font-bold text-[14px]">
+                                    <i data-lucide="instagram" class="w-4 h-4"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-[13px] font-bold text-black dark:text-white leading-none">Instagram Bisnis</h3>
+                                    <span class="text-[11px] text-black/45 dark:text-white/45">
+                                        {{ $isIgConnected ? ($igAccount->username ?? $igAccount->account_name ?? 'IG Account') : __('social_media.channel_status_not_connected') }}
+                                    </span>
+                                </div>
+                            </div>
+                            @if($isIgConnected)
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#34C759]/10 text-[#34C759]">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span>
+                                    <span>{{ __('social_media.channel_status_connected') }}</span>
+                                </span>
+                            @else
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-black/5 dark:bg-white/10 text-black/50 dark:text-white/50">
+                                    {{ __('social_media.channel_status_not_connected') }}
+                                </span>
+                            @endif
+                        </div>
+
+                        @if($isIgConnected)
+                            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-black/5 dark:border-white/5">
+                                <div class="p-2 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/5 dark:border-white/5 text-center">
+                                    <div class="text-[10px] font-semibold text-black/45 dark:text-white/45 uppercase">{{ __('social_media.stat_followers') }}</div>
+                                    <div class="text-[15px] font-bold tabular-nums text-black dark:text-white mt-0.5">
+                                        {{ number_format($ig['followers'] ?? 0) }}
+                                    </div>
+                                </div>
+                                <div class="p-2 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/5 dark:border-white/5 text-center">
+                                    <div class="text-[10px] font-semibold text-black/45 dark:text-white/45 uppercase">{{ __('social_media.stat_media_count') }}</div>
+                                    <div class="text-[15px] font-bold tabular-nums text-[#E1306C] mt-0.5">
+                                        {{ number_format($ig['media_count'] ?? 0) }}
+                                    </div>
+                                </div>
+                            </div>
+                        @else
+                            <div class="py-3 text-center">
+                                <a href="{{ route('social-media.index') }}" class="text-[12px] font-semibold text-[#007AFF] hover:underline inline-flex items-center gap-1">
+                                    <span>{{ __('social_media.channel_connect_cta') }}</span>
+                                    <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                                </a>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+                {{-- TikTok Creator Card --}}
+                @php
+                    $tt = $channelInsights['tiktok'] ?? [];
+                    $isTtConnected = !empty($tt['connected']);
+                    $ttAccount = $tt['account'] ?? null;
+                    $ttMetrics = $tt['metrics'] ?? [];
+                @endphp
+                <div class="rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/10 p-4 space-y-3.5 flex flex-col justify-between">
+                    <div class="space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-[10px] bg-black/10 dark:bg-white/10 text-black dark:text-white flex items-center justify-center font-bold text-[14px]">
+                                    <i data-lucide="video" class="w-4 h-4"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-[13px] font-bold text-black dark:text-white leading-none">TikTok</h3>
+                                    <span class="text-[11px] text-black/45 dark:text-white/45">
+                                        {{ $isTtConnected ? ($ttAccount->username ?? $ttAccount->account_name ?? 'TikTok Account') : __('social_media.channel_status_not_connected') }}
+                                    </span>
+                                </div>
+                            </div>
+                            @if($isTtConnected)
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#34C759]/10 text-[#34C759]">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span>
+                                    <span>{{ __('social_media.channel_status_connected') }}</span>
+                                </span>
+                            @else
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-black/5 dark:bg-white/10 text-black/50 dark:text-white/50">
+                                    {{ __('social_media.channel_status_not_connected') }}
+                                </span>
+                            @endif
+                        </div>
+
+                        @if($isTtConnected)
+                            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-black/5 dark:border-white/5">
+                                <div class="p-2 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/5 dark:border-white/5 text-center">
+                                    <div class="text-[10px] font-semibold text-black/45 dark:text-white/45 uppercase">Posting API</div>
+                                    <div class="text-[12.5px] font-bold text-[#34C759] mt-0.5">Siap Terbit</div>
+                                </div>
+                                <div class="p-2 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/5 dark:border-white/5 text-center">
+                                    <div class="text-[10px] font-semibold text-black/45 dark:text-white/45 uppercase">Privasi</div>
+                                    <div class="text-[12.5px] font-bold text-black dark:text-white mt-0.5">Publik</div>
+                                </div>
+                            </div>
+                        @else
+                            <div class="py-3 text-center">
+                                <a href="{{ route('social-media.index') }}" class="text-[12px] font-semibold text-[#007AFF] hover:underline inline-flex items-center gap-1">
+                                    <span>{{ __('social_media.channel_connect_cta') }}</span>
+                                    <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                                </a>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+                {{-- LinkedIn Professional Card --}}
+                @php
+                    $li = $channelInsights['linkedin'] ?? [];
+                    $isLiConnected = !empty($li['connected']);
+                    $liAccount = $li['account'] ?? null;
+                    $liMetrics = $li['metrics'] ?? [];
+                @endphp
+                <div class="rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/10 p-4 space-y-3.5 flex flex-col justify-between">
+                    <div class="space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-[10px] bg-[#0A66C2]/10 text-[#0A66C2] flex items-center justify-center font-bold text-[14px]">
+                                    <i data-lucide="linkedin" class="w-4 h-4"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-[13px] font-bold text-black dark:text-white leading-none">LinkedIn</h3>
+                                    <span class="text-[11px] text-black/45 dark:text-white/45">
+                                        {{ $isLiConnected ? ($liAccount->account_name ?? 'LinkedIn Member') : __('social_media.channel_status_not_connected') }}
+                                    </span>
+                                </div>
+                            </div>
+                            @if($isLiConnected)
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#34C759]/10 text-[#34C759]">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span>
+                                    <span>{{ __('social_media.channel_status_connected') }}</span>
+                                </span>
+                            @else
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-black/5 dark:bg-white/10 text-black/50 dark:text-white/50">
+                                    {{ __('social_media.channel_status_not_connected') }}
+                                </span>
+                            @endif
+                        </div>
+
+                        @if($isLiConnected)
+                            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-black/5 dark:border-white/5">
+                                <div class="p-2 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/5 dark:border-white/5 text-center">
+                                    <div class="text-[10px] font-semibold text-black/45 dark:text-white/45 uppercase">Share API</div>
+                                    <div class="text-[12.5px] font-bold text-[#34C759] mt-0.5">Aktif</div>
+                                </div>
+                                <div class="p-2 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/5 dark:border-white/5 text-center">
+                                    <div class="text-[10px] font-semibold text-black/45 dark:text-white/45 uppercase">Profil</div>
+                                    <div class="text-[12.5px] font-bold text-[#0A66C2] mt-0.5">Verified</div>
+                                </div>
+                            </div>
+                        @else
+                            <div class="py-3 text-center">
+                                <a href="{{ route('social-media.index') }}" class="text-[12px] font-semibold text-[#007AFF] hover:underline inline-flex items-center gap-1">
+                                    <span>{{ __('social_media.channel_connect_cta') }}</span>
+                                    <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                                </a>
+                            </div>
+                        @endif
+                    </div>
+                </div>
             </div>
         </div>
 
-        {{-- 4. POST PERFORMANCE TABLE --}}
+        {{-- 3. POST PERFORMANCE TABLE --}}
         <div class="rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-sm p-5 sm:p-7 space-y-5">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-black/5 dark:border-white/10">
                 <div>
@@ -108,14 +355,23 @@
             </div>
 
             @if($posts->isEmpty())
-                <div class="py-12 text-center space-y-3">
-                    <div class="w-12 h-12 rounded-[16px] bg-black/[0.04] dark:bg-white/[0.06] text-black/40 dark:text-white/40 flex items-center justify-center mx-auto">
-                        <i data-lucide="bar-chart" class="w-6 h-6"></i>
+                <div class="py-10 px-4 text-center space-y-4 max-w-lg mx-auto">
+                    <div class="w-14 h-14 rounded-[18px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center mx-auto">
+                        <i data-lucide="sparkles" class="w-7 h-7"></i>
                     </div>
-                    <div class="text-[14px] font-bold text-black dark:text-white">{{ __('social_media.no_insights_title') }}</div>
-                    <p class="text-[12.5px] text-black/60 dark:text-white/60 max-w-sm mx-auto">
-                        {{ __('social_media.no_insights_desc') }}
-                    </p>
+                    <div class="space-y-1.5">
+                        <h3 class="text-[16px] font-bold text-black dark:text-white">{{ __('social_media.no_insights_title') }}</h3>
+                        <p class="text-[13px] text-black/60 dark:text-white/60 leading-relaxed">
+                            {{ __('social_media.no_insights_desc') }}
+                        </p>
+                    </div>
+                    <div>
+                        <a href="{{ route('social-media.posts.index') }}"
+                            class="min-h-[44px] px-5 rounded-[12px] text-[13px] font-bold text-white bg-[#007AFF] hover:bg-[#007AFF]/90 active:scale-[0.98] transition-all inline-flex items-center gap-2 shadow-sm">
+                            <i data-lucide="pen-tool" class="w-4 h-4"></i>
+                            <span>{{ __('social_media.write_post_now_btn') }}</span>
+                        </a>
+                    </div>
                 </div>
             @else
                 {{-- Desktop View: Table Layout --}}
@@ -166,7 +422,7 @@
                                         {{ number_format($post->getMetric('shares')) }}
                                     </td>
                                     <td class="py-3.5 pr-2 text-right whitespace-nowrap">
-                                        <button @click="syncPostInsights('{{ $post->id }}')"
+                                        <button id="sync-btn-{{ $post->id }}" @click="syncPostInsights('{{ $post->id }}')"
                                             class="min-h-[32px] px-3 rounded-[8px] text-[11.5px] font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/20 active:scale-[0.97] transition-all inline-flex items-center gap-1.5 cursor-pointer">
                                             <i data-lucide="refresh-cw" class="w-3.5 h-3.5" id="icon-sync-{{ $post->id }}"></i>
                                             <span>{{ __('social_media.fetch_live_btn') }}</span>
@@ -223,7 +479,7 @@
                                 </div>
                             </div>
 
-                            <button @click="syncPostInsights('{{ $post->id }}')"
+                            <button id="mobile-sync-btn-{{ $post->id }}" @click="syncPostInsights('{{ $post->id }}')"
                                 class="w-full min-h-[44px] rounded-[12px] text-[12.5px] font-bold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer">
                                 <i data-lucide="refresh-cw" class="w-3.5 h-3.5" id="mobile-icon-sync-{{ $post->id }}"></i>
                                 <span>{{ __('social_media.fetch_live_btn') }}</span>
@@ -240,9 +496,53 @@
         function socialInsightsManager() {
             return {
                 isRefreshingAll: false,
+                isSyncingAccounts: false,
+                async syncAccountsMetrics() {
+                    this.isSyncingAccounts = true;
+                    try {
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                        const res = await fetch('{{ route("social-media.insights.accounts.sync") }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                            },
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            if (window.AppAlert) {
+                                AppAlert.success(data.message || '{{ __("social_media.accounts_insights_refreshed") }}');
+                            }
+                            // Reload to reflect all updated account metrics smoothly
+                            setTimeout(() => window.location.reload(), 600);
+                        } else {
+                            if (window.AppAlert) {
+                                AppAlert.error(data.error || '{{ __("social_media.error_sync_data") }}');
+                            }
+                        }
+                    } catch (e) {
+                        if (window.AppAlert) {
+                            AppAlert.error('{{ __("social_media.error_sync_data") }}');
+                        }
+                    } finally {
+                        this.isSyncingAccounts = false;
+                    }
+                },
                 async refreshAllInsights() {
                     this.isRefreshingAll = true;
                     try {
+                        // 1. Sync all account metrics
+                        await fetch('{{ route("social-media.insights.accounts.sync") }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                            },
+                        });
+
+                        // 2. Sync each individual post
                         const syncButtons = document.querySelectorAll('button[id^="sync-btn-"]');
                         if (syncButtons.length > 0) {
                             for (const btn of syncButtons) {
@@ -252,9 +552,12 @@
                                 }
                             }
                         }
+
                         if (window.AppAlert) {
-                            AppAlert.success('{{ __('social_media.insights_refreshed') }}');
+                            AppAlert.success('{{ __("social_media.insights_refreshed") }}');
                         }
+
+                        setTimeout(() => window.location.reload(), 600);
                     } catch (e) {
                         if (window.AppAlert) {
                             AppAlert.error(@js(__('social_media.error_refresh_metrics_partial')));
@@ -297,7 +600,7 @@
                             updateEl(`mobile-metric-comments-${postId}`, m.comments);
                             updateEl(`metric-shares-${postId}`, m.shares);
                             if (window.AppAlert) {
-                                AppAlert.success('{{ __('social_media.insights_refreshed') }}');
+                                AppAlert.success('{{ __("social_media.insights_refreshed") }}');
                             }
                         } else {
                             const errorMsg = data.error || @js(__('social_media.error_refresh_metrics'));
@@ -318,3 +621,4 @@
         }
     </script>
 @endsection
+
