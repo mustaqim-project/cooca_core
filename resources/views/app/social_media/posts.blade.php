@@ -1172,7 +1172,8 @@
                                 </div>
 
                                 {{-- Phone Card Container --}}
-                                <div class="rounded-[18px] bg-white dark:bg-[#151516] border border-black/10 dark:border-white/10 shadow-md overflow-hidden text-black dark:text-white">
+                                <div class="rounded-[18px] bg-white dark:bg-[#151516] border border-black/10 dark:border-white/10 shadow-md overflow-hidden text-black dark:text-white transition-all duration-300"
+                                    :class="getPreviewCardWidthClass()">
                                     {{-- Reels Top Bar (when 9:16) --}}
                                     <div x-show="previewAspectRatio === '9:16'" class="px-3.5 py-2.5 bg-black text-white flex items-center justify-between text-[11px] font-bold">
                                         <div class="flex items-center gap-1.5">
@@ -1923,19 +1924,30 @@
                     }
                 },
 
-                getPreviewAspectClass() {
-                    if (this.mediaFormat === 'text') return '';
+                getPreviewCardWidthClass() {
                     if (this.previewAspectRatio === '9:16') {
-                        return 'aspect-[9/16] max-h-[500px]';
-                    }
-                    if (this.previewAspectRatio === '1:1') {
-                        return 'aspect-square max-h-[380px]';
+                        return 'w-full max-w-[320px] mx-auto';
                     }
                     if (this.previewAspectRatio === '16:9') {
-                        return 'aspect-[16/9] max-h-[260px]';
+                        return 'w-full max-w-[420px] mx-auto';
+                    }
+                    // default 4:5, 1:1, or text
+                    return 'w-full max-w-[380px] mx-auto';
+                },
+
+                getPreviewAspectClass() {
+                    if (this.mediaFormat === 'text') return 'min-h-[200px] p-4';
+                    if (this.previewAspectRatio === '9:16') {
+                        return 'aspect-[9/16]';
+                    }
+                    if (this.previewAspectRatio === '1:1') {
+                        return 'aspect-square';
+                    }
+                    if (this.previewAspectRatio === '16:9') {
+                        return 'aspect-[16/9]';
                     }
                     // default 4:5 (IG Feed portrait)
-                    return 'aspect-[4/5] max-h-[440px]';
+                    return 'aspect-[4/5]';
                 },
 
                 getAspectRatioDescription() {

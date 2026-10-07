@@ -32,6 +32,43 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 - **Files Affected:** Daftar berkas controller, service, model, blade, atau route yang dimodifikasi.
 - **Database Changes:** Tabel baru, migrasi skema, kolom tambahan, atau indexing.
+### [WORK-2026-10-07-329] Penyesuaian Proporsional Ukuran Card Live Preview dengan Dimensi Konten Format Media (Social Media Studio Composer)
+
+- **Date:** 2026-10-07
+- **Status:** COMPLETED
+- **Module:** Social Media Studio (`resources/views/app/social_media/posts.blade.php`)
+- **Feature:** Dynamic Aspect-Ratio-Preserving Preview Card Width (`getPreviewCardWidthClass`), Snug Card Geometry, Distortion-Free CSS Media Ratio (`getPreviewAspectClass`).
+- **Work Type:** UI/UX (Apple HIG / Dynamic Layout) | Bug Fix | Responsive Design
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Pada modal komposer Social Media Studio (`/social-media/posts`), kartu simulator preview postingan HP (*Live Smartphone Feed Preview Card*) pada kolom kanan (`lg:col-span-5`) sebelumnya melebar mengikuti lebar kontainer modal secara penuh (hingga ~600px).
+- **Masalah:** Akibat batasan `max-h-[...]` yang dipaksakan pada rasio tertentu (seperti `max-h-[260px]` untuk 16:9, `max-h-[440px]` untuk 4:5, `max-h-[380px]` untuk 1:1), elemen media di dalam kartu terdistorsi menjadi persegi panjang yang sangat gepeng dan pipih secara horizontal (aspek rasio hancur dari 4:5 / 16:9 menjadi ~2.3:1) serta ukuran kartu tidak pas dengan dimensi konten aslinya.
+- **Target:** Menyesuaikan ukuran kartu preview agar pas (*snug*) dan proporsional dengan format konten yang aktif (`4:5`, `1:1`, `9:16`, `16:9`, atau `text`), berpusat secara elegan (`mx-auto`), serta mempertahankan aspek rasio CSS murni tanpa terpotong `max-h`.
+
+#### 2. What Was Done
+
+1. **Implementasi `getPreviewCardWidthClass()` Dinamis pada Phone Card Container:**
+   - Menambahkan pengikatan `:class="getPreviewCardWidthClass()"` dan animasi transisi halus `transition-all duration-300` pada kontainer kartu HP mockup.
+   - Mengalokasikan batasan lebar maksimum yang ideal dan realistis menyerupai ukuran layar smartphone asli:
+     - `9:16` (Reels / TikTok / Vertikal): `w-full max-w-[320px] mx-auto` (tinggi media ~568px, proporsi layar smartphone penuh yang pas di laptop/desktop).
+     - `16:9` (Video Lanskap): `w-full max-w-[420px] mx-auto` (tinggi media ~236px, proporsi postingan video feed lanskap).
+     - `4:5` (Instagram Feed Portrait) & `1:1` (Square Feed) & `text`: `w-full max-w-[380px] mx-auto` (lebar pas standar iPhone/Android, tinggi media 4:5 ~475px, 1:1 ~380px).
+2. **Pembersihan Batasan `max-h` Pengganggu pada `getPreviewAspectClass()`:**
+   - Menghapus aturan `max-h-[260px]`, `max-h-[440px]`, `max-h-[380px]`, dan `max-h-[500px]` yang sebelumnya merusak rasio matematis CSS `aspect-[...]`.
+   - Mengembalikan kalkulasi rasio ke CSS aspect-ratio murni (`aspect-[9/16]`, `aspect-square`, `aspect-[16/9]`, `aspect-[4/5]`) sehingga dimensi tinggi media selalu dihitung akurat 100% oleh browser dari lebar kartu.
+   - Menambahkan `min-h-[200px] p-4` untuk mode posting teks murni agar tampilan kartu status gradien tetap proporsional.
+
+#### 3. Technical Changes
+
+- **Files Affected:**
+  - `resources/views/app/social_media/posts.blade.php`
+- **Testing & Verification:**
+  - `php artisan view:clear` — Berhasil.
+  - `tests/Feature/SocialMedia`: 75 tests, 439 assertions — **100% PASSED**.
+
+---
+
 ### [WORK-2026-10-07-328] Eliminasi Mode Teks Bebas Modal WhatsApp Broadcast (Kepatuhan Penuh WABA Meta) & Perbaikan Komprehensif Tumpang Tindih (Overlap) Tampilan Mobile
 
 - **Date:** 2026-10-07
