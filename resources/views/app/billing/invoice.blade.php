@@ -316,12 +316,6 @@
                                 <div style="font-weight: 800; color: #000000; line-height: 1.25;">
                                     {{ $payment->package_name ?? ($payment->cycle === 'annual' ? __('billing.plan_core_annual') : ($payment->cycle === 'monthly' ? __('billing.plan_core_monthly') : __('billing.topup_business_quota'))) }}
                                 </div>
-                                {{-- <div style="font-size: 10px; color: #64748b; font-family: monospace; margin-top: 2px;">
-                                    {{ __('billing.code_label') }} {{ $payment->plan_code ?: 'COOCA-SUB' }}
-                                </div>
-                                <div style="font-size: 10px; color: #475569; margin-top: 4px; line-height: 1.4;">
-                                    {{ __('billing.service_license_desc') }}
-                                </div> --}}
                             </td>
                             <td style="padding: 10px 10px; text-align: center; font-family: monospace; color: #334155; text-transform: uppercase;">
                                 {{ $durationText }}
@@ -401,9 +395,6 @@
                                 <div style="font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #0f172a;">
                                     Informasi Transaksi &amp; Pembayaran
                                 </div>
-                                {{-- <span style="font-family: monospace; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background-color: #e2e8f0; color: #334155;">
-                                    {{ strtoupper($payment->payment_gateway ?: 'SISTEM') }}
-                                </span> --}}
                             </div>
 
                             <table style="width: 100%; border-collapse: collapse; font-size: 11px; line-height: 1.55;">
