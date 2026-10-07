@@ -528,11 +528,11 @@
         }
 
         if (! $coocaLogoBase64) {
-            $defaultLogoPath = public_path('assets/image/cooca-logo-landscape.png');
+            $defaultLogoPath = public_path('assets/image/cooca-logo-landscape_inv.png');
             if (file_exists($defaultLogoPath)) {
                 $coocaLogoBase64 = 'data:image/png;base64,' . base64_encode(file_get_contents($defaultLogoPath));
             } else {
-                $coocaLogoBase64 = asset('assets/image/cooca-logo-landscape.png');
+                $coocaLogoBase64 = asset('assets/image/cooca-logo-landscape_inv.png');
             }
         }
     @endphp
