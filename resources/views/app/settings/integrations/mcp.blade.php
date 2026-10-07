@@ -3,6 +3,214 @@
 @section('title', __('mcp.page_title'))
 
 @section('content')
+<script>
+function mcpSettingsHub() {
+    const appBasePath = {{ json_encode(base_path()) }};
+    const sseUrl = {{ json_encode($sseEndpoint) }};
+    const apiBase = {{ json_encode($apiBaseUrl) }};
+
+    return {
+        openCreateModal: false,
+        activeProviderTab: 'claude',
+        customToken: @json(session('plain_token') ?? ''),
+        activeOs: 'windows',
+        cursorMode: 'sse',
+        toastVisible: false,
+        toastMessage: '',
+        toastTimeout: null,
+
+        init() {
+            this.$nextTick(() => {
+                if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                    lucide.createIcons();
+                }
+            });
+            this.$watch('activeProviderTab', () => {
+                this.$nextTick(() => {
+                    if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                        lucide.createIcons();
+                    }
+                });
+            });
+        },
+
+        getToken() {
+            return (this.customToken && this.customToken.trim().length > 0)
+                ? this.customToken.trim()
+                : 'cooca_mcp_YOUR_TOKEN';
+        },
+
+        showToast(message) {
+            this.toastMessage = message || "{{ __('mcp.copied') }}";
+            this.toastVisible = true;
+            if (this.toastTimeout) clearTimeout(this.toastTimeout);
+            this.toastTimeout = setTimeout(() => {
+                this.toastVisible = false;
+            }, 2500);
+            this.$nextTick(() => {
+                if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                    lucide.createIcons();
+                }
+            });
+        },
+
+        copyText(text, message) {
+            if (!text) return;
+            const self = this;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    self.showToast(message);
+                }).catch(() => {
+                    self.fallbackCopy(text, message);
+                });
+            } else {
+                self.fallbackCopy(text, message);
+            }
+        },
+
+        fallbackCopy(text, message) {
+            const el = document.createElement('textarea');
+            el.value = text;
+            el.setAttribute('readonly', '');
+            el.style.position = 'absolute';
+            el.style.left = '-9999px';
+            document.body.appendChild(el);
+            el.select();
+            try {
+                document.execCommand('copy');
+                this.showToast(message);
+            } catch (err) {
+                console.error('Fallback copy failed', err);
+            }
+            document.body.removeChild(el);
+        },
+
+        getClaudePath() {
+            if (this.activeOs === 'windows') {
+                return '%APPDATA%\\Claude\\claude_desktop_config.json';
+            }
+            if (this.activeOs === 'macos') {
+                return '~/Library/Application Support/Claude/claude_desktop_config.json';
+            }
+            return '~/.config/Claude/claude_desktop_config.json';
+        },
+
+        getClaudeConfig() {
+            const config = {
+                "mcpServers": {
+                    "cooca-erp": {
+                        "command": "php",
+                        "args": ["artisan", "mcp:serve", "--token=" + this.getToken()],
+                        "cwd": appBasePath
+                    }
+                }
+            };
+            return JSON.stringify(config, null, 2);
+        },
+
+        getClaudeCodeCmd() {
+            return `claude mcp add cooca-erp -- php artisan mcp:serve --token=${this.getToken()}`;
+        },
+
+        getCursorSseConfig() {
+            const config = {
+                "mcpServers": {
+                    "cooca-erp": {
+                        "url": sseUrl,
+                        "headers": {
+                            "Authorization": "Bearer " + this.getToken()
+                        }
+                    }
+                }
+            };
+            return JSON.stringify(config, null, 2);
+        },
+
+        getCursorStdioConfig() {
+            const config = {
+                "mcpServers": {
+                    "cooca-erp": {
+                        "command": "php",
+                        "args": ["artisan", "mcp:serve", "--token=" + this.getToken()],
+                        "cwd": appBasePath
+                    }
+                }
+            };
+            return JSON.stringify(config, null, 2);
+        },
+
+        getGeminiPythonCode() {
+            const token = this.getToken();
+            return `import requests
+
+# Konfigurasi Akses COOCA MCP Server via REST Bridge
+COOCA_TOKEN = "${token}"
+COOCA_API_BASE = "${apiBase}"
+
+# 1. Panggil Tool: Laporan Ringkasan Laba Rugi Bisnis
+response = requests.post(
+    f"{COOCA_API_BASE}/tools/report_get_profit_loss/execute",
+    headers={"Authorization": f"Bearer {COOCA_TOKEN}"},
+    json={"period": "this_month"}
+)
+print("Ringkasan Laba Rugi Toko:", response.json())
+
+# 2. Panggil Tool: Cek Saldo Kas & Rekening Bank Toko
+bank_resp = requests.post(
+    f"{COOCA_API_BASE}/tools/finance_get_cash_and_bank_balances/execute",
+    headers={"Authorization": f"Bearer {COOCA_TOKEN}"},
+    json={}
+)
+print("Likuiditas Kas & Bank Toko:", bank_resp.json())`;
+        },
+
+        getGeminiCurl() {
+            const token = this.getToken();
+            return `curl -X POST "${apiBase}/tools/finance_get_cash_and_bank_balances/execute" \\
+  -H "Authorization: Bearer ${token}" \\
+  -H "Content-Type: application/json"`;
+        },
+
+        getOllamaInspectorCmd() {
+            const token = this.getToken();
+            return `npx @modelcontextprotocol/inspector php artisan mcp:serve --token=${token}`;
+        },
+
+        getLangChainCode() {
+            const token = this.getToken();
+            return `from langchain.tools import tool
+import requests
+
+COOCA_TOKEN = "${token}"
+API_BASE = "${apiBase}"
+
+@tool
+def check_inventory_stock(query: str = "") -> str:
+    """Memeriksa ketersediaan stok produk COOCA ERP."""
+    resp = requests.post(
+        f"{API_BASE}/tools/inventory_check_stock/execute",
+        headers={"Authorization": f"Bearer {COOCA_TOKEN}"},
+        json={"search_query": query}
+    )
+    return str(resp.json())`;
+        }
+    };
+}
+
+// 1. Assign to window so Alpine evaluates x-data="mcpSettingsHub()" directly
+window.mcpSettingsHub = mcpSettingsHub;
+
+// 2. Register with Alpine.data if Alpine is already loaded or on alpine:init
+if (typeof Alpine !== 'undefined' && Alpine.data) {
+    Alpine.data('mcpSettingsHub', mcpSettingsHub);
+}
+document.addEventListener('alpine:init', () => {
+    if (typeof Alpine !== 'undefined' && Alpine.data) {
+        Alpine.data('mcpSettingsHub', mcpSettingsHub);
+    }
+});
+</script>
+
 <div x-data="mcpSettingsHub()" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-32 space-y-6">
 
     {{-- Breadcrumb & Header --}}
@@ -1308,201 +1516,5 @@
     </div>
 
 </div>
-
-@push('scripts')
-<script>
-function mcpSettingsHub() {
-    const appBasePath = {{ json_encode(base_path()) }};
-    const sseUrl = {{ json_encode($sseEndpoint) }};
-    const apiBase = {{ json_encode($apiBaseUrl) }};
-
-    return {
-        openCreateModal: false,
-        activeProviderTab: 'claude',
-        customToken: @json(session('plain_token') ?? ''),
-        activeOs: 'windows',
-        cursorMode: 'sse',
-        toastVisible: false,
-        toastMessage: '',
-        toastTimeout: null,
-
-        init() {
-            this.$nextTick(() => {
-                if (typeof lucide !== 'undefined' && lucide.createIcons) {
-                    lucide.createIcons();
-                }
-            });
-            this.$watch('activeProviderTab', () => {
-                this.$nextTick(() => {
-                    if (typeof lucide !== 'undefined' && lucide.createIcons) {
-                        lucide.createIcons();
-                    }
-                });
-            });
-        },
-
-        getToken() {
-            return (this.customToken && this.customToken.trim().length > 0)
-                ? this.customToken.trim()
-                : 'cooca_mcp_YOUR_TOKEN';
-        },
-
-        showToast(message) {
-            this.toastMessage = message || "{{ __('mcp.copied') }}";
-            this.toastVisible = true;
-            if (this.toastTimeout) clearTimeout(this.toastTimeout);
-            this.toastTimeout = setTimeout(() => {
-                this.toastVisible = false;
-            }, 2500);
-            this.$nextTick(() => {
-                if (typeof lucide !== 'undefined' && lucide.createIcons) {
-                    lucide.createIcons();
-                }
-            });
-        },
-
-        copyText(text, message) {
-            if (!text) return;
-            const self = this;
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(text).then(() => {
-                    self.showToast(message);
-                }).catch(() => {
-                    self.fallbackCopy(text, message);
-                });
-            } else {
-                self.fallbackCopy(text, message);
-            }
-        },
-
-        fallbackCopy(text, message) {
-            const el = document.createElement('textarea');
-            el.value = text;
-            el.setAttribute('readonly', '');
-            el.style.position = 'absolute';
-            el.style.left = '-9999px';
-            document.body.appendChild(el);
-            el.select();
-            try {
-                document.execCommand('copy');
-                this.showToast(message);
-            } catch (err) {
-                console.error('Fallback copy failed', err);
-            }
-            document.body.removeChild(el);
-        },
-
-        getClaudePath() {
-            if (this.activeOs === 'windows') {
-                return '%APPDATA%\\Claude\\claude_desktop_config.json';
-            }
-            if (this.activeOs === 'macos') {
-                return '~/Library/Application Support/Claude/claude_desktop_config.json';
-            }
-            return '~/.config/Claude/claude_desktop_config.json';
-        },
-
-        getClaudeConfig() {
-            const config = {
-                "mcpServers": {
-                    "cooca-erp": {
-                        "command": "php",
-                        "args": ["artisan", "mcp:serve", "--token=" + this.getToken()],
-                        "cwd": appBasePath
-                    }
-                }
-            };
-            return JSON.stringify(config, null, 2);
-        },
-
-        getClaudeCodeCmd() {
-            return `claude mcp add cooca-erp -- php artisan mcp:serve --token=${this.getToken()}`;
-        },
-
-        getCursorSseConfig() {
-            const config = {
-                "mcpServers": {
-                    "cooca-erp": {
-                        "url": sseUrl,
-                        "headers": {
-                            "Authorization": "Bearer " + this.getToken()
-                        }
-                    }
-                }
-            };
-            return JSON.stringify(config, null, 2);
-        },
-
-        getCursorStdioConfig() {
-            const config = {
-                "mcpServers": {
-                    "cooca-erp": {
-                        "command": "php",
-                        "args": ["artisan", "mcp:serve", "--token=" + this.getToken()],
-                        "cwd": appBasePath
-                    }
-                }
-            };
-            return JSON.stringify(config, null, 2);
-        },
-
-        getGeminiPythonCode() {
-            const token = this.getToken();
-            return `import requests
-
-# Konfigurasi Akses COOCA MCP Server via REST Bridge
-COOCA_TOKEN = "${token}"
-COOCA_API_BASE = "${apiBase}"
-
-# 1. Panggil Tool: Laporan Ringkasan Laba Rugi Bisnis
-response = requests.post(
-    f"{COOCA_API_BASE}/tools/report_get_profit_loss/execute",
-    headers={"Authorization": f"Bearer {COOCA_TOKEN}"},
-    json={"period": "this_month"}
-)
-print("Ringkasan Laba Rugi Toko:", response.json())
-
-# 2. Panggil Tool: Cek Saldo Kas & Rekening Bank Toko
-bank_resp = requests.post(
-    f"{COOCA_API_BASE}/tools/finance_get_cash_and_bank_balances/execute",
-    headers={"Authorization": f"Bearer {COOCA_TOKEN}"},
-    json={}
-)
-print("Likuiditas Kas & Bank Toko:", bank_resp.json())`;
-        },
-
-        getGeminiCurl() {
-            const token = this.getToken();
-            return `curl -X POST "${apiBase}/tools/finance_get_cash_and_bank_balances/execute" \\
-  -H "Authorization: Bearer ${token}" \\
-  -H "Content-Type: application/json"`;
-        },
-
-        getOllamaInspectorCmd() {
-            const token = this.getToken();
-            return `npx @modelcontextprotocol/inspector php artisan mcp:serve --token=${token}`;
-        },
-
-        getLangChainCode() {
-            const token = this.getToken();
-            return `from langchain.tools import tool
-import requests
-
-COOCA_TOKEN = "${token}"
-API_BASE = "${apiBase}"
-
-@tool
-def check_inventory_stock(query: str = "") -> str:
-    """Memeriksa ketersediaan stok produk COOCA ERP."""
-    resp = requests.post(
-        f"{API_BASE}/tools/inventory_check_stock/execute",
-        headers={"Authorization": f"Bearer {COOCA_TOKEN}"},
-        json={"search_query": query}
-    )
-    return str(resp.json())`;
-        }
-    };
-}
-</script>
-@endpush
 @endsection
+
