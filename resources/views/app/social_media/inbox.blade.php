@@ -18,8 +18,7 @@
                     <div class="flex items-center gap-2 px-3 py-1.5 rounded-[12px] bg-gradient-to-r from-[#AF52DE]/10 to-[#007AFF]/10 border border-[#AF52DE]/20 text-[12px] font-semibold text-black/80 dark:text-white/80" title="Provider AI aktif: {{ strtoupper($activeAiConfig->provider ?? 'BYOAI') }}">
                         <span class="w-2 h-2 rounded-full bg-[#34C759] animate-pulse"></span>
                         <i data-lucide="sparkles" class="w-3.5 h-3.5 text-[#AF52DE]"></i>
-                        <span>Cooca AI Connected</span>
-                        <span class="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158]">{{ strtoupper($activeAiConfig->provider ?? 'BYOAI') }}</span>
+                        <span>AI Agent Connected</span>
                     </div>
                 @else
                     <a href="{{ route('cooca-ai.providers') }}"
@@ -187,18 +186,20 @@
                     </div>
 
                     {{-- WhatsApp Click-to-Chat Callout Card (Persis Screenshot Meta) --}}
-                    <div class="p-2.5 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-1">
-                        <div class="flex items-center justify-between text-[11px]">
-                            <span class="font-mono text-black/75 dark:text-white/75 truncate max-w-[190px]">{{ $waLink }}</span>
-                            <button type="button" @click="copyToClipboard('{{ $waLink }}')"
-                                class="text-[#007AFF] font-bold hover:underline cursor-pointer flex items-center gap-1">
-                                <span x-text="copiedWaLink ? '{{ __('social_media.link_copied') }}' : '{{ __('social_media.copy_link_btn') }}'">{{ __('social_media.copy_link_btn') }}</span>
-                            </button>
+                    @if(!empty($cleanWaNumber) && !empty($waLink))
+                        <div class="p-2.5 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-1">
+                            <div class="flex items-center justify-between text-[11px]">
+                                <span class="font-mono text-black/75 dark:text-white/75 truncate max-w-[190px]">{{ $waLink }}</span>
+                                <button type="button" @click="copyToClipboard('{{ $waLink }}')"
+                                    class="text-[#007AFF] font-bold hover:underline cursor-pointer flex items-center gap-1">
+                                    <span x-text="copiedWaLink ? '{{ __('social_media.link_copied') }}' : '{{ __('social_media.copy_link_btn') }}'">{{ __('social_media.copy_link_btn') }}</span>
+                                </button>
+                            </div>
+                            <p class="text-[10px] text-black/50 dark:text-white/50 leading-tight">
+                                {{ __('social_media.click_to_chat_label') }}
+                            </p>
                         </div>
-                        <p class="text-[10px] text-black/50 dark:text-white/50 leading-tight">
-                            {{ __('social_media.click_to_chat_label') }}
-                        </p>
-                    </div>
+                    @endif
 
                     {{-- WhatsApp Sync Status Alert Banner --}}
                     <div class="p-2.5 rounded-[12px] bg-[#007AFF]/8 border border-[#007AFF]/15 text-[11px] text-[#007AFF] space-y-0.5">
@@ -270,9 +271,36 @@
                         </div>
                     </template>
 
-                    <div x-show="filteredThreads.length === 0" class="p-8 text-center text-black/45 dark:text-white/45 space-y-2">
-                        <i data-lucide="message-square" class="w-8 h-8 mx-auto opacity-40"></i>
-                        <p class="text-[12.5px] font-semibold">{{ __('social_media.inbox_clean_title') }}</p>
+                    {{-- Empty State Threads List --}}
+                    <div x-show="filteredThreads.length === 0" class="p-8 text-center text-black/45 dark:text-white/45 space-y-3">
+                        <div class="w-12 h-12 rounded-2xl bg-black/5 dark:bg-white/10 flex items-center justify-center mx-auto text-black/40 dark:text-white/40">
+                            <i data-lucide="inbox" class="w-6 h-6"></i>
+                        </div>
+                        <div class="space-y-1">
+                            <p class="text-[13px] font-bold text-black/80 dark:text-white/80">{{ __('social_media.inbox_clean_title') }}</p>
+                            <p class="text-[11.5px] text-black/50 dark:text-white/50 max-w-xs mx-auto leading-relaxed">
+                                @if($hasMetaConnected)
+                                    Akun Meta Anda sudah terhubung aktif. Klik tombol <strong>Sinkronkan Data Meta</strong> untuk menarik percakapan &amp; komentar pelanggan terbaru secara langsung.
+                                @else
+                                    Belum ada percakapan masuk. Hubungkan akun Facebook Page atau Instagram Anda untuk mulai menerima pesan dari calon pembeli.
+                                @endif
+                            </p>
+                        </div>
+                        <div class="pt-1">
+                            @if($hasMetaConnected)
+                                <button type="button" @click="syncMetaInbox()" :disabled="isSyncingMeta"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-[11.5px] font-bold text-white bg-[#1877F2] hover:bg-[#166FE5] shadow-xs active:scale-95 transition cursor-pointer">
+                                    <i data-lucide="refresh-cw" class="w-3.5 h-3.5" :class="{'animate-spin': isSyncingMeta}"></i>
+                                    <span>Sinkronkan Meta Sekarang</span>
+                                </button>
+                            @else
+                                <a href="{{ route('social-media.index') }}"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-[11.5px] font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] shadow-xs active:scale-95 transition">
+                                    <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+                                    <span>Hubungkan Akun Meta</span>
+                                </a>
+                            @endif
+                        </div>
                     </div>
                 </div>
             </div>
@@ -282,181 +310,216 @@
             <!-- ============================================================== -->
             <div class="lg:col-span-5 xl:col-span-5.5 rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-sm flex flex-col h-full overflow-hidden">
                 
-                {{-- Chat Header --}}
-                <div class="p-3.5 px-4 border-b border-black/5 dark:border-white/10 flex items-center justify-between shrink-0 bg-white dark:bg-[#1C1C1E] z-10">
-                    <div class="flex items-center gap-3 min-w-0">
-                        <div class="w-10 h-10 rounded-full bg-black/10 dark:bg-white/15 flex items-center justify-center font-bold text-[14px] text-black dark:text-white uppercase shrink-0">
-                            <span x-text="activeThread?.contact_name ? activeThread.contact_name.charAt(0) : 'U'"></span>
-                        </div>
-                        <div class="min-w-0">
-                            <div class="flex items-center gap-1.5">
-                                <h3 class="text-[14px] font-bold text-black dark:text-white truncate" x-text="activeThread?.contact_name || 'Pilih Percakapan'"></h3>
-                                <span class="px-1.5 py-0.2 rounded-full text-[9.5px] font-bold text-white uppercase"
-                                      :class="getChannelBadgeClass(activeThread?.channel)"
-                                      x-text="activeThread?.channel_label || ''"></span>
-                            </div>
-                            
-                            {{-- Dropdown Tetapkan Percakapan (Assign to Staff) --}}
-                            <div class="flex items-center gap-1 text-[11px] text-black/50 dark:text-white/50 pt-0.5">
-                                <span>{{ __('social_media.assign_conversation_label') }}:</span>
-                                <select x-model="activeThread.assigned_to" @change="updateAssignment()"
-                                    class="bg-transparent border-0 p-0 text-[11px] font-semibold text-[#007AFF] focus:ring-0 cursor-pointer">
-                                    <option value="">{{ __('social_media.unassigned_label') }}</option>
-                                    @foreach($staffMembers as $staff)
-                                        <option value="{{ $staff->name }}">{{ $staff->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
+                {{-- Empty State saat belum ada percakapan aktif yang dipilih --}}
+                <div x-show="!activeThread" class="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-4 bg-black/[0.01] dark:bg-white/[0.01]">
+                    <div class="w-16 h-16 rounded-[22px] bg-gradient-to-br from-[#007AFF]/10 via-[#AF52DE]/10 to-[#34C759]/10 border border-black/5 dark:border-white/10 flex items-center justify-center text-[#007AFF] shadow-xs">
+                        <i data-lucide="message-square" class="w-8 h-8"></i>
                     </div>
-
-                    {{-- Top Action Buttons (Meta Style Icons) --}}
-                    <div class="flex items-center gap-1 text-black/50 dark:text-white/50">
-                        <button type="button" @click="toggleStar()" title="{{ __('social_media.action_star') }}"
-                            class="w-8 h-8 rounded-[8px] flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/5 hover:text-[#FF9500] transition-colors cursor-pointer">
-                            <i data-lucide="star" class="w-4 h-4" :class="activeThread?.is_starred ? 'text-[#FF9500] fill-current' : ''"></i>
-                        </button>
-                        <button type="button" @click="toggleUnread()" title="{{ __('social_media.action_unread') }}"
-                            class="w-8 h-8 rounded-[8px] flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/5 hover:text-[#007AFF] transition-colors cursor-pointer">
-                            <i data-lucide="mail" class="w-4 h-4" :class="activeThread?.unread ? 'text-[#007AFF]' : ''"></i>
-                        </button>
-                        <button type="button" @click="resolveConversation()" title="{{ __('social_media.action_resolve') }}"
-                            class="w-8 h-8 rounded-[8px] flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/5 hover:text-[#34C759] transition-colors cursor-pointer">
-                            <i data-lucide="check-check" class="w-4 h-4"></i>
-                        </button>
+                    <div class="space-y-1.5 max-w-sm">
+                        <h3 class="text-[15px] font-bold text-black dark:text-white">Ruang Obrolan Omnichannel</h3>
+                        <p class="text-[12px] text-black/55 dark:text-white/55 leading-relaxed">
+                            @if($hasMetaConnected)
+                                Pilih salah satu percakapan di kolom kiri untuk membaca pesan dan membalas pelanggan, atau sinkronkan data terbaru langsung dari Meta Graph API (Facebook Page &amp; Instagram).
+                            @else
+                                Pilih percakapan di kolom kiri, atau hubungkan akun Meta (Facebook Page &amp; Instagram) untuk menyatukan semua interaksi pelanggan ke inbox toko Anda.
+                            @endif
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap items-center justify-center gap-2 pt-1">
+                        @if($hasMetaConnected)
+                            <button type="button" @click="syncMetaInbox()" :disabled="isSyncingMeta"
+                                class="px-4 py-2 rounded-[12px] text-[12.5px] font-semibold text-white bg-[#1877F2] hover:bg-[#166FE5] shadow-xs active:scale-95 transition flex items-center gap-1.5 cursor-pointer">
+                                <i data-lucide="refresh-cw" class="w-3.5 h-3.5" :class="{'animate-spin': isSyncingMeta}"></i>
+                                <span>Tarik Data Terbaru dari Meta</span>
+                            </button>
+                        @else
+                            <a href="{{ route('social-media.index') }}"
+                                class="px-4 py-2 rounded-[12px] text-[12.5px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] shadow-xs active:scale-95 transition flex items-center gap-1.5">
+                                <i data-lucide="link" class="w-3.5 h-3.5"></i>
+                                <span>Hubungkan Akun Media Sosial</span>
+                            </a>
+                        @endif
                     </div>
                 </div>
 
-                {{-- Chat Message Stream (Bubble List) --}}
-                <div class="flex-1 overflow-y-auto p-4 space-y-3.5 bg-black/[0.015] dark:bg-black/25" id="chat-messages-container">
-                    
-                    {{-- Time separator --}}
-                    <div class="flex justify-center my-2">
-                        <span class="px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold bg-black/5 dark:bg-white/10 text-black/50 dark:text-white/50"
-                              x-text="'Hari ini ' + (activeThread?.last_time || '19.53')"></span>
-                    </div>
-
-                    {{-- Message Bubbles --}}
-                    <template x-for="msg in (activeThread?.messages || [])" :key="msg.id">
-                        <div class="flex items-end gap-2" :class="msg.sender === 'business' ? 'justify-end' : 'justify-start'">
-                            
-                            {{-- Incoming Avatar --}}
-                            <template x-if="msg.sender !== 'business'">
-                                <div class="w-7 h-7 rounded-full bg-black/10 dark:bg-white/15 flex items-center justify-center text-[10.5px] font-bold uppercase shrink-0">
-                                    <span x-text="activeThread?.contact_name ? activeThread.contact_name.charAt(0) : 'U'"></span>
+                {{-- Tampilan Aktif Percakapan --}}
+                <div x-show="activeThread" class="flex-1 flex flex-col min-h-0 overflow-hidden">
+                    {{-- Chat Header --}}
+                    <div class="p-3.5 px-4 border-b border-black/5 dark:border-white/10 flex items-center justify-between shrink-0 bg-white dark:bg-[#1C1C1E] z-10">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="w-10 h-10 rounded-full bg-black/10 dark:bg-white/15 flex items-center justify-center font-bold text-[14px] text-black dark:text-white uppercase shrink-0">
+                                <span x-text="activeThread?.contact_name ? activeThread.contact_name.charAt(0) : 'U'"></span>
+                            </div>
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-1.5">
+                                    <h3 class="text-[14px] font-bold text-black dark:text-white truncate" x-text="activeThread?.contact_name || 'Pilih Percakapan'"></h3>
+                                    <span class="px-1.5 py-0.2 rounded-full text-[9.5px] font-bold text-white uppercase"
+                                          :class="getChannelBadgeClass(activeThread?.channel)"
+                                          x-text="activeThread?.channel_label || ''"></span>
                                 </div>
-                            </template>
-
-                            {{-- Bubble Card --}}
-                            <div class="max-w-[78%] rounded-[18px] p-3 text-[13px] leading-relaxed shadow-xs space-y-1"
-                                 :class="msg.sender === 'business' ? 'bg-[#007AFF] text-white rounded-br-[4px]' : 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white border border-black/5 dark:border-white/5 rounded-bl-[4px]'">
-                                <p class="whitespace-pre-wrap break-words" x-text="msg.text"></p>
-                                <div class="flex items-center justify-end gap-1 text-[10px]"
-                                     :class="msg.sender === 'business' ? 'text-white/75' : 'text-black/45 dark:text-white/45'">
-                                    <span x-text="msg.time"></span>
-                                    <template x-if="msg.sender === 'business'">
-                                        <i data-lucide="check-check" class="w-3 h-3 text-white/90"></i>
-                                    </template>
+                                
+                                {{-- Dropdown Tetapkan Percakapan (Assign to Staff) --}}
+                                <div class="flex items-center gap-1 text-[11px] text-black/50 dark:text-white/50 pt-0.5">
+                                    <span>{{ __('social_media.assign_conversation_label') }}:</span>
+                                    <select x-model="activeThread.assigned_to" @change="updateAssignment()"
+                                        class="bg-transparent border-0 p-0 text-[11px] font-semibold text-[#007AFF] focus:ring-0 cursor-pointer">
+                                        <option value="">{{ __('social_media.unassigned_label') }}</option>
+                                        @foreach($staffMembers as $staff)
+                                            <option value="{{ $staff->name }}">{{ $staff->name }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
                         </div>
-                    </template>
-                </div>
 
-                {{-- COOCA AI GROUNDED SMART ASSISTANT BAR --}}
-                <div class="p-2.5 px-3.5 bg-gradient-to-r from-[#AF52DE]/10 via-[#007AFF]/10 to-transparent border-t border-black/5 dark:border-white/10 flex items-center justify-between gap-3 shrink-0">
-                    <div class="flex items-center gap-2 min-w-0">
-                        <div class="w-7 h-7 rounded-[8px] bg-gradient-to-tr from-[#AF52DE] to-[#007AFF] text-white flex items-center justify-center shrink-0 shadow-xs">
-                            <i data-lucide="sparkles" class="w-4 h-4"></i>
+                        {{-- Top Action Buttons (Meta Style Icons) --}}
+                        <div class="flex items-center gap-1 text-black/50 dark:text-white/50">
+                            <button type="button" @click="toggleStar()" title="{{ __('social_media.action_star') }}"
+                                class="w-8 h-8 rounded-[8px] flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/5 hover:text-[#FF9500] transition-colors cursor-pointer">
+                                <i data-lucide="star" class="w-4 h-4" :class="activeThread?.is_starred ? 'text-[#FF9500] fill-current' : ''"></i>
+                            </button>
+                            <button type="button" @click="toggleUnread()" title="{{ __('social_media.action_unread') }}"
+                                class="w-8 h-8 rounded-[8px] flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/5 hover:text-[#007AFF] transition-colors cursor-pointer">
+                                <i data-lucide="mail" class="w-4 h-4" :class="activeThread?.unread ? 'text-[#007AFF]' : ''"></i>
+                            </button>
+                            <button type="button" @click="resolveConversation()" title="{{ __('social_media.action_resolve') }}"
+                                class="w-8 h-8 rounded-[8px] flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/5 hover:text-[#34C759] transition-colors cursor-pointer">
+                                <i data-lucide="check-check" class="w-4 h-4"></i>
+                            </button>
                         </div>
-                        <div class="min-w-0">
-                            <div class="flex items-center gap-1.5">
-                                <span class="text-[12px] font-bold text-black dark:text-white truncate">{{ __('social_media.ai_assistant_title') }}</span>
-                                @if($hasAiConfig)
-                                    <span class="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/25">
-                                        {{ __('social_media.ai_assistant_badge') }}
-                                    </span>
-                                @else
-                                    <span class="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/25">
-                                        Terkunci (Belum Setting)
-                                    </span>
-                                @endif
+                    </div>
+
+                    {{-- Chat Message Stream (Bubble List) --}}
+                    <div class="flex-1 overflow-y-auto p-4 space-y-3.5 bg-black/[0.015] dark:bg-black/25" id="chat-messages-container">
+                        
+                        {{-- Time separator --}}
+                        <div class="flex justify-center my-2">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold bg-black/5 dark:bg-white/10 text-black/50 dark:text-white/50"
+                                  x-text="'Hari ini ' + (activeThread?.last_time || '19.53')"></span>
+                        </div>
+
+                        {{-- Message Bubbles --}}
+                        <template x-for="msg in (activeThread?.messages || [])" :key="msg.id">
+                            <div class="flex items-end gap-2" :class="msg.sender === 'business' ? 'justify-end' : 'justify-start'">
+                                
+                                {{-- Incoming Avatar --}}
+                                <template x-if="msg.sender !== 'business'">
+                                    <div class="w-7 h-7 rounded-full bg-black/10 dark:bg-white/15 flex items-center justify-center text-[10.5px] font-bold uppercase shrink-0">
+                                        <span x-text="activeThread?.contact_name ? activeThread.contact_name.charAt(0) : 'U'"></span>
+                                    </div>
+                                </template>
+
+                                {{-- Bubble Card --}}
+                                <div class="max-w-[78%] rounded-[18px] p-3 text-[13px] leading-relaxed shadow-xs space-y-1"
+                                     :class="msg.sender === 'business' ? 'bg-[#007AFF] text-white rounded-br-[4px]' : 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white border border-black/5 dark:border-white/5 rounded-bl-[4px]'">
+                                    <p class="whitespace-pre-wrap break-words" x-text="msg.text"></p>
+                                    <div class="flex items-center justify-end gap-1 text-[10px]"
+                                         :class="msg.sender === 'business' ? 'text-white/75' : 'text-black/45 dark:text-white/45'">
+                                        <span x-text="msg.time"></span>
+                                        <template x-if="msg.sender === 'business'">
+                                            <i data-lucide="check-check" class="w-3 h-3 text-white/90"></i>
+                                        </template>
+                                    </div>
+                                </div>
                             </div>
-                            <p class="text-[10px] text-black/55 dark:text-white/55 truncate">
-                                @if($hasAiConfig)
-                                    Terhubung {{ $products->count() }} produk &amp; voucher aktif toko ({{ strtoupper($activeAiConfig->provider ?? 'BYOAI') }})
-                                @else
-                                    Konfigurasi AI belum disetel. Hubungkan API Key di menu Cooca AI.
-                                @endif
-                            </p>
-                        </div>
+                        </template>
                     </div>
 
-                    @if($hasAiConfig)
-                        <button type="button" @click="generateAiGroundedReply()" :disabled="isGeneratingAi"
-                            class="min-h-[32px] px-3 py-1 rounded-[10px] bg-gradient-to-r from-[#AF52DE] to-[#007AFF] hover:opacity-90 active:scale-95 text-white font-bold text-[11.5px] transition-all flex items-center gap-1.5 shadow-xs cursor-pointer shrink-0 disabled:opacity-50">
-                            <template x-if="!isGeneratingAi">
-                                <i data-lucide="wand-2" class="w-3.5 h-3.5"></i>
-                            </template>
-                            <template x-if="isGeneratingAi">
-                                <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i>
-                            </template>
-                            <span x-text="isGeneratingAi ? '{{ __('social_media.ai_drafting') }}' : '{{ __('social_media.ai_draft_button') }}'"></span>
-                        </button>
-                    @else
-                        <a href="{{ route('cooca-ai.providers') }}"
-                            class="min-h-[32px] px-3 py-1 rounded-[10px] bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-bold text-[11.5px] transition-all flex items-center gap-1.5 shadow-xs cursor-pointer shrink-0" title="Atur Provider AI untuk membuka fitur ini">
-                            <i data-lucide="lock" class="w-3.5 h-3.5"></i>
-                            <span>Setting AI Dulu</span>
-                        </a>
-                    @endif
-                </div>
-
-                {{-- Reply Composer Bar --}}
-                <div class="p-3 border-t border-black/5 dark:border-white/10 bg-white dark:bg-[#1C1C1E] space-y-2 shrink-0">
-                    <div class="relative">
-                        <textarea x-model="replyText" rows="2"
-                            :placeholder="'Balas di ' + (activeThread?.channel_label || 'WhatsApp') + '...'"
-                            class="w-full px-3.5 py-2.5 rounded-[14px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/10 dark:border-white/10 text-[13px] text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/40 focus:ring-2 focus:ring-[#007AFF] resize-none"></textarea>
-                    </div>
-
-                    {{-- Actions Toolbar --}}
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-1 text-black/60 dark:text-white/60">
-                            {{-- Quick Product Selector --}}
-                            <button type="button" @click="openProductModal = true" title="{{ __('social_media.quick_products_title') }}"
-                                class="w-8 h-8 rounded-[8px] flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer">
-                                <i data-lucide="shopping-bag" class="w-4 h-4"></i>
-                            </button>
-                            {{-- Quick Replies / FAQ --}}
-                            <button type="button" @click="openQuickRepliesModal = true" title="{{ __('social_media.quick_replies_title') }}"
-                                class="w-8 h-8 rounded-[8px] flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer">
-                                <i data-lucide="message-square-dashed" class="w-4 h-4"></i>
-                            </button>
-                            {{-- Paperclip Attachment --}}
-                            <button type="button" @click="$refs.attachmentInput.click()" title="Lampirkan File"
-                                class="w-8 h-8 rounded-[8px] flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer">
-                                <i data-lucide="paperclip" class="w-4 h-4"></i>
-                            </button>
-                            <input type="file" x-ref="attachmentInput" class="hidden" @change="handleAttachment($event)">
-                            {{-- Emoji Button --}}
-                            <button type="button" @click="replyText += ' 😊'" title="Emoji"
-                                class="w-8 h-8 rounded-[8px] flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer">
-                                <i data-lucide="smile" class="w-4 h-4"></i>
-                            </button>
+                    {{-- COOCA AI GROUNDED SMART ASSISTANT BAR --}}
+                    <div class="p-2.5 px-3.5 bg-gradient-to-r from-[#AF52DE]/10 via-[#007AFF]/10 to-transparent border-t border-black/5 dark:border-white/10 flex items-center justify-between gap-3 shrink-0">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <div class="w-7 h-7 rounded-[8px] bg-gradient-to-tr from-[#AF52DE] to-[#007AFF] text-white flex items-center justify-center shrink-0 shadow-xs">
+                                <i data-lucide="sparkles" class="w-4 h-4"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-[12px] font-bold text-black dark:text-white truncate">{{ __('social_media.ai_assistant_title') }}</span>
+                                    @if($hasAiConfig)
+                                        <span class="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/25">
+                                            {{ __('social_media.ai_assistant_badge') }}
+                                        </span>
+                                    @else
+                                        <span class="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/25">
+                                            Terkunci (Belum Setting)
+                                        </span>
+                                    @endif
+                                </div>
+                                <p class="text-[10px] text-black/55 dark:text-white/55 truncate">
+                                    @if($hasAiConfig)
+                                        Terhubung {{ $products->count() }} produk &amp; voucher aktif toko ({{ strtoupper($activeAiConfig->provider ?? 'BYOAI') }})
+                                    @else
+                                        Konfigurasi AI belum disetel. Hubungkan API Key di menu Cooca AI.
+                                    @endif
+                                </p>
+                            </div>
                         </div>
 
-                        {{-- Send Button --}}
-                        <button type="button" @click="submitReply()" :disabled="!replyText.trim() || isSending"
-                            class="min-h-[36px] px-4 rounded-[10px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] text-white font-bold text-[12.5px] transition-all flex items-center gap-1.5 shadow-sm cursor-pointer disabled:opacity-40 disabled:pointer-events-none">
-                            <template x-if="!isSending">
-                                <i data-lucide="send" class="w-3.5 h-3.5"></i>
-                            </template>
-                            <template x-if="isSending">
-                                <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i>
-                            </template>
-                            <span x-text="isSending ? '{{ __('social_media.sending_reply_btn') }}' : '{{ __('social_media.send_reply_btn') }}'"></span>
-                        </button>
+                        @if($hasAiConfig)
+                            <button type="button" @click="generateAiGroundedReply()" :disabled="isGeneratingAi"
+                                class="min-h-[32px] px-3 py-1 rounded-[10px] bg-gradient-to-r from-[#AF52DE] to-[#007AFF] hover:opacity-90 active:scale-95 text-white font-bold text-[11.5px] transition-all flex items-center gap-1.5 shadow-xs cursor-pointer shrink-0 disabled:opacity-50">
+                                <template x-if="!isGeneratingAi">
+                                    <i data-lucide="wand-2" class="w-3.5 h-3.5"></i>
+                                </template>
+                                <template x-if="isGeneratingAi">
+                                    <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i>
+                                </template>
+                                <span x-text="isGeneratingAi ? '{{ __('social_media.ai_drafting') }}' : '{{ __('social_media.ai_draft_button') }}'"></span>
+                            </button>
+                        @else
+                            <a href="{{ route('cooca-ai.providers') }}"
+                                class="min-h-[32px] px-3 py-1 rounded-[10px] bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-bold text-[11.5px] transition-all flex items-center gap-1.5 shadow-xs cursor-pointer shrink-0" title="Atur Provider AI untuk membuka fitur ini">
+                                <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+                                <span>Setting AI Dulu</span>
+                            </a>
+                        @endif
+                    </div>
+
+                    {{-- Reply Composer Bar --}}
+                    <div class="p-3 border-t border-black/5 dark:border-white/10 bg-white dark:bg-[#1C1C1E] space-y-2 shrink-0">
+                        <div class="relative">
+                            <textarea x-model="replyText" rows="2"
+                                :placeholder="'Balas di ' + (activeThread?.channel_label || 'WhatsApp') + '...'"
+                                class="w-full px-3.5 py-2.5 rounded-[14px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/10 dark:border-white/10 text-[13px] text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/40 focus:ring-2 focus:ring-[#007AFF] resize-none"></textarea>
+                        </div>
+
+                        {{-- Actions Toolbar --}}
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-1 text-black/60 dark:text-white/60">
+                                {{-- Quick Product Selector --}}
+                                <button type="button" @click="openProductModal = true" title="{{ __('social_media.quick_products_title') }}"
+                                    class="w-8 h-8 rounded-[8px] flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer">
+                                    <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                                </button>
+                                {{-- Quick Replies / FAQ --}}
+                                <button type="button" @click="openQuickRepliesModal = true" title="{{ __('social_media.quick_replies_title') }}"
+                                    class="w-8 h-8 rounded-[8px] flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer">
+                                    <i data-lucide="message-square-dashed" class="w-4 h-4"></i>
+                                </button>
+                                {{-- Paperclip Attachment --}}
+                                <button type="button" @click="$refs.attachmentInput.click()" title="Lampirkan File"
+                                    class="w-8 h-8 rounded-[8px] flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer">
+                                    <i data-lucide="paperclip" class="w-4 h-4"></i>
+                                </button>
+                                <input type="file" x-ref="attachmentInput" class="hidden" @change="handleAttachment($event)">
+                                {{-- Emoji Button --}}
+                                <button type="button" @click="replyText += ' 😊'" title="Emoji"
+                                    class="w-8 h-8 rounded-[8px] flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer">
+                                    <i data-lucide="smile" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+
+                            {{-- Send Button --}}
+                            <button type="button" @click="submitReply()" :disabled="!replyText.trim() || isSending"
+                                class="min-h-[36px] px-4 rounded-[10px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] text-white font-bold text-[12.5px] transition-all flex items-center gap-1.5 shadow-sm cursor-pointer disabled:opacity-40 disabled:pointer-events-none">
+                                <template x-if="!isSending">
+                                    <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                                </template>
+                                <template x-if="isSending">
+                                    <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i>
+                                </template>
+                                <span x-text="isSending ? '{{ __('social_media.sending_reply_btn') }}' : '{{ __('social_media.send_reply_btn') }}'"></span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -466,118 +529,134 @@
             <!-- ============================================================== -->
             <div class="lg:col-span-3 xl:col-span-3 rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-sm flex flex-col h-full overflow-y-auto p-4 space-y-5">
                 
-                {{-- Profile Card Header --}}
-                <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
-                    <div class="flex items-center gap-3 min-w-0">
-                        <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-[#007AFF] to-[#5856D6] text-white flex items-center justify-center font-bold text-[16px] shadow-sm shrink-0">
-                            <span x-text="activeThread?.contact_name ? activeThread.contact_name.charAt(0) : 'U'"></span>
-                        </div>
-                        <div class="min-w-0">
-                            <h3 class="text-[14px] font-bold text-black dark:text-white truncate" x-text="activeThread?.contact_name || 'Pelanggan'"></h3>
-                            <span class="text-[11px] text-black/50 dark:text-white/50" x-text="activeThread?.contact_phone || 'Online Customer'"></span>
-                        </div>
+                {{-- Empty State CRM saat belum ada percakapan aktif --}}
+                <div x-show="!activeThread" class="flex-1 flex flex-col items-center justify-center p-6 text-center space-y-3 text-black/40 dark:text-white/40">
+                    <div class="w-12 h-12 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-black/40 dark:text-white/40">
+                        <i data-lucide="user" class="w-6 h-6"></i>
                     </div>
-                    <button type="button" class="text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white">
-                        <i data-lucide="more-horizontal" class="w-4 h-4"></i>
-                    </button>
-                </div>
-
-                {{-- Section: Tentang (About) --}}
-                <div class="space-y-2">
-                    <div class="flex items-center justify-between text-[12px]">
-                        <span class="font-bold text-black/75 dark:text-white/75">{{ __('social_media.crm_about') }}</span>
-                        <a href="{{ route('customers.index') }}" class="text-[#007AFF] font-bold hover:underline text-[11px]">Edit</a>
-                    </div>
-                    <div class="p-3 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 text-[12px] space-y-1.5">
-                        <div class="flex items-center gap-2 text-black/80 dark:text-white/80 font-medium">
-                            <i data-lucide="phone" class="w-3.5 h-3.5 text-[#007AFF] shrink-0"></i>
-                            <span class="font-mono text-[11.5px]" x-text="activeThread?.contact_phone || 'Nomor telepon belum tersimpan'"></span>
-                        </div>
-                        <div class="pt-1 border-t border-black/5 dark:border-white/5 flex items-center justify-between">
-                            <a href="{{ route('customers.index') }}" class="text-[11px] text-[#007AFF] font-semibold hover:underline">
-                                {{ __('social_media.crm_manage_leads') }}
-                            </a>
-                            <i data-lucide="external-link" class="w-3 h-3 text-[#007AFF]"></i>
-                        </div>
+                    <div class="space-y-1 max-w-xs">
+                        <h4 class="text-[13px] font-bold text-black/70 dark:text-white/70">Detail Kontak CRM</h4>
+                        <p class="text-[11px] text-black/50 dark:text-white/50 leading-relaxed">
+                            Profil pelanggan, kontak, label penanda, dan riwayat catatan internal tim akan ditampilkan saat percakapan dipilih.
+                        </p>
                     </div>
                 </div>
 
-                {{-- Section: Label (CRM Tags) --}}
-                <div class="space-y-2">
-                    <div class="flex items-center justify-between text-[12px]">
-                        <span class="font-bold text-black/75 dark:text-white/75">{{ __('social_media.crm_labels') }}</span>
-                        <span class="text-[11px] text-[#007AFF] font-semibold cursor-pointer" @click="$refs.labelInput.focus()">{{ __('social_media.crm_manage_labels') }}</span>
-                    </div>
-
-                    {{-- Label Pills Display --}}
-                    <div class="flex flex-wrap gap-1.5">
-                        <template x-for="(label, idx) in (activeThread?.labels || [])" :key="idx">
-                            <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/25 flex items-center gap-1.5">
-                                <span x-text="label"></span>
-                                <button type="button" @click="removeLabel(idx)" class="hover:opacity-75 cursor-pointer">
-                                    <i data-lucide="x" class="w-3 h-3"></i>
-                                </button>
-                            </span>
-                        </template>
-                    </div>
-
-                    {{-- Add Label Input --}}
-                    <div class="relative pt-1">
-                        <input type="text" x-ref="labelInput" x-model="newLabelText" @keydown.enter.prevent="addLabel()"
-                            placeholder="{{ __('social_media.crm_add_label') }}"
-                            class="w-full px-3 py-1.5 rounded-[10px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/10 dark:border-white/10 text-[11.5px] text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/40">
-                    </div>
-
-                    {{-- Saran Label (Pills as in screenshot) --}}
-                    <div class="pt-1 space-y-1">
-                        <span class="text-[10.5px] font-semibold text-black/50 dark:text-white/50">{{ __('social_media.crm_suggested_labels') }}:</span>
-                        <div class="flex flex-wrap gap-1.5">
-                            <button type="button" @click="addSuggestedLabel('Pelanggan baru')"
-                                class="px-2 py-0.5 rounded-[8px] text-[10.5px] font-bold bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] hover:bg-[#34C759]/20 transition-colors cursor-pointer">
-                                Pelanggan baru
-                            </button>
-                            <button type="button" @click="addSuggestedLabel('Tanggal Hari Ini (' + new Date().toLocaleDateString('id-ID', {day: '2-digit', month: '2-digit'}) + ')')"
-                                class="px-2 py-0.5 rounded-[8px] text-[10.5px] font-medium bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08] transition-colors cursor-pointer">
-                                Tanggal Hari Ini
-                            </button>
-                            <button type="button" @click="addSuggestedLabel('Prospek Hangat')"
-                                class="px-2 py-0.5 rounded-[8px] text-[10.5px] font-bold bg-[#007AFF]/12 text-[#007AFF] hover:bg-[#007AFF]/20 transition-colors cursor-pointer">
-                                Prospek Hangat
-                            </button>
+                {{-- Konten Detail Profil saat ada percakapan aktif --}}
+                <div x-show="activeThread" class="space-y-5 flex-1 flex flex-col">
+                    {{-- Profile Card Header --}}
+                    <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-[#007AFF] to-[#5856D6] text-white flex items-center justify-center font-bold text-[16px] shadow-sm shrink-0">
+                                <span x-text="activeThread?.contact_name ? activeThread.contact_name.charAt(0) : 'U'"></span>
+                            </div>
+                            <div class="min-w-0">
+                                <h3 class="text-[14px] font-bold text-black dark:text-white truncate" x-text="activeThread?.contact_name || 'Pelanggan'"></h3>
+                                <span class="text-[11px] text-black/50 dark:text-white/50" x-text="activeThread?.contact_phone || 'Online Customer'"></span>
+                            </div>
                         </div>
-                    </div>
-                </div>
-
-                {{-- Section: Catatan (Internal CRM Notes) --}}
-                <div class="space-y-2 pt-2 border-t border-black/5 dark:border-white/10 flex-1 flex flex-col">
-                    <span class="font-bold text-black/75 dark:text-white/75 text-[12px]">{{ __('social_media.crm_notes') }}</span>
-                    <p class="text-[10.5px] text-black/50 dark:text-white/50 leading-tight">
-                        {{ __('social_media.crm_notes_desc') }}
-                    </p>
-
-                    {{-- Form Input Catatan --}}
-                    <div class="space-y-1.5 pt-1">
-                        <textarea x-model="newNoteText" rows="2"
-                            placeholder="{{ __('social_media.crm_note_placeholder') }}"
-                            class="w-full p-2.5 rounded-[10px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/10 dark:border-white/10 text-[11.5px] text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/40 resize-none"></textarea>
-                        <button type="button" @click="saveNote()" :disabled="!newNoteText.trim()"
-                            class="w-full py-1.5 rounded-[9px] bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 text-black dark:text-white text-[11px] font-bold transition-colors flex items-center justify-center gap-1 cursor-pointer disabled:opacity-40">
-                            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-                            <span>{{ __('social_media.crm_add_note') }}</span>
+                        <button type="button" class="text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white">
+                            <i data-lucide="more-horizontal" class="w-4 h-4"></i>
                         </button>
                     </div>
 
-                    {{-- List Riwayat Catatan --}}
-                    <div class="flex-1 overflow-y-auto space-y-2 pt-2">
-                        <template x-for="(note, idx) in (activeThread?.notes || [])" :key="idx">
-                            <div class="p-2.5 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 text-[11px] space-y-1">
-                                <p class="text-black/85 dark:text-white/85 leading-snug" x-text="note.text"></p>
-                                <div class="flex items-center justify-between text-[9.5px] text-black/45 dark:text-white/45">
-                                    <span x-text="note.author || 'Kasir'"></span>
-                                    <span x-text="note.time"></span>
-                                </div>
+                    {{-- Section: Tentang (About) --}}
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between text-[12px]">
+                            <span class="font-bold text-black/75 dark:text-white/75">{{ __('social_media.crm_about') }}</span>
+                            <a href="{{ route('customers.index') }}" class="text-[#007AFF] font-bold hover:underline text-[11px]">Edit</a>
+                        </div>
+                        <div class="p-3 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 text-[12px] space-y-1.5">
+                            <div class="flex items-center gap-2 text-black/80 dark:text-white/80 font-medium">
+                                <i data-lucide="phone" class="w-3.5 h-3.5 text-[#007AFF] shrink-0"></i>
+                                <span class="font-mono text-[11.5px]" x-text="activeThread?.contact_phone || 'Nomor telepon belum tersimpan'"></span>
                             </div>
-                        </template>
+                            <div class="pt-1 border-t border-black/5 dark:border-white/5 flex items-center justify-between">
+                                <a href="{{ route('customers.index') }}" class="text-[11px] text-[#007AFF] font-semibold hover:underline">
+                                    {{ __('social_media.crm_manage_leads') }}
+                                </a>
+                                <i data-lucide="external-link" class="w-3 h-3 text-[#007AFF]"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Section: Label (CRM Tags) --}}
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between text-[12px]">
+                            <span class="font-bold text-black/75 dark:text-white/75">{{ __('social_media.crm_labels') }}</span>
+                            <span class="text-[11px] text-[#007AFF] font-semibold cursor-pointer" @click="$refs.labelInput.focus()">{{ __('social_media.crm_manage_labels') }}</span>
+                        </div>
+
+                        {{-- Label Pills Display --}}
+                        <div class="flex flex-wrap gap-1.5">
+                            <template x-for="(label, idx) in (activeThread?.labels || [])" :key="idx">
+                                <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/25 flex items-center gap-1.5">
+                                    <span x-text="label"></span>
+                                    <button type="button" @click="removeLabel(idx)" class="hover:opacity-75 cursor-pointer">
+                                        <i data-lucide="x" class="w-3 h-3"></i>
+                                    </button>
+                                </span>
+                            </template>
+                        </div>
+
+                        {{-- Add Label Input --}}
+                        <div class="relative pt-1">
+                            <input type="text" x-ref="labelInput" x-model="newLabelText" @keydown.enter.prevent="addLabel()"
+                                placeholder="{{ __('social_media.crm_add_label') }}"
+                                class="w-full px-3 py-1.5 rounded-[10px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/10 dark:border-white/10 text-[11.5px] text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/40">
+                        </div>
+
+                        {{-- Saran Label (Pills as in screenshot) --}}
+                        <div class="pt-1 space-y-1">
+                            <span class="text-[10.5px] font-semibold text-black/50 dark:text-white/50">{{ __('social_media.crm_suggested_labels') }}:</span>
+                            <div class="flex flex-wrap gap-1.5">
+                                <button type="button" @click="addSuggestedLabel('Pelanggan baru')"
+                                    class="px-2 py-0.5 rounded-[8px] text-[10.5px] font-bold bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] hover:bg-[#34C759]/20 transition-colors cursor-pointer">
+                                    Pelanggan baru
+                                </button>
+                                <button type="button" @click="addSuggestedLabel('Tanggal Hari Ini (' + new Date().toLocaleDateString('id-ID', {day: '2-digit', month: '2-digit'}) + ')')"
+                                    class="px-2 py-0.5 rounded-[8px] text-[10.5px] font-medium bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08] transition-colors cursor-pointer">
+                                    Tanggal Hari Ini
+                                </button>
+                                <button type="button" @click="addSuggestedLabel('Prospek Hangat')"
+                                    class="px-2 py-0.5 rounded-[8px] text-[10.5px] font-bold bg-[#007AFF]/12 text-[#007AFF] hover:bg-[#007AFF]/20 transition-colors cursor-pointer">
+                                    Prospek Hangat
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Section: Catatan (Internal CRM Notes) --}}
+                    <div class="space-y-2 pt-2 border-t border-black/5 dark:border-white/10 flex-1 flex flex-col">
+                        <span class="font-bold text-black/75 dark:text-white/75 text-[12px]">{{ __('social_media.crm_notes') }}</span>
+                        <p class="text-[10.5px] text-black/50 dark:text-white/50 leading-tight">
+                            {{ __('social_media.crm_notes_desc') }}
+                        </p>
+
+                        {{-- Form Input Catatan --}}
+                        <div class="space-y-1.5 pt-1">
+                            <textarea x-model="newNoteText" rows="2"
+                                placeholder="{{ __('social_media.crm_note_placeholder') }}"
+                                class="w-full p-2.5 rounded-[10px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/10 dark:border-white/10 text-[11.5px] text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/40 resize-none"></textarea>
+                            <button type="button" @click="saveNote()" :disabled="!newNoteText.trim()"
+                                class="w-full py-1.5 rounded-[9px] bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 text-black dark:text-white text-[11px] font-bold transition-colors flex items-center justify-center gap-1 cursor-pointer disabled:opacity-40">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                <span>{{ __('social_media.crm_add_note') }}</span>
+                            </button>
+                        </div>
+
+                        {{-- List Riwayat Catatan --}}
+                        <div class="flex-1 overflow-y-auto space-y-2 pt-2">
+                            <template x-for="(note, idx) in (activeThread?.notes || [])" :key="idx">
+                                <div class="p-2.5 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 text-[11px] space-y-1">
+                                    <p class="text-black/85 dark:text-white/85 leading-snug" x-text="note.text"></p>
+                                    <div class="flex items-center justify-between text-[9.5px] text-black/45 dark:text-white/45">
+                                        <span x-text="note.author || 'Kasir'"></span>
+                                        <span x-text="note.time"></span>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -705,8 +784,10 @@
 
                 init() {
                     // Set default selected thread
-                    if (this.threads.length > 0) {
+                    if (this.threads && this.threads.length > 0) {
                         this.activeThread = this.threads[0];
+                    } else {
+                        this.activeThread = null;
                     }
                     this.$nextTick(() => {
                         this.scrollChatToBottom();

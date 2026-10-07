@@ -33,6 +33,52 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 - **Files Affected:** Daftar berkas controller, service, model, blade, atau route yang dimodifikasi.
 - **Database Changes:** Tabel baru, migrasi skema, kolom tambahan, atau indexing.
 
+### [WORK-2026-10-08-335] Eliminasi Total Data Mock / Hardcode dan Integrasi Penuh Data Riil Meta Graph API pada Kotak Masuk Omnichannel (/social-media/inbox)
+
+- **Date:** 2026-10-08
+- **Status:** COMPLETED
+- **Module:** Communication & Social Media Marketing (`app/Domain/SocialMedia/SocialMediaService.php`, `app/Http/Controllers/Web/SocialMedia/SocialMediaWebController.php`, `resources/views/app/social_media/inbox.blade.php`, `tests/Feature/SocialMedia/SocialMediaInboxAndAiIntegrationTest.php`)
+- **Feature:**
+  1. Penghapusan 100% data dummy, mock, dan string hardcode yang sebelumnya disuntikkan secara statis ("Agung Mustaqim", "alskhdljahsdljk", "Rian Pratama", "Siti Rahma", dan nomor telepon hardcode `'6285287864176'`).
+  2. Integrasi data riil penuh yang bersumber langsung dari database multi-tenant Cooca (`SocialMediaComment` dan `WhatsAppMessageLog`) serta sinkronisasi otomatis dari Meta Graph API (Facebook Page Messenger/Feed Comments dan Instagram Direct/Media Comments).
+  3. Mekanisme auto-sync Meta Inbox saat merchant membuka `/social-media/inbox` pertama kali apabila akun Meta aktif terhubung dan database komentar masih kosong.
+  4. Penyimpanan riil balasan merchant (`sendReply`) ke tabel `SocialMediaComment` dengan flag `is_from_page = true` dan relasi `parent_comment_id`, sehingga percakapan dua arah tersimpan permanen dan ter-render ke thread.
+  5. Penyusunan Empty State modern bertema Apple HIG Bento untuk Column 1 (Thread List), Column 2 (Chat Room), dan Column 3 (CRM Details) ketika akun baru belum memiliki pesan, lengkap dengan status koneksi Meta dan tombol CTA Sinkronisasi / Hubungkan Akun Meta.
+- **Work Type:** Bug Fix | Data Integrity | API Integration | UI/UX Refinement | Automated Test Suite Alignment
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Pedagang UMKM pengguna Cooca membutuhkan kotak masuk yang sepenuhnya menyajikan data percakapan pelanggan yang nyata (bukan data tiruan/dummy demo). Data tiruan dapat membingungkan pemilik bisnis dan mengaburkan riwayat interaksi asli dengan pembeli.
+- **Masalah/Target:**
+  1. Pada controller sebelumnya terdapat blok fallback `if (count($threads) < 2)` yang menyuntikkan data statis ("Agung Mustaqim", "alskhdljahsdljk", "Rian Pratama", "Siti Rahma", serta nomor telepon hardcode `'6285287864176'`).
+  2. Saat pemilik toko membalas pesan di kotak masuk, balasan belum dicatat ke database komentar sehingga thread dua arah terputus setelah reload.
+  3. Saat belum ada pesan masuk atau belum ada akun Meta yang terhubung, UI harus menampilkan Empty State elegan Apple HIG tanpa memalsukan pesan apa pun, serta menyediakan panduan tindakan (CTA) untuk sinkronisasi atau menghubungkan akun Meta.
+
+#### 2. What Was Done
+
+1. **Pembersihan Web Controller (`app/Http/Controllers/Web/SocialMedia/SocialMediaWebController.php`):**
+   - Menghapus total blok hardcode fallback (120+ baris) pada method `buildOmnichannelThreads()`. Thread murni dirakit dari rekaman riil `WhatsAppMessageLog` dan `SocialMediaComment` per tenant.
+   - Pada method `inbox()`: Menghapus nomor telepon fallback `'6285287864176'`. Menambahkan auto-sync Meta Graph API pada load pertama jika tenant memiliki akun Meta aktif (`$hasMetaConnected`) dan tabel komentar tenant masih kosong.
+   - Pada method `sendReply()`: Menghapus fallback hardcode `'6285287864176'`. Menyimpan rekaman balasan toko ke `SocialMediaComment` (`is_from_page = true`, `status = 'replied'`, `parent_comment_id = $platformCommentId`), serta mengupdate status komentar pelanggan menjadi `'replied'`.
+2. **Penyempurnaan Domain Service (`app/Domain/SocialMedia/SocialMediaService.php`):**
+   - Menambahkan penarikan percakapan Instagram Direct (`getInstagramConversations`) pada method `syncMetaInbox()`.
+   - Memastikan kolom `platform_post_id` memiliki fallback `'post_general'` agar aman terhadap constraint `NOT NULL` pada database SQLite/MySQL saat menangani direct messages.
+3. **Penyempurnaan Antarmuka Blade (`resources/views/app/social_media/inbox.blade.php`):**
+   - Tombol Click-to-chat WhatsApp di Column 1 hanya dirender jika nomor WhatsApp bisnis valid (`$cleanWaNumber` & `$waLink`).
+   - Column 1 Empty State: Menampilkan badge status akun Meta dan tombol CTA Sinkronisasi / Hubungkan Akun Meta saat `filteredThreads.length === 0`.
+   - Column 2 (Chat Room) Empty State: Tampil saat `!activeThread`, menampilkan ilustrasi Apple HIG bento, status Meta, dan CTA sinkronisasi. Seluruh ruang chat interaktif dibungkus `x-show="activeThread"`.
+   - Column 3 (CRM Details) Empty State: Tampil saat `!activeThread`, menyembunyikan form/catatan kosong dan menampilkan informasi edukatif penataan CRM.
+   - Guard inisialisasi Alpine.js `init()`: Menyetel `activeThread = null` secara aman saat `threads.length === 0`.
+4. **Automated Integration Testing (`tests/Feature/SocialMedia/SocialMediaInboxAndAiIntegrationTest.php`):**
+   - Menambahkan `test_inbox_does_not_contain_hardcoded_dummy_data_when_empty()`: Memastikan tidak ada teks hardcode ("Agung Mustaqim", "alskhdljahsdljk", "Rian Pratama", "Siti Rahma", "6285287864176") dan empty state tampil bersih.
+   - Menambahkan `test_send_reply_persists_outgoing_message_and_updates_status()`: Memverifikasi persistensi balasan toko ke `SocialMediaComment` dengan `is_from_page = true`.
+   - Seluruh 8 pengujian file ini lulus 100% (42 assertions), dan seluruh 83 pengujian pada test suite `tests/Feature/SocialMedia` lulus 100% (481 assertions).
+
+#### 3. Technical Changes
+
+- **Files Affected:** `app/Domain/SocialMedia/SocialMediaService.php`, `app/Http/Controllers/Web/SocialMedia/SocialMediaWebController.php`, `resources/views/app/social_media/inbox.blade.php`, `tests/Feature/SocialMedia/SocialMediaInboxAndAiIntegrationTest.php`, `docs/AiWorkHistory.md`.
+- **Database Changes:** Tidak ada migrasi skema baru (memanfaatkan kolom `is_from_page`, `parent_comment_id`, dan `status` pada tabel `social_media_comments`).
+
 ### [WORK-2026-10-08-334] Integrasi Sinkronisasi Meta Graph API pada Omnichannel Inbox (/social-media/inbox) dan Proteksi Wajib Konfigurasi AI (BYOAI)
 
 - **Date:** 2026-10-08

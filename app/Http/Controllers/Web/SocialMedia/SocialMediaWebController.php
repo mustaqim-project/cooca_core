@@ -873,6 +873,22 @@ class SocialMediaWebController extends Controller implements HasMiddleware
         $status = (string) $request->query('status', 'all');
         $channel = (string) $request->query('channel', 'all');
 
+        // Status Koneksi Meta (Facebook Page & Instagram)
+        $metaAccounts = SocialMediaAccount::where('business_id', $business->id)
+            ->where('status', 'active')
+            ->whereIn('platform', ['facebook', 'instagram'])
+            ->get();
+        $hasMetaConnected = $metaAccounts->isNotEmpty();
+
+        // Jika akun Meta aktif terhubung dan data komentar masih kosong, lakukan auto-sync awal dari Meta
+        if ($hasMetaConnected && SocialMediaComment::where('business_id', $business->id)->count() === 0) {
+            try {
+                $this->socialService->syncMetaInbox($business);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('[SocialMediaWebController] Auto-sync Meta inbox error: ' . $e->getMessage());
+            }
+        }
+
         $query = SocialMediaComment::where('business_id', $business->id)
             ->where('is_from_page', false)
             ->with(['account', 'post'])
@@ -894,12 +910,12 @@ class SocialMediaWebController extends Controller implements HasMiddleware
         $whatsAppAccount = \App\Models\WhatsAppAccount::where('business_id', $business->id)->first();
         $waSession = \App\Models\WhatsAppSession::where('business_id', $business->id)->first();
         $isWaActive = (bool) ($whatsAppAccount?->is_active ?? ($waSession?->status === 'connected'));
-        $waRawPhone = (string) ($whatsAppAccount?->display_phone_number ?: ($whatsAppAccount?->phone_number ?: ($waSession?->phone_number ?: ($business->phone ?: '6285287864176'))));
+        $waRawPhone = (string) ($whatsAppAccount?->display_phone_number ?: ($whatsAppAccount?->phone_number ?: ($waSession?->phone_number ?: ($business->phone ?: ''))));
         $cleanWaNumber = preg_replace('/[^0-9]/', '', $waRawPhone);
-        if (str_starts_with($cleanWaNumber, '0')) {
+        if (! empty($cleanWaNumber) && str_starts_with($cleanWaNumber, '0')) {
             $cleanWaNumber = '62' . substr($cleanWaNumber, 1);
         }
-        $waLink = "https://wa.me/{$cleanWaNumber}";
+        $waLink = ! empty($cleanWaNumber) ? "https://wa.me/{$cleanWaNumber}" : '';
 
         // Real Product Catalog (Knowledge Base Toko)
         $products = \App\Models\Product::where('business_id', $business->id)
@@ -923,13 +939,6 @@ class SocialMediaWebController extends Controller implements HasMiddleware
             ->where('api_key', '!=', '')
             ->first();
         $hasAiConfig = ($activeAiConfig !== null);
-
-        // Status Koneksi Meta (Facebook Page & Instagram)
-        $metaAccounts = SocialMediaAccount::where('business_id', $business->id)
-            ->where('status', 'active')
-            ->whereIn('platform', ['facebook', 'instagram'])
-            ->get();
-        $hasMetaConnected = $metaAccounts->isNotEmpty();
 
         return view('app.social_media.inbox', compact(
             'business',
@@ -971,12 +980,19 @@ class SocialMediaWebController extends Controller implements HasMiddleware
 
         // A. Kirim ke WhatsApp
         if ($channel === 'whatsapp') {
-            $phone = (string) ($validated['recipient_phone'] ?: '6285287864176');
+            $phone = (string) ($validated['recipient_phone'] ?: ($business->phone ?: ''));
+            if (empty($phone)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Nomor WhatsApp tujuan tidak valid. Mohon lengkapi nomor telepon penerima.',
+                ], 422);
+            }
+
             $recipientName = (string) ($validated['recipient_name'] ?: 'Pelanggan');
 
             $sendResult = $this->waGateway->sendTextMessage($business, $phone, $messageText);
 
-            \App\Models\WhatsAppMessageLog::create([
+            $log = \App\Models\WhatsAppMessageLog::create([
                 'business_id'     => $business->id,
                 'type'            => 'custom',
                 'recipient_phone' => $phone,
@@ -989,7 +1005,7 @@ class SocialMediaWebController extends Controller implements HasMiddleware
                 'success' => true,
                 'message' => 'Pesan WhatsApp berhasil dikirim.',
                 'outgoing_message' => [
-                    'id'          => 'msg_' . uniqid(),
+                    'id'          => 'wa_' . $log->id,
                     'sender'      => 'business',
                     'sender_name' => $business->name,
                     'text'        => $messageText,
@@ -1003,17 +1019,51 @@ class SocialMediaWebController extends Controller implements HasMiddleware
         if (! empty($validated['comment_id'])) {
             $comment = SocialMediaComment::where('business_id', $business->id)->find($validated['comment_id']);
             if ($comment) {
+                $replyRecord = null;
                 try {
-                    $this->socialService->replyComment($business, $comment, $messageText);
+                    $replyRecord = $this->socialService->replyComment($business, $comment, $messageText);
                 } catch (\Throwable $e) {
                     \Illuminate\Support\Facades\Log::channel('daily')->warning('[Inbox Reply] Reply comment platform warning: ' . $e->getMessage());
+
+                    // Fallback simpan balasan lokal agar riwayat percakapan tidak hilang jika Meta offline
+                    $replyRecord = SocialMediaComment::create([
+                        'business_id'             => $business->id,
+                        'social_media_account_id' => $comment->social_media_account_id,
+                        'social_media_post_id'    => $comment->social_media_post_id,
+                        'platform'                => $comment->platform,
+                        'platform_comment_id'     => 'reply_' . \Illuminate\Support\Str::uuid(),
+                        'platform_post_id'        => $comment->platform_post_id,
+                        'parent_comment_id'       => $comment->platform_comment_id ?: $comment->id,
+                        'from_id'                 => (string) ($comment->account?->account_id ?: $business->id),
+                        'from_name'               => $business->name,
+                        'message'                 => $messageText,
+                        'is_from_page'            => true,
+                        'status'                  => 'replied',
+                        'created_time'            => now(),
+                    ]);
+                    $comment->update(['status' => 'replied']);
                 }
+
+                $platformName = ucfirst((string) $comment->platform);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => "Balasan berhasil dikirim ke saluran {$platformName}.",
+                    'outgoing_message' => [
+                        'id'          => 'msg_' . ($replyRecord?->id ?? uniqid()),
+                        'sender'      => 'business',
+                        'sender_name' => $business->name,
+                        'text'        => $messageText,
+                        'time'        => now()->format('H.i'),
+                        'status'      => 'sent',
+                    ],
+                ]);
             }
         }
 
         return response()->json([
             'success' => true,
-            'message' => 'Balasan berhasil dikirim ke saluran pelanggan.',
+            'message' => 'Balasan berhasil diproses.',
             'outgoing_message' => [
                 'id'          => 'msg_' . uniqid(),
                 'sender'      => 'business',
@@ -1218,7 +1268,7 @@ class SocialMediaWebController extends Controller implements HasMiddleware
         $groupedWa = $waLogs->groupBy('recipient_phone');
         foreach ($groupedWa as $phone => $logs) {
             $latest = $logs->first();
-            $contactName = $latest->recipient_name ?: ('WhatsApp ' . substr($phone, -4));
+            $contactName = $latest->recipient_name ?: ('WhatsApp ' . substr((string) $phone, -4));
             $formattedMessages = [];
             foreach ($logs->reverse() as $l) {
                 $isIncoming = ($l->type === 'incoming');
@@ -1252,38 +1302,50 @@ class SocialMediaWebController extends Controller implements HasMiddleware
         }
 
         // 2. Ambil real Social Media Comments jika ada
-        foreach ($comments as $c) {
-            $platformKey = match (strtolower($c->platform)) {
-                'messenger' => 'messenger',
-                'instagram' => 'instagram',
-                'facebook'  => 'facebook_comments',
-                default     => 'instagram_comments',
-            };
-            $platformLabel = match ($platformKey) {
-                'messenger'          => 'Messenger',
-                'instagram'          => 'Instagram',
-                'facebook_comments'  => 'Komentar Facebook',
-                default              => 'Komentar Instagram',
-            };
+        if (! empty($comments)) {
+            $parentIdentifiers = [];
+            foreach ($comments as $c) {
+                if (! empty($c->id)) {
+                    $parentIdentifiers[] = (string) $c->id;
+                }
+                if (! empty($c->platform_comment_id)) {
+                    $parentIdentifiers[] = (string) $c->platform_comment_id;
+                }
+            }
 
-            $cName = $c->from_name ?: ($c->sender_name ?: ('Pengguna ' . $platformLabel));
-            $threads[] = [
-                'id'             => 'comm_' . $c->id,
-                'comment_id'     => $c->id,
-                'channel'        => $platformKey,
-                'channel_label'  => $platformLabel,
-                'contact_name'   => $cName,
-                'contact_phone'  => null,
-                'contact_avatar' => null,
-                'last_message'   => $c->message,
-                'last_time'      => $c->created_time ? $c->created_time->format('H.i') : now()->format('H.i'),
-                'unread'         => $c->status === 'unread',
-                'is_starred'     => false,
-                'status'         => $c->status,
-                'assigned_to'    => null,
-                'labels'         => [$platformLabel],
-                'notes'          => [],
-                'messages'       => [
+            $replies = SocialMediaComment::where('business_id', $business->id)
+                ->where('is_from_page', true)
+                ->whereIn('parent_comment_id', $parentIdentifiers)
+                ->orderBy('created_time', 'asc')
+                ->get();
+
+            $repliesGrouped = $replies->groupBy('parent_comment_id');
+
+            foreach ($comments as $c) {
+                $platformKey = match (strtolower((string) $c->platform)) {
+                    'messenger' => 'messenger',
+                    'instagram' => 'instagram',
+                    'facebook'  => 'facebook_comments',
+                    default     => 'instagram_comments',
+                };
+                $platformLabel = match ($platformKey) {
+                    'messenger'          => 'Messenger',
+                    'instagram'          => 'Instagram',
+                    'facebook_comments'  => 'Komentar Facebook',
+                    default              => 'Komentar Instagram',
+                };
+
+                $cName = $c->from_name ?: ($c->sender_name ?: ('Pengguna ' . $platformLabel));
+
+                $childReplies = collect();
+                if (! empty($c->platform_comment_id) && $repliesGrouped->has($c->platform_comment_id)) {
+                    $childReplies = $childReplies->merge($repliesGrouped->get($c->platform_comment_id));
+                }
+                if (! empty($c->id) && $repliesGrouped->has($c->id)) {
+                    $childReplies = $childReplies->merge($repliesGrouped->get($c->id));
+                }
+
+                $formattedMessages = [
                     [
                         'id'          => 'msg_' . $c->id,
                         'sender'      => 'customer',
@@ -1292,130 +1354,43 @@ class SocialMediaWebController extends Controller implements HasMiddleware
                         'time'        => $c->created_time ? $c->created_time->format('H.i') : now()->format('H.i'),
                         'status'      => 'received',
                     ],
-                ],
-            ];
-        }
+                ];
 
-        // 3. Sertakan thread interaktif awal (Identik dengan screenshot Meta Business Suite pengguna)
-        if (count($threads) < 2) {
-            $defaultWaThread = [
-                'id'             => 'demo_wa_1',
-                'channel'        => 'whatsapp',
-                'channel_label'  => 'WhatsApp',
-                'contact_name'   => 'Agung Mustaqim',
-                'contact_phone'  => '+62 821-1446-8457',
-                'contact_avatar' => null,
-                'last_message'   => 'alskhdljahsdljk',
-                'last_time'      => '19.53',
-                'unread'         => true,
-                'is_starred'     => false,
-                'status'         => 'unread',
-                'assigned_to'    => 'Agung Mustaqim',
-                'labels'         => ['Pelanggan baru', 'Tanggal Hari Ini (' . now()->format('d/m') . ')'],
-                'notes'          => [
-                    [
-                        'text'   => 'Terus lacak interaksi pelanggan yang penting.',
-                        'time'   => now()->format('d/m H.i'),
-                        'author' => 'Kasir Utama',
-                    ],
-                ],
-                'messages'       => [
-                    [
-                        'id'          => 'd_m1',
-                        'sender'      => 'customer',
-                        'sender_name' => 'Agung Mustaqim',
-                        'text'        => 'Halo kak, apakah ada diskon servis berkala & produk oli untuk hari ini?',
-                        'time'        => '19.50',
-                        'status'      => 'read',
-                    ],
-                    [
-                        'id'          => 'd_m2',
+                foreach ($childReplies as $cr) {
+                    $formattedMessages[] = [
+                        'id'          => 'reply_' . $cr->id,
                         'sender'      => 'business',
-                        'sender_name' => $business->name,
-                        'text'        => 'Halo Kak Agung! Ada promo spesial untuk pelanggan setia kami hari ini ya Kak 😊',
-                        'time'        => '19.51',
+                        'sender_name' => $cr->from_name ?: $business->name,
+                        'text'        => $cr->message,
+                        'time'        => $cr->created_time ? $cr->created_time->format('H.i') : now()->format('H.i'),
                         'status'      => 'sent',
-                    ],
-                    [
-                        'id'          => 'd_m3',
-                        'sender'      => 'customer',
-                        'sender_name' => 'Agung Mustaqim',
-                        'text'        => 'alskhdljahsdljk',
-                        'time'        => '19.53',
-                        'status'      => 'received',
-                    ],
-                ],
-            ];
+                    ];
+                }
 
-            $defaultMessengerThread = [
-                'id'             => 'demo_msg_1',
-                'channel'        => 'messenger',
-                'channel_label'  => 'Messenger',
-                'contact_name'   => 'Rian Pratama',
-                'contact_phone'  => null,
-                'contact_avatar' => null,
-                'last_message'   => 'Halo min, toko buka sampai jam berapa ya?',
-                'last_time'      => '18.30',
-                'unread'         => false,
-                'is_starred'     => true,
-                'status'         => 'replied',
-                'assigned_to'    => 'Admin Toko',
-                'labels'         => ['Prospek Hangat'],
-                'notes'          => [
-                    [
-                        'text'   => 'Tertarik dengan katalog produk unggulan.',
-                        'time'   => now()->format('d/m H.i'),
-                        'author' => 'Admin Toko',
-                    ],
-                ],
-                'messages'       => [
-                    [
-                        'id'          => 'dm_1',
-                        'sender'      => 'customer',
-                        'sender_name' => 'Rian Pratama',
-                        'text'        => 'Halo min, toko buka sampai jam berapa ya?',
-                        'time'        => '18.25',
-                        'status'      => 'read',
-                    ],
-                    [
-                        'id'          => 'dm_2',
-                        'sender'      => 'business',
-                        'sender_name' => $business->name,
-                        'text'        => 'Halo Kak Rian, toko kami buka setiap hari sampai pukul 21.00 WIB ya! Ada yang bisa kami bantu? 🙏',
-                        'time'        => '18.30',
-                        'status'      => 'sent',
-                    ],
-                ],
-            ];
+                $lastMsg = $childReplies->isNotEmpty() ? $childReplies->last()->message : $c->message;
+                $lastTime = $childReplies->isNotEmpty() && $childReplies->last()->created_time
+                    ? $childReplies->last()->created_time->format('H.i')
+                    : ($c->created_time ? $c->created_time->format('H.i') : now()->format('H.i'));
 
-            $defaultIgThread = [
-                'id'             => 'demo_ig_1',
-                'channel'        => 'instagram',
-                'channel_label'  => 'Instagram',
-                'contact_name'   => 'Siti Rahma',
-                'contact_phone'  => null,
-                'contact_avatar' => null,
-                'last_message'   => 'Bisa kirim ke luar kota kak? Estimasi ongkir berapa ya?',
-                'last_time'      => '17.15',
-                'unread'         => true,
-                'is_starred'     => false,
-                'status'         => 'unread',
-                'assigned_to'    => null,
-                'labels'         => ['Online Shopper'],
-                'notes'          => [],
-                'messages'       => [
-                    [
-                        'id'          => 'dig_1',
-                        'sender'      => 'customer',
-                        'sender_name' => 'Siti Rahma',
-                        'text'        => 'Bisa kirim ke luar kota kak? Estimasi ongkir berapa ya?',
-                        'time'        => '17.15',
-                        'status'      => 'received',
-                    ],
-                ],
-            ];
-
-            array_unshift($threads, $defaultWaThread, $defaultMessengerThread, $defaultIgThread);
+                $threads[] = [
+                    'id'             => 'comm_' . $c->id,
+                    'comment_id'     => $c->id,
+                    'channel'        => $platformKey,
+                    'channel_label'  => $platformLabel,
+                    'contact_name'   => $cName,
+                    'contact_phone'  => null,
+                    'contact_avatar' => null,
+                    'last_message'   => $lastMsg,
+                    'last_time'      => $lastTime,
+                    'unread'         => $c->status === 'unread',
+                    'is_starred'     => false,
+                    'status'         => $childReplies->isNotEmpty() ? 'replied' : $c->status,
+                    'assigned_to'    => null,
+                    'labels'         => [$platformLabel],
+                    'notes'          => [],
+                    'messages'       => $formattedMessages,
+                ];
+            }
         }
 
         return $threads;

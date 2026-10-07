@@ -600,7 +600,7 @@ class SocialMediaService
                                         [
                                             'social_media_account_id' => $account->id,
                                             'social_media_post_id'    => null,
-                                            'platform_post_id'        => $convId ?: null,
+                                            'platform_post_id'        => $convId ?: 'post_general',
                                             'parent_comment_id'       => null,
                                             'from_id'                 => $fromId,
                                             'from_name'               => $fromName,
@@ -627,7 +627,7 @@ class SocialMediaService
                                     [
                                         'social_media_account_id' => $account->id,
                                         'social_media_post_id'    => null,
-                                        'platform_post_id'        => $convId ?: null,
+                                        'platform_post_id'        => $convId ?: 'post_general',
                                         'parent_comment_id'       => null,
                                         'from_id'                 => $senderId ?: null,
                                         'from_name'               => $senderName,
@@ -723,6 +723,46 @@ class SocialMediaService
                     }
                 } catch (\Throwable $e) {
                     Log::warning("[SocialMediaService] Sync IG comments error: {$e->getMessage()}");
+                }
+
+                // 4. Sync Instagram Direct Conversations (jika akun Instagram Business mengizinkan)
+                try {
+                    $igConversations = $this->client->getInstagramConversations($accountId, $token);
+                    foreach ($igConversations as $conv) {
+                        $convId = (string) ($conv['id'] ?? '');
+                        $messages = (array) data_get($conv, 'messages.data', []);
+                        foreach ($messages as $msg) {
+                            $fromId = (string) data_get($msg, 'from.id');
+                            $fromUsername = (string) (data_get($msg, 'from.username') ?: (data_get($msg, 'from.name') ?: 'Pengguna Instagram'));
+                            $text = (string) ($msg['message'] ?? '');
+                            $msgId = (string) ($msg['id'] ?? '');
+
+                            if (! empty($msgId) && ! empty($text) && $fromId !== $accountId) {
+                                SocialMediaComment::updateOrCreate(
+                                    [
+                                        'business_id'         => $business->id,
+                                        'platform'            => 'instagram',
+                                        'platform_comment_id' => $msgId,
+                                    ],
+                                    [
+                                        'social_media_account_id' => $account->id,
+                                        'social_media_post_id'    => null,
+                                        'platform_post_id'        => $convId ?: 'post_general',
+                                        'parent_comment_id'       => null,
+                                        'from_id'                 => $fromId,
+                                        'from_name'               => '@' . ltrim($fromUsername, '@'),
+                                        'message'                 => $text,
+                                        'is_from_page'            => false,
+                                        'status'                  => 'unread',
+                                        'created_time'            => isset($msg['created_time']) ? \Illuminate\Support\Carbon::parse($msg['created_time']) : now(),
+                                    ]
+                                );
+                                $syncedCount++;
+                            }
+                        }
+                    }
+                } catch (\Throwable $e) {
+                    Log::warning("[SocialMediaService] Sync IG direct conversations error: {$e->getMessage()}");
                 }
             }
         }

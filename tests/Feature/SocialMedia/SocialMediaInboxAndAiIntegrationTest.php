@@ -246,4 +246,61 @@ final class SocialMediaInboxAndAiIntegrationTest extends TestCase
             'message'             => 'Bisa COD ke Bandung kah?',
         ]);
     }
+
+    public function test_inbox_does_not_contain_hardcoded_dummy_data_when_empty(): void
+    {
+        $response = $this->actingAs($this->owner)
+            ->get(route('social-media.inbox.index'));
+
+        $response->assertStatus(200);
+
+        // Pastikan TIDAK ADA data hardcore / dummy / demo
+        $response->assertDontSee('Agung Mustaqim');
+        $response->assertDontSee('alskhdljahsdljk');
+        $response->assertDontSee('Rian Pratama');
+        $response->assertDontSee('Siti Rahma');
+        $response->assertDontSee('6285287864176');
+
+        // Pastikan empty state profesional tampil
+        $response->assertSee('Ruang Obrolan Omnichannel');
+    }
+
+    public function test_send_reply_persists_outgoing_message_and_updates_status(): void
+    {
+        $comment = SocialMediaComment::create([
+            'business_id'         => $this->business->id,
+            'platform'            => 'facebook',
+            'platform_post_id'    => 'post_meta_777',
+            'platform_comment_id' => 'cust_comm_111',
+            'from_id'             => 'cust_999',
+            'from_name'           => 'Budi Santoso',
+            'message'             => 'Apakah barang ready?',
+            'is_from_page'        => false,
+            'status'              => 'unread',
+            'created_time'        => now(),
+        ]);
+
+        $response = $this->actingAs($this->owner)
+            ->postJson(route('social-media.inbox.send-reply'), [
+                'channel'         => 'facebook_comments',
+                'message'         => 'Halo Budi, barang ready dan siap kirim!',
+                'comment_id'      => $comment->id,
+                'conversation_id' => 'comm_' . $comment->id,
+            ]);
+
+        $response->assertStatus(200);
+        $this->assertTrue($response->json('success'));
+
+        // Verifikasi balasan tersimpan di database dengan is_from_page = true
+        $this->assertDatabaseHas('social_media_comments', [
+            'business_id'       => $this->business->id,
+            'parent_comment_id' => $comment->platform_comment_id,
+            'is_from_page'      => true,
+            'message'           => 'Halo Budi, barang ready dan siap kirim!',
+            'status'            => 'replied',
+        ]);
+
+        // Verifikasi status komentar parent di-update menjadi replied
+        $this->assertSame('replied', $comment->fresh()->status);
+    }
 }
