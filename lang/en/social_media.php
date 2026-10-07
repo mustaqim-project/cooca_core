@@ -136,6 +136,17 @@ return [
     'preview_select_channels' => 'Select Channels',
     'no_photo_preview' => 'No feed photo uploaded yet',
     'no_caption_preview' => 'No caption written yet...',
+    'aspect_ratio_label' => 'Social Media Preview Ratio',
+    'aspect_ratio_desc_4_5' => '4:5 (1080×1350 px) • Instagram Feed Portrait Optimal',
+    'aspect_ratio_desc_1_1' => '1:1 (1080×1080 px) • Square Feed',
+    'aspect_ratio_desc_9_16' => '9:16 (1080×1920 px) • Reels, TikTok & Stories Vertical',
+    'aspect_ratio_desc_16_9' => '16:9 (1920×1080 px) • Video Landscape Horizontal',
+    'aspect_ratio_desc_text' => 'Social Media Text Status Card',
+    'fit_mode_label' => 'Media Fit Mode',
+    'fit_mode_cover' => 'Fill & Crop (Cover)',
+    'fit_mode_contain' => 'Fit Entire Image (Contain)',
+    'reels_audio_original' => 'Original Audio • :business',
+    'follow_badge' => 'Follow',
 
     // Industry Guardrails
     'guardrail_pharmacy_title' => 'BPOM & Prescription Drug Promotion Guardrail',

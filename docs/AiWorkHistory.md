@@ -34,6 +34,50 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 - **Database Changes:** Tabel baru, migrasi skema, kolom tambahan, atau indexing.
 - **API / Route Changes:** Endpoint baru atau perubahan signature HTTP.
 
+### [WORK-2026-10-07-327] Standarisasi Aspek Rasio & Ukuran Multi-Format Live Preview Media Sosial (Feed IG 4:5, Square 1:1, Reels 9:16, Landscape 16:9)
+
+- **Date:** 2026-10-07
+- **Status:** COMPLETED
+- **Module:** Social Media Suite (`resources/views/app/social_media/posts.blade.php`, `lang/id/social_media.php`, `lang/en/social_media.php`)
+- **Feature:** Live Smartphone Feed & Reels Simulator Multi-Aspect Ratio Adaptor (4:5, 1:1, 9:16, 16:9), Dynamic Fit Modes (Cover vs Contain), Automatic Aspect Ratio & Format Detection for Uploaded Images/Videos, and Native Reels/TikTok Overlay Simulation.
+- **Work Type:** UI/UX (Apple HIG Bento) | Feature | Architecture | Responsive UI/UX | Localization
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Pada saat UMKM membuat atau menjadwalkan konten di studio publikasi (`/social-media/posts`), konten foto dan video memiliki spesifikasi dimensi yang bervariasi sesuai algoritma platform (Instagram Feed Portrait 4:5 [1080x1350], Feed Persegi 1:1 [1080x1080], Reels/Stories/TikTok Vertikal Penuh 9:16 [1080x1920], dan Video Lanskap 16:9 [1920x1080]).
+- **Masalah/Target:** Live preview smartphone simulator sebelumnya hanya memiliki satu ukuran kontainer statis yang tidak mencerminkan tampilan sebenarnya di feed pengguna atau di Reels, serta tidak menyediakan kontrol aspect ratio maupun simulasi antarmuka Reels (floating action bar, bottom gradient overlay, profil, caption snippet, audio pill). Target: Membuat simulator adaptif penuh yang responsif terhadap aspek rasio yang dipilih dan mendeteksi rasio media secara otomatis saat file diunggah.
+
+#### 2. What Was Done
+
+1. **Toolbar Pemilihan Aspek Rasio & Fit Mode Interaktif:**
+   - Menambahkan 4 pill kontrol rasio aspek:
+     - `4:5` (Feed IG Portrait - 1080×1350 px, optimal feed portrait)
+     - `1:1` (Square Feed - 1080×1080 px, feed klasik Facebook & IG)
+     - `9:16` (Reels / TikTok / Stories - 1080×1920 px, video vertikal layar penuh)
+     - `16:9` (Landscape Video - 1920×1080 px, YouTube & Facebook horizontal)
+   - Menyediakan toggle mode pemotongan media (`cover` untuk mengisi layar penuh vs `contain` dengan latar belakang hitam agar gambar/video tidak terpotong).
+2. **Simulasi Antarmuka Asli Reels / TikTok (9:16 Mode):**
+   - Menampilkan bar navigasi atas Reels dengan tombol kamera.
+   - Menampilkan floating right action buttons (Love 12.5k, Komentar 342, Share 1.2k, dan piringan musik berputar).
+   - Menampilkan overlay gradien bawah dengan avatar profil bisnis, nama akun, lencana "Ikuti", cuplikan teks caption, serta audio bar "Suara Asli - [Nama Bisnis]".
+3. **Deteksi Otomatis (Smart Auto-Detection):**
+   - Mengintegrasikan deteksi metadata video HTML5 (`vid.onloadedmetadata`) dan gambar (`img.onload`) saat berkas diunggah, secara instan menyinkronkan `previewAspectRatio` ke 16:9, 9:16, 4:5, atau 1:1.
+   - Sinkronisasi otomatis saat mengganti format media (klik tab Reels langsung mengubah rasio ke 9:16; klik Photo/Carousel kembali ke 4:5).
+4. **Lokalisasi Lengkap (i18n):**
+   - Menambahkan string bahasa baru di `lang/id/social_media.php` dan `lang/en/social_media.php` untuk rasio aspek, deskripsi ukuran, mode pas, audio Reels, dan badge follow.
+
+#### 3. Technical Changes
+
+- **Files Affected:**
+  - `resources/views/app/social_media/posts.blade.php`
+  - `lang/id/social_media.php`
+  - `lang/en/social_media.php`
+- **Testing & Verification:**
+  - `tests/Feature/SocialMedia`: 75 tests, 439 assertions — **100% Passed**.
+  - `tests/Feature/WhatsApp`: 58 tests, 369 assertions — **100% Passed**.
+
+---
+
 ### [WORK-2026-10-07-326] Restrukturisasi UI/UX & Standarisasi Omnichannel Media Sosial & WhatsApp Suite (Reorganisasi Kartu Koneksi, Full Studio Post Modal, Integrasi Meta Messenger, Metrik Real & Galeri Media, Reduksi Kepadatan WhatsApp & Perbaikan Backdrop Blast Modal)
 
 - **Date:** 2026-10-07

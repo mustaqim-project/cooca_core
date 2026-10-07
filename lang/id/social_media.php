@@ -136,6 +136,17 @@ return [
     'preview_select_channels' => 'Pilih Saluran',
     'no_photo_preview' => 'Foto feed belum diunggah',
     'no_caption_preview' => 'Belum ada caption ditulis...',
+    'aspect_ratio_label' => 'Ukuran Pratinjau Sosmed',
+    'aspect_ratio_desc_4_5' => '4:5 (1080×1350 px) • Feed IG Portrait Optimal',
+    'aspect_ratio_desc_1_1' => '1:1 (1080×1080 px) • Feed Square Bujur Sangkar',
+    'aspect_ratio_desc_9_16' => '9:16 (1080×1920 px) • Reels, TikTok & Stories Vertikal',
+    'aspect_ratio_desc_16_9' => '16:9 (1920×1080 px) • Video Landscape Horizontal',
+    'aspect_ratio_desc_text' => 'Kartu Status Teks Media Sosial',
+    'fit_mode_label' => 'Tampilan Media',
+    'fit_mode_cover' => 'Isi Penuh (Crop)',
+    'fit_mode_contain' => 'Ukuran Asli (Fit)',
+    'reels_audio_original' => 'Suara Asli • :business',
+    'follow_badge' => 'Ikuti',
 
     // Industry Guardrails
     'guardrail_pharmacy_title' => 'Guardrail BPOM & Iklan Obat Keras',

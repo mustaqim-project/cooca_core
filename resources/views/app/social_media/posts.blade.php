@@ -1109,15 +1109,83 @@
                                         <i data-lucide="smartphone" class="w-3.5 h-3.5 text-[#007AFF]"></i>
                                         <span>{{ __('social_media.live_preview_title') }}</span>
                                     </div>
-                                    <div class="flex items-center gap-1">
+                                    <div class="flex items-center gap-1.5">
                                         <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#007AFF]/10 text-[#007AFF]" x-text="mediaFormat.toUpperCase()"></span>
+                                        <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-black/70 dark:text-white/70" x-text="previewAspectRatio"></span>
+                                    </div>
+                                </div>
+
+                                {{-- Aspect Ratio & Social Media Size Toolbar --}}
+                                <div class="space-y-1.5" x-show="mediaFormat !== 'text'">
+                                    <div class="flex items-center justify-between text-[11px]">
+                                        <span class="font-bold text-black/60 dark:text-white/60">{{ __('social_media.aspect_ratio_label') }}:</span>
+                                        <span class="text-[10px] font-medium text-[#007AFF] truncate max-w-[210px]" x-text="getAspectRatioDescription()"></span>
+                                    </div>
+                                    <div class="grid grid-cols-4 gap-1 p-1 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] text-[11px] font-bold">
+                                        {{-- 4:5 Feed IG Portrait --}}
+                                        <button type="button" @click="previewAspectRatio = '4:5'"
+                                            :class="previewAspectRatio === '4:5' ? 'bg-white dark:bg-[#2C2C2E] text-[#007AFF] shadow-xs ring-1 ring-[#007AFF]/30' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
+                                            class="py-1.5 rounded-[9px] transition-all flex flex-col items-center justify-center gap-0.5 cursor-pointer">
+                                            <span class="text-[12px]">4:5</span>
+                                            <span class="text-[9px] opacity-75 font-normal">Feed IG</span>
+                                        </button>
+                                        {{-- 1:1 Square Feed --}}
+                                        <button type="button" @click="previewAspectRatio = '1:1'"
+                                            :class="previewAspectRatio === '1:1' ? 'bg-white dark:bg-[#2C2C2E] text-[#007AFF] shadow-xs ring-1 ring-[#007AFF]/30' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
+                                            class="py-1.5 rounded-[9px] transition-all flex flex-col items-center justify-center gap-0.5 cursor-pointer">
+                                            <span class="text-[12px]">1:1</span>
+                                            <span class="text-[9px] opacity-75 font-normal">Square</span>
+                                        </button>
+                                        {{-- 9:16 Reels / TikTok --}}
+                                        <button type="button" @click="previewAspectRatio = '9:16'"
+                                            :class="previewAspectRatio === '9:16' ? 'bg-white dark:bg-[#2C2C2E] text-[#AF52DE] shadow-xs ring-1 ring-[#AF52DE]/30' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
+                                            class="py-1.5 rounded-[9px] transition-all flex flex-col items-center justify-center gap-0.5 cursor-pointer">
+                                            <span class="text-[12px]">9:16</span>
+                                            <span class="text-[9px] opacity-75 font-normal">Reels</span>
+                                        </button>
+                                        {{-- 16:9 Landscape Video --}}
+                                        <button type="button" @click="previewAspectRatio = '16:9'"
+                                            :class="previewAspectRatio === '16:9' ? 'bg-white dark:bg-[#2C2C2E] text-[#FF9500] shadow-xs ring-1 ring-[#FF9500]/30' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
+                                            class="py-1.5 rounded-[9px] transition-all flex flex-col items-center justify-center gap-0.5 cursor-pointer">
+                                            <span class="text-[12px]">16:9</span>
+                                            <span class="text-[9px] opacity-75 font-normal">Landscape</span>
+                                        </button>
+                                    </div>
+
+                                    {{-- Fit / Cover mode pill switcher --}}
+                                    <div class="flex items-center justify-between text-[10.5px] px-1 pt-0.5 text-black/50 dark:text-white/50">
+                                        <span>{{ __('social_media.fit_mode_label') }}:</span>
+                                        <div class="inline-flex items-center gap-1.5">
+                                            <button type="button" @click="mediaFitMode = 'cover'"
+                                                :class="mediaFitMode === 'cover' ? 'text-[#007AFF] font-bold underline' : 'hover:text-black dark:hover:text-white'"
+                                                class="cursor-pointer">
+                                                {{ __('social_media.fit_mode_cover') }}
+                                            </button>
+                                            <span>•</span>
+                                            <button type="button" @click="mediaFitMode = 'contain'"
+                                                :class="mediaFitMode === 'contain' ? 'text-[#007AFF] font-bold underline' : 'hover:text-black dark:hover:text-white'"
+                                                class="cursor-pointer">
+                                                {{ __('social_media.fit_mode_contain') }}
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
 
                                 {{-- Phone Card Container --}}
                                 <div class="rounded-[18px] bg-white dark:bg-[#151516] border border-black/10 dark:border-white/10 shadow-md overflow-hidden text-black dark:text-white">
-                                    {{-- Post Card Header --}}
-                                    <div class="p-3 flex items-center justify-between">
+                                    {{-- Reels Top Bar (when 9:16) --}}
+                                    <div x-show="previewAspectRatio === '9:16'" class="px-3.5 py-2.5 bg-black text-white flex items-center justify-between text-[11px] font-bold">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="text-[13px] tracking-tight">Reels</span>
+                                            <i data-lucide="chevron-down" class="w-3.5 h-3.5 opacity-70"></i>
+                                        </div>
+                                        <div class="flex items-center gap-3 opacity-80">
+                                            <i data-lucide="camera" class="w-4 h-4"></i>
+                                        </div>
+                                    </div>
+
+                                    {{-- Post Card Header (Feed mode: 4:5, 1:1, 16:9) --}}
+                                    <div x-show="previewAspectRatio !== '9:16'" class="p-3 flex items-center justify-between">
                                         <div class="flex items-center gap-2 min-w-0">
                                             <div class="w-8 h-8 rounded-full bg-[#007AFF] text-white font-bold text-[12px] flex items-center justify-center shrink-0 shadow-xs">
                                                 {{ strtoupper(substr($business->name, 0, 1)) }}
@@ -1135,17 +1203,17 @@
                                     </div>
 
                                     {{-- Post Media Display Area --}}
-                                    <div class="bg-black/5 dark:bg-black/30 relative flex items-center justify-center overflow-hidden"
-                                        :class="mediaFormat === 'reels' ? 'aspect-[9/16] max-h-[380px]' : (mediaFormat === 'text' ? 'min-h-[160px] p-5' : 'aspect-square')">
+                                    <div class="bg-black/5 dark:bg-black/30 relative flex items-center justify-center overflow-hidden transition-all duration-200"
+                                        :class="getPreviewAspectClass()">
 
                                         {{-- Photo Preview --}}
                                         <template x-if="mediaFormat === 'photo'">
                                             <div class="w-full h-full flex items-center justify-center">
                                                 <template x-if="filePreviewUrl">
-                                                    <img :src="filePreviewUrl" class="w-full h-full object-cover">
+                                                    <img :src="filePreviewUrl" class="w-full h-full" :class="mediaFitMode === 'contain' ? 'object-contain bg-black' : 'object-cover'">
                                                 </template>
                                                 <template x-if="!filePreviewUrl && mediaSourceTab === 'url' && mediaUrl">
-                                                    <img :src="mediaUrl" class="w-full h-full object-cover">
+                                                    <img :src="mediaUrl" class="w-full h-full" :class="mediaFitMode === 'contain' ? 'object-contain bg-black' : 'object-cover'">
                                                 </template>
                                                 <template x-if="!filePreviewUrl && (!mediaUrl || mediaSourceTab !== 'url')">
                                                     <div class="text-center p-6 space-y-2">
@@ -1164,10 +1232,10 @@
                                                 <template x-if="carouselItems.length > 0">
                                                     <div class="w-full h-full relative">
                                                         <template x-if="carouselItems[activePreviewSlide] && carouselItems[activePreviewSlide].mime.startsWith('image/')">
-                                                            <img :src="carouselItems[activePreviewSlide].previewUrl" class="w-full h-full object-cover">
+                                                            <img :src="carouselItems[activePreviewSlide].previewUrl" class="w-full h-full" :class="mediaFitMode === 'contain' ? 'object-contain bg-black' : 'object-cover'">
                                                         </template>
                                                         <template x-if="carouselItems[activePreviewSlide] && carouselItems[activePreviewSlide].mime.startsWith('video/')">
-                                                            <video :src="carouselItems[activePreviewSlide].previewUrl" class="w-full h-full object-cover" controls></video>
+                                                            <video :src="carouselItems[activePreviewSlide].previewUrl" class="w-full h-full" :class="mediaFitMode === 'contain' ? 'object-contain bg-black' : 'object-cover'" controls></video>
                                                         </template>
                                                         {{-- Slide Counter Pill --}}
                                                         <div class="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-white text-[10px] font-bold">
@@ -1203,10 +1271,10 @@
                                         <template x-if="mediaFormat === 'video' || mediaFormat === 'reels'">
                                             <div class="w-full h-full flex items-center justify-center">
                                                 <template x-if="filePreviewUrl">
-                                                    <video :src="filePreviewUrl" controls class="w-full h-full object-cover bg-black"></video>
+                                                    <video :src="filePreviewUrl" controls class="w-full h-full bg-black" :class="mediaFitMode === 'contain' ? 'object-contain' : 'object-cover'"></video>
                                                 </template>
                                                 <template x-if="!filePreviewUrl && mediaSourceTab === 'url' && mediaUrl">
-                                                    <video :src="mediaUrl" controls class="w-full h-full object-cover bg-black"></video>
+                                                    <video :src="mediaUrl" controls class="w-full h-full bg-black" :class="mediaFitMode === 'contain' ? 'object-contain' : 'object-cover'"></video>
                                                 </template>
                                                 <template x-if="!filePreviewUrl && (!mediaUrl || mediaSourceTab !== 'url')">
                                                     <div class="text-center p-6 space-y-2">
@@ -1225,10 +1293,51 @@
                                                 <p class="text-[14px] font-bold leading-relaxed line-clamp-5" x-text="captionText || '{{ __('social_media.no_caption_preview') }}'"></p>
                                             </div>
                                         </template>
+
+                                        {{-- Reels Floating Actions Overlay (9:16) --}}
+                                        <div x-show="previewAspectRatio === '9:16'" class="absolute right-2.5 bottom-12 flex flex-col items-center gap-3 z-10 text-white drop-shadow-md pointer-events-none">
+                                            <div class="flex flex-col items-center gap-0.5">
+                                                <div class="w-7 h-7 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center">
+                                                    <i data-lucide="heart" class="w-3.5 h-3.5 text-white"></i>
+                                                </div>
+                                                <span class="text-[9.5px] font-bold">12.5k</span>
+                                            </div>
+                                            <div class="flex flex-col items-center gap-0.5">
+                                                <div class="w-7 h-7 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center">
+                                                    <i data-lucide="message-circle" class="w-3.5 h-3.5 text-white"></i>
+                                                </div>
+                                                <span class="text-[9.5px] font-bold">342</span>
+                                            </div>
+                                            <div class="flex flex-col items-center gap-0.5">
+                                                <div class="w-7 h-7 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center">
+                                                    <i data-lucide="send" class="w-3.5 h-3.5 text-white"></i>
+                                                </div>
+                                                <span class="text-[9.5px] font-bold">1.2k</span>
+                                            </div>
+                                            <div class="w-7 h-7 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center border border-white/30 animate-spin" style="animation-duration: 4s;">
+                                                <i data-lucide="music" class="w-3 h-3 text-white"></i>
+                                            </div>
+                                        </div>
+
+                                        {{-- Reels Bottom Overlay (9:16) --}}
+                                        <div x-show="previewAspectRatio === '9:16'" class="absolute inset-x-0 bottom-0 p-3 pt-6 bg-gradient-to-t from-black/85 via-black/45 to-transparent text-white z-10 text-left space-y-1 pointer-events-none">
+                                            <div class="flex items-center gap-1.5">
+                                                <div class="w-5 h-5 rounded-full bg-[#007AFF] text-white font-bold text-[9px] flex items-center justify-center shrink-0">
+                                                    {{ strtoupper(substr($business->name, 0, 1)) }}
+                                                </div>
+                                                <span class="text-[11px] font-bold truncate">{{ $business->name }}</span>
+                                                <span class="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-white/20 border border-white/30 backdrop-blur-sm">{{ __('social_media.follow_badge') }}</span>
+                                            </div>
+                                            <p class="text-[10.5px] leading-snug line-clamp-2 text-white/95" x-text="captionText || '{{ __('social_media.no_caption_preview') }}'"></p>
+                                            <div class="flex items-center gap-1 text-[9.5px] text-white/80">
+                                                <i data-lucide="music-2" class="w-3 h-3 text-[#34C759]"></i>
+                                                <span class="truncate">{{ __('social_media.reels_audio_original', ['business' => $business->name]) }}</span>
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    {{-- Post Action Buttons Mockup --}}
-                                    <div class="p-3 border-t border-black/5 dark:border-white/5 space-y-2">
+                                    {{-- Post Action Buttons Mockup (Feed mode: 4:5, 1:1, 16:9) --}}
+                                    <div x-show="previewAspectRatio !== '9:16'" class="p-3 border-t border-black/5 dark:border-white/10 space-y-2">
                                         <div class="flex items-center justify-between text-black/60 dark:text-white/60">
                                             <div class="flex items-center gap-3">
                                                 <i data-lucide="heart" class="w-4 h-4"></i>
@@ -1250,6 +1359,12 @@
                                                 <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#007AFF]/10 text-[#007AFF]" x-text="tag"></span>
                                             </template>
                                         </div>
+                                    </div>
+
+                                    {{-- Reels Footer Info (9:16) --}}
+                                    <div x-show="previewAspectRatio === '9:16'" class="p-2.5 px-3 border-t border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.02] text-[11px] text-black/60 dark:text-white/60 flex items-center justify-between">
+                                        <span class="font-medium">9:16 Vertikal Penuh</span>
+                                        <span class="text-[10px] font-mono font-bold text-[#AF52DE]">Reels / Stories / TikTok</span>
                                     </div>
                                 </div>
                             </div>
@@ -1514,6 +1629,10 @@
                 videoRatio: null,
                 isLandscapeVideo: false,
                 isSubmitting: false,
+
+                // Aspect Ratio & Preview Settings
+                previewAspectRatio: '4:5',
+                mediaFitMode: 'cover',
 
                 // ── Post Preview & Manager Modal ──
                 postManagerOpen: false,
@@ -1804,12 +1923,52 @@
                     }
                 },
 
+                getPreviewAspectClass() {
+                    if (this.mediaFormat === 'text') return '';
+                    if (this.previewAspectRatio === '9:16') {
+                        return 'aspect-[9/16] max-h-[500px]';
+                    }
+                    if (this.previewAspectRatio === '1:1') {
+                        return 'aspect-square max-h-[380px]';
+                    }
+                    if (this.previewAspectRatio === '16:9') {
+                        return 'aspect-[16/9] max-h-[260px]';
+                    }
+                    // default 4:5 (IG Feed portrait)
+                    return 'aspect-[4/5] max-h-[440px]';
+                },
+
+                getAspectRatioDescription() {
+                    switch (this.previewAspectRatio) {
+                        case '4:5': return @js(__('social_media.aspect_ratio_desc_4_5'));
+                        case '1:1': return @js(__('social_media.aspect_ratio_desc_1_1'));
+                        case '9:16': return @js(__('social_media.aspect_ratio_desc_9_16'));
+                        case '16:9': return @js(__('social_media.aspect_ratio_desc_16_9'));
+                        default: return '';
+                    }
+                },
+
                 setMediaFormat(fmt) {
                     this.mediaFormat = fmt;
                     if (fmt === 'text') {
                         this.clearFile();
                         this.carouselItems = [];
                         this.mediaUrl = '';
+                        this.previewAspectRatio = 'text';
+                    } else if (fmt === 'reels') {
+                        this.previewAspectRatio = '9:16';
+                    } else if (fmt === 'photo' || fmt === 'carousel') {
+                        if (this.previewAspectRatio === 'text' || this.previewAspectRatio === '9:16') {
+                            this.previewAspectRatio = '4:5';
+                        }
+                    } else if (fmt === 'video') {
+                        if (this.isLandscapeVideo) {
+                            this.previewAspectRatio = '16:9';
+                        } else if (this.videoRatio && this.videoRatio < 0.75) {
+                            this.previewAspectRatio = '9:16';
+                        } else {
+                            this.previewAspectRatio = '16:9';
+                        }
                     }
                     this.$nextTick(() => {
                         if (window.lucide) window.lucide.createIcons();
@@ -1844,8 +2003,37 @@
                             this.videoWidth = vid.videoWidth;
                             this.videoHeight = vid.videoHeight;
                             if (vid.videoHeight > 0) {
-                                this.videoRatio = (vid.videoWidth / vid.videoHeight).toFixed(2);
+                                const r = vid.videoWidth / vid.videoHeight;
+                                this.videoRatio = r.toFixed(2);
                                 this.isLandscapeVideo = vid.videoWidth > vid.videoHeight;
+                                if (r >= 1.2) {
+                                    this.previewAspectRatio = '16:9';
+                                } else if (r <= 0.65) {
+                                    this.previewAspectRatio = '9:16';
+                                } else if (r <= 0.85) {
+                                    this.previewAspectRatio = '4:5';
+                                } else {
+                                    this.previewAspectRatio = '1:1';
+                                }
+                            }
+                        };
+                    } else if (file.type.startsWith('image/')) {
+                        const img = new Image();
+                        img.src = this.filePreviewUrl;
+                        img.onload = () => {
+                            if (img.height > 0) {
+                                const r = img.width / img.height;
+                                if (r >= 1.35) {
+                                    this.previewAspectRatio = '16:9';
+                                } else if (r <= 0.65) {
+                                    this.previewAspectRatio = '9:16';
+                                } else if (r <= 0.85) {
+                                    this.previewAspectRatio = '4:5';
+                                } else if (r >= 0.95 && r <= 1.05) {
+                                    this.previewAspectRatio = '1:1';
+                                } else {
+                                    this.previewAspectRatio = '4:5';
+                                }
                             }
                         };
                     }
