@@ -33,10 +33,29 @@ Skill spesialis ini memandu AI Agent dalam **menganalisa tampilan visual antarmu
 
 ---
 
-## 📐 1. Standar 3 Zona Hierarki Informasi Logis
+## 📐 1. Standar 3 Zona Hierarki Informasi Logis & Anatomi Halaman
 
-Setiap antarmuka (Dashboard, Halaman Index, Form Input, Detail Entity, atau Modal) wajib disusun ulang mengikuti **3 Zona Vertikal Terpadu**:
+### Standard Page Anatomy:
+```text
+Page
+│
+├── 1. Breadcrumb (Konteks & Posisi User)
+├── 2. Page Header (H1 Title + 1-Line Description + Max 1 Primary Action)
+├── 3. Summary / KPI Metrics (Bento Grid Desktop / Snap Slider Mobile)
+├── 4. Toolbar (Search, Filter, Sort, View, Secondary Actions)
+├── 5. Main Content (Table, Form, Chart, Detail, Empty State)
+└── 6. Pagination / Secondary Footer
+```
 
+### 6 Core Questions in Cognitive Flow:
+1. **WHERE AM I?** (Breadcrumb & active menu)
+2. **WHAT IS THIS PAGE?** (Page Title H1)
+3. **WHAT IS IMPORTANT?** (Status Siklus / KPI kunci)
+4. **WHAT CAN I DO?** (Primary Action & Toolbar)
+5. **WHAT DATA SHOULD I READ?** (Clean scannable data interface)
+6. **WHAT SHOULD I DO NEXT?** (Submit / Pagination / Next step)
+
+### Standar 3 Zona Vertikal Terpadu:
 ```
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
 │ 📍 ZONA 1: ANCHOR & EXECUTIVE SNAPSHOT (Puncak Layar - 1st Fold)                       │
@@ -62,6 +81,11 @@ Setiap antarmuka (Dashboard, Halaman Index, Form Input, Detail Entity, atau Moda
 │ 3. Audit Log / Timeline Aktivitas Terakhir (Secondary Supporting Data).               │
 └────────────────────────────────────────────────────────────────────────────────────────┘
 ```
+
+### Visual Priority Testing:
+- **3-Second Glanceability Test**: Dalam 3 detik, user wajib tahu: 1. Halaman apa? 2. Konteksnya apa? 3. Aksi utamanya apa?
+- **10-Second Scannability Test**: Dalam 10 detik, user wajib tahu: 1. Di mana data penting? 2. Di mana search/filter? 3. Status item? 4. Aksi berikutnya?
+
 
 ---
 

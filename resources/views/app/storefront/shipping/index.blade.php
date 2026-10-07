@@ -311,7 +311,7 @@
                                     class="h-8 px-3 rounded-[10px] bg-[#34C759]/12 hover:bg-[#34C759]/20 text-[#248A3D] dark:text-[#30D158] text-[11.5px] font-bold flex items-center gap-1.5 transition active:scale-[0.98]"
                                     title="Daftarkan Cabang / Outlet Baru di Hub Gudang & Cabang">
                                     <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-                                    <span>+ Tambah Cabang</span>
+                                    <span>Tambah Cabang</span>
                                 </a>
 
                                 <button type="button" @click="resetToStoreRegistration()"

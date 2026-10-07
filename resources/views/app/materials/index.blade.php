@@ -225,7 +225,7 @@
                 <a href="{{ route('import.index', ['tab' => 'materials']) }}"
                     class="h-10 px-4 rounded-[12px] text-[13px] font-semibold text-[#1C1C1E] dark:text-[#F2F2F7] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] transition-all flex items-center justify-center gap-2"
                     title="Import data bahan baku massal dari file Excel / CSV">
-                    <i data-lucide="file-spreadsheet" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
+                    <i data-lucide="upload" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
                     <span>Import Excel</span>
                 </a>
 

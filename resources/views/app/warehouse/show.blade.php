@@ -1300,8 +1300,9 @@
                                                         </div>
                                                         <template x-if="dayData.is_open">
                                                             <button type="button" @click="addPeriod(dayKey)"
-                                                                class="text-[11px] font-semibold text-[#007AFF] hover:underline flex items-center gap-1">
-                                                                <span>+ Sesi</span>
+                                                                class="text-[11px] font-semibold text-[#007AFF] hover:underline flex items-center gap-1 cursor-pointer">
+                                                                <i data-lucide="plus" class="w-3 h-3"></i>
+                                                                <span>Tambah Sesi</span>
                                                             </button>
                                                         </template>
                                                     </div>

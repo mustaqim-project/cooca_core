@@ -171,7 +171,8 @@
                 <div class="mt-3 flex items-center justify-between">
                     <a href="{{ route('purchase-orders.create', ['type' => 'supplier']) }}"
                         class="min-h-[44px] sm:min-h-0 h-9 sm:h-8 px-3 rounded-[8px] text-xs font-bold text-[#5856D6] dark:text-[#5E5CE6] bg-[#5856D6]/10 hover:bg-[#5856D6]/15 active:scale-[0.97] transition-all flex items-center gap-1.5 cursor-pointer">
-                        <span>+ {{ __('purchasing.supplier.actions.create_po') }}</span>
+                        <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                        <span>{{ __('purchasing.supplier.actions.create_po') }}</span>
                         <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
                     </a>
                 </div>

@@ -619,5 +619,178 @@ Dilarang menggunakan modal sempit seperti `max-w-md` atau `max-w-lg` untuk formu
    - Sub-Modal / Quick-Add Dropdown Dialog: `z-[210]`
    - Alert Confirmation Dialog (Delete/Confirm): `z-[220]`
 
+---
+
+## 22. COOCA OWNER PANEL — COMPREHENSIVE UI/UX HIERARCHY & DESIGN SYSTEM MANIFESTO
+
+Prinsip Utama:
+> **"COOCA harus terasa seperti professional business operating system, bukan kumpulan halaman yang dihias."**  
+> **"Hierarchy before decoration. Clarity before complexity. Whitespace is part of information architecture."**  
+> **"Not everything needs a card. Not every action needs to look important. One action should have one clear visual cue."**
+
+### 22.1 Standar Anatomi Halaman (Standard Page Anatomy)
+Setiap halaman di Owner Panel wajib mengikuti alur anatomi terstruktur dari atas ke bawah:
+```text
+Page
+│
+├── 1. Breadcrumb (Konteks & Posisi User, mis: Dashboard / Produk)
+│
+├── 2. Page Header
+│   ├── Page Title (H1 Dominan & Jelas)
+│   ├── Description (1 Baris Ringkas & Padat)
+│   └── Primary Action (Maksimal 1 CTA Utama)
+│
+├── 3. Summary / KPI (Metrik Kunci — Desktop Grid / Mobile Snap Slider)
+│
+├── 4. Toolbar
+│   ├── Search
+│   ├── Primary Filter
+│   ├── Secondary Filter / Sort
+│   ├── View Switcher
+│   └── Secondary Actions (Import, Export, Filter Drawer)
+│
+├── 5. Main Content
+│   ├── Table / Card List
+│   ├── Form / Master-Detail
+│   ├── Chart / Analytical Visualizer
+│   ├── Timeline / Activity Feed
+│   └── Empty State (Bila data kosong)
+│
+└── 6. Pagination / Secondary Footer (Navigasi halaman & status total)
+```
+*Catatan:* Jangan memaksakan semua elemen jika tidak relevan untuk halaman tertentu. Gunakan hanya yang dibutuhkan.
+
+### 22.2 Hierarchy Pertanyaan Pengguna (6 Core Questions in Cognitive Flow)
+Setiap layout halaman harus menjawab secara instan:
+1. **WHERE AM I?** (Breadcrumb & Navigasi Aktif)
+2. **WHAT IS THIS PAGE?** (Page Title H1 Dominan)
+3. **WHAT IS IMPORTANT?** (Status Siklus Entitas / Metrik Kunci / Banner Penting)
+4. **WHAT CAN I DO?** (Primary Action & Toolbar Aksi)
+5. **WHAT DATA SHOULD I READ?** (Tabel / Form / Chart yang bersih dan scannable)
+6. **WHAT SHOULD I DO NEXT?** (Tombol submit, pagination, atau secondary workflow)
+
+### 22.3 Breadcrumb Hierarchy
+- Visual weight rendah, font lebih kecil dari Page Title (`text-[11px]`–`text-[12px] font-semibold uppercase tracking-wider text-black/40 dark:text-white/40`).
+- Tidak menjadi heading `<h1>` dan tidak bersaing dengan Page Title.
+- Memberikan konteks hierarkis: `Dashboard / Penjualan / Pesanan / #INV-00123`.
+
+### 22.4 Page Header Hierarchy
+- **Title (H1)**: Paling dominan (`text-2xl sm:text-3xl font-bold tracking-tight text-black dark:text-white`).
+- **Description**: Informatif, padat, singkat (1 baris kalimat, `text-[13px] sm:text-[14px] text-black/60 dark:text-white/60`).
+- **Primary Action**: Jelas terlihat, berbobot Primary Blue (`bg-[#007AFF] text-white hover:bg-[#0062CC] rounded-[12px] px-4 py-2 font-semibold`), tetapi tidak mengalahkan dominansi title.
+
+### 22.5 BUTTON & ICON RULE — WAJIB (GLOBAL DESIGN SYSTEM RULE)
+Aturan baku tombol dan ikon di seluruh COOCA:
+
+#### A. JANGAN DUPLIKASI MAKNA "ADD" / PLUS
+Jika button menggunakan icon plus, **DILARANG KERAS** menambahkan karakter `+` sebagai text label.
+- ❌ **SALAH:** `[ + + Tambah Produk ]`
+- ❌ **SALAH:** `[ <i data-lucide="plus"></i> + Tambah Produk ]`
+- ❌ **SALAH:** `[ + Tambah ]` (jika sudah ada icon plus)
+- ✅ **BENAR:** `[ <i data-lucide="plus"></i> Tambah Produk ]`
+*Karakter `+` harus berasal dari icon Lucide murni, bukan digandakan dalam text string.*
+
+#### B. SATU ACTION = SATU VISUAL CUE (One Action = One Semantic Visual Cue)
+Jangan pernah mengulang makna atau simbol visual yang sama.
+- ❌ **SALAH:** `[ <i data-lucide="plus"></i> + Tambah ]`
+- ❌ **SALAH:** `[ <i data-lucide="plus"></i> <i data-lucide="plus"></i> Tambah ]`
+- ❌ **SALAH:** `[ <i data-lucide="edit"></i> <i data-lucide="pencil"></i> Edit ]`
+- ✅ **BENAR:** `[ <i data-lucide="plus"></i> Tambah Produk ]` ATAU `[ Edit ]` ATAU `[ <i data-lucide="pencil"></i> ]` (icon-only dengan aria-label).
+
+#### C. DAFTAR PEMETAAN SEMANTIK IKON RESMI (SEMANTIC ICON REGISTRY)
+Ikon wajib memiliki semantic meaning yang tepat. DILARANG menggunakan icon `plus` untuk semua action!
+| Action / Maksud | Ikon Lucide Wajib | ❌ Larangan Keras |
+|---|---|---|
+| **Tambah / Buat Baru** | `plus` | Duplikasi string `+ +` |
+| **Edit / Ubah** | `pencil` atau `edit-3` | `plus` |
+| **Hapus / Delete** | `trash-2` atau `trash` | `x` (x untuk tutup/batal) |
+| **Lihat / Detail** | `eye` | `search` |
+| **Cari / Search** | `search` | `eye` |
+| **Filter** | `filter` | `sliders` |
+| **Sort / Urutkan** | `arrow-up-down` atau `sliders-horizontal` | `plus` |
+| **Import / Unggah Data** | `upload` | ❌ `plus` (Dilarang keras `+ Import`) |
+| **Export / Unduh Data** | `download` | ❌ `plus` (Dilarang keras `+ Export`) |
+| **Pengaturan / Settings** | `settings` | `tool` |
+| **Menu Lainnya / More** | `more-horizontal` atau `more-vertical` | `menu` |
+| **Kembali / Back** | `arrow-left` | `chevron-left` (kecuali pagination) |
+| **Lanjut / Next** | `arrow-right` | `plus` |
+| **Simpan / Save** | `check` atau `save` | `plus` |
+| **Batal / Tutup / Close**| `x` | `trash` |
+| **Segarkan / Refresh** | `refresh-cw` atau `rotate-cw` | `plus` |
+| **Salin / Copy** | `copy` | `file` |
+
+#### D. IKON + TEKS vs IKON-SAJA (Icon Recognition Rules)
+- **Ikon + Teks**: Digunakan untuk mempercepat recognition aksi utama modul/halaman (`[ <i data-lucide="plus"></i> Tambah Produk ]`, `[ <i data-lucide="upload"></i> Impor Excel ]`, `[ <i data-lucide="download"></i> Ekspor PDF ]`).
+- **Tanpa Ikon**: Jika ikon hanya menjadi dekorasi dan tidak meningkatkan pemahaman, **HAPUS IKONNYA**.
+- **Ikon-Saja (Icon-Only Buttons)**: Hanya untuk aksi yang sangat familiar dan konteksnya sudah jelas (misal: tombol aksi baris tabel `[edit]` `[trash]` `[eye]`). **WAJIB** memiliki atribut `aria-label="Edit"` / `title="Edit"`, touch-target minimal 44×44px, dan tooltip bila diperlukan.
+
+### 22.6 Action Hierarchy (Hierarki Bobot Aksi)
+Gunakan 4 level bobot aksi secara disiplin:
+1. **Primary**: Maksimal 1 per area fokus (`bg-[#007AFF] text-white shadow-sm hover:bg-[#0062CC]`).
+2. **Secondary**: Tombol pendukung (`bg-black/[0.05] dark:bg-white/[0.08] text-black dark:text-white hover:bg-black/[0.08]`).
+3. **Tertiary**: Tombol teks/link tanpa kotak (`text-[#007AFF] hover:underline px-2 py-1`).
+4. **Destructive**: Tombol bahaya (`bg-red-600 text-white hover:bg-red-700` dalam dialog konfirmasi, atau teks merah `text-red-600 hover:bg-red-500/10` di tabel).
+*Aturan Emas:* Jangan membuat semua tombol terlihat sebagai primary. Jika semua tombol mencolok, tidak ada tombol yang benar-benar penting.
+
+### 22.7 Card Usage Hierarchy & Anti-Nesting ("Not Everything Needs a Card")
+Hindari sindrom **Card-Everything** dan **Card-inside-Card-inside-Card**:
+- ❌ **DILARANG:** `Card` $\rightarrow$ `Card` $\rightarrow$ `Card` $\rightarrow$ `Table`.
+- Gunakan Card hanya ketika benar-benar diperlukan untuk pengelompokan entitas mandiri.
+- Prioritas Pembatas: **Whitespace $\rightarrow$ Section Title $\rightarrow$ Hairline Divider $\rightarrow$ Content**.
+- Jika section dapat dipisahkan secara elegan dengan whitespace lapang dan garis tipis (`border-b border-black/[0.06] dark:border-white/[0.08]`), **JANGAN BUNGKUS DENGAN CARD BARU**.
+
+### 22.8 Spacing & Typography Hierarchy
+- **Typography Scale**: Page Title (24–32px bold) $\rightarrow$ Section Title (18–20px semibold) $\rightarrow$ Subsection (15–16px medium) $\rightarrow$ Primary Content (14–15px normal/semibold) $\rightarrow$ Secondary Content (13–14px) $\rightarrow$ Metadata (11–12px) $\rightarrow$ Helper Text (12–13px text-black/50).
+- **Spacing Scale (8pt Grid)**: Jarak antar-grup lebih besar dari jarak dalam-grup. Breadcrumb $\rightarrow$ Title (4–6px), Title $\rightarrow$ Desc (4–6px), Header $\rightarrow$ Content (20–32px), Section $\rightarrow$ Section (24–36px), Label $\rightarrow$ Input (6–8px), Input $\rightarrow$ Input (14–18px), Row $\rightarrow$ Row (10–14px).
+
+### 22.9 Table Hierarchy (Data Interface Design)
+- **Urutan Pemindaian Kolom**: `Primary Information` (Nama Entitas / No. Transaksi tebal) $\rightarrow$ `Secondary Information` (Kategori, Kontak, Tanggal) $\rightarrow$ `Numeric / Financial Data` (`tabular-nums font-semibold` rata kanan) $\rightarrow$ `Status Badge` $\rightarrow$ `Action Column` (rata kanan, subtle).
+- Action column tidak boleh menjadi focal point yang mengganggu pembacaan data.
+- Gunakan `tabular-nums` untuk semua angka, nominal uang, stok, dan tanggal.
+- Hindari tabel yang terlihat seperti spreadsheet padat tanpa ruang bernapas.
+
+### 22.10 Toolbar Hierarchy
+- Susunan Toolbar: `Search Input (kiri)` $\rightarrow$ `Primary Filter (Dropdown Status/Kategori)` $\rightarrow$ `Secondary Filter / Sort` $\rightarrow$ `View Switcher` $\rightarrow$ `Secondary Actions (Import/Export/More)`.
+- Jika terdapat $>3$ filter, gunakan **Filter Drawer / Popover / Advanced Filter Panel**, jangan memenuhi toolbar dengan puluhan dropdown bertumpuk.
+
+### 22.11 Form Hierarchy
+- Form dikelompokkan secara semantik berbasis konsep bisnis:
+  - Misal Form Tambah Produk: `Informasi Produk` (Nama, SKU, Kategori) $\rightarrow$ `Harga & Pajak` (Harga Beli, Harga Jual) $\rightarrow$ `Persediaan & Gudang` (Stok, Min. Stok, Gudang).
+- Dilarang menyajikan form sebagai rentetan input vertikal tanpa pengelompokan (*no raw endless inputs*).
+- Form Pop-Up Modal wajib Full-Size XXL 2-kolom di desktop dan full bottom sheet di mobile.
+
+### 22.12 Detail Page Hierarchy
+- Susunan Standar: `Breadcrumb` $\rightarrow$ `Entity Name + Status Badge + Primary Actions Header` $\rightarrow$ `Overview / Key Metrics` $\rightarrow$ `Important Information (Bento Grid 2-Kolom)` $\rightarrow$ `Related Data (Tabel Transaksi / Item)` $\rightarrow$ `Activity / Audit Log`.
+
+### 22.13 Dashboard Hierarchy
+- Dashboard **BUKAN** kumpulan kartu KPI acak yang berjejal.
+- Susunan Hierarkis: `Page Header` $\rightarrow$ `Business Summary (Omzet, Transaksi, Laba Bersih)` $\rightarrow$ `Operational Highlights (Pesanan Perlu Diproses, Stok Menipis)` $\rightarrow$ `Trend / Chart Visualizer` $\rightarrow$ `Operational Data & Feed Transaksi Terkini`.
+- Prioritaskan berdasarkan: 1. Business Importance, 2. Urgency, 3. Frequency, 4. Decision Value.
+
+### 22.14 State Handling Hierarchy (Empty, Loading, Error)
+- **Empty State**: Wajib menjawab 3 hal: 1. Apa yang kosong?, 2. Mengapa kosong?, 3. Apa tindakan berikutnya?
+  - Contoh: *Judul:* "Belum ada produk" · *Deskripsi:* "Tambahkan produk pertama Anda untuk mulai mengelola stok dan penjualan." · *Aksi:* `[ <i data-lucide="plus"></i> Tambah Produk ]`. DILARANG hanya menulis "No data found".
+- **Loading State**: Proportional Skeleton yang merepresentasikan layout asli, progressive loading, zero layout shift (CLS).
+- **Error State**: Wajib menjelaskan: 1. Apa yang terjadi, 2. Mengapa, 3. Solusi pengguna (misal: "Data belum dapat dimuat" + keterangan + tombol `[ Coba Lagi ]`).
+
+### 22.15 Visual Priority Testing (3-Second & 10-Second Glanceability Tests)
+Setiap halaman wajib lulus 2 pengujian pemindaian visual:
+- **3-Second Test**: Dalam 3 detik pertama, pengguna harus langsung tahu:
+  1. Halaman apa ini?
+  2. Apa konteksnya?
+  3. Apa primary action yang dapat dilakukan?
+- **10-Second Test**: Dalam 10 detik, pengguna harus langsung tahu:
+  1. Di mana data terpenting?
+  2. Di mana kontrol filter/pencarian?
+  3. Apa status dari item yang dilihat?
+  4. Apa tindakan berikutnya yang harus diambil?
+*Jika gagal, hierarki visual dan tata letak WAJIB ditata ulang.*
+
+### 22.16 Cognitive Load & Anti-Slop Principles
+- **Clarity over Decoration**: UI tenang, tanpa gradien neon, tanpa blob, tanpa glassmorphism berlebihan, tanpa fake pulse dots, tanpa emoji di judul/tombol.
+- **Konsolidasi Elemen Duplikat**: Jika dua tombol atau kartu memiliki maksud sama, gabungkan menjadi satu.
+- **Zero Business Logic Degradation**: Perbaikan hierarki visual MURNI pada level UI/UX Blade/CSS. Dilarang mengubah alur logika bisnis, controller method, database model, route, maupun hak akses authorization.
+
+
 
 

@@ -1192,7 +1192,8 @@
                                     </label>
                                     <button type="button" @click="showAddUrlModal = true"
                                         class="h-8 px-3 rounded-[8px] bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] text-black/80 dark:text-white/80 text-[12px] font-medium flex items-center gap-1.5 transition cursor-pointer">
-                                        <span>+ URL</span>
+                                        <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                        <span>Tambah URL</span>
                                     </button>
                                     <button type="button" @click="clearAllGallery()"
                                         x-show="galleryItems.length > 0 || newGalleryUploads.length > 0"

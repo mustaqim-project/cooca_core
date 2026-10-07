@@ -767,7 +767,7 @@
                 <a href="{{ route('import.index', ['tab' => 'products']) }}"
                     class="h-10 px-3.5 rounded-[12px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] border border-black/[0.06] dark:border-white/[0.08] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 min-w-[44px]"
                     title="Import data produk massal dari file Excel / CSV">
-                    <i data-lucide="download" class="w-4 h-4 text-black/60 dark:text-white/60 shrink-0"></i>
+                    <i data-lucide="upload" class="w-4 h-4 text-black/60 dark:text-white/60 shrink-0"></i>
                     <span>{{ __('products.btn_import') }}</span>
                 </a>
 

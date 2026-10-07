@@ -35,7 +35,7 @@
         subtitle="Pantau stok produk di seluruh cabang & gudang secara terpusat">
         @if(\App\Support\Context::hasPermission('inventory.manage'))
             <a href="{{ route('import.index', ['tab' => 'inventory']) }}" class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-[#1C1C1E] dark:text-[#F2F2F7] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] transition-all flex items-center justify-center gap-2">
-                <i data-lucide="file-spreadsheet" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
+                <i data-lucide="upload" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
                 <span>Import Stok</span>
             </a>
         @endif

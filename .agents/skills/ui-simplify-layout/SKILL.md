@@ -81,12 +81,34 @@ Aturan praktis:
 Aturan:
 
 - **Satu primary per layar/kartu/modal.** Dua tombol solid yang bersaing membuat pengguna ragu.
+- **DILARANG DUPLIKASI MAKNA "ADD" / SIMBOL `+`**: Jika tombol sudah menggunakan ikon plus (`<i data-lucide="plus"></i>`), DILARANG menambahkan karakter `+` pada teks label.
+  - ❌ *Salah:* `[ + + Tambah Produk ]`, `[ <i data-lucide="plus"></i> + Tambah Produk ]`, `[ + Tambah ]` (jika ada icon).
+  - ✅ *Benar:* `[ <i data-lucide="plus"></i> Tambah Produk ]` (karakter `+` berasal dari ikon murni, bukan teks).
+- **SATU ACTION = SATU VISUAL CUE**: Jangan pernah menggandakan icon atau mengulang simbol visual yang sama (`[ plus-icon + Tambah ]` ❌).
+- **SEMANTIC ICON REGISTRY (DILARANG PAKAI ICON PLUS UNTUK SEMUA AKSI)**:
+  - Tambah $\rightarrow$ `plus`
+  - Edit/Ubah $\rightarrow$ `pencil` / `edit-3`
+  - Hapus $\rightarrow$ `trash-2`
+  - Lihat $\rightarrow$ `eye`
+  - Cari $\rightarrow$ `search`
+  - Filter $\rightarrow$ `filter`
+  - Sort $\rightarrow$ `arrow-up-down` / `sliders-horizontal`
+  - Import $\rightarrow$ `upload` (❌ DILARANG icon `plus`)
+  - Export $\rightarrow$ `download` (❌ DILARANG icon `plus`)
+  - Simpan $\rightarrow$ `check` / `save`
+  - Batal/Tutup $\rightarrow$ `x`
 - **Lebih dari 3 aksi sejajar → kelompokkan.** Tampilkan 1 primary + 1 secondary, lalu masukkan sisanya ke menu overflow (`⋯` atau "Lainnya").
 - **Aksi per baris tabel**: tampilkan maksimal 1–2 ikon langsung, sisanya masuk menu `⋯`. Jangan memasang 4–5 tombol kecil berdampingan.
 - **Label berupa kata kerja spesifik**: "Simpan perubahan", "Kirim pesanan", bukan "OK" atau "Submit". Maksimal 1–3 kata.
 - **Ikon-saja hanya untuk ikon yang universal** (tutup, hapus, cari, edit) dan wajib punya `aria-label` + tooltip. Selain itu pakai teks, atau ikon + teks.
 - **Hapus tombol yang duplikat fungsinya.** Contoh: "Batal" dan tombol ✕ di modal yang sama → cukup salah satu.
 - **Hindari tombol yang selalu nonaktif.** Jelaskan kenapa nonaktif (helper text) atau sembunyikan.
+
+### Card Usage Hierarchy & Anti-Nesting ("Not Everything Needs a Card")
+- **DILARANG Card di dalam Card di dalam Card**: Hindari `Card > Card > Card > Table`.
+- Gunakan Card hanya untuk pengelompokan entitas mandiri.
+- Prioritas Pembatas: **Whitespace $\rightarrow$ Section Title $\rightarrow$ Hairline Divider $\rightarrow$ Content**.
+- Jika tampilan dapat dipisah dengan rapi menggunakan whitespace lapang dan divider garis tipis, **jangan gunakan card baru**.
 
 ### Posisi (di mana)
 

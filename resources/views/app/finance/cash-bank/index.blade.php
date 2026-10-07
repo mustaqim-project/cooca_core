@@ -20,7 +20,7 @@
                 <button type="button" @click="showAccountModal = true"
                     class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5">
                     <i data-lucide="plus-circle" class="w-4 h-4 text-[#007AFF]"></i>
-                    <span>+ Rekening Baru</span>
+                    <span>Tambah Rekening</span>
                 </button>
                 <button type="button" @click="showInflowModal = true"
                     class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-semibold text-white bg-[#34C759] hover:bg-[#2DBE50] active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5 shadow-[0_1px_2px_rgba(52,199,89,0.25)]">
