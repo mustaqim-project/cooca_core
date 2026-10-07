@@ -45,7 +45,7 @@ return [
     'action_check_quota' => 'Check Quota',
     'action_print_invoice' => 'Print Invoice',
     'action_print_printer' => 'Print Invoice',
-    'action_download_pdf' => 'Direct Download PDF',
+    'action_download_pdf' => 'Download PDF',
     'action_open_dashboard' => 'Open Dashboard',
     'action_check_status_now' => 'Check Payment Status Now',
     'action_back' => 'Back',

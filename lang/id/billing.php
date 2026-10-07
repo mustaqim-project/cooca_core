@@ -45,7 +45,7 @@ return [
     'action_check_quota' => 'Cek Kuota',
     'action_print_invoice' => 'Cetak Faktur',
     'action_print_printer' => 'Cetak Printer',
-    'action_download_pdf' => 'Download PDF Langsung',
+    'action_download_pdf' => 'Download PDF',
     'action_open_dashboard' => 'Buka Dashboard',
     'action_check_status_now' => 'Cek Status Pembayaran Sekarang',
     'action_back' => 'Kembali',
