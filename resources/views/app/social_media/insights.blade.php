@@ -464,8 +464,9 @@
                                                         default => 'bg-neutral-100 text-neutral-600',
                                                     };
                                                 @endphp
-                                                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded {{ $badgeBg }}">
-                                                    {{ strtoupper($plat) }}
+                                                <span class="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded {{ $badgeBg }}">
+                                                    <x-social-icon :platform="$plat" class="w-2.5 h-2.5" />
+                                                    <span>{{ strtoupper($plat) }}</span>
                                                 </span>
                                             @endforeach
                                         </div>
@@ -584,7 +585,7 @@
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
                                 <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-[#FFB700] via-[#E4405F] to-[#833AB4] text-white flex items-center justify-center shrink-0">
-                                    <i data-lucide="instagram" class="w-4 h-4"></i>
+                                    <x-social-icon platform="instagram" class="w-4 h-4" />
                                 </div>
                                 <div>
                                     <h4 class="text-[13px] font-bold text-black dark:text-white">Instagram</h4>
@@ -627,12 +628,12 @@
                     <div class="space-y-3">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
-                                <div class="w-8 h-8 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center shrink-0 font-bold text-[13px]">
-                                    TT
+                                <div class="w-8 h-8 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center shrink-0">
+                                    <x-social-icon platform="tiktok" class="w-4 h-4" />
                                 </div>
                                 <div>
                                     <h4 class="text-[13px] font-bold text-black dark:text-white">TikTok</h4>
-                                    <p class="text-[11px] text-black/50 dark:text-white/50 truncate max-w-[140px]">{{ $tt['connected'] ? ($tt['account']->account_name ?? 'Akun TikTok') : 'Kreator Bisnis' }}</p>
+                                    <p class="text-[11px] text-black/50 dark:text-white/50 truncate max-w-[140px]">{{ $tt['connected'] ? ($tt['account']->username ?? $tt['account']->account_name ?? 'Akun TikTok') : 'Kreator Bisnis' }}</p>
                                 </div>
                             </div>
                             @if($tt['connected'])
@@ -806,8 +807,9 @@
                                                         default => 'bg-neutral-100 text-neutral-600',
                                                     };
                                                 @endphp
-                                                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded {{ $badgeStyle }}">
-                                                    {{ strtoupper($plat) }}
+                                                <span class="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded {{ $badgeStyle }}">
+                                                    <x-social-icon :platform="$plat" class="w-2.5 h-2.5" />
+                                                    <span>{{ strtoupper($plat) }}</span>
                                                 </span>
                                             @endforeach
                                         </div>

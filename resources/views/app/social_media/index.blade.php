@@ -58,17 +58,7 @@
                                     <div x-show="!disconnectedIds.includes('{{ $acc->id }}')" x-transition.duration.300ms class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/10 flex items-center justify-between gap-3">
                                         <div class="flex items-center gap-3 min-w-0">
                                             <div class="w-10 h-10 rounded-[12px] flex items-center justify-center shrink-0 {{ $acc->platform === 'facebook' ? 'bg-[#1877F2]/12 text-[#1877F2]' : ($acc->platform === 'instagram' ? 'bg-[#E1306C]/12 text-[#E1306C]' : ($acc->platform === 'tiktok' ? 'bg-black/10 dark:bg-white/15 text-black dark:text-white' : ($acc->platform === 'linkedin' ? 'bg-[#0A66C2]/12 text-[#0A66C2]' : 'bg-black/10 text-black dark:text-white'))) }}">
-                                                @if($acc->platform === 'facebook')
-                                                    <i data-lucide="facebook" class="w-5 h-5"></i>
-                                                @elseif($acc->platform === 'instagram')
-                                                    <i data-lucide="instagram" class="w-5 h-5"></i>
-                                                @elseif($acc->platform === 'tiktok')
-                                                    <i data-lucide="video" class="w-5 h-5"></i>
-                                                @elseif($acc->platform === 'linkedin')
-                                                    <i data-lucide="linkedin" class="w-5 h-5"></i>
-                                                @else
-                                                    <i data-lucide="at-sign" class="w-5 h-5"></i>
-                                                @endif
+                                                <x-social-icon :platform="$acc->platform" class="w-5 h-5" />
                                             </div>
                                             <div class="min-w-0">
                                                 <div class="font-bold text-black dark:text-white text-[13.5px] truncate">{{ $acc->account_name }}</div>
@@ -121,7 +111,7 @@
                             <button type="button" @click="launchMetaLogin()" :disabled="loading"
                                 class="w-full min-h-[46px] rounded-[14px] bg-gradient-to-r from-[#1877F2] to-[#007AFF] hover:from-[#166FE5] hover:to-[#0071E3] text-white font-bold text-[13.5px] flex items-center justify-center gap-2 shadow-md shadow-[#1877F2]/25 active:scale-[0.98] transition-all disabled:opacity-50 cursor-pointer">
                                 <i data-lucide="loader-2" x-show="loading" class="w-4 h-4 animate-spin"></i>
-                                <i data-lucide="share-2" x-show="!loading" class="w-4 h-4"></i>
+                                <span x-show="!loading" class="inline-flex items-center"><x-social-icon platform="meta" class="w-4.5 h-4.5" /></span>
                                 <span x-text="loading ? '{{ __('social_media.meta_connecting_btn') }}' : '{{ __('social_media.meta_connect_btn') }}'"></span>
                             </button>
                         </div>
@@ -139,7 +129,7 @@
 
                             <a href="{{ route('social-media.tiktok.connect') }}"
                                 class="w-full min-h-[46px] rounded-[14px] bg-black dark:bg-white text-white dark:text-black hover:bg-black/90 dark:hover:bg-white/90 font-bold text-[13.5px] flex items-center justify-center gap-2 shadow-md active:scale-[0.98] transition-all">
-                                <i data-lucide="video" class="w-4 h-4"></i>
+                                <x-social-icon platform="tiktok" class="w-4 h-4" />
                                 <span>{{ __('social_media.tiktok_connect_btn') }}</span>
                             </a>
                         </div>
@@ -157,7 +147,7 @@
 
                             <a href="{{ route('social-media.linkedin.connect') }}"
                                 class="w-full min-h-[46px] rounded-[14px] bg-[#0A66C2] hover:bg-[#004182] text-white font-bold text-[13.5px] flex items-center justify-center gap-2 shadow-md shadow-[#0A66C2]/25 active:scale-[0.98] transition-all">
-                                <i data-lucide="linkedin" class="w-4 h-4"></i>
+                                <x-social-icon platform="linkedin" class="w-4 h-4" />
                                 <span>{{ __('social_media.linkedin_connect_btn') }}</span>
                             </a>
                         </div>

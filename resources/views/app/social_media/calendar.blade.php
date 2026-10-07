@@ -138,15 +138,17 @@
                                             @if ($post->targets->count() > 0)
                                                 @foreach ($post->targets as $target)
                                                     @if ($target->channel === 'tiktok')
-                                                        <span class="w-3.5 h-3.5 rounded-full bg-black text-white inline-flex items-center justify-center text-[8px] font-black" title="TikTok">T</span>
+                                                        <span class="w-3.5 h-3.5 rounded-full bg-black text-white inline-flex items-center justify-center p-0.5" title="TikTok">
+                                                            <x-social-icon platform="tiktok" class="w-2.5 h-2.5" />
+                                                        </span>
                                                     @elseif ($target->channel === 'facebook')
-                                                        <i data-lucide="facebook" class="w-3.5 h-3.5 text-[#1877F2]"></i>
+                                                        <span class="text-[#1877F2]" title="Facebook"><x-social-icon platform="facebook" class="w-3.5 h-3.5" /></span>
                                                     @elseif ($target->channel === 'instagram')
-                                                        <i data-lucide="instagram" class="w-3.5 h-3.5 text-[#E4405F]"></i>
+                                                        <span class="text-[#E4405F]" title="Instagram"><x-social-icon platform="instagram" class="w-3.5 h-3.5" /></span>
                                                     @elseif ($target->channel === 'threads')
-                                                        <i data-lucide="at-sign" class="w-3.5 h-3.5 text-black dark:text-white"></i>
+                                                        <span class="text-black dark:text-white" title="Threads"><x-social-icon platform="threads" class="w-3.5 h-3.5" /></span>
                                                     @elseif ($target->channel === 'linkedin')
-                                                        <i data-lucide="linkedin" class="w-3.5 h-3.5 text-[#0A66C2]"></i>
+                                                        <span class="text-[#0A66C2]" title="LinkedIn"><x-social-icon platform="linkedin" class="w-3.5 h-3.5" /></span>
                                                     @endif
                                                 @endforeach
                                             @else
@@ -239,15 +241,17 @@
                                             @if ($post->targets->count() > 0)
                                                 @foreach ($post->targets as $target)
                                                     @if ($target->channel === 'tiktok')
-                                                        <span class="w-4 h-4 rounded-full bg-black text-white inline-flex items-center justify-center text-[9px] font-black" title="TikTok">T</span>
+                                                        <span class="w-4 h-4 rounded-full bg-black text-white inline-flex items-center justify-center p-0.5" title="TikTok">
+                                                            <x-social-icon platform="tiktok" class="w-3 h-3" />
+                                                        </span>
                                                     @elseif ($target->channel === 'facebook')
-                                                        <i data-lucide="facebook" class="w-4 h-4 text-[#1877F2]"></i>
+                                                        <span class="text-[#1877F2]" title="Facebook"><x-social-icon platform="facebook" class="w-4 h-4" /></span>
                                                     @elseif ($target->channel === 'instagram')
-                                                        <i data-lucide="instagram" class="w-4 h-4 text-[#E4405F]"></i>
+                                                        <span class="text-[#E4405F]" title="Instagram"><x-social-icon platform="instagram" class="w-4 h-4" /></span>
                                                     @elseif ($target->channel === 'threads')
-                                                        <i data-lucide="at-sign" class="w-4 h-4 text-black dark:text-white"></i>
+                                                        <span class="text-black dark:text-white" title="Threads"><x-social-icon platform="threads" class="w-4 h-4" /></span>
                                                     @elseif ($target->channel === 'linkedin')
-                                                        <i data-lucide="linkedin" class="w-4 h-4 text-[#0A66C2]"></i>
+                                                        <span class="text-[#0A66C2]" title="LinkedIn"><x-social-icon platform="linkedin" class="w-4 h-4" /></span>
                                                     @endif
                                                 @endforeach
                                             @else

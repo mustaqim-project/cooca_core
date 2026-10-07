@@ -468,4 +468,12 @@ return [
     'network_error' => 'A network error occurred.',
     'quota_modal_title' => 'Social Media Post Quota Exhausted',
     'quota_modal_desc' => 'You have reached the limit of :limit free posts this month. Quota will automatically reset on the 1st of next month, or activate the Social Media Management Add-On for unlimited posting.',
+    'preview_manage_title' => 'Preview & Manage Content',
+    'account_prefix' => 'Account',
+    'media_preview_title' => 'Media Preview',
+    'media_files_count' => 'media files',
+    'status_label_scheduled' => '🗓 Scheduled',
+    'status_label_pending' => '⏳ Queued',
+    'status_label_failed' => '❌ Failed',
+    'status_label_partially_failed' => '⚠️ Partially Failed',
 ];

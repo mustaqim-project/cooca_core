@@ -468,4 +468,12 @@ return [
     'network_error' => 'Terjadi kesalahan jaringan.',
     'quota_modal_title' => 'Kuota Posting Media Sosial Habis',
     'quota_modal_desc' => 'Anda telah mencapai batas :limit posting gratis bulan ini. Kuota akan otomatis di-reset pada tanggal 1 awal bulan berikutnya atau aktifkan Add-On Social Media Management untuk posting tanpa batas.',
+    'preview_manage_title' => 'Preview & Kelola Konten',
+    'account_prefix' => 'Akun',
+    'media_preview_title' => 'Preview Media',
+    'media_files_count' => 'file media',
+    'status_label_scheduled' => '🗓 Terjadwal',
+    'status_label_pending' => '⏳ Mengantre',
+    'status_label_failed' => '❌ Gagal',
+    'status_label_partially_failed' => '⚠️ Sebagian Gagal',
 ];

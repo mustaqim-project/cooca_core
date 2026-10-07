@@ -64,14 +64,8 @@
                         <div class="flex items-start gap-3.5 min-w-0">
                             {{-- Platform Icon Avatar --}}
                             <div class="w-10 h-10 rounded-[12px] flex items-center justify-center text-white shrink-0 shadow-sm
-                                {{ $c->platform === 'facebook' ? 'bg-[#1877F2]' : ($c->platform === 'instagram' ? 'bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF]' : 'bg-black dark:bg-white dark:text-black') }}">
-                                @if($c->platform === 'facebook')
-                                    <i data-lucide="facebook" class="w-5 h-5"></i>
-                                @elseif($c->platform === 'instagram')
-                                    <i data-lucide="instagram" class="w-5 h-5"></i>
-                                @else
-                                    <i data-lucide="at-sign" class="w-5 h-5"></i>
-                                @endif
+                                {{ $c->platform === 'facebook' ? 'bg-[#1877F2]' : ($c->platform === 'instagram' ? 'bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF]' : ($c->platform === 'tiktok' ? 'bg-black dark:bg-white dark:text-black' : ($c->platform === 'linkedin' ? 'bg-[#0A66C2]' : 'bg-black/10 text-black dark:text-white'))) }}">
+                                <x-social-icon :platform="$c->platform" class="w-5 h-5" />
                             </div>
 
                             {{-- Details --}}
@@ -139,8 +133,17 @@
 
         {{-- 5. REPLY MODAL SHEET (Apple HIG Bento Card Design) --}}
         <div x-show="openReplyModal" x-cloak
-            class="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-            <div class="relative w-full max-w-2xl rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-2xl p-6 sm:p-7 space-y-5"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            class="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5"
+            @keydown.escape.window="openReplyModal = false"
+            role="dialog"
+            aria-modal="true">
+            <div class="relative w-full max-w-2xl rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-2xl p-6 sm:p-7 space-y-5 my-6"
                 @click.away="openReplyModal = false">
 
                 {{-- Modal Header --}}
@@ -154,8 +157,8 @@
                             <p class="text-[12px] text-black/55 dark:text-white/55">{{ __('social_media.reply_modal_subtitle') }}</p>
                         </div>
                     </div>
-                    <button type="button" @click="openReplyModal = false" class="text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white p-1 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
-                        <i data-lucide="x" class="w-5 h-5"></i>
+                    <button type="button" @click="openReplyModal = false" class="w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center rounded-full text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer">
+                        <i data-lucide="x" class="w-4 h-4"></i>
                     </button>
                 </div>
 
@@ -195,11 +198,11 @@
                 {{-- Modal Footer --}}
                 <div class="pt-3 flex items-center justify-end gap-2.5 border-t border-black/5 dark:border-white/10">
                     <button type="button" @click="openReplyModal = false" :disabled="isSubmitting"
-                        class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-black/70 dark:text-white/70 hover:bg-black/[0.05] dark:hover:bg-white/[0.08] transition-colors">
+                        class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-black/70 dark:text-white/70 hover:bg-black/[0.05] dark:hover:bg-white/[0.08] transition-colors inline-flex items-center justify-center cursor-pointer">
                         {{ __('social_media.cancel') }}
                     </button>
                     <button type="button" @click="sendReply()" :disabled="!replyText.trim() || isSubmitting"
-                        class="h-9 px-5 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] disabled:opacity-50 disabled:pointer-events-none transition-all flex items-center gap-1.5 shadow-sm">
+                        class="min-h-[44px] sm:min-h-0 sm:h-9 px-5 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] disabled:opacity-50 disabled:pointer-events-none transition-all inline-flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
                         <i data-lucide="send" class="w-3.5 h-3.5" x-show="!isSubmitting"></i>
                         <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin" x-show="isSubmitting" x-cloak></i>
                         <span x-text="isSubmitting ? '{{ __('social_media.sending_reply_btn') }}' : '{{ __('social_media.send_reply_btn') }}'"></span>
