@@ -18,7 +18,7 @@
                     <div class="flex items-center gap-2 px-3 py-1.5 rounded-[12px] bg-gradient-to-r from-[#AF52DE]/10 to-[#007AFF]/10 border border-[#AF52DE]/20 text-[12px] font-semibold text-black/80 dark:text-white/80" title="Provider AI aktif: {{ strtoupper($activeAiConfig->provider ?? 'BYOAI') }}">
                         <span class="w-2 h-2 rounded-full bg-[#34C759] animate-pulse"></span>
                         <i data-lucide="sparkles" class="w-3.5 h-3.5 text-[#AF52DE]"></i>
-                        <span>AI Agent Connected</span>
+                        <span>Cooca AI Connected ({{ strtoupper($activeAiConfig->provider ?? 'BYOAI') }})</span>
                     </div>
                 @else
                     <a href="{{ route('cooca-ai.providers') }}"
@@ -131,6 +131,9 @@
                     class="px-3.5 py-2 rounded-[10px] transition-all flex items-center gap-2 cursor-pointer">
                     <x-social-icon platform="facebook" class="w-4 h-4" />
                     <span>{{ __('social_media.channel_facebook_comments') }}</span>
+                    <span class="px-1.5 py-0.2 rounded-full text-[10.5px] font-bold"
+                          :class="activeChannelFilter === 'facebook_comments' ? 'bg-white/20 text-white' : 'bg-black/5 dark:bg-white/10 text-black/50 dark:text-white/50'"
+                          x-text="threads.filter(t => t.channel === 'facebook_comments').length"></span>
                 </button>
 
                 {{-- Komentar Instagram --}}
@@ -139,6 +142,9 @@
                     class="px-3.5 py-2 rounded-[10px] transition-all flex items-center gap-2 cursor-pointer">
                     <x-social-icon platform="instagram" class="w-4 h-4" />
                     <span>{{ __('social_media.channel_instagram_comments') }}</span>
+                    <span class="px-1.5 py-0.2 rounded-full text-[10.5px] font-bold"
+                          :class="activeChannelFilter === 'instagram_comments' ? 'bg-white/20 text-white' : 'bg-black/5 dark:bg-white/10 text-black/50 dark:text-white/50'"
+                          x-text="threads.filter(t => t.channel === 'instagram_comments').length"></span>
                 </button>
             </div>
         </div>

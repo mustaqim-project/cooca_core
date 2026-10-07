@@ -481,11 +481,14 @@ class MetaSocialMediaClient
     }
 
     /**
-     * Reply to a Facebook or Instagram comment, or reply to a Meta Messenger message.
+     * Reply to a Facebook or Instagram comment, or reply to a Meta Messenger / Instagram Direct message.
      */
     public function replyComment(string $platform, string $commentId, string $pageToken, string $message, ?string $recipientId = null): array
     {
-        if (strtolower($platform) === 'messenger') {
+        $platformLower = strtolower($platform);
+
+        // 1. Direct Messages: Facebook Messenger atau Instagram Direct (via Meta Send API)
+        if ($platformLower === 'messenger' || $platformLower === 'instagram_dm' || ($platformLower === 'instagram' && ! empty($recipientId))) {
             $targetRecipientId = $recipientId ?: $commentId;
             $response = Http::asJson()->post($this->endpoint('me/messages', $pageToken), [
                 'recipient'      => ['id' => $targetRecipientId],
@@ -495,14 +498,21 @@ class MetaSocialMediaClient
             ]);
 
             if (! $response->successful()) {
-                Log::error('Meta Messenger reply failed', ['body' => $response->body()]);
-                throw new \RuntimeException($response->json('error.message') ?? 'Gagal membalas pesan Meta Messenger.');
+                Log::error('Meta Direct Message reply failed', [
+                    'platform'  => $platform,
+                    'recipient' => $targetRecipientId,
+                    'body'      => $response->body(),
+                ]);
+                throw new \RuntimeException($response->json('error.message') ?? 'Gagal membalas pesan langsung ke pelanggan.');
             }
 
             return $response->json();
         }
 
-        $path = strtolower($platform) === 'instagram' ? "{$commentId}/replies" : "{$commentId}/comments";
+        // 2. Feed / Media Comments (Instagram Comments vs Facebook Comments)
+        $path = in_array($platformLower, ['instagram', 'instagram_comments'], true)
+            ? "{$commentId}/replies"
+            : "{$commentId}/comments";
 
         $response = Http::asForm()->post($this->endpoint($path, $pageToken), [
             'message'      => $message,
@@ -823,12 +833,34 @@ class MetaSocialMediaClient
      *
      * @return list<array<string, mixed>>
      */
-    public function getInstagramConversations(string $igUserId, string $pageToken, int $limit = 15): array
+    public function getInstagramConversations(string $igUserId, string $pageToken, int $limit = 15, ?string $parentPageId = null): array
     {
+        // 1. Coba endpoint melalui Parent Facebook Page jika tersedia (standar Meta Page-linked IG API)
+        if (! empty($parentPageId)) {
+            try {
+                $res = Http::timeout(10)->get($this->endpoint("{$parentPageId}/conversations", $pageToken), [
+                    'platform'     => 'instagram',
+                    'fields'       => 'id,updated_time,senders,snippet,unread_count,messages{id,message,created_time,from,to}',
+                    'limit'        => $limit,
+                    'access_token' => $pageToken,
+                ]);
+
+                if ($res->successful()) {
+                    $data = (array) ($res->json('data') ?? []);
+                    if (! empty($data)) {
+                        return $data;
+                    }
+                }
+            } catch (\Throwable $e) {
+                Log::warning("[MetaSocialMediaClient] getInstagramConversations via parent page exception: " . $e->getMessage());
+            }
+        }
+
+        // 2. Coba endpoint langsung melalui IG User Node
         try {
             $res = Http::timeout(10)->get($this->endpoint("{$igUserId}/conversations", $pageToken), [
                 'platform'     => 'instagram',
-                'fields'       => 'id,updated_time,messages{id,message,created_time,from}',
+                'fields'       => 'id,updated_time,senders,snippet,unread_count,messages{id,message,created_time,from,to}',
                 'limit'        => $limit,
                 'access_token' => $pageToken,
             ]);
@@ -836,6 +868,8 @@ class MetaSocialMediaClient
             if ($res->successful()) {
                 return (array) ($res->json('data') ?? []);
             }
+
+            Log::warning("[MetaSocialMediaClient] getInstagramConversations failed for IG user {$igUserId}: " . $res->body());
 
             return [];
         } catch (\Throwable $e) {

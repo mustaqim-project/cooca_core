@@ -33,6 +33,53 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 - **Files Affected:** Daftar berkas controller, service, model, blade, atau route yang dimodifikasi.
 - **Database Changes:** Tabel baru, migrasi skema, kolom tambahan, atau indexing.
 
+### [WORK-2026-10-08-336] Rekonsiliasi Agregasi Percakapan Meta Inbox, Penarikan Pesan Dua Arah (Incoming & Outgoing), Dukungan Multi-Channel Direct Messaging & Komentar, serta Panduan Konfigurasi API Meta Lengkap
+
+- **Date:** 2026-10-08
+- **Status:** COMPLETED
+- **Module:** Communication & Social Media Marketing (`app/Domain/SocialMedia/Clients/MetaSocialMediaClient.php`, `app/Domain/SocialMedia/SocialMediaService.php`, `app/Http/Controllers/Web/SocialMedia/SocialMediaWebController.php`, `resources/views/app/social_media/inbox.blade.php`, `docs/AiWorkHistory.md`)
+- **Feature:**
+  1. Penyelarasan pengelompokan pesan percakapan (Conversation-Level Aggregation): seluruh pesan langsung (Facebook Messenger & Instagram Direct) dengan pelanggan yang sama kini disatukan menjadi 1 thread percakapan utuh dengan riwayat obrolan kronologis dua arah (balasan pelanggan di sisi kiri, balasan toko di sisi kanan), identik dengan Meta Business Suite Inbox.
+  2. Penarikan pesan dua arah (Two-Way Message Sync): memperbaiki filter sinkronisasi di `syncMetaInbox()` agar pesan keluar yang dikirim oleh toko dari aplikasi Facebook/Instagram/Meta Business Suite tetap disimpan dengan flag `is_from_page = true` sehingga histori obrolan di Cooca tidak rumpang atau sepihak.
+  3. Pemisahan tegas channel Direct Messages (`instagram`) dengan komentar postingan media (`instagram_comments` & `facebook_comments`), serta penambahan badge counter aktif pada seluruh tab channel.
+  4. Perbaikan rute pengiriman balasan `replyComment` pada `MetaSocialMediaClient`: pesan langsung Messenger dan Instagram Direct menggunakan Meta Send API (`POST me/messages`), sedangkan komentar media/feed menggunakan endpoint `/replies` dan `/comments`.
+  5. Dukungan fallback ganda pada `getInstagramConversations` (mencoba node Parent Page `/{page-id}/conversations?platform=instagram` maupun direct node `/{ig-user-id}/conversations?platform=instagram`) untuk menjamin pesan Instagram Direct selalu berhasil ditarik.
+- **Work Type:** Bug Fix | API Reconciliation | Data Integrity | UI/UX Refinement | Automated Test Suite Alignment
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Pedagang membandingkan kotak masuk di Cooca (`https://cooca.id/social-media/inbox`) dengan kotak masuk di Meta Business Suite / Instagram DM dan mendapati tampilan tidak sama.
+- **Masalah/Target:**
+  1. Sebelumnya setiap baris pesan pelanggan di-looping menjadi 1 thread mandiri (`comm_id`), sehingga jika 1 pelanggan mengirim 5 pesan berturut-turut, muncul 5 thread terpisah di Cooca, bukannya 1 percakapan berkelanjutan seperti di Meta Inbox.
+  2. Pesan balasan toko yang dikirim dari aplikasi Meta terabaikan (`$fromId !== $accountId`), sehingga dialog menjadi sepihak.
+  3. Komentar postingan Instagram tercampur ke dalam tab Instagram Direct karena keduanya menggunakan key `platform = 'instagram'`.
+  4. Pengiriman balasan Instagram Direct gagal jika dipaksa memanggil endpoint `/replies` (karena endpoint tersebut hanya valid untuk komentar postingan).
+
+#### 2. What Was Done
+
+1. **Penyempurnaan Meta Client (`MetaSocialMediaClient.php`):**
+   - Method `replyComment()` kini mengenali pesan langsung (Messenger & Instagram Direct) dan memanggil Send API (`POST me/messages` dengan `recipient.id`), sedangkan komentar menggunakan `/{id}/replies` atau `/{id}/comments`.
+   - Method `getInstagramConversations()` kini menerima parameter `$parentPageId` dan mencoba endpoint resmi Parent Page terlebih dahulu sebelum fallback ke IG User node, serta meminta fields lengkap `senders,snippet,unread_count,messages{id,message,created_time,from,to}`.
+2. **Penyempurnaan Service Layer (`SocialMediaService.php`):**
+   - Menghapus pemotongan pesan toko pada `syncMetaInbox()`, menyimpan seluruh pesan masuk (`is_from_page = false`) dan balasan toko (`is_from_page = true`).
+   - Menyimpan komentar media Instagram dengan platform `'instagram_comments'`.
+   - Memasukkan `$parentPageId` saat memanggil `getInstagramConversations`.
+   - Meneruskan `from_id` pelanggan ke `replyComment()` untuk direct messaging.
+3. **Penyempurnaan Web Controller (`SocialMediaWebController.php`):**
+   - Memperbarui `inbox()` untuk mengambil riwayat lengkap percakapan dua arah (`allComments`).
+   - Merombak total `buildOmnichannelThreads()` dengan logika agregasi per conversation key (`$convKey = $platform . '_' . ($c->platform_post_id ?: $c->from_id)`), mengurutkan pesan secara kronologis ASC, dan menyortir daftar thread secara global berdasarkan interaksi paling baru DESC.
+4. **Penyempurnaan UI Blade (`inbox.blade.php`):**
+   - Menambahkan badge counter dinamis pada tab "Komentar Facebook" dan "Komentar Instagram".
+   - Memperbaiki teks badge status AI header menjadi `Cooca AI Connected (PROVIDER)`.
+5. **Automated Testing:**
+   - Seluruh 8 pengujian `SocialMediaInboxAndAiIntegrationTest` lulus 100% (42 assertions).
+   - Seluruh 83 pengujian pada test suite `tests/Feature/SocialMedia` lulus 100% (481 assertions).
+
+#### 3. Technical Changes
+
+- **Files Affected:** `app/Domain/SocialMedia/Clients/MetaSocialMediaClient.php`, `app/Domain/SocialMedia/SocialMediaService.php`, `app/Http/Controllers/Web/SocialMedia/SocialMediaWebController.php`, `resources/views/app/social_media/inbox.blade.php`, `docs/AiWorkHistory.md`.
+- **Database Changes:** Tidak ada migrasi skema baru (memanfaatkan kolom tabel yang sudah ada).
+
 ### [WORK-2026-10-08-335] Eliminasi Total Data Mock / Hardcode dan Integrasi Penuh Data Riil Meta Graph API pada Kotak Masuk Omnichannel (/social-media/inbox)
 
 - **Date:** 2026-10-08

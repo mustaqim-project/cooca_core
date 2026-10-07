@@ -239,7 +239,7 @@ class SocialMediaService
             throw new \RuntimeException('Akun media sosial terkait tidak aktif.');
         }
 
-        if (strtolower((string) $comment->platform) === 'messenger') {
+        if (in_array(strtolower((string) $comment->platform), ['messenger', 'instagram', 'instagram_dm'], true) && ! empty($comment->from_id)) {
             $res = $this->client->replyComment(
                 $comment->platform,
                 $comment->platform_comment_id,
@@ -590,7 +590,8 @@ class SocialMediaService
                                 $text = (string) ($msg['message'] ?? '');
                                 $msgId = (string) ($msg['id'] ?? '');
 
-                                if (! empty($msgId) && ! empty($text) && $fromId !== $accountId) {
+                                if (! empty($msgId) && ! empty($text)) {
+                                    $isFromPage = ($fromId === $accountId);
                                     SocialMediaComment::updateOrCreate(
                                         [
                                             'business_id'         => $business->id,
@@ -603,10 +604,10 @@ class SocialMediaService
                                             'platform_post_id'        => $convId ?: 'post_general',
                                             'parent_comment_id'       => null,
                                             'from_id'                 => $fromId,
-                                            'from_name'               => $fromName,
+                                            'from_name'               => $isFromPage ? $account->account_name : $fromName,
                                             'message'                 => $text,
-                                            'is_from_page'            => false,
-                                            'status'                  => 'unread',
+                                            'is_from_page'            => $isFromPage,
+                                            'status'                  => $isFromPage ? 'replied' : 'unread',
                                             'created_time'            => isset($msg['created_time']) ? \Illuminate\Support\Carbon::parse($msg['created_time']) : now(),
                                         ]
                                     );
@@ -617,28 +618,27 @@ class SocialMediaService
                             $sender = data_get($conv, 'senders.data.0', []);
                             $senderId = (string) ($sender['id'] ?? '');
                             $senderName = (string) ($sender['name'] ?? 'Pengguna Facebook');
-                            if ($senderId !== $accountId) {
-                                SocialMediaComment::updateOrCreate(
-                                    [
-                                        'business_id'         => $business->id,
-                                        'platform'            => 'messenger',
-                                        'platform_comment_id' => 'fb_conv_' . $convId,
-                                    ],
-                                    [
-                                        'social_media_account_id' => $account->id,
-                                        'social_media_post_id'    => null,
-                                        'platform_post_id'        => $convId ?: 'post_general',
-                                        'parent_comment_id'       => null,
-                                        'from_id'                 => $senderId ?: null,
-                                        'from_name'               => $senderName,
-                                        'message'                 => $conv['snippet'],
-                                        'is_from_page'            => false,
-                                        'status'                  => 'unread',
-                                        'created_time'            => isset($conv['updated_time']) ? \Illuminate\Support\Carbon::parse($conv['updated_time']) : now(),
-                                    ]
-                                );
-                                $syncedCount++;
-                            }
+                            $isFromPage = ($senderId === $accountId);
+                            SocialMediaComment::updateOrCreate(
+                                [
+                                    'business_id'         => $business->id,
+                                    'platform'            => 'messenger',
+                                    'platform_comment_id' => 'fb_conv_' . $convId,
+                                ],
+                                [
+                                    'social_media_account_id' => $account->id,
+                                    'social_media_post_id'    => null,
+                                    'platform_post_id'        => $convId ?: 'post_general',
+                                    'parent_comment_id'       => null,
+                                    'from_id'                 => $senderId ?: null,
+                                    'from_name'               => $isFromPage ? $account->account_name : $senderName,
+                                    'message'                 => $conv['snippet'],
+                                    'is_from_page'            => $isFromPage,
+                                    'status'                  => $isFromPage ? 'replied' : 'unread',
+                                    'created_time'            => isset($conv['updated_time']) ? \Illuminate\Support\Carbon::parse($conv['updated_time']) : now(),
+                                ]
+                            );
+                            $syncedCount++;
                         }
                     }
                 } catch (\Throwable $e) {
@@ -657,7 +657,8 @@ class SocialMediaService
                             $text = (string) ($comment['message'] ?? '');
                             $commentId = (string) ($comment['id'] ?? '');
 
-                            if (! empty($commentId) && ! empty($text) && $fromId !== $accountId) {
+                            if (! empty($commentId) && ! empty($text)) {
+                                $isFromPage = ($fromId === $accountId);
                                 SocialMediaComment::updateOrCreate(
                                     [
                                         'business_id'         => $business->id,
@@ -667,13 +668,13 @@ class SocialMediaService
                                     [
                                         'social_media_account_id' => $account->id,
                                         'social_media_post_id'    => null,
-                                        'platform_post_id'        => $postId ?: null,
+                                        'platform_post_id'        => $postId ?: 'post_general',
                                         'parent_comment_id'       => null,
                                         'from_id'                 => $fromId,
-                                        'from_name'               => $fromName,
+                                        'from_name'               => $isFromPage ? $account->account_name : $fromName,
                                         'message'                 => $text,
-                                        'is_from_page'            => false,
-                                        'status'                  => 'unread',
+                                        'is_from_page'            => $isFromPage,
+                                        'status'                  => $isFromPage ? 'replied' : 'unread',
                                         'created_time'            => isset($comment['created_time']) ? \Illuminate\Support\Carbon::parse($comment['created_time']) : now(),
                                     ]
                                 );
@@ -698,22 +699,23 @@ class SocialMediaService
                             $fromId = (string) (data_get($comment, 'from.id') ?: $commentId);
 
                             if (! empty($commentId) && ! empty($text)) {
+                                $isFromPage = ($fromId === $accountId);
                                 SocialMediaComment::updateOrCreate(
                                     [
                                         'business_id'         => $business->id,
-                                        'platform'            => 'instagram',
+                                        'platform'            => 'instagram_comments',
                                         'platform_comment_id' => $commentId,
                                     ],
                                     [
                                         'social_media_account_id' => $account->id,
                                         'social_media_post_id'    => null,
-                                        'platform_post_id'        => $mediaId ?: null,
+                                        'platform_post_id'        => $mediaId ?: 'post_general',
                                         'parent_comment_id'       => null,
                                         'from_id'                 => $fromId,
-                                        'from_name'               => '@' . ltrim($username, '@'),
+                                        'from_name'               => $isFromPage ? $account->account_name : ('@' . ltrim($username, '@')),
                                         'message'                 => $text,
-                                        'is_from_page'            => false,
-                                        'status'                  => 'unread',
+                                        'is_from_page'            => $isFromPage,
+                                        'status'                  => $isFromPage ? 'replied' : 'unread',
                                         'created_time'            => isset($comment['timestamp']) ? \Illuminate\Support\Carbon::parse($comment['timestamp']) : now(),
                                     ]
                                 );
@@ -727,7 +729,8 @@ class SocialMediaService
 
                 // 4. Sync Instagram Direct Conversations (jika akun Instagram Business mengizinkan)
                 try {
-                    $igConversations = $this->client->getInstagramConversations($accountId, $token);
+                    $parentPageId = (string) ($account->metadata['parent_page_id'] ?? '');
+                    $igConversations = $this->client->getInstagramConversations($accountId, $token, 15, $parentPageId ?: null);
                     foreach ($igConversations as $conv) {
                         $convId = (string) ($conv['id'] ?? '');
                         $messages = (array) data_get($conv, 'messages.data', []);
@@ -737,7 +740,8 @@ class SocialMediaService
                             $text = (string) ($msg['message'] ?? '');
                             $msgId = (string) ($msg['id'] ?? '');
 
-                            if (! empty($msgId) && ! empty($text) && $fromId !== $accountId) {
+                            if (! empty($msgId) && ! empty($text)) {
+                                $isFromPage = ($fromId === $accountId);
                                 SocialMediaComment::updateOrCreate(
                                     [
                                         'business_id'         => $business->id,
@@ -750,10 +754,10 @@ class SocialMediaService
                                         'platform_post_id'        => $convId ?: 'post_general',
                                         'parent_comment_id'       => null,
                                         'from_id'                 => $fromId,
-                                        'from_name'               => '@' . ltrim($fromUsername, '@'),
+                                        'from_name'               => $isFromPage ? $account->account_name : ('@' . ltrim($fromUsername, '@')),
                                         'message'                 => $text,
-                                        'is_from_page'            => false,
-                                        'status'                  => 'unread',
+                                        'is_from_page'            => $isFromPage,
+                                        'status'                  => $isFromPage ? 'replied' : 'unread',
                                         'created_time'            => isset($msg['created_time']) ? \Illuminate\Support\Carbon::parse($msg['created_time']) : now(),
                                     ]
                                 );

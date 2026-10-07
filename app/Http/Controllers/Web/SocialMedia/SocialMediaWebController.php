@@ -929,8 +929,15 @@ class SocialMediaWebController extends Controller implements HasMiddleware
             ->select(['users.id', 'users.name', 'users.email'])
             ->get();
 
+        // Ambil riwayat percakapan & komentar lengkap untuk menyusun thread dua arah
+        $allComments = SocialMediaComment::where('business_id', $business->id)
+            ->with(['account', 'post'])
+            ->latest('created_time')
+            ->take(300)
+            ->get();
+
         // Rakit Percakapan Omnichannel Terpadu
-        $threads = $this->buildOmnichannelThreads($business, $comments->items(), $cleanWaNumber, $waRawPhone);
+        $threads = $this->buildOmnichannelThreads($business, $allComments->all(), $cleanWaNumber, $waRawPhone);
 
         // Validasi Status Konfigurasi AI Toko (Bring Your Own AI)
         $activeAiConfig = \App\Models\AiProviderConfig::where('business_id', $business->id)
@@ -1291,6 +1298,7 @@ class SocialMediaWebController extends Controller implements HasMiddleware
                 'contact_avatar' => null,
                 'last_message'   => $latest->message,
                 'last_time'      => $latest->created_at ? $latest->created_at->format('H.i') : now()->format('H.i'),
+                'raw_timestamp'  => $latest->created_at ? $latest->created_at->timestamp : 0,
                 'unread'         => $latest->type === 'incoming' && $latest->status !== 'read',
                 'is_starred'     => false,
                 'status'         => $latest->type === 'incoming' ? 'unread' : 'replied',
@@ -1301,97 +1309,170 @@ class SocialMediaWebController extends Controller implements HasMiddleware
             ];
         }
 
-        // 2. Ambil real Social Media Comments jika ada
+        // 2. Ambil real Social Media Comments & Messages jika ada
         if (! empty($comments)) {
-            $parentIdentifiers = [];
+            $directGroups = [];
+            $commentGroups = [];
+
             foreach ($comments as $c) {
-                if (! empty($c->id)) {
-                    $parentIdentifiers[] = (string) $c->id;
-                }
-                if (! empty($c->platform_comment_id)) {
-                    $parentIdentifiers[] = (string) $c->platform_comment_id;
+                $platform = strtolower((string) $c->platform);
+
+                // Klasifikasi apakah Direct Message atau Post Comment
+                $isDirect = ($platform === 'messenger')
+                    || ($platform === 'instagram' && (empty($c->social_media_post_id) && (! $c->platform_post_id || str_contains($c->platform_post_id, 'conv_') || str_contains($c->platform_post_id, 't_') || $c->platform_post_id === 'post_general')));
+
+                if ($isDirect) {
+                    // Kunci grup percakapan langsung per conversation ID atau user sender
+                    $convKey = $platform . '_' . ($c->platform_post_id ?: ($c->from_id ?: $c->id));
+                    $directGroups[$convKey][] = $c;
+                } else {
+                    // Kunci grup komentar postingan
+                    $rootKey = $c->parent_comment_id ?: ($c->platform_comment_id ?: $c->id);
+                    $commentGroups[$rootKey][] = $c;
                 }
             }
 
-            $replies = SocialMediaComment::where('business_id', $business->id)
-                ->where('is_from_page', true)
-                ->whereIn('parent_comment_id', $parentIdentifiers)
-                ->orderBy('created_time', 'asc')
-                ->get();
+            // Proses A: Direct Messages (Facebook Messenger & Instagram Direct)
+            foreach ($directGroups as $convKey => $items) {
+                // Urutkan pesan dari yang paling lama ke yang terbaru
+                usort($items, function ($a, $b) {
+                    $tA = $a->created_time ? $a->created_time->timestamp : ($a->created_at ? $a->created_at->timestamp : 0);
+                    $tB = $b->created_time ? $b->created_time->timestamp : ($b->created_at ? $b->created_at->timestamp : 0);
+                    return $tA <=> $tB;
+                });
 
-            $repliesGrouped = $replies->groupBy('parent_comment_id');
+                $firstItem = $items[0];
+                $lastItem = end($items);
+                $platform = strtolower((string) $firstItem->platform);
+                $channelKey = ($platform === 'messenger') ? 'messenger' : 'instagram';
+                $channelLabel = ($platform === 'messenger') ? 'Messenger' : 'Instagram';
 
-            foreach ($comments as $c) {
-                $platformKey = match (strtolower((string) $c->platform)) {
-                    'messenger' => 'messenger',
-                    'instagram' => 'instagram',
-                    'facebook'  => 'facebook_comments',
-                    default     => 'instagram_comments',
-                };
-                $platformLabel = match ($platformKey) {
-                    'messenger'          => 'Messenger',
-                    'instagram'          => 'Instagram',
-                    'facebook_comments'  => 'Komentar Facebook',
-                    default              => 'Komentar Instagram',
-                };
-
-                $cName = $c->from_name ?: ($c->sender_name ?: ('Pengguna ' . $platformLabel));
-
-                $childReplies = collect();
-                if (! empty($c->platform_comment_id) && $repliesGrouped->has($c->platform_comment_id)) {
-                    $childReplies = $childReplies->merge($repliesGrouped->get($c->platform_comment_id));
+                // Cari pesan pelanggan pertama untuk mendapatkan nama dan identifier
+                $customerItem = null;
+                foreach ($items as $it) {
+                    if (! $it->is_from_page) {
+                        $customerItem = $it;
+                        break;
+                    }
                 }
-                if (! empty($c->id) && $repliesGrouped->has($c->id)) {
-                    $childReplies = $childReplies->merge($repliesGrouped->get($c->id));
-                }
+                $representativeItem = $customerItem ?: $firstItem;
+                $contactName = $representativeItem->from_name ?: ('Pengguna ' . $channelLabel);
 
-                $formattedMessages = [
-                    [
-                        'id'          => 'msg_' . $c->id,
-                        'sender'      => 'customer',
-                        'sender_name' => $cName,
-                        'text'        => $c->message,
-                        'time'        => $c->created_time ? $c->created_time->format('H.i') : now()->format('H.i'),
-                        'status'      => 'received',
-                    ],
-                ];
-
-                foreach ($childReplies as $cr) {
+                $formattedMessages = [];
+                $hasUnread = false;
+                foreach ($items as $m) {
+                    $isBiz = (bool) $m->is_from_page;
+                    if (! $isBiz && $m->status === 'unread') {
+                        $hasUnread = true;
+                    }
                     $formattedMessages[] = [
-                        'id'          => 'reply_' . $cr->id,
-                        'sender'      => 'business',
-                        'sender_name' => $cr->from_name ?: $business->name,
-                        'text'        => $cr->message,
-                        'time'        => $cr->created_time ? $cr->created_time->format('H.i') : now()->format('H.i'),
-                        'status'      => 'sent',
+                        'id'          => 'msg_' . $m->id,
+                        'sender'      => $isBiz ? 'business' : 'customer',
+                        'sender_name' => $isBiz ? $business->name : $contactName,
+                        'text'        => $m->message,
+                        'time'        => $m->created_time ? $m->created_time->format('H.i') : ($m->created_at ? $m->created_at->format('H.i') : now()->format('H.i')),
+                        'status'      => $isBiz ? 'sent' : 'received',
                     ];
                 }
 
-                $lastMsg = $childReplies->isNotEmpty() ? $childReplies->last()->message : $c->message;
-                $lastTime = $childReplies->isNotEmpty() && $childReplies->last()->created_time
-                    ? $childReplies->last()->created_time->format('H.i')
-                    : ($c->created_time ? $c->created_time->format('H.i') : now()->format('H.i'));
+                $lastTimeFormatted = $lastItem->created_time ? $lastItem->created_time->format('H.i') : ($lastItem->created_at ? $lastItem->created_at->format('H.i') : now()->format('H.i'));
+                $lastTimestamp = $lastItem->created_time ? $lastItem->created_time->timestamp : ($lastItem->created_at ? $lastItem->created_at->timestamp : 0);
 
                 $threads[] = [
-                    'id'             => 'comm_' . $c->id,
-                    'comment_id'     => $c->id,
-                    'channel'        => $platformKey,
-                    'channel_label'  => $platformLabel,
-                    'contact_name'   => $cName,
+                    'id'             => 'comm_' . $representativeItem->id,
+                    'comment_id'     => $representativeItem->id,
+                    'channel'        => $channelKey,
+                    'channel_label'  => $channelLabel,
+                    'contact_name'   => $contactName,
                     'contact_phone'  => null,
                     'contact_avatar' => null,
-                    'last_message'   => $lastMsg,
-                    'last_time'      => $lastTime,
-                    'unread'         => $c->status === 'unread',
+                    'last_message'   => $lastItem->message,
+                    'last_time'      => $lastTimeFormatted,
+                    'raw_timestamp'  => $lastTimestamp,
+                    'unread'         => $hasUnread,
                     'is_starred'     => false,
-                    'status'         => $childReplies->isNotEmpty() ? 'replied' : $c->status,
+                    'status'         => $hasUnread ? 'unread' : 'replied',
                     'assigned_to'    => null,
-                    'labels'         => [$platformLabel],
+                    'labels'         => [$channelLabel],
+                    'notes'          => [],
+                    'messages'       => $formattedMessages,
+                ];
+            }
+
+            // Proses B: Post Comments (Facebook & Instagram)
+            foreach ($commentGroups as $rootKey => $items) {
+                usort($items, function ($a, $b) {
+                    $tA = $a->created_time ? $a->created_time->timestamp : ($a->created_at ? $a->created_at->timestamp : 0);
+                    $tB = $b->created_time ? $b->created_time->timestamp : ($b->created_at ? $b->created_at->timestamp : 0);
+                    return $tA <=> $tB;
+                });
+
+                $firstItem = $items[0];
+                $lastItem = end($items);
+                $platform = strtolower((string) $firstItem->platform);
+
+                $channelKey = match ($platform) {
+                    'facebook', 'facebook_comments' => 'facebook_comments',
+                    default                         => 'instagram_comments',
+                };
+                $channelLabel = ($channelKey === 'facebook_comments') ? 'Komentar Facebook' : 'Komentar Instagram';
+
+                $rootItem = null;
+                foreach ($items as $it) {
+                    if (! $it->parent_comment_id || ! $it->is_from_page) {
+                        $rootItem = $it;
+                        break;
+                    }
+                }
+                $representativeItem = $rootItem ?: $firstItem;
+                $contactName = $representativeItem->from_name ?: ('Pengguna ' . $channelLabel);
+
+                $formattedMessages = [];
+                $hasUnread = false;
+                foreach ($items as $m) {
+                    $isBiz = (bool) $m->is_from_page;
+                    if (! $isBiz && $m->status === 'unread') {
+                        $hasUnread = true;
+                    }
+                    $formattedMessages[] = [
+                        'id'          => 'msg_' . $m->id,
+                        'sender'      => $isBiz ? 'business' : 'customer',
+                        'sender_name' => $isBiz ? $business->name : $contactName,
+                        'text'        => $m->message,
+                        'time'        => $m->created_time ? $m->created_time->format('H.i') : ($m->created_at ? $m->created_at->format('H.i') : now()->format('H.i')),
+                        'status'      => $isBiz ? 'sent' : 'received',
+                    ];
+                }
+
+                $lastTimeFormatted = $lastItem->created_time ? $lastItem->created_time->format('H.i') : ($lastItem->created_at ? $lastItem->created_at->format('H.i') : now()->format('H.i'));
+                $lastTimestamp = $lastItem->created_time ? $lastItem->created_time->timestamp : ($lastItem->created_at ? $lastItem->created_at->timestamp : 0);
+
+                $threads[] = [
+                    'id'             => 'comm_' . $representativeItem->id,
+                    'comment_id'     => $representativeItem->id,
+                    'channel'        => $channelKey,
+                    'channel_label'  => $channelLabel,
+                    'contact_name'   => $contactName,
+                    'contact_phone'  => null,
+                    'contact_avatar' => null,
+                    'last_message'   => $lastItem->message,
+                    'last_time'      => $lastTimeFormatted,
+                    'raw_timestamp'  => $lastTimestamp,
+                    'unread'         => $hasUnread,
+                    'is_starred'     => false,
+                    'status'         => $hasUnread ? 'unread' : 'replied',
+                    'assigned_to'    => null,
+                    'labels'         => [$channelLabel],
                     'notes'          => [],
                     'messages'       => $formattedMessages,
                 ];
             }
         }
+
+        // Urutkan semua threads berdasarkan interaksi paling baru di paling atas
+        usort($threads, function ($a, $b) {
+            return ($b['raw_timestamp'] ?? 0) <=> ($a['raw_timestamp'] ?? 0);
+        });
 
         return $threads;
     }
