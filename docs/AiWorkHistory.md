@@ -33,6 +33,53 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 - **Files Affected:** Daftar berkas controller, service, model, blade, atau route yang dimodifikasi.
 - **Database Changes:** Tabel baru, migrasi skema, kolom tambahan, atau indexing.
 
+### [WORK-2026-10-08-334] Integrasi Sinkronisasi Meta Graph API pada Omnichannel Inbox (/social-media/inbox) dan Proteksi Wajib Konfigurasi AI (BYOAI)
+
+- **Date:** 2026-10-08
+- **Status:** COMPLETED
+- **Module:** Communication & Social Media Marketing (`/social-media/inbox`, `MetaSocialMediaClient.php`, `SocialMediaService.php`, `SocialMediaWebController.php`, `resources/views/app/social_media/inbox.blade.php`, `routes/owner.php`)
+- **Feature:**
+  1. Penambahan kapabilitas sinkronisasi data percakapan (Direct Messages/Messenger) dan komentar Facebook Page & Instagram Business dari Meta Graph API ke database `SocialMediaComment` Cooca secara multi-tenant.
+  2. Penerapan proteksi ketat (strict gating) pada fitur asisten pintar dan draf balasan AI di kotak masuk: jika tenant belum menyetel konfigurasi AI aktif (`AiProviderConfig`), fitur AI dikunci, status pill menampilkan peringatan setup, banner informatif Bento Apple HIG ditampilkan di ruang chat, tombol asisten AI terkunci dengan tautan langsung ke `/cooca-ai/providers`, dan endpoint `inbox/ai-reply` menolak pemanggilan dengan respons HTTP 422 JSON yang mengarahkan ke halaman setting AI.
+- **Work Type:** Feature | API Integration | AI Gating & Security | UI/UX Bento Apple HIG | Automated Test Suite Alignment
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Pedagang UMKM menggunakan Kotak Masuk Terpadu Omnichannel (`/social-media/inbox`) untuk merespons percakapan dari berbagai saluran (WhatsApp, Facebook Messenger, Instagram Direct, dan komentar postingan). Pengguna memerlukan tombol dan mekanisme sinkronisasi data aktual dari Meta untuk menarik pesan atau komentar pelanggan terkini ke dalam sistem Cooca. Selain itu, fitur pembuatan draf balasan AI cerdas (Grounded Smart Assistant) yang memanfaatkan katalog produk & voucher toko memerlukan konfigurasi AI resmi milik merchant (model *Bring Your Own AI / BYOAI* - Google Gemini gratis, OpenAI ChatGPT, Anthropic Claude, atau Groq). Jika konfigurasi AI belum disetel, sistem wajib memberitahu pedagang secara ramah dan mengarahkannya untuk melakukan pengaturan di menu Cooca AI (`/cooca-ai/providers`).
+
+#### 2. What Was Done
+
+1. **Pengembangan Meta Graph API Client (`app/Domain/SocialMedia/Clients/MetaSocialMediaClient.php`):**
+   - Menambahkan method `getPageConversations($pageId, $pageToken, $limit)` untuk mengambil percakapan dan pesan masuk Facebook Page Messenger.
+   - Menambahkan method `getPageFeedComments($pageId, $pageToken, $limit)` untuk mengambil komentar postingan pada feed Facebook Page.
+   - Menambahkan method `getInstagramMediaComments($igUserId, $pageToken, $limit)` untuk mengambil komentar media Instagram Professional Account.
+   - Menambahkan method `getInstagramConversations($igUserId, $pageToken, $limit)` untuk mengambil percakapan Instagram Direct.
+   - Dilengkapi penanganan timeout (10s) dan graceful error fallback.
+2. **Sinkronisasi Multi-Tenant pada Domain Service (`app/Domain/SocialMedia/SocialMediaService.php`):**
+   - Menambahkan method `syncMetaInbox(Business $business): array` yang secara otomatis memindai seluruh akun Meta aktif milik tenant, menarik percakapan & komentar dari Meta Graph API, dan menyimpan atau memperbarui data ke tabel `SocialMediaComment` secara terisolasi per tenant.
+3. **Pembaruan Web Controller & Rute (`app/Http/Controllers/Web/SocialMedia/SocialMediaWebController.php` & `routes/owner.php`):**
+   - Mendaftarkan rute `POST /social-media/inbox/sync-meta` dengan proteksi throttle dan permission `social_media.manage`.
+   - Menginjeksikan evaluasi status `$hasAiConfig` dan `$activeAiConfig` serta `$hasMetaConnected` pada method `inbox()`.
+   - Pada method `generateAiReply()`, menambahkan validasi mutlak: jika tenant belum memiliki `AiProviderConfig` aktif dengan API Key yang valid, request langsung ditolak dengan kode HTTP 422 JSON (`needs_config: true`, `redirect_url: route('cooca-ai.providers')`).
+4. **Penyempurnaan Antarmuka Pengguna (`resources/views/app/social_media/inbox.blade.php`):**
+   - **Header Actions:** Tombol *"Sinkronkan Data Meta"* (ikon Meta Graph sync + loading spinner) dan Status Pill dinamis (hijau *"Cooca AI Connected"* jika aktif; amber berkedip *"AI Belum Dikonfigurasi"* dengan tombol *"Setup Sekarang"* menuju `/cooca-ai/providers` jika belum aktif).
+   - **Bento Notification Banner:** Jika AI belum dikonfigurasi, menampilkan callout elegan bertema Apple HIG yang menginformasikan bahwa asisten balasan AI membutuhkan API key, dilengkapi tombol CTA primer *"Setting AI di Cooca AI"*.
+   - **Chat Box Assistant Bar:** Menampilkan status terkunci *"Terkunci (Belum Setting)"* dan tombol *"Setting AI Dulu"* jika belum ada konfigurasi AI, serta guard Alpine.js yang otomatis mengarahkan ke halaman provider jika diklik.
+5. **Automated Integration Testing (`tests/Feature/SocialMedia/SocialMediaInboxAndAiIntegrationTest.php`):**
+   - Menyusun 6 pengujian otomatis yang menguji:
+     - Tampilan peringatan banner & pill saat AI belum disetel.
+     - Tampilan connected badge saat AI telah disetel.
+     - Penolakan HTTP 422 JSON pada endpoint `inbox/ai-reply` jika AI belum disetel.
+     - Keberhasilan respons grounded saat AI telah disetel.
+     - Penanganan saat belum ada akun Meta terhubung.
+     - Keberhasilan sinkronisasi pesan & komentar Meta Graph API ke database `SocialMediaComment`.
+   - Seluruh 6 tests lulus 100% (31 assertions), dan seluruh 29 pengujian modul Social Media tetap lulus 100% (141 assertions).
+
+#### 3. Technical Changes
+
+- **Files Affected:** `app/Domain/SocialMedia/Clients/MetaSocialMediaClient.php`, `app/Domain/SocialMedia/SocialMediaService.php`, `app/Http/Controllers/Web/SocialMedia/SocialMediaWebController.php`, `resources/views/app/social_media/inbox.blade.php`, `routes/owner.php`, `tests/Feature/SocialMedia/SocialMediaInboxAndAiIntegrationTest.php`, `docs/AiWorkHistory.md`.
+- **Database Changes:** Tidak ada migrasi skema baru (memanfaatkan tabel `social_media_comments`, `social_media_accounts`, dan `ai_provider_configs` yang sudah ada).
+
 ### [WORK-2026-10-07-333] Pembatasan Akses Integrasi Web & Gateway API Model Context Protocol (MCP) Wajib Berlangganan Berbayar (Core Plan: Standard, Premium, Prestige)
 
 - **Date:** 2026-10-07

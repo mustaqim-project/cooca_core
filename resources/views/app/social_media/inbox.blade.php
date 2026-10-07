@@ -14,22 +14,70 @@
             :subtitle="__('social_media.unified_inbox_subtitle')">
             <x-slot:actions>
                 {{-- AI Auto-Reply Status Pill --}}
-                <div class="flex items-center gap-2 px-3 py-1.5 rounded-[12px] bg-gradient-to-r from-[#AF52DE]/10 to-[#007AFF]/10 border border-[#AF52DE]/20 text-[12px] font-semibold text-black/80 dark:text-white/80">
-                    <span class="w-2 h-2 rounded-full bg-[#AF52DE] animate-pulse"></span>
-                    <i data-lucide="sparkles" class="w-3.5 h-3.5 text-[#AF52DE]"></i>
-                    <span>Cooca AI Connected</span>
-                    <span class="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-[#AF52DE]/15 text-[#AF52DE]">Grounding Real</span>
-                </div>
+                @if($hasAiConfig)
+                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-[12px] bg-gradient-to-r from-[#AF52DE]/10 to-[#007AFF]/10 border border-[#AF52DE]/20 text-[12px] font-semibold text-black/80 dark:text-white/80" title="Provider AI aktif: {{ strtoupper($activeAiConfig->provider ?? 'BYOAI') }}">
+                        <span class="w-2 h-2 rounded-full bg-[#34C759] animate-pulse"></span>
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-[#AF52DE]"></i>
+                        <span>Cooca AI Connected</span>
+                        <span class="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158]">{{ strtoupper($activeAiConfig->provider ?? 'BYOAI') }}</span>
+                    </div>
+                @else
+                    <a href="{{ route('cooca-ai.providers') }}"
+                        class="flex items-center gap-2 px-3 py-1.5 rounded-[12px] bg-amber-500/10 border border-amber-500/30 text-[12px] font-bold text-amber-800 dark:text-amber-300 hover:bg-amber-500/20 transition-all shadow-xs"
+                        title="Klik untuk menyetel konfigurasi AI">
+                        <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+                        <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-amber-600"></i>
+                        <span>AI Belum Dikonfigurasi</span>
+                        <span class="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-amber-600 text-white">Setup Sekarang</span>
+                    </a>
+                @endif
 
-                <button @click="refreshInbox()" :disabled="isRefreshing"
-                    class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-black/70 dark:text-white/70 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 shadow-sm disabled:opacity-50 cursor-pointer">
-                    <i data-lucide="refresh-cw" class="w-4 h-4" :class="{'animate-spin': isRefreshing}"></i>
-                    <span x-text="isRefreshing ? '{{ __('social_media.refreshing_inbox_btn') }}' : '{{ __('social_media.refresh_inbox_btn') }}'">{{ __('social_media.refresh_inbox_btn') }}</span>
+                {{-- Tombol Sinkronisasi Data Meta (Facebook & Instagram) --}}
+                <button type="button" @click="syncMetaInbox()" :disabled="isSyncingMeta"
+                    class="min-h-[44px] sm:min-h-0 sm:h-9 px-3.5 sm:px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#1877F2] hover:bg-[#166FE5] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 shadow-sm disabled:opacity-50 cursor-pointer"
+                    title="Tarik percakapan dan komentar terbaru dari Facebook Page & Instagram">
+                    <i data-lucide="refresh-cw" class="w-4 h-4" :class="{'animate-spin': isSyncingMeta}"></i>
+                    <span x-text="isSyncingMeta ? 'Menyinkronkan...' : 'Sinkronkan Data Meta'">Sinkronkan Data Meta</span>
+                </button>
+
+                <button type="button" @click="refreshInbox()" :disabled="isRefreshing"
+                    class="min-h-[44px] sm:min-h-0 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-semibold text-black/70 dark:text-white/70 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 shadow-sm disabled:opacity-50 cursor-pointer"
+                    title="{{ __('social_media.refresh_inbox_btn') }}">
+                    <i data-lucide="rotate-cw" class="w-4 h-4" :class="{'animate-spin': isRefreshing}"></i>
+                    <span x-text="isRefreshing ? 'Memuat...' : 'Segarkan'">Segarkan</span>
                 </button>
             </x-slot:actions>
         </x-module-header>
 
         <x-module-tabs module="communication" />
+
+        {{-- Banner Peringatan Wajib Setting AI jika belum ada konfigurasi AI aktif --}}
+        @if(!$hasAiConfig)
+            <div class="rounded-[20px] bg-gradient-to-r from-amber-500/10 via-rose-500/5 to-indigo-500/10 border border-amber-500/30 p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs">
+                <div class="flex items-start gap-3.5">
+                    <div class="w-10 h-10 rounded-[14px] bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+                        <i data-lucide="bot-off" class="w-5 h-5"></i>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <h4 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">Asisten &amp; Balasan AI Inbox Belum Dapat Digunakan</h4>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200 font-mono">Wajib Setting AI</span>
+                        </div>
+                        <p class="text-[12px] text-slate-600 dark:text-slate-300 leading-relaxed max-w-3xl">
+                            Untuk mengaktifkan asisten cerdas balasan pesan inbox (Cooca AI Grounded Reply), Anda wajib melakukan pengaturan konfigurasi AI terlebih dahulu (model BYOAI: Google Gemini gratis, OpenAI ChatGPT, Anthropic Claude, atau Groq) di menu <strong>Cooca AI &gt; Pengaturan Provider</strong>.
+                        </p>
+                    </div>
+                </div>
+                <div class="shrink-0 flex items-center gap-2">
+                    <a href="{{ route('cooca-ai.providers') }}"
+                        class="min-h-[44px] px-4 py-2.5 rounded-[12px] text-xs font-bold text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:opacity-95 shadow-sm active:scale-95 transition flex items-center gap-1.5 whitespace-nowrap">
+                        <i data-lucide="settings-2" class="w-4 h-4"></i>
+                        <span>Setting AI di Cooca AI</span>
+                        <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                    </a>
+                </div>
+            </div>
+        @endif
 
         {{-- 2. CHANNEL TABS NAVIGATION (Identik dengan Meta Business Suite) --}}
         <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-2 sm:p-2.5 shadow-xs overflow-x-auto no-scrollbar scrollbar-none overscroll-x-contain touch-pan-x">
@@ -324,26 +372,44 @@
                         <div class="min-w-0">
                             <div class="flex items-center gap-1.5">
                                 <span class="text-[12px] font-bold text-black dark:text-white truncate">{{ __('social_media.ai_assistant_title') }}</span>
-                                <span class="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/25">
-                                    {{ __('social_media.ai_assistant_badge') }}
-                                </span>
+                                @if($hasAiConfig)
+                                    <span class="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/25">
+                                        {{ __('social_media.ai_assistant_badge') }}
+                                    </span>
+                                @else
+                                    <span class="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/25">
+                                        Terkunci (Belum Setting)
+                                    </span>
+                                @endif
                             </div>
                             <p class="text-[10px] text-black/55 dark:text-white/55 truncate">
-                                Terhubung {{ $products->count() }} produk &amp; voucher aktif toko
+                                @if($hasAiConfig)
+                                    Terhubung {{ $products->count() }} produk &amp; voucher aktif toko ({{ strtoupper($activeAiConfig->provider ?? 'BYOAI') }})
+                                @else
+                                    Konfigurasi AI belum disetel. Hubungkan API Key di menu Cooca AI.
+                                @endif
                             </p>
                         </div>
                     </div>
 
-                    <button type="button" @click="generateAiGroundedReply()" :disabled="isGeneratingAi"
-                        class="min-h-[32px] px-3 py-1 rounded-[10px] bg-gradient-to-r from-[#AF52DE] to-[#007AFF] hover:opacity-90 active:scale-95 text-white font-bold text-[11.5px] transition-all flex items-center gap-1.5 shadow-xs cursor-pointer shrink-0 disabled:opacity-50">
-                        <template x-if="!isGeneratingAi">
-                            <i data-lucide="wand-2" class="w-3.5 h-3.5"></i>
-                        </template>
-                        <template x-if="isGeneratingAi">
-                            <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i>
-                        </template>
-                        <span x-text="isGeneratingAi ? '{{ __('social_media.ai_drafting') }}' : '{{ __('social_media.ai_draft_button') }}'"></span>
-                    </button>
+                    @if($hasAiConfig)
+                        <button type="button" @click="generateAiGroundedReply()" :disabled="isGeneratingAi"
+                            class="min-h-[32px] px-3 py-1 rounded-[10px] bg-gradient-to-r from-[#AF52DE] to-[#007AFF] hover:opacity-90 active:scale-95 text-white font-bold text-[11.5px] transition-all flex items-center gap-1.5 shadow-xs cursor-pointer shrink-0 disabled:opacity-50">
+                            <template x-if="!isGeneratingAi">
+                                <i data-lucide="wand-2" class="w-3.5 h-3.5"></i>
+                            </template>
+                            <template x-if="isGeneratingAi">
+                                <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i>
+                            </template>
+                            <span x-text="isGeneratingAi ? '{{ __('social_media.ai_drafting') }}' : '{{ __('social_media.ai_draft_button') }}'"></span>
+                        </button>
+                    @else
+                        <a href="{{ route('cooca-ai.providers') }}"
+                            class="min-h-[32px] px-3 py-1 rounded-[10px] bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-bold text-[11.5px] transition-all flex items-center gap-1.5 shadow-xs cursor-pointer shrink-0" title="Atur Provider AI untuk membuka fitur ini">
+                            <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+                            <span>Setting AI Dulu</span>
+                        </a>
+                    @endif
                 </div>
 
                 {{-- Reply Composer Bar --}}
@@ -628,7 +694,9 @@
                 replyText: '',
                 newLabelText: '',
                 newNoteText: '',
+                hasAiConfig: @js($hasAiConfig),
                 isRefreshing: false,
+                isSyncingMeta: false,
                 isSending: false,
                 isGeneratingAi: false,
                 openProductModal: false,
@@ -704,7 +772,57 @@
                     }
                 },
 
+                async syncMetaInbox() {
+                    if (this.isSyncingMeta) return;
+                    this.isSyncingMeta = true;
+
+                    try {
+                        const res = await fetch("{{ route('social-media.inbox.sync-meta') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json',
+                            },
+                        });
+
+                        const data = await res.json();
+                        if (data.success) {
+                            if (window.AppAlert) {
+                                window.AppAlert.success(data.message || 'Sinkronisasi dengan Meta berhasil!');
+                            }
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 800);
+                        } else {
+                            if (window.AppAlert) {
+                                window.AppAlert.warning(data.message || 'Gagal menyinkronkan data Meta.');
+                            }
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        if (window.AppAlert) {
+                            window.AppAlert.error('Terjadi kendala koneksi saat menyinkronkan dengan Meta.');
+                        }
+                    } finally {
+                        this.isSyncingMeta = false;
+                        this.$nextTick(() => {
+                            if (window.lucide) window.lucide.createIcons();
+                        });
+                    }
+                },
+
                 async generateAiGroundedReply() {
+                    if (!this.hasAiConfig) {
+                        if (window.AppAlert) {
+                            window.AppAlert.warning('Fitur AI belum dapat digunakan. Silakan atur konfigurasi AI (Bring Your Own AI) terlebih dahulu di menu Cooca AI.');
+                        }
+                        setTimeout(() => {
+                            window.location.href = "{{ route('cooca-ai.providers') }}";
+                        }, 1000);
+                        return;
+                    }
+
                     if (!this.activeThread) return;
                     this.isGeneratingAi = true;
 
@@ -724,6 +842,16 @@
                         });
 
                         const data = await res.json();
+                        if (data.needs_config) {
+                            if (window.AppAlert) {
+                                window.AppAlert.warning(data.error);
+                            }
+                            setTimeout(() => {
+                                window.location.href = data.redirect_url || "{{ route('cooca-ai.providers') }}";
+                            }, 1200);
+                            return;
+                        }
+
                         if (data.success && data.reply) {
                             this.replyText = data.reply;
                             if (window.AppAlert) {

@@ -815,6 +815,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
             Route::get('/inbox', [SocialMediaWebController::class, 'inbox'])->name('inbox.index');
             Route::post('/comments/{comment}/reply', [SocialMediaWebController::class, 'replyComment'])->middleware(['throttle:15,1', 'require.permission:social_media.manage'])->name('comments.reply');
             Route::post('/inbox/send-reply', [SocialMediaWebController::class, 'sendReply'])->middleware(['throttle:30,1', 'require.permission:social_media.manage'])->name('inbox.send-reply');
+            Route::post('/inbox/sync-meta', [SocialMediaWebController::class, 'syncMetaInbox'])->middleware(['throttle:10,1', 'require.permission:social_media.manage'])->name('inbox.sync-meta');
             Route::post('/inbox/ai-reply', [SocialMediaWebController::class, 'generateAiReply'])->middleware(['throttle:30,1', 'require.permission:social_media.manage'])->name('inbox.ai-reply');
             Route::post('/inbox/toggle-status', [SocialMediaWebController::class, 'updateConversationStatus'])->middleware('require.permission:social_media.manage')->name('inbox.toggle-status');
             Route::post('/inbox/customer-labels', [SocialMediaWebController::class, 'updateCustomerLabels'])->middleware('require.permission:social_media.manage')->name('inbox.customer-labels');
