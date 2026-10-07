@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# COOCA ERP - Automated Cron Scheduler Runner (cron.sh)
+# COOCA ID - Automated Cron Scheduler Runner (cron.sh)
 # ==============================================================================
 # This script executes Laravel's scheduler (php artisan schedule:run).
 # It automates:

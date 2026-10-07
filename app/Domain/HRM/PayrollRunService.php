@@ -511,7 +511,7 @@ final class PayrollRunService
 
         $publicUrl = route('public.payslip', $item->payslip_token);
         $msg .= "\nTautan Slip Digital: {$publicUrl}\n";
-        $msg .= "\n_Slip gaji ini dibuat secara otomatis melalui sistem Cooca ERP._";
+        $msg .= "\n_Slip gaji ini dibuat secara otomatis melalui sistem COOCA ID._";
 
         return $msg;
     }

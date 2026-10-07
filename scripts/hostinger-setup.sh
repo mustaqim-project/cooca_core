@@ -1,13 +1,13 @@
 #!/bin/bash
 # ==============================================================================
-# COOCA ERP - One-Click Hostinger Production Setup Script
+# COOCA ID - One-Click Hostinger Production Setup Script
 # ==============================================================================
 set -e
 
 cd /home/u218101292/domains/cooca.id/public_html
 
 echo "=========================================="
-echo "🚀 Memulai Setup Server Hostinger Cooca ERP"
+echo "🚀 Memulai Setup Server Hostinger COOCA ID"
 echo "Timestamp: $(date '+%Y-%m-%d %H:%M:%S')"
 echo "=========================================="
 

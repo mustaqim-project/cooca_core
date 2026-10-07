@@ -178,7 +178,7 @@
                 <p class="font-semibold text-black dark:text-white">Catatan Tambahan:</p>
                 <p class="whitespace-pre-line text-black/70 dark:text-white/70">{{ $quotation->notes }}</p>
                 @endif
-                <p class="text-[11px] text-black/40 dark:text-white/40 pt-2">Diterbitkan secara digital oleh Cooca ERP.</p>
+                <p class="text-[11px] text-black/40 dark:text-white/40 pt-2">Diterbitkan secara digital oleh COOCA ID.</p>
             </div>
 
             <div class="w-full sm:w-72 space-y-2 text-[13px]">

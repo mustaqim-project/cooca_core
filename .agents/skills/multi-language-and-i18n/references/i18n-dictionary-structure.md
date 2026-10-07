@@ -1,6 +1,6 @@
 # Struktur Standar Kamus Modular Multi-Bahasa (`lang/id/` & `lang/en/`)
 
-Dokumen ini memuat arsitektur, konvensi penamaan key, dan contoh isi kamus dwibahasa untuk sistem COOCA ERP & POS v2.0 yang mencakup **100% seluruh spektrum teks aplikasi secara menyeluruh (Page Titles, Breadcrumbs, Headers, Forms, Dev Notices, Validation Headings, Buttons, Modals, Tables, Backend Messages, Domain Exceptions, Notifikasi WhatsApp/Email, dan Audit Logs)**.
+Dokumen ini memuat arsitektur, konvensi penamaan key, dan contoh isi kamus dwibahasa untuk sistem COOCA ID & POS v2.0 yang mencakup **100% seluruh spektrum teks aplikasi secara menyeluruh (Page Titles, Breadcrumbs, Headers, Forms, Dev Notices, Validation Headings, Buttons, Modals, Tables, Backend Messages, Domain Exceptions, Notifikasi WhatsApp/Email, dan Audit Logs)**.
 
 ---
 

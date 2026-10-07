@@ -1,6 +1,6 @@
 # Cetak Biru Database RBAC, Matriks Permission & Sinkronisasi Seeder
 
-Dokumen ini memuat arsitektur database Role-Based Access Control (RBAC), format standar registrasi permission di `RbacSeeder.php`, pemetaan default roles, dan protokol sinkronisasi ke UI serta sidebar navigasi di ekosistem COOCA ERP & POS.
+Dokumen ini memuat arsitektur database Role-Based Access Control (RBAC), format standar registrasi permission di `RbacSeeder.php`, pemetaan default roles, dan protokol sinkronisasi ke UI serta sidebar navigasi di ekosistem COOCA ID & POS.
 
 ---
 

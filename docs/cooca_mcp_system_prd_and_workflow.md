@@ -6,7 +6,7 @@
 | **Dokumen ID** | `COOCA-PRD-MCP-2026-001` |
 | **Versi** | `1.0.0 (Comprehensive Release)` |
 | **Status** | `Draft Approved for Architecture Review` |
-| **Target Sistem** | Core SaaS COOCA ERP (`cooca_core`) |
+| **Target Sistem** | Core SaaS COOCA ID (`cooca_core`) |
 | **Author** | Principal AI Architect & Laravel System Engineer |
 | **Tanggal Efektif** | 07 Oktober 2026 |
 

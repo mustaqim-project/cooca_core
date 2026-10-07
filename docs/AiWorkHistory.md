@@ -1,4 +1,4 @@
-# AI Work History (Cooca ERP & POS Ecosystem)
+# AI Work History (COOCA ID & POS Ecosystem)
 
 > **Layer 1: Historical Development Record**  
 > **Mandat:** Mencatat riwayat kronologis setiap pekerjaan rekayasa sistem oleh AI Development Agent: _"Apa yang pernah dikerjakan, mengapa dilakukan, bagaimana dilakukan, dan apa dampaknya terhadap sistem."_  
@@ -3091,7 +3091,7 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 #### 1. Business Context & Objective
 
-- **Konteks:** Modul Feedback (Laporan Kendala/Bug dan Request Fitur Baru) merupakan saluran komunikasi esensial antara pemilik usaha/pengguna Cooca dengan tim pengembang. Sebelumnya, halaman pembuatan (`create.blade.php`) dan peninjauan tiket (`show.blade.php`) belum mengadopsi standar Apple HIG 3-Baris (`<x-module-header>`), kehilangan navigasi tab kanonikal (`<x-module-tabs>`), dan menggunakan breadcrumb manual yang tidak selaras dengan modul lainnya di Cooca ERP.
+- **Konteks:** Modul Feedback (Laporan Kendala/Bug dan Request Fitur Baru) merupakan saluran komunikasi esensial antara pemilik usaha/pengguna Cooca dengan tim pengembang. Sebelumnya, halaman pembuatan (`create.blade.php`) dan peninjauan tiket (`show.blade.php`) belum mengadopsi standar Apple HIG 3-Baris (`<x-module-header>`), kehilangan navigasi tab kanonikal (`<x-module-tabs>`), dan menggunakan breadcrumb manual yang tidak selaras dengan modul lainnya di COOCA ID.
 - **Masalah/Target:**
   1. *Standardisasi 3-Baris Page Header HIG:* Menerapkan komponen `<x-module-header module="feedback" ...>` yang menyajikan 3 lapisan baris konsisten (Baris 1: Breadcrumbs navigasi terstruktur, Baris 2: Judul Halaman + Lencana Status, Baris 3: Subtitle/Deskripsi Konteks) serta slot aksi cepat (tombol kembali, buat tiket baru).
   2. *Integrasi Tab Navigasi Kanonikal:* Memastikan `<x-module-tabs module="feedback" />` tampil seragam di seluruh halaman modul (daftar, form buat, dan detail tiket) dan disinkronkan dengan `NavigationRegistry`.
@@ -6768,7 +6768,7 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 #### 1. Business Context & Objective
 
-- **Konteks:** Menuntaskan seluruh rencana implementasi perbaikan dan pengerasan (hardening) modul media sosial omnichannel pada COOCA ERP. Memastikan bahwa setiap mitigasi keamanan siber, mitigasi fraud internal, dan modernisasi UI Bento Apple HIG terbukti berfungsi sempurna melalui pengujian otomatis regression-free dan bebas celah keamanan.
+- **Konteks:** Menuntaskan seluruh rencana implementasi perbaikan dan pengerasan (hardening) modul media sosial omnichannel pada COOCA ID. Memastikan bahwa setiap mitigasi keamanan siber, mitigasi fraud internal, dan modernisasi UI Bento Apple HIG terbukti berfungsi sempurna melalui pengujian otomatis regression-free dan bebas celah keamanan.
 - **Masalah/Target:** Membuktikan secara empiris via PHPUnit bahwa:
   1. Penolakan IP internal RFC 1918 mencegah celah SSRF secara komprehensif.
   2. Alur Maker-Checker tidak dapat dibobol oleh staf non-manager maupun pengguna dari tenant lain (Anti-IDOR / Anti-BOLA).
@@ -8425,7 +8425,7 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 - **Work Type:** Architecture | System Protocol | Documentation | Workflow
 
 #### 1. Business Context & Objective
-- **Konteks:** Ekosistem COOCA ERP & POS multi-tenant memerlukan disiplin rekayasa sistem yang konsisten dan terhindar dari regresi. Setiap perbaikan harus diawali audit mendalam agar AI memahami konteks fitur hulu-ke-hilir secara utuh sebelum mengeksekusi kode.
+- **Konteks:** Ekosistem COOCA ID & POS multi-tenant memerlukan disiplin rekayasa sistem yang konsisten dan terhindar dari regresi. Setiap perbaikan harus diawali audit mendalam agar AI memahami konteks fitur hulu-ke-hilir secara utuh sebelum mengeksekusi kode.
 - **Masalah/Target:** Memperbaiki dan menyelaraskan skill `cooca-agent-directive` dan aturan workspace `.agents/rules` agar menerapkan urutan operasional baku 6 tahap dengan gerbang konfirmasi eksplisit (*Confirmation Gate*) sebelum perubahan kode dilakukan.
 
 #### 2. What Was Done

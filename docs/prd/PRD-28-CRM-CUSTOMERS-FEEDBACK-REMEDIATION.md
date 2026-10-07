@@ -99,4 +99,4 @@ Modul Pelanggan (`customers`), CRM Loyalitas (`crm`), dan Pusat Bantuan Feedback
 - **Dwibahasa Penuh (i18n)**: Seluruh label, pesan validasi, dan flash alert tersedia dalam Bahasa Indonesia (`id`) dan English (`en`).
 
 ---
-*Dokumen PRD ini menjadi acuan spesifikasi fungsional dan teknis resmi Cooca ERP.*
+*Dokumen PRD ini menjadi acuan spesifikasi fungsional dan teknis resmi COOCA ID.*

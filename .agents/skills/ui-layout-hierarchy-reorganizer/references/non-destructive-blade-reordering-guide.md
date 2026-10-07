@@ -1,6 +1,6 @@
 # Panduan Teknis Penyusunan Ulang Blade & Layout (Non-Destructive Reordering)
 
-Dokumen ini memuat standar teknis untuk menyusun ulang template Blade, Alpine.js, dan HTML secara **100% aman dan non-destruktif** tanpa mematahkan koneksi data backend, variabel Eloquent, atau interaktivitas JavaScript di COOCA ERP & POS.
+Dokumen ini memuat standar teknis untuk menyusun ulang template Blade, Alpine.js, dan HTML secara **100% aman dan non-destruktif** tanpa mematahkan koneksi data backend, variabel Eloquent, atau interaktivitas JavaScript di COOCA ID & POS.
 
 ---
 

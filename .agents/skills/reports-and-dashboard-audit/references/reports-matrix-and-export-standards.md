@@ -1,6 +1,6 @@
 # Matriks Spesifikasi Laporan Bisnis & Standar Ekspor Microsoft Excel (XLSX)
 
-Dokumen ini memuat standar teknis spesifikasi kolom, rumus kalkulasi, arsitektur multi-sheet (Overview & Detail), format numerik, dan tata letak styling profesional Microsoft Excel (XLSX) untuk seluruh laporan di ekosistem COOCA ERP & POS v2.0.
+Dokumen ini memuat standar teknis spesifikasi kolom, rumus kalkulasi, arsitektur multi-sheet (Overview & Detail), format numerik, dan tata letak styling profesional Microsoft Excel (XLSX) untuk seluruh laporan di ekosistem COOCA ID & POS v2.0.
 
 ---
 

@@ -1,6 +1,6 @@
-# Panduan Setup Server & Deployment Cooca ERP
+# Panduan Setup Server & Deployment COOCA ID
 
-Dokumen ini berisi panduan komprehensif untuk melakukan instalasi dan setup server aplikasi **Cooca ERP** baik di lingkungan **Shared Hosting / Cloud Hosting (Hostinger / cPanel)** maupun di **Cloud VPS (Ubuntu / Debian + Nginx)**.
+Dokumen ini berisi panduan komprehensif untuk melakukan instalasi dan setup server aplikasi **COOCA ID** baik di lingkungan **Shared Hosting / Cloud Hosting (Hostinger / cPanel)** maupun di **Cloud VPS (Ubuntu / Debian + Nginx)**.
 
 ---
 
@@ -44,7 +44,7 @@ cp .env.example .env
 ```
 Sesuaikan konfigurasi produksi pada file `.env`:
 ```env
-APP_NAME="Cooca ERP"
+APP_NAME="COOCA ID"
 APP_ENV=production
 APP_KEY=base64:... #(generate dengan php artisan key:generate)
 APP_DEBUG=false

@@ -9,7 +9,7 @@
 
 ## 1. Filosofi & Paradigma
 
-COOCA AI bukan sekadar chatbot atau antarmuka teks biasa. COOCA AI adalah **Digital Company / Autonomous Workforce Layer** yang dirancang sebagai bagian organik dari sistem operasi bisnis COOCA ERP.
+COOCA AI bukan sekadar chatbot atau antarmuka teks biasa. COOCA AI adalah **Digital Company / Autonomous Workforce Layer** yang dirancang sebagai bagian organik dari sistem operasi bisnis COOCA ID.
 
 ### Perbedaan Paradigma
 | Fitur / Karakteristik | Chatbot Konvensional | COOCA AI Digital Company |

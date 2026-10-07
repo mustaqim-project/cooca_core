@@ -3,7 +3,7 @@ set -e
 cd /home/u218101292/domains/cooca.id/public_html
 
 echo "=========================================="
-echo "COOCA ERP - Production Deploy Script"
+echo "COOCA ID - Production Deploy Script"
 echo "Timestamp: $(date '+%Y-%m-%d %H:%M:%S')"
 echo "=========================================="
 

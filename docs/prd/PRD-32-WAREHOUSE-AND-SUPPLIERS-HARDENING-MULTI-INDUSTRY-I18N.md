@@ -10,7 +10,7 @@
 
 ## 1. Ringkasan Eksekutif & Latar Belakang Masalah
 
-Modul **Cabang & Gudang Logistik (`/warehouse`)** dan **Direktori Pemasok & Vendor (`/suppliers`)** merupakan fondasi operasional dari Hub Katalog, Logistik, dan Pengadaan (AP) pada ekosistem COOCA ERP & POS. 
+Modul **Cabang & Gudang Logistik (`/warehouse`)** dan **Direktori Pemasok & Vendor (`/suppliers`)** merupakan fondasi operasional dari Hub Katalog, Logistik, dan Pengadaan (AP) pada ekosistem COOCA ID & POS. 
 
 Berdasarkan audit komprehensif 8 dimensi pada 4 Oktober 2026, ditemukan beberapa area kritis yang perlu segera diperbaiki:
 1. **Celah IDOR Lintas Tenant pada Model Supplier:** SQL operator precedence `OR` pada `Supplier::resolveRouteBinding()` dapat membocorkan data vendor antar tenant saat diakses via slug.

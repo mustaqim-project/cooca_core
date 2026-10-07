@@ -1,6 +1,6 @@
 # Pola Baca Visual & Hierarki Tata Letak Antarmuka (Reading Patterns & Visual Weight)
 
-Dokumen ini memuat panduan mendalam tentang bagaimana mata manusia memindai layar (*eye-tracking & cognitive processing*), pembagian proporsi Bento Grid 12-kolom, dan penataan bobot visual untuk antarmuka bisnis di ekosistem COOCA ERP & POS v2.0.
+Dokumen ini memuat panduan mendalam tentang bagaimana mata manusia memindai layar (*eye-tracking & cognitive processing*), pembagian proporsi Bento Grid 12-kolom, dan penataan bobot visual untuk antarmuka bisnis di ekosistem COOCA ID & POS v2.0.
 
 ---
 

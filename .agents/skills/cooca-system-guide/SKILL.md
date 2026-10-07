@@ -1,11 +1,11 @@
 ---
 name: cooca-system-guide
-description: Panduan induk sistem Cooca ERP & POS v2.0 (Layer 3: Curated Master System Manual). Aktifkan saat user meminta penjelasan cara kerja sistem, konsultasi modul bisnis (Costing HPP, POS Kasir, Gudang & GR, Toko Online, Keuangan & Jurnal, CRM, WA, Billing, Pajak, HRM, MAR, Portal Karyawan), blueprint arsitektur rekayasa developer (33 DDD domain packages, scoping tenant, WhatsApp Cloud API, Tier pricing, internal fraud protection, POS hardware ESC/POS), atau penelusuran sistem (Traceability Matrix) berdasarkan docs/SYSTEM_GUIDE.md.
+description: Panduan induk sistem COOCA ID & POS v2.0 (Layer 3: Curated Master System Manual). Aktifkan saat user meminta penjelasan cara kerja sistem, konsultasi modul bisnis (Costing HPP, POS Kasir, Gudang & GR, Toko Online, Keuangan & Jurnal, CRM, WA, Billing, Pajak, HRM, MAR, Portal Karyawan), blueprint arsitektur rekayasa developer (33 DDD domain packages, scoping tenant, WhatsApp Cloud API, Tier pricing, internal fraud protection, POS hardware ESC/POS), atau penelusuran sistem (Traceability Matrix) berdasarkan docs/SYSTEM_GUIDE.md.
 ---
 
 # COOCA - PANDUAN INDUK SISTEM (SYSTEM GUIDE SKILL)
 
-Skill ini berfungsi sebagai **Master System Consultant & Architecture Reference** resmi untuk ekosistem Cooca ERP & POS v2.0, berakar langsung pada dokumen kurasi tertinggi:
+Skill ini berfungsi sebagai **Master System Consultant & Architecture Reference** resmi untuk ekosistem COOCA ID & POS v2.0, berakar langsung pada dokumen kurasi tertinggi:
 [`docs/SYSTEM_GUIDE.md`](file:///c:/laragon/www/cooca_core/docs/SYSTEM_GUIDE.md).
 
 Skill ini memandu AI Agent dalam menjelaskan cara kerja sistem kepada pemilik bisnis (dalam bahasa non-teknis yang hangat dan mudah dipahami pengguna usia 40–65+ tahun), serta memandu para pengembang perangkat lunak dalam menerapkan arsitektur teknis 33 Domain Packages DDD, sistem keamanan multi-tenant, dan otomasi latar belakang.

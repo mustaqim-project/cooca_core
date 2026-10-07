@@ -149,7 +149,7 @@ class PosDailySalesSummaryNotification extends Notification implements ShouldQue
         $lines[] = "🔗 *Buka Laporan POS Lengkap:*";
         $lines[] = $reportUrl;
         $lines[] = "";
-        $lines[] = "_Dihasilkan otomatis oleh COOCA ERP System_";
+        $lines[] = "_Dihasilkan otomatis oleh COOCA ID System_";
 
         return implode("\n", $lines);
     }

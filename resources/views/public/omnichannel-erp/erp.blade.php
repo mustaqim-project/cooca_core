@@ -493,7 +493,7 @@
                         class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] overflow-hidden">
                         <button type="button" @click="openFaq = openFaq === 1 ? null : 1"
                             class="w-full p-5 text-left font-bold text-sm sm:text-base flex items-center justify-between gap-4 focus:outline-none">
-                            <span>Apakah COOCA ERP bisa digunakan jika saya punya beberapa cabang toko fisik?</span>
+                            <span>Apakah COOCA ID bisa digunakan jika saya punya beberapa cabang toko fisik?</span>
                             <i data-lucide="chevron-down" class="w-4 h-4 transition-transform text-[#007AFF]"
                                 :class="openFaq === 1 ? 'rotate-180' : ''"></i>
                         </button>

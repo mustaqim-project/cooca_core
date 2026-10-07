@@ -5,16 +5,18 @@
 @section('content')
 <script>
 function mcpSettingsHub() {
-    const appBasePath = @json(base_path());
     const sseUrl = @json($sseEndpoint);
     const apiBase = @json($apiBaseUrl);
+    const openApiUrl = @json($openApiEndpoint);
 
     return {
         openCreateModal: false,
         activeProviderTab: 'claude',
+        claudeMode: 'web', // 'web' (Claude.ai Web & Mobile), 'desktop_sse' (Claude Desktop Remote), 'desktop_stdio' (Local CLI)
+        chatgptMode: 'connector', // 'connector' (ChatGPT Apps SDK / MCP Connector), 'actions' (Custom GPT Actions)
+        cursorMode: 'sse', // 'sse', 'stdio'
         customToken: @json(session('plain_token') ?? ''),
         activeOs: 'windows',
-        cursorMode: 'sse',
         toastVisible: false,
         toastMessage: '',
         toastTimeout: null,
@@ -95,13 +97,31 @@ function mcpSettingsHub() {
             return '~/.config/Claude/claude_desktop_config.json';
         },
 
-        getClaudeConfig() {
+        getClaudeWebUrl() {
+            return `${sseUrl}?token=${this.getToken()}`;
+        },
+
+        getClaudeDesktopSseConfig() {
+            const config = {
+                "mcpServers": {
+                    "cooca-erp": {
+                        "url": sseUrl,
+                        "headers": {
+                            "Authorization": "Bearer " + this.getToken()
+                        }
+                    }
+                }
+            };
+            return JSON.stringify(config, null, 2);
+        },
+
+        getClaudeDesktopStdioConfig() {
             const config = {
                 "mcpServers": {
                     "cooca-erp": {
                         "command": "php",
                         "args": ["artisan", "mcp:serve", "--token=" + this.getToken()],
-                        "cwd": appBasePath
+                        "cwd": "/path/ke/proyek/cooca_core"
                     }
                 }
             };
@@ -110,6 +130,14 @@ function mcpSettingsHub() {
 
         getClaudeCodeCmd() {
             return `claude mcp add cooca-erp -- php artisan mcp:serve --token=${this.getToken()}`;
+        },
+
+        getChatGptConnectorUrl() {
+            return `${sseUrl}?token=${this.getToken()}`;
+        },
+
+        getChatGptOpenApiUrl() {
+            return `${openApiUrl}?token=${this.getToken()}`;
         },
 
         getCursorSseConfig() {
@@ -132,7 +160,7 @@ function mcpSettingsHub() {
                     "cooca-erp": {
                         "command": "php",
                         "args": ["artisan", "mcp:serve", "--token=" + this.getToken()],
-                        "cwd": appBasePath
+                        "cwd": "/path/ke/proyek/cooca_core"
                     }
                 }
             };
@@ -186,7 +214,7 @@ API_BASE = "${apiBase}"
 
 @tool
 def check_inventory_stock(query: str = "") -> str:
-    """Memeriksa ketersediaan stok produk COOCA ERP."""
+    """Memeriksa ketersediaan stok produk COOCA ID."""
     resp = requests.post(
         f"{API_BASE}/tools/inventory_check_stock/execute",
         headers={"Authorization": f"Bearer {COOCA_TOKEN}"},
@@ -481,15 +509,15 @@ document.addEventListener('alpine:init', () => {
                     :class="activeProviderTab === 'claude' ? 'bg-white dark:bg-[#2C2C2E] text-neutral-900 dark:text-white shadow-xs font-semibold' : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-white'"
                     class="px-3.5 py-2 rounded-[12px] transition-all whitespace-nowrap flex items-center gap-2">
                     <i data-lucide="bot" class="w-4 h-4 text-amber-500"></i>
-                    <span>Claude Desktop</span>
+                    <span>Claude (Web, Apps & Desktop)</span>
                 </button>
                 <button
                     type="button"
-                    @click="activeProviderTab = 'claude_code'"
-                    :class="activeProviderTab === 'claude_code' ? 'bg-white dark:bg-[#2C2C2E] text-neutral-900 dark:text-white shadow-xs font-semibold' : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-white'"
+                    @click="activeProviderTab = 'chatgpt'"
+                    :class="activeProviderTab === 'chatgpt' ? 'bg-white dark:bg-[#2C2C2E] text-neutral-900 dark:text-white shadow-xs font-semibold' : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-white'"
                     class="px-3.5 py-2 rounded-[12px] transition-all whitespace-nowrap flex items-center gap-2">
-                    <i data-lucide="terminal" class="w-4 h-4 text-neutral-700 dark:text-neutral-300"></i>
-                    <span>Claude Code CLI</span>
+                    <i data-lucide="sparkles" class="w-4 h-4 text-emerald-500"></i>
+                    <span>ChatGPT (Web & Apps)</span>
                 </button>
                 <button
                     type="button"
@@ -501,11 +529,11 @@ document.addEventListener('alpine:init', () => {
                 </button>
                 <button
                     type="button"
-                    @click="activeProviderTab = 'chatgpt'"
-                    :class="activeProviderTab === 'chatgpt' ? 'bg-white dark:bg-[#2C2C2E] text-neutral-900 dark:text-white shadow-xs font-semibold' : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-white'"
+                    @click="activeProviderTab = 'claude_code'"
+                    :class="activeProviderTab === 'claude_code' ? 'bg-white dark:bg-[#2C2C2E] text-neutral-900 dark:text-white shadow-xs font-semibold' : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-white'"
                     class="px-3.5 py-2 rounded-[12px] transition-all whitespace-nowrap flex items-center gap-2">
-                    <i data-lucide="sparkles" class="w-4 h-4 text-emerald-500"></i>
-                    <span>ChatGPT (Custom Actions)</span>
+                    <i data-lucide="terminal" class="w-4 h-4 text-neutral-700 dark:text-neutral-300"></i>
+                    <span>Claude Code CLI</span>
                 </button>
                 <button
                     type="button"
@@ -544,88 +572,346 @@ document.addEventListener('alpine:init', () => {
             {{-- Tab Contents Detail per Provider --}}
             <div class="mt-4">
 
-                {{-- 1. Claude Desktop --}}
+                {{-- 1. Claude Ecosystem (Web, Mobile Apps & Desktop) --}}
                 <div x-show="activeProviderTab === 'claude'" class="space-y-5">
-                    <div class="flex items-center gap-2">
-                        <span class="px-2.5 py-1 rounded-[8px] bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-semibold">
-                            Desktop Application • Local Stdio Transport
-                        </span>
-                        <span class="text-xs text-neutral-500 dark:text-neutral-400">Kompatibel: Windows, macOS, Linux</span>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {{-- Step 1 --}}
-                        <div class="p-4 rounded-[16px] bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200/80 dark:border-neutral-800 space-y-2">
-                            <div class="flex items-center justify-between">
-                                <span class="w-6 h-6 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center">1</span>
-                                <button
-                                    type="button"
-                                    @click="copyText(getClaudePath(), 'Path berkas tersalin!')"
-                                    class="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
-                                    <i data-lucide="copy" class="w-3 h-3"></i>
-                                    <span>Salin Path</span>
-                                </button>
-                            </div>
-                            <h4 class="text-xs font-semibold text-neutral-900 dark:text-white">Buka Berkas Konfigurasi</h4>
-                            <p class="text-[11px] text-neutral-500 dark:text-neutral-400">
-                                Buka aplikasi Claude &rarr; Settings &rarr; Developer &rarr; Edit Config, atau buka langsung file berikut:
-                            </p>
-                            <div class="p-2 rounded-[8px] bg-neutral-200/60 dark:bg-neutral-800 font-mono text-[11px] text-neutral-800 dark:text-neutral-200 break-all select-all">
-                                <span x-text="getClaudePath()"></span>
-                            </div>
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-1 rounded-[8px] bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-semibold">
+                                Anthropic Claude Ecosystem • Web, Mobile Apps (iOS/Android) & Desktop
+                            </span>
                         </div>
 
-                        {{-- Step 2 --}}
-                        <div class="p-4 rounded-[16px] bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200/80 dark:border-neutral-800 space-y-2">
-                            <div class="flex items-center justify-between">
-                                <span class="w-6 h-6 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center">2</span>
-                                <span class="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">Auto-filled with your token</span>
-                            </div>
-                            <h4 class="text-xs font-semibold text-neutral-900 dark:text-white">Tempelkan Konfigurasi JSON</h4>
-                            <p class="text-[11px] text-neutral-500 dark:text-neutral-400">
-                                Sisipkan blok <code class="font-mono text-[11px] bg-neutral-200 dark:bg-neutral-800 px-1 py-0.5 rounded">mcpServers</code> ke dalam file konfigurasi Claude Anda.
-                            </p>
-                            <div class="text-[11px] text-neutral-500 dark:text-neutral-400">
-                                Pastikan CLI PHP terdaftar di sistem PATH Anda (misal via Laragon atau PHP Windows).
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Live Code Box --}}
-                    <div class="relative">
-                        <div class="flex items-center justify-between px-4 py-2.5 rounded-t-[16px] bg-neutral-800 text-neutral-300 text-xs font-mono border-b border-neutral-700">
-                            <span>claude_desktop_config.json</span>
+                        {{-- Sub-toggle: Web/Apps vs Desktop SSE vs Stdio --}}
+                        <div class="inline-flex p-1 rounded-[12px] bg-neutral-100 dark:bg-neutral-800 text-[11px] font-medium overflow-x-auto">
                             <button
                                 type="button"
-                                @click="copyText(getClaudeConfig(), 'Konfigurasi Claude Desktop tersalin!')"
-                                class="px-3 py-1 rounded-[8px] bg-white/10 hover:bg-white/20 text-white text-xs font-medium flex items-center gap-1.5 transition-colors">
-                                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-                                <span>{{ __('mcp.btn_copy_config') }}</span>
+                                @click="claudeMode = 'web'"
+                                :class="claudeMode === 'web' ? 'bg-white dark:bg-[#2C2C2E] text-neutral-900 dark:text-white shadow-xs font-semibold' : 'text-neutral-500'"
+                                class="px-3 py-1 rounded-[8px] transition-all whitespace-nowrap">
+                                🌐 Claude.ai Web & Mobile (Rekomendasi)
+                            </button>
+                            <button
+                                type="button"
+                                @click="claudeMode = 'desktop_sse'"
+                                :class="claudeMode === 'desktop_sse' ? 'bg-white dark:bg-[#2C2C2E] text-neutral-900 dark:text-white shadow-xs font-semibold' : 'text-neutral-500'"
+                                class="px-3 py-1 rounded-[8px] transition-all whitespace-nowrap">
+                                🖥️ Claude Desktop (Remote SSE)
+                            </button>
+                            <button
+                                type="button"
+                                @click="claudeMode = 'desktop_stdio'"
+                                :class="claudeMode === 'desktop_stdio' ? 'bg-white dark:bg-[#2C2C2E] text-neutral-900 dark:text-white shadow-xs font-semibold' : 'text-neutral-500'"
+                                class="px-3 py-1 rounded-[8px] transition-all whitespace-nowrap">
+                                💻 Local Dev (CLI Stdio)
                             </button>
                         </div>
-                        <pre class="p-4 rounded-b-[16px] bg-neutral-900 text-neutral-100 font-mono text-xs overflow-x-auto leading-relaxed select-all"><code x-text="getClaudeConfig()"></code></pre>
                     </div>
 
-                    {{-- Step 3 & 4 --}}
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
-                        <div class="p-4 rounded-[16px] bg-blue-50/60 dark:bg-blue-950/30 border border-blue-500/20 space-y-1.5">
-                            <div class="flex items-center gap-2 text-blue-700 dark:text-blue-300 font-semibold text-xs">
-                                <span class="w-5 h-5 rounded-full bg-blue-600 text-white text-[10px] flex items-center justify-center font-bold">3</span>
-                                <span>Restart Aplikasi Claude</span>
+                    {{-- Mode 1A: Claude.ai Web & Mobile Apps Custom Connector --}}
+                    <div x-show="claudeMode === 'web'" class="space-y-4">
+                        <div class="p-4 rounded-[16px] bg-blue-50/70 dark:bg-blue-950/30 border border-blue-500/20 text-xs text-blue-800 dark:text-blue-300 leading-relaxed flex items-start gap-3">
+                            <i data-lucide="smartphone" class="w-5 h-5 text-blue-500 shrink-0 mt-0.5"></i>
+                            <div>
+                                <strong class="font-semibold text-blue-900 dark:text-blue-200">Sinkronisasi Otomatis ke HP (iOS & Android):</strong>
+                                <p class="mt-0.5 text-[11px] text-blue-700 dark:text-blue-300">
+                                    Sekali Anda menambahkan konektor ini di Claude Web, Anda dapat langsung menggunakannya dari aplikasi Claude di iPhone, iPad, dan Android dengan akun yang sama (termasuk fitur Voice Chat).
+                                </p>
                             </div>
-                            <p class="text-[11px] text-blue-800/80 dark:text-blue-200/80 leading-relaxed">
-                                Tutup aplikasi Claude Desktop sepenuhnya (keluar dari tray/taskbar), lalu buka kembali agar file konfigurasi dimuat ulang.
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="p-4 rounded-[16px] bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200/80 dark:border-neutral-800 space-y-2">
+                                <span class="w-6 h-6 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center">1</span>
+                                <h4 class="text-xs font-semibold text-neutral-900 dark:text-white">Buka Pengaturan Connectors di Claude.ai</h4>
+                                <p class="text-[11px] text-neutral-500 dark:text-neutral-400">
+                                    Kunjungi menu konektor kustom di browser Anda:
+                                </p>
+                                <a href="https://claude.ai/new?modal=add-custom-connector#customize/connectors" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline">
+                                    <span>Buka claude.ai/customize/connectors</span>
+                                    <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                                </a>
+                            </div>
+
+                            <div class="p-4 rounded-[16px] bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200/80 dark:border-neutral-800 space-y-2">
+                                <span class="w-6 h-6 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center">2</span>
+                                <h4 class="text-xs font-semibold text-neutral-900 dark:text-white">Isi Nama Konektor</h4>
+                                <p class="text-[11px] text-neutral-500 dark:text-neutral-400">
+                                    Ketik nama konektor agar mudah dikenali di daftar alat Claude:
+                                </p>
+                                <div class="p-2 rounded-[8px] bg-neutral-200/60 dark:bg-neutral-800 font-mono text-xs text-neutral-900 dark:text-white font-medium select-all">
+                                    COOCA ID
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-4 rounded-[16px] bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200/80 dark:border-neutral-800 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-6 h-6 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center">3</span>
+                                    <h4 class="text-xs font-semibold text-neutral-900 dark:text-white">Tempelkan MCP Server URL</h4>
+                                </div>
+                                <span class="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">Token Terpasang Otomatis</span>
+                            </div>
+                            <p class="text-[11px] text-neutral-500 dark:text-neutral-400">
+                                Salin URL endpoint MCP Server di bawah dan tempelkan ke kolom <strong>MCP server URL</strong> di Claude:
+                            </p>
+                            <div class="flex items-center gap-2">
+                                <input
+                                    type="text"
+                                    readonly
+                                    :value="getClaudeWebUrl()"
+                                    class="flex-1 font-mono text-xs bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white px-3.5 py-2 rounded-[10px] border border-neutral-200 dark:border-neutral-700 select-all" />
+                                <button
+                                    type="button"
+                                    @click="copyText(getClaudeWebUrl(), 'URL Claude Web Connector tersalin!')"
+                                    class="px-4 py-2 rounded-[10px] bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-medium flex items-center gap-1.5 transition-colors">
+                                    <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                    <span>Salin URL</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="p-4 rounded-[16px] bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-500/20 space-y-1">
+                            <div class="flex items-center gap-2 text-emerald-800 dark:text-emerald-200 font-semibold text-xs">
+                                <span class="w-5 h-5 rounded-full bg-emerald-600 text-white text-[10px] flex items-center justify-center font-bold">4</span>
+                                <span>Klik Add / Connect & Mulai Chat</span>
+                            </div>
+                            <p class="text-[11px] text-emerald-700 dark:text-emerald-300 leading-relaxed">
+                                Klik <strong>Add Connector</strong>. Buka obrolan baru di Claude.ai atau aplikasi Claude di HP Anda, lalu ketik: <em>"Berapa saldo kas dan bank toko saat ini?"</em>. Claude akan langsung mengeksekusi data toko Anda.
+                            </p>
+                        </div>
+                    </div>
+
+                    {{-- Mode 1B: Claude Desktop Remote SSE --}}
+                    <div x-show="claudeMode === 'desktop_sse'" class="space-y-4" style="display: none;">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="p-4 rounded-[16px] bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200/80 dark:border-neutral-800 space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="w-6 h-6 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center">1</span>
+                                    <button
+                                        type="button"
+                                        @click="copyText(getClaudePath(), 'Path berkas tersalin!')"
+                                        class="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
+                                        <i data-lucide="copy" class="w-3 h-3"></i>
+                                        <span>Salin Path</span>
+                                    </button>
+                                </div>
+                                <h4 class="text-xs font-semibold text-neutral-900 dark:text-white">Buka Berkas Konfigurasi</h4>
+                                <p class="text-[11px] text-neutral-500 dark:text-neutral-400">
+                                    Buka aplikasi Claude Desktop &rarr; Settings &rarr; Developer &rarr; Edit Config, atau buka berkas berikut:
+                                </p>
+                                <div class="p-2 rounded-[8px] bg-neutral-200/60 dark:bg-neutral-800 font-mono text-[11px] text-neutral-800 dark:text-neutral-200 break-all select-all">
+                                    <span x-text="getClaudePath()"></span>
+                                </div>
+                            </div>
+
+                            <div class="p-4 rounded-[16px] bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200/80 dark:border-neutral-800 space-y-2">
+                                <span class="w-6 h-6 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center">2</span>
+                                <h4 class="text-xs font-semibold text-neutral-900 dark:text-white">Remote Cloud (Tanpa Perlu PHP Lokal)</h4>
+                                <p class="text-[11px] text-neutral-500 dark:text-neutral-400">
+                                    Konfigurasi Remote SSE langsung terhubung ke server cloud COOCA melalui protokol aman HTTPS.
+                                </p>
+                            </div>
+                        </div>
+
+                        {{-- Live Code Box Claude Desktop SSE --}}
+                        <div class="relative">
+                            <div class="flex items-center justify-between px-4 py-2.5 rounded-t-[16px] bg-neutral-800 text-neutral-300 text-xs font-mono border-b border-neutral-700">
+                                <span>claude_desktop_config.json</span>
+                                <button
+                                    type="button"
+                                    @click="copyText(getClaudeDesktopSseConfig(), 'Konfigurasi Claude Desktop SSE tersalin!')"
+                                    class="px-3 py-1 rounded-[8px] bg-white/10 hover:bg-white/20 text-white text-xs font-medium flex items-center gap-1.5 transition-colors">
+                                    <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                    <span>Salin Konfigurasi</span>
+                                </button>
+                            </div>
+                            <pre class="p-4 rounded-b-[16px] bg-neutral-900 text-neutral-100 font-mono text-xs overflow-x-auto leading-relaxed select-all"><code x-text="getClaudeDesktopSseConfig()"></code></pre>
+                        </div>
+                    </div>
+
+                    {{-- Mode 1C: Claude Desktop Local CLI (Stdio) --}}
+                    <div x-show="claudeMode === 'desktop_stdio'" class="space-y-4" style="display: none;">
+                        <div class="p-4 rounded-[16px] bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200/80 dark:border-neutral-800 space-y-2">
+                            <h4 class="text-xs font-semibold text-neutral-900 dark:text-white">Khusus Pengembangan di Komputer Lokal (Localhost / Laragon):</h4>
+                            <p class="text-[11px] text-neutral-500 dark:text-neutral-400 leading-relaxed">
+                                Mode ini digunakan jika Anda menjalankan Claude Desktop di komputer lokal yang sama dengan folder source code Laravel Anda. Ganti nilai <code class="font-mono text-[10px] bg-neutral-200 dark:bg-neutral-800 px-1 py-0.5 rounded">cwd</code> dengan path absolut folder proyek di PC lokal Anda.
                             </p>
                         </div>
 
-                        <div class="p-4 rounded-[16px] bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-500/20 space-y-1.5">
-                            <div class="flex items-center gap-2 text-emerald-700 dark:text-emerald-300 font-semibold text-xs">
-                                <span class="w-5 h-5 rounded-full bg-emerald-600 text-white text-[10px] flex items-center justify-center font-bold">4</span>
-                                <span>Verifikasi Ikon Palu (Tools)</span>
+                        <div class="relative">
+                            <div class="flex items-center justify-between px-4 py-2.5 rounded-t-[16px] bg-neutral-800 text-neutral-300 text-xs font-mono border-b border-neutral-700">
+                                <span>claude_desktop_config.json (Local Stdio)</span>
+                                <button
+                                    type="button"
+                                    @click="copyText(getClaudeDesktopStdioConfig(), 'Konfigurasi Stdio tersalin!')"
+                                    class="px-3 py-1 rounded-[8px] bg-white/10 hover:bg-white/20 text-white text-xs font-medium flex items-center gap-1.5 transition-colors">
+                                    <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                    <span>Salin Konfigurasi</span>
+                                </button>
                             </div>
-                            <p class="text-[11px] text-emerald-800/80 dark:text-emerald-200/80 leading-relaxed">
-                                Buka obrolan baru di Claude. Anda akan melihat ikon palu (hammer) di pojok kanan bawah dengan label <strong>cooca-erp (10 tools)</strong>.
+                            <pre class="p-4 rounded-b-[16px] bg-neutral-900 text-neutral-100 font-mono text-xs overflow-x-auto leading-relaxed select-all"><code x-text="getClaudeDesktopStdioConfig()"></code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- 2. ChatGPT Ecosystem (Apps SDK, Web & Custom GPT Actions) --}}
+                <div x-show="activeProviderTab === 'chatgpt'" class="space-y-5" style="display: none;">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-1 rounded-[8px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
+                                ChatGPT Ecosystem • Web, Mobile Apps (iOS/Android) & GPT Actions
+                            </span>
+                        </div>
+
+                        {{-- Sub-toggle: Apps SDK vs Actions --}}
+                        <div class="inline-flex p-1 rounded-[12px] bg-neutral-100 dark:bg-neutral-800 text-[11px] font-medium">
+                            <button
+                                type="button"
+                                @click="chatgptMode = 'connector'"
+                                :class="chatgptMode === 'connector' ? 'bg-white dark:bg-[#2C2C2E] text-neutral-900 dark:text-white shadow-xs font-semibold' : 'text-neutral-500'"
+                                class="px-3 py-1 rounded-[8px] transition-all">
+                                ⚡ ChatGPT Apps SDK / MCP Connector
+                            </button>
+                            <button
+                                type="button"
+                                @click="chatgptMode = 'actions'"
+                                :class="chatgptMode === 'actions' ? 'bg-white dark:bg-[#2C2C2E] text-neutral-900 dark:text-white shadow-xs font-semibold' : 'text-neutral-500'"
+                                class="px-3 py-1 rounded-[8px] transition-all">
+                                🛠️ Custom GPT Actions (OpenAPI)
+                            </button>
+                        </div>
+                    </div>
+
+                    {{-- Mode 2A: ChatGPT Apps SDK / MCP Connector --}}
+                    <div x-show="chatgptMode === 'connector'" class="space-y-4">
+                        <div class="p-4 rounded-[16px] bg-amber-50/70 dark:bg-amber-950/30 border border-amber-500/20 space-y-1.5 text-xs text-amber-900 dark:text-amber-200">
+                            <div class="flex items-center gap-2 font-semibold">
+                                <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0"></i>
+                                <span>Penting: Panduan Mengatasi "Server MCP Menolak Akses"</span>
+                            </div>
+                            <p class="text-[11px] text-amber-800 dark:text-amber-300 leading-relaxed">
+                                Pada form ChatGPT MCP Connector, pilih <strong>"Tanpa autentikasi"</strong> karena token keamanan bisnis Anda telah disematkan langsung di URL koneksi di bawah. Jangan pilih OAuth jika Anda belum mengonfigurasi OpenID Connect Server.
                             </p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="p-4 rounded-[16px] bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200/80 dark:border-neutral-800 space-y-2">
+                                <span class="w-6 h-6 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center">1</span>
+                                <h4 class="text-xs font-semibold text-neutral-900 dark:text-white">Nama & Deskripsi Konektor</h4>
+                                <div class="space-y-1.5 text-[11px] text-neutral-600 dark:text-neutral-300">
+                                    <div><strong>Nama:</strong> <code class="font-mono bg-neutral-200 dark:bg-neutral-800 px-1 py-0.5 rounded">COOCA ID Assistant</code></div>
+                                    <div><strong>Deskripsi:</strong> Asisten pintar ERP untuk cek keuangan, stok barang, CRM, dan laporan laba rugi.</div>
+                                </div>
+                            </div>
+
+                            <div class="p-4 rounded-[16px] bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200/80 dark:border-neutral-800 space-y-2">
+                                <span class="w-6 h-6 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center">2</span>
+                                <h4 class="text-xs font-semibold text-neutral-900 dark:text-white">Pilihan Autentikasi</h4>
+                                <div class="p-2.5 rounded-[10px] bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
+                                    <div class="text-[10px] text-neutral-400 uppercase font-semibold">Autentikasi di Form ChatGPT:</div>
+                                    <div class="font-semibold text-emerald-600 dark:text-emerald-400 mt-0.5 flex items-center gap-1.5">
+                                        <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+                                        <span>Tanpa autentikasi (None)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-4 rounded-[16px] bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200/80 dark:border-neutral-800 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-6 h-6 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center">3</span>
+                                    <h4 class="text-xs font-semibold text-neutral-900 dark:text-white">Koneksi (MCP Server URL)</h4>
+                                </div>
+                                <span class="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">Lengkap dengan Token Query</span>
+                            </div>
+                            <p class="text-[11px] text-neutral-500 dark:text-neutral-400">
+                                Tempelkan URL lengkap berikut ke kolom <strong>Koneksi (URL)</strong> di form konektor ChatGPT:
+                            </p>
+                            <div class="flex items-center gap-2">
+                                <input
+                                    type="text"
+                                    readonly
+                                    :value="getChatGptConnectorUrl()"
+                                    class="flex-1 font-mono text-xs bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white px-3.5 py-2 rounded-[10px] border border-neutral-200 dark:border-neutral-700 select-all" />
+                                <button
+                                    type="button"
+                                    @click="copyText(getChatGptConnectorUrl(), 'URL Konektor ChatGPT tersalin!')"
+                                    class="px-4 py-2 rounded-[10px] bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-medium flex items-center gap-1.5 transition-colors">
+                                    <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                    <span>Salin URL</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="p-4 rounded-[16px] bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-500/20 space-y-1">
+                            <div class="flex items-center gap-2 text-emerald-800 dark:text-emerald-200 font-semibold text-xs">
+                                <span class="w-5 h-5 rounded-full bg-emerald-600 text-white text-[10px] flex items-center justify-center font-bold">4</span>
+                                <span>Ikon Logo & Simpan</span>
+                            </div>
+                            <p class="text-[11px] text-emerald-700 dark:text-emerald-300 leading-relaxed">
+                                Unggah ikon format PNG (ukuran 256×256 px, maksimal 10 KB), centang persetujuan keamanan, lalu klik <strong>Simpan / Hubungkan</strong>. Konektor akan langsung aktif di akun ChatGPT Anda.
+                            </p>
+                        </div>
+                    </div>
+
+                    {{-- Mode 2B: Custom GPTs Actions (OpenAPI 3.1) --}}
+                    <div x-show="chatgptMode === 'actions'" class="space-y-4" style="display: none;">
+                        <div class="space-y-3">
+                            <div class="p-4 rounded-[16px] bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200/80 dark:border-neutral-800 space-y-2">
+                                <h4 class="text-xs font-semibold text-neutral-900 dark:text-white">Langkah 1: Buka GPT Builder di ChatGPT</h4>
+                                <p class="text-[11px] text-neutral-500 dark:text-neutral-400">
+                                    Kunjungi <strong>chatgpt.com &rarr; Explore GPTs &rarr; Create a GPT</strong>. Buka tab <strong>Configure</strong>, gulir ke paling bawah, lalu klik <strong>Create new action</strong>.
+                                </p>
+                            </div>
+
+                            <div class="p-4 rounded-[16px] bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200/80 dark:border-neutral-800 space-y-2">
+                                <h4 class="text-xs font-semibold text-neutral-900 dark:text-white">Langkah 2: Impor Skema OpenAPI 3.1 dari URL</h4>
+                                <p class="text-[11px] text-neutral-500 dark:text-neutral-400">
+                                    Pada kolom Schema, klik <strong>Import from URL</strong>, tempelkan URL endpoint di bawah, lalu klik <strong>Import</strong>:
+                                </p>
+                                <div class="flex items-center gap-2">
+                                    <input
+                                        type="text"
+                                        readonly
+                                        :value="getChatGptOpenApiUrl()"
+                                        class="flex-1 font-mono text-xs bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white px-3.5 py-2 rounded-[10px] border border-neutral-200 dark:border-neutral-700 select-all" />
+                                    <button
+                                        type="button"
+                                        @click="copyText(getChatGptOpenApiUrl(), 'URL OpenAPI tersalin!')"
+                                        class="px-4 py-2 rounded-[10px] bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-medium flex items-center gap-1.5 transition-colors">
+                                        <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                        <span>Salin URL</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="p-4 rounded-[16px] bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200/80 dark:border-neutral-800 space-y-2">
+                                <h4 class="text-xs font-semibold text-neutral-900 dark:text-white">Langkah 3: Konfigurasi Authentication</h4>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                                    <div class="p-2.5 rounded-[10px] bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
+                                        <div class="text-[10px] text-neutral-400 uppercase">Authentication Type</div>
+                                        <div class="font-semibold text-neutral-900 dark:text-white mt-0.5">API Key</div>
+                                    </div>
+                                    <div class="p-2.5 rounded-[10px] bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
+                                        <div class="text-[10px] text-neutral-400 uppercase">Auth Type</div>
+                                        <div class="font-semibold text-neutral-900 dark:text-white mt-0.5">Bearer</div>
+                                    </div>
+                                    <div class="p-2.5 rounded-[10px] bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
+                                        <div>
+                                            <div class="text-[10px] text-neutral-400 uppercase">API Key Value</div>
+                                            <div class="font-mono text-[11px] text-neutral-900 dark:text-white mt-0.5">Token MCP Anda</div>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            @click="copyText(getToken(), 'Token tersalin!')"
+                                            class="text-blue-600 dark:text-blue-400 hover:underline text-[11px]">
+                                            Salin
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1229,14 +1515,34 @@ document.addEventListener('alpine:init', () => {
                 </h3>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+                <div class="p-4 rounded-[16px] bg-neutral-50/70 dark:bg-neutral-900/50 border border-neutral-200/80 dark:border-neutral-800 space-y-1.5">
+                    <h5 class="font-semibold text-neutral-900 dark:text-white flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                        <span>Server MCP Menolak Akses di ChatGPT?</span>
+                    </h5>
+                    <p class="text-[11px] text-neutral-500 leading-relaxed">
+                        Di form ChatGPT Apps SDK, pilih <strong>"Tanpa autentikasi"</strong> dan pastikan URL koneksi telah menyertakan <code class="font-mono text-[10px]">?token=cooca_mcp_live_...</code>. Jangan pilih OAuth jika belum ada OIDC server.
+                    </p>
+                </div>
+
+                <div class="p-4 rounded-[16px] bg-neutral-50/70 dark:bg-neutral-900/50 border border-neutral-200/80 dark:border-neutral-800 space-y-1.5">
+                    <h5 class="font-semibold text-neutral-900 dark:text-white flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                        <span>Bagaimana Akses di HP (iOS/Android)?</span>
+                    </h5>
+                    <p class="text-[11px] text-neutral-500 leading-relaxed">
+                        Cukup hubungkan sekali via Claude.ai Web atau ChatGPT Web. Aplikasi seluler di iPhone & Android Anda akan otomatis tersinkronisasi tanpa perlu konfigurasi ulang.
+                    </p>
+                </div>
+
                 <div class="p-4 rounded-[16px] bg-neutral-50/70 dark:bg-neutral-900/50 border border-neutral-200/80 dark:border-neutral-800 space-y-1.5">
                     <h5 class="font-semibold text-neutral-900 dark:text-white flex items-center gap-1.5">
                         <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                        <span>Tool tidak muncul di Claude?</span>
+                        <span>Uji Coba di Komputer Lokal (Laragon)?</span>
                     </h5>
                     <p class="text-[11px] text-neutral-500 leading-relaxed">
-                        Pastikan Claude Desktop telah ditutup sepenuhnya (Close via Tray) lalu buka kembali. Pastikan path PHP valid di sistem environment Anda.
+                        Gunakan <strong>Cloudflare Tunnel</strong> (<code class="font-mono text-[10px]">cloudflared tunnel --url http://127.0.0.1:80</code>) untuk membuat URL HTTPS instan bebas hambatan halaman peringatan Ngrok.
                     </p>
                 </div>
 
@@ -1246,13 +1552,13 @@ document.addEventListener('alpine:init', () => {
                         <span>Error -32000 (Unauthorized)?</span>
                     </h5>
                     <p class="text-[11px] text-neutral-500 leading-relaxed">
-                        Token yang dimasukkan salah, telah dicabut, atau kedaluwarsa. Terbitkan token baru di bagian atas halaman ini dan perbarui konfigurasi.
+                        Token yang dimasukkan salah, telah dicabut, atau kedaluwarsa. Terbitkan token baru di bagian atas halaman ini dan perbarui konfigurasi atau URL koneksi.
                     </p>
                 </div>
 
                 <div class="p-4 rounded-[16px] bg-neutral-50/70 dark:bg-neutral-900/50 border border-neutral-200/80 dark:border-neutral-800 space-y-1.5">
                     <h5 class="font-semibold text-neutral-900 dark:text-white flex items-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
                         <span>Error -32001 (Lacks Ability)?</span>
                     </h5>
                     <p class="text-[11px] text-neutral-500 leading-relaxed">
@@ -1266,7 +1572,7 @@ document.addEventListener('alpine:init', () => {
                         <span>Apakah Data Toko Aman?</span>
                     </h5>
                     <p class="text-[11px] text-neutral-500 leading-relaxed">
-                        Sangat aman. Setiap token terenkripsi SHA-256 dan terisolasi secara ketat pada bisnis Anda. AI tidak dapat mengakses data tenant lain.
+                        Sangat aman. Setiap token terenkripsi SHA-256 dan terisolasi secara ketat pada tenant bisnis Anda. AI tidak dapat mengakses data tenant lain.
                     </p>
                 </div>
             </div>

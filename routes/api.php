@@ -118,11 +118,13 @@ Route::prefix('v1')->group(function (): void {
     Route::get('/docs', [ReportController::class, 'docs']);
 
     // Model Context Protocol (MCP) Multi-Tenant Universal AI Gateway
+    // Supports: Streamable HTTP (POST JSON-RPC), Server-Sent Events (GET SSE), and OpenAPI 3.1
     Route::prefix('mcp')->middleware(['mcp.auth', 'throttle:120,1'])->group(function (): void {
-        Route::get('/sse', [\App\Http\Controllers\Api\V1\Mcp\McpSseController::class, 'sse']);
-        Route::post('/message', [\App\Http\Controllers\Api\V1\Mcp\McpSseController::class, 'message']);
-        Route::get('/openapi.json', [\App\Http\Controllers\Api\V1\Mcp\McpSseController::class, 'openapi']);
-        Route::post('/tools/{tool}/execute', [\App\Http\Controllers\Api\V1\Mcp\McpSseController::class, 'executeDirect']);
+        Route::match(['GET', 'POST', 'OPTIONS', 'HEAD'], '/', [\App\Http\Controllers\Api\V1\Mcp\McpSseController::class, 'handleEndpoint']);
+        Route::match(['GET', 'POST', 'OPTIONS', 'HEAD'], '/sse', [\App\Http\Controllers\Api\V1\Mcp\McpSseController::class, 'handleEndpoint']);
+        Route::match(['GET', 'POST', 'OPTIONS', 'HEAD'], '/message', [\App\Http\Controllers\Api\V1\Mcp\McpSseController::class, 'message']);
+        Route::match(['GET', 'OPTIONS', 'HEAD'], '/openapi.json', [\App\Http\Controllers\Api\V1\Mcp\McpSseController::class, 'openapi']);
+        Route::match(['POST', 'OPTIONS'], '/tools/{tool}/execute', [\App\Http\Controllers\Api\V1\Mcp\McpSseController::class, 'executeDirect']);
     });
 
     // Currencies (Global List)

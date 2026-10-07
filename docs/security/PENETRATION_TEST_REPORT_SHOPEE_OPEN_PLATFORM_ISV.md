@@ -6,8 +6,8 @@
 | **Document Information** | **Specification** |
 | :--- | :--- |
 | **Document Title** | Web Application Penetration Testing & PII Security Assessment Report |
-| **Target Organization (ISV)** | PT Inovasi Cooca Nusantara (Cooca ERP & POS Ecosystem) |
-| **Target Application** | Cooca ERP Platform & Omnichannel Marketplace Integration Engine |
+| **Target Organization (ISV)** | PT Inovasi Cooca Nusantara (COOCA ID & POS Ecosystem) |
+| **Target Application** | COOCA ID Platform & Omnichannel Marketplace Integration Engine |
 | **Target Domain / URLs** | `https://cooca.id`, `https://app.cooca.id`, `https://cooca.id/marketplace-hub` |
 | **Integration Scope** | Shopee Open Platform API V2, OAuth 2.0 Engine, Webhook Ingestion Service |
 | **Security Certification Type** | **Penetration Test Report** |
@@ -25,7 +25,7 @@
 
 ## 1. Executive Summary
 
-PT Inovasi Cooca Nusantara engaged an independent cybersecurity assessment team to conduct a comprehensive **Black-Box Penetration Test and Security Assessment** on the **Cooca ERP SaaS Platform and Marketplace Integration Engine (`https://cooca.id`)**.
+PT Inovasi Cooca Nusantara engaged an independent cybersecurity assessment team to conduct a comprehensive **Black-Box Penetration Test and Security Assessment** on the **COOCA ID SaaS Platform and Marketplace Integration Engine (`https://cooca.id`)**.
 
 The primary objective of this security evaluation is to assess the overall security posture, evaluate multi-tenant data isolation mechanisms, verify API endpoints, and ensure rigorous safeguarding of **Personally Identifiable Information (PII)** and sensitive seller/buyer data in compliance with the **Shopee Open Platform Security Requirements for Third-Party Partner Platform (ISV) Developers**.
 
@@ -33,7 +33,7 @@ The primary objective of this security evaluation is to assess the overall secur
 - **Assessment Scope:** Externally exposed attack surface, Web UI, API routes, OAuth 2.0 flow, Webhook ingestion endpoint, Role-Based Access Control (RBAC), and database encryption layer.
 - **Vulnerability Remediation Status:** All vulnerabilities identified during the initial testing phase (including potential access control and state validation items) have been **100% remediated and verified through extensive re-testing**.
 - **PII Safeguard Verification:** Strict multi-tenant isolation (`business_id` scoping), AES-256 encryption at rest for access tokens and sensitive payloads, TLS 1.3 encryption in transit, and immutable audit logging have been thoroughly verified.
-- **Overall Verdict:** **APPROVED & COMPLIANT**. The Cooca ERP application demonstrates a mature, robust, and resilient security posture suitable for processing unmasked sensitive order and customer data via the Shopee Open Platform.
+- **Overall Verdict:** **APPROVED & COMPLIANT**. The COOCA ID application demonstrates a mature, robust, and resilient security posture suitable for processing unmasked sensitive order and customer data via the Shopee Open Platform.
 
 ### Summary of Vulnerability Findings
 
@@ -104,7 +104,7 @@ The test executed black-box simulation covering the following 10 core testing ca
 
 ## 4. PII Protection & Sensitive Data Safeguards Assessment
 
-Shopee Open Platform requires strict safeguards for sensitive data (Buyer Name, Phone Number, Email, Delivery Address). The assessment specifically evaluated the implementation of data protection mechanisms within Cooca ERP:
+Shopee Open Platform requires strict safeguards for sensitive data (Buyer Name, Phone Number, Email, Delivery Address). The assessment specifically evaluated the implementation of data protection mechanisms within COOCA ID:
 
 ```text
 ┌──────────────────────────────────────────────────────────────────────────────────┐
@@ -220,13 +220,13 @@ Shopee Open Platform requires strict safeguards for sensitive data (Buyer Name, 
 
 ### Lead Penetration Tester Statement:
 
-> *"We hereby certify that an independent, comprehensive penetration test was conducted on the Cooca ERP SaaS Platform and Marketplace Integration Engine (`https://cooca.id`). The testing thoroughly covered the externally exposed attack surface, authentication workflows, multi-tenant isolation, and data protection mechanisms. As of September 28, 2026, all identified Critical, High, and Medium vulnerabilities have been completely remediated, re-tested, and verified. The application satisfies all technical security requirements for handling unmasked sensitive customer and order data (PII) via the Shopee Open Platform."*
+> *"We hereby certify that an independent, comprehensive penetration test was conducted on the COOCA ID SaaS Platform and Marketplace Integration Engine (`https://cooca.id`). The testing thoroughly covered the externally exposed attack surface, authentication workflows, multi-tenant isolation, and data protection mechanisms. As of September 28, 2026, all identified Critical, High, and Medium vulnerabilities have been completely remediated, re-tested, and verified. The application satisfies all technical security requirements for handling unmasked sensitive customer and order data (PII) via the Shopee Open Platform."*
 
 ```text
 ┌──────────────────────────────────────────────────────────────────────────────────┐
 │                             SECURITY AUDIT CERTIFICATE                           │
 │                                                                                  │
-│ Target Application   : Cooca ERP & Omnichannel Marketplace Engine               │
+│ Target Application   : COOCA ID & Omnichannel Marketplace Engine               │
 │ Target Organization  : PT Inovasi Cooca Nusantara (cooca.id)                     │
 │ Assessment Type      : Web Application Penetration Test & PII Security Audit     │
 │ Standard Applied     : OWASP WSTG v4.2 / PTES / NIST SP 800-115                  │

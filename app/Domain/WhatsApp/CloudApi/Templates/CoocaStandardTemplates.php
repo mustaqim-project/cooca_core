@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
  * Class CoocaStandardTemplates
  *
  * Repositori dan spesifikasi resmi Message Templates Meta WhatsApp Cloud API v26.0
- * untuk seluruh ekosistem platform COOCA ERP & POS.
+ * untuk seluruh ekosistem platform COOCA ID & POS.
  *
  * Menjamin kepatuhan standar Meta:
  * - Kategori ketat (UTILITY, MARKETING, AUTHENTICATION)

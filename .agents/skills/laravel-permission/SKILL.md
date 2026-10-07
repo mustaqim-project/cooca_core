@@ -5,7 +5,7 @@ description: Mengecek (audit), menambahkan role & permission, memindahkan deklar
 
 # LARAVEL RBAC, PERMISSION AUDIT & CONTROLLER-LEVEL AUTHORIZATION SKILL
 
-Skill operasional ini memandu AI Agent dalam mengeksekusi **audit keamanan otorisasi, penambahan role & permission baru, migrasi middleware permission dari routes ke controller (Clean Routing & Encapsulated RBAC), serta sinkronisasi hak akses ke tabel database, seeder, dan antarmuka UI/Blade** di seluruh ekosistem Laravel & COOCA ERP.
+Skill operasional ini memandu AI Agent dalam mengeksekusi **audit keamanan otorisasi, penambahan role & permission baru, migrasi middleware permission dari routes ke controller (Clean Routing & Encapsulated RBAC), serta sinkronisasi hak akses ke tabel database, seeder, dan antarmuka UI/Blade** di seluruh ekosistem Laravel & COOCA ID.
 
 ---
 

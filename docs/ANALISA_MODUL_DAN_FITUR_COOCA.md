@@ -1,6 +1,6 @@
-# Analisa Komprehensif Modul & Fitur Sistem Cooca ERP
+# Analisa Komprehensif Modul & Fitur Sistem COOCA ID
 
-Dokumen ini merupakan laporan audit, inventarisasi modul, pemetaan fitur, serta analisis kemampuan teknis dan fungsional dari seluruh sistem **Cooca ERP & POS Ecosystem**.
+Dokumen ini merupakan laporan audit, inventarisasi modul, pemetaan fitur, serta analisis kemampuan teknis dan fungsional dari seluruh sistem **COOCA ID & POS Ecosystem**.
 
 ---
 
@@ -310,7 +310,7 @@ Dokumen ini merupakan laporan audit, inventarisasi modul, pemetaan fitur, serta 
 ## 10. Modul WhatsApp Gateway & Marketing Engine
 
 ### 10.1 Konektivitas WhatsApp Microservice (wa-server)
-* **Tujuan Utama:** Menghubungkan nomor WhatsApp bisnis ke sistem COOCA ERP secara langsung.
+* **Tujuan Utama:** Menghubungkan nomor WhatsApp bisnis ke sistem COOCA ID secara langsung.
 * **Kemampuan Fitur:**
   - **Scan QR Code Pairing:** Menghubungkan nomor WhatsApp toko via scan QR di panel web (menggunakan Baileys protocol).
   - **Multi-Device Support:** Tetap aktif tanpa perlu ponsel selalu menyala di dekat komputer.
@@ -497,4 +497,4 @@ Ekosistem **Cooca** bukan sekadar aplikasi kasir (POS) biasa ataupun software ak
 4. **Kesiapan Multi-Channel & Multi-Outlet:** Mendukung operasional terpusat dari smartphone kasir, monitor dapur, hingga kontrol eksekutif pemilik bisnis.
 
 ---
-*Dokumen ini diperbarui secara berkala sebagai standar referensi teknis dan fungsional Cooca ERP.*
+*Dokumen ini diperbarui secara berkala sebagai standar referensi teknis dan fungsional COOCA ID.*

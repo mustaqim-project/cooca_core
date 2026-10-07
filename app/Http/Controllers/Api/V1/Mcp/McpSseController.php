@@ -26,12 +26,39 @@ final class McpSseController extends Controller
     ) {}
 
     /**
+     * Unified Streamable HTTP & SSE MCP Endpoint Handler.
+     * Compatible with Anthropic Claude Web Connectors, OpenAI Apps SDK, Cursor, and VS Code.
+     */
+    public function handleEndpoint(Request $request): Response
+    {
+        // 1. CORS Preflight
+        if ($request->isMethod('OPTIONS')) {
+            return response('', Response::HTTP_NO_CONTENT, [
+                'Access-Control-Allow-Origin'  => '*',
+                'Access-Control-Allow-Methods' => 'GET, POST, OPTIONS, HEAD',
+                'Access-Control-Allow-Headers' => 'Authorization, Content-Type, X-Requested-With, mcp-session-id, Accept, Last-Event-ID, x-mcp-token',
+                'Access-Control-Max-Age'       => '86400',
+            ]);
+        }
+
+        // 2. Direct JSON-RPC POST / Streamable HTTP (Spec 2024-11-05 & 2025-03)
+        if ($request->isMethod('POST')) {
+            return $this->message($request);
+        }
+
+        // 3. Server-Sent Events (SSE) Stream
+        return $this->sse($request);
+    }
+
+    /**
      * Remote MCP HTTP Server-Sent Events (SSE) Endpoint.
      */
     public function sse(Request $request): StreamedResponse
     {
         $sessionId = Str::uuid()->toString();
-        $messageEndpoint = url("/api/v1/mcp/message?sessionId={$sessionId}");
+        $tokenQuery = (string) $request->query('token', '');
+        $tokenParam = $tokenQuery !== '' ? '&token=' . urlencode($tokenQuery) : '';
+        $messageEndpoint = url("/api/v1/mcp/message?sessionId={$sessionId}{$tokenParam}");
 
         return response()->stream(function () use ($messageEndpoint): void {
             echo "event: endpoint\n";
@@ -39,10 +66,11 @@ final class McpSseController extends Controller
             ob_flush();
             flush();
         }, Response::HTTP_OK, [
-            'Content-Type'      => 'text/event-stream',
-            'Cache-Control'     => 'no-cache, no-transform',
-            'Connection'        => 'keep-alive',
-            'X-Accel-Buffering' => 'no',
+            'Content-Type'                => 'text/event-stream',
+            'Cache-Control'               => 'no-cache, no-transform',
+            'Connection'                  => 'keep-alive',
+            'X-Accel-Buffering'           => 'no',
+            'Access-Control-Allow-Origin' => '*',
         ]);
     }
 
@@ -51,6 +79,16 @@ final class McpSseController extends Controller
      */
     public function message(Request $request): JsonResponse
     {
+        $corsHeaders = [
+            'Access-Control-Allow-Origin'  => '*',
+            'Access-Control-Allow-Methods' => 'GET, POST, OPTIONS, HEAD',
+            'Access-Control-Allow-Headers' => 'Authorization, Content-Type, X-Requested-With, mcp-session-id, Accept, Last-Event-ID, x-mcp-token',
+        ];
+
+        if ($request->isMethod('OPTIONS')) {
+            return response()->json([], Response::HTTP_NO_CONTENT, $corsHeaders);
+        }
+
         /** @var McpAccessToken|null $token */
         $token = $request->attributes->get('mcp_token');
 
@@ -63,12 +101,12 @@ final class McpSseController extends Controller
         $response = $this->protocolEngine->handle($payload, $token);
 
         if ($response === null) {
-            return response()->json([], Response::HTTP_ACCEPTED);
+            return response()->json([], Response::HTTP_ACCEPTED, $corsHeaders);
         }
 
         $statusCode = isset($response['error']) ? Response::HTTP_BAD_REQUEST : Response::HTTP_OK;
 
-        return response()->json($response, $statusCode);
+        return response()->json($response, $statusCode, $corsHeaders);
     }
 
     /**

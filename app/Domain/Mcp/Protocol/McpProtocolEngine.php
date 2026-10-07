@@ -39,11 +39,14 @@ final class McpProtocolEngine
 
         try {
             $result = match ($method) {
-                'initialize' => $this->handleInitialize($params),
-                'ping'       => new \stdClass(),
-                'tools/list' => $this->handleToolsList($token),
-                'tools/call' => $this->handleToolsCall($params, $token),
-                default      => throw new \InvalidArgumentException("Method '{$method}' not supported.", -32601),
+                'initialize'       => $this->handleInitialize($params),
+                'ping'             => new \stdClass(),
+                'tools/list'       => $this->handleToolsList($token),
+                'tools/call'       => $this->handleToolsCall($params, $token),
+                'resources/list'   => ['resources' => []],
+                'prompts/list'     => ['prompts' => []],
+                'logging/setLevel' => new \stdClass(),
+                default            => throw new \InvalidArgumentException("Method '{$method}' not supported.", -32601),
             };
 
             return [
@@ -80,11 +83,18 @@ final class McpProtocolEngine
                 'version' => '1.0.0',
             ],
             'capabilities'    => [
-                'tools' => [
+                'tools'     => [
+                    'listChanged' => false,
+                ],
+                'resources' => [
+                    'subscribe'   => false,
+                    'listChanged' => false,
+                ],
+                'prompts'   => [
                     'listChanged' => false,
                 ],
             ],
-            'instructions'    => 'COOCA ERP Multi-Tenant MCP Server. You can query financial records, record expenses from receipts, manage product catalogs, check inventory, schedule social posts, and send WhatsApp messages. You do NOT need to specify business_id because your session is strictly bound to the active tenant.',
+            'instructions'    => 'COOCA ID Multi-Tenant MCP Server. You can query financial records, record expenses from receipts, manage product catalogs, check inventory, schedule social posts, and send WhatsApp messages. You do NOT need to specify business_id because your session is strictly bound to the active tenant.',
         ];
     }
 

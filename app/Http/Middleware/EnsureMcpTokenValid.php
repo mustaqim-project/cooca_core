@@ -23,10 +23,22 @@ final class EnsureMcpTokenValid
      */
     public function handle(Request $request, Closure $next, ?string $requiredAbility = null): Response
     {
-        $rawToken = $request->bearerToken() ?: (string) $request->query('token', '');
+        // 1. Always permit CORS Preflight OPTIONS without requiring token
+        if ($request->isMethod('OPTIONS')) {
+            return response('', Response::HTTP_NO_CONTENT, [
+                'Access-Control-Allow-Origin'  => '*',
+                'Access-Control-Allow-Methods' => 'GET, POST, OPTIONS, HEAD',
+                'Access-Control-Allow-Headers' => 'Authorization, Content-Type, X-Requested-With, mcp-session-id, Accept, Last-Event-ID, x-mcp-token',
+                'Access-Control-Max-Age'       => '86400',
+            ]);
+        }
+
+        $rawToken = $request->bearerToken()
+            ?: (string) $request->header('x-mcp-token', '')
+            ?: (string) $request->query('token', '');
 
         if ($rawToken === '') {
-            return $this->unauthorizedResponse($request, 'MCP Bearer Token is required.');
+            return $this->unauthorizedResponse($request, 'MCP Bearer Token is required. Include Authorization: Bearer <token> or ?token=<token> in the URL.');
         }
 
         $token = $this->authenticator->authenticate($rawToken);
@@ -41,12 +53,25 @@ final class EnsureMcpTokenValid
 
         $request->attributes->set('mcp_token', $token);
 
-        return $next($request);
+        $response = $next($request);
+
+        // Attach CORS header to outgoing response
+        $response->headers->set('Access-Control-Allow-Origin', '*');
+        $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, HEAD');
+        $response->headers->set('Access-Control-Allow-Headers', 'Authorization, Content-Type, X-Requested-With, mcp-session-id, Accept, Last-Event-ID, x-mcp-token');
+
+        return $response;
     }
 
     private function unauthorizedResponse(Request $request, string $message): JsonResponse
     {
-        if ($request->isJson() || $request->has('jsonrpc')) {
+        $headers = [
+            'Access-Control-Allow-Origin'  => '*',
+            'Access-Control-Allow-Methods' => 'GET, POST, OPTIONS, HEAD',
+            'Access-Control-Allow-Headers' => 'Authorization, Content-Type, X-Requested-With, mcp-session-id, Accept, Last-Event-ID, x-mcp-token',
+        ];
+
+        if ($request->isJson() || $request->has('jsonrpc') || $request->has('method')) {
             return response()->json([
                 'jsonrpc' => '2.0',
                 'error'   => [
@@ -54,18 +79,24 @@ final class EnsureMcpTokenValid
                     'message' => $message,
                 ],
                 'id'      => $request->input('id'),
-            ], Response::HTTP_UNAUTHORIZED);
+            ], Response::HTTP_UNAUTHORIZED, $headers);
         }
 
         return response()->json([
             'status'  => 'error',
             'message' => $message,
-        ], Response::HTTP_UNAUTHORIZED);
+        ], Response::HTTP_UNAUTHORIZED, $headers);
     }
 
     private function forbiddenResponse(Request $request, string $message): JsonResponse
     {
-        if ($request->isJson() || $request->has('jsonrpc')) {
+        $headers = [
+            'Access-Control-Allow-Origin'  => '*',
+            'Access-Control-Allow-Methods' => 'GET, POST, OPTIONS, HEAD',
+            'Access-Control-Allow-Headers' => 'Authorization, Content-Type, X-Requested-With, mcp-session-id, Accept, Last-Event-ID, x-mcp-token',
+        ];
+
+        if ($request->isJson() || $request->has('jsonrpc') || $request->has('method')) {
             return response()->json([
                 'jsonrpc' => '2.0',
                 'error'   => [
@@ -73,12 +104,12 @@ final class EnsureMcpTokenValid
                     'message' => $message,
                 ],
                 'id'      => $request->input('id'),
-            ], Response::HTTP_FORBIDDEN);
+            ], Response::HTTP_FORBIDDEN, $headers);
         }
 
         return response()->json([
             'status'  => 'error',
             'message' => $message,
-        ], Response::HTTP_FORBIDDEN);
+        ], Response::HTTP_FORBIDDEN, $headers);
     }
 }

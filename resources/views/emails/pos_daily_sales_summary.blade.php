@@ -273,7 +273,7 @@
         </div>
 
         <div class="footer">
-            Email ini dihasilkan otomatis oleh sistem <strong>COOCA ERP Platform</strong>.<br>
+            Email ini dihasilkan otomatis oleh sistem <strong>COOCA ID Platform</strong>.<br>
             Multi-Tenant Business Operating System &bull; &copy; {{ date('Y') }} COOCA Indonesia.
         </div>
     </div>

@@ -1,4 +1,4 @@
-# COOCA ERP - Standard Operating Procedure for AI Agent
+# COOCA ID - Standard Operating Procedure for AI Agent
 
 ## Siklus Kerja Wajib 6-Tahap (6-Stage Mandatory Operating Lifecycle)
 

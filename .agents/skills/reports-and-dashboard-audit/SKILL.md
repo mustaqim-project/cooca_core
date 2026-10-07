@@ -5,7 +5,7 @@ description: Audit, perancangan, dan standardisasi sistem laporan bisnis (Lapora
 
 # REPORTS, ANALYTICS & MULTI-DOMAIN DASHBOARD AUDIT SKILL (WITH EXCEL EXPORT ENGINE)
 
-Skill operasional ini memandu AI Agent dalam mengeksekusi **audit, perancangan, dan standardisasi sistem pelaporan bisnis, dashboard analitik per domain, dan mesin ekspor data profesional ke Excel (XLSX) & PDF** di seluruh ekosistem COOCA ERP & POS v2.0.
+Skill operasional ini memandu AI Agent dalam mengeksekusi **audit, perancangan, dan standardisasi sistem pelaporan bisnis, dashboard analitik per domain, dan mesin ekspor data profesional ke Excel (XLSX) & PDF** di seluruh ekosistem COOCA ID & POS v2.0.
 
 Skill ini memastikan bahwa data operasional dari berbagai sumber (POS Kasir, Marketplace Hub, Toko Online, Gudang, Akuntansi, dan HRM) diagregasikan secara presisi matematis, disajikan dalam antarmuka **Bento Apple HIG v2.0**, dan dapat diekspor secara instan ke format **Microsoft Excel (XLSX)** dengan tata letak profesional siap cetak.
 

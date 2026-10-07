@@ -1,4 +1,4 @@
-# Panduan Induk Sistem Cooca ERP & POS (System Guide)
+# Panduan Induk Sistem COOCA ID & POS (System Guide)
 
 > **Dokumentasi Tingkat Tertinggi (Layer 3: Curated Master System Manual)**  
 > **Target Pembaca:** Pemilik Usaha (Business Owner), Tim Produk, Pengembang Perangkat Lunak (Developer), dan AI Development Agent.  
@@ -276,7 +276,7 @@ Aplikasi ini dirancang untuk dapat dioperasikan secara percaya diri oleh **gener
   - **Imutabilitas Riwayat Absensi:** Rekam jejak absensi mengunci snapshot jadwal secara permanen, sehingga pemindahan shift di masa depan tidak mengubah historis data kehadiran staf.
 
 ### 3.15 Integrasi Model Context Protocol & AI Gateway (MCP Server)
-* **Kapan Digunakan?** Saat pemilik usaha ingin menghubungkan asisten kecerdasan buatan favoritnya (Claude Desktop, Cursor IDE, ChatGPT, Gemini, Ollama, n8n) dengan data operasional COOCA ERP.
+* **Kapan Digunakan?** Saat pemilik usaha ingin menghubungkan asisten kecerdasan buatan favoritnya (Claude Desktop, Cursor IDE, ChatGPT, Gemini, Ollama, n8n) dengan data operasional COOCA ID.
 * **Fitur & Keamanan Alur Kerja:**
   - **Pusat Integrasi AI Terpadu:** Dapat diakses melalui `/settings/integrations/mcp` dengan antarmuka Bento Apple HIG v2.0 yang modern dan bebas emoji.
   - **Manajemen Token Mandiri:** Pemilik usaha dapat membuat token akses aman, mengatur batas kedaluwarsa, membatasi hak akses (*abilities* seperti hanya baca produk atau pencatatan pengeluaran), serta mencabut (*revoke*) token kapan saja.

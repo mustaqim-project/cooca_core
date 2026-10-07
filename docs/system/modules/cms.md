@@ -9,7 +9,7 @@
 
 ## 1. Tujuan & Nilai Bisnis
 
-Modul CMS Artikel & Edukasi Cooca mengelola publikasi konten artikel blog, panduan langkah operasional bisnis (*Cluster K - Tutorial*), dan materi edukasi wawasan bisnis UMKM (*Cluster O - Edukasi*). Modul ini berfungsi sebagai kanal edukasi strategis (*content marketing & SEO engine*) yang mengalirkan calon merchant UMKM organik ke ekosistem Cooca ERP & POS.
+Modul CMS Artikel & Edukasi Cooca mengelola publikasi konten artikel blog, panduan langkah operasional bisnis (*Cluster K - Tutorial*), dan materi edukasi wawasan bisnis UMKM (*Cluster O - Edukasi*). Modul ini berfungsi sebagai kanal edukasi strategis (*content marketing & SEO engine*) yang mengalirkan calon merchant UMKM organik ke ekosistem COOCA ID & POS.
 
 ---
 

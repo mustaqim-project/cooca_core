@@ -63,7 +63,7 @@ class PayrollTwoPartExcelExport
 
         $spreadsheet = new Spreadsheet();
         $spreadsheet->getProperties()
-            ->setCreator('COOCA ERP Platform')
+            ->setCreator('COOCA ID Platform')
             ->setLastModifiedBy('COOCA HRM System')
             ->setTitle("Laporan Penggajian - {$this->payroll->title}")
             ->setSubject("Penggajian Periode {$this->payroll->formatted_period}")

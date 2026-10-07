@@ -1,4 +1,4 @@
-# LAPORAN AUDIT KOMPREHENSIF SISTEM COOCA ERP & POS
+# LAPORAN AUDIT KOMPREHENSIF SISTEM COOCA ID & POS
 ## Evaluasi Mendalam 5 Dimensi Hulu-ke-Hilir pada 7 Modul View Utama
 
 > **Dokumen ID:** `AUDIT-2026-09-29-001`  

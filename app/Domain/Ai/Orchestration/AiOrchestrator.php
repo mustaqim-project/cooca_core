@@ -275,7 +275,7 @@ final class AiOrchestrator
             : "Tugas ini ditugaskan kepada {$teamName} yang berbasis di ruang kerja {$teamRoom}. Seluruh anggota tim ({$agentList}) bekerja sama sebagai satu tim solid, bukan individu terpisah.";
 
         return <<<PROMPT
-Anda adalah AI Coordinator untuk platform COOCA ERP (Digital Company).
+Anda adalah AI Coordinator untuk platform COOCA ID (Digital Company).
 Hierarki Organisasi & Penugasan Tim:
 {$assignmentInstruction}
 - AI CEO: Ringkasan Strategis & Keputusan Tertinggi.

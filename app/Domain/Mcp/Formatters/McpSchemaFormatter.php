@@ -127,7 +127,7 @@ final class McpSchemaFormatter
         return [
             'openapi' => '3.1.0',
             'info'    => [
-                'title'       => 'COOCA ERP Universal MCP Gateway',
+                'title'       => 'COOCA ID Universal MCP Gateway',
                 'description' => 'Multi-Tenant ERP AI Agent Actions for Businesses (Finance, Products, Inventory, Social Media, Reports, CRM, WhatsApp)',
                 'version'     => '1.0.0',
             ],

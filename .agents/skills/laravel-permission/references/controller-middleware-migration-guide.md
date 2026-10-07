@@ -1,6 +1,6 @@
 # Panduan Migrasi Middleware Permission: Dari Route ke Controller
 
-Dokumen ini memuat standar teknis dan panduan praktis untuk memindahkan deklarasi middleware permission dari file routing (`routes/web.php`, `routes/owner.php`, `routes/api.php`) langsung ke dalam **Controller** di Laravel 10/11/12+ pada ekosistem COOCA ERP & POS.
+Dokumen ini memuat standar teknis dan panduan praktis untuk memindahkan deklarasi middleware permission dari file routing (`routes/web.php`, `routes/owner.php`, `routes/api.php`) langsung ke dalam **Controller** di Laravel 10/11/12+ pada ekosistem COOCA ID & POS.
 
 ---
 

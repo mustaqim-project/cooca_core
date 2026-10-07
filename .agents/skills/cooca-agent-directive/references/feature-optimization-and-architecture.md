@@ -1,6 +1,6 @@
 # COOCA - Saran Fitur, Optimasi Performa, & Penataan Arsitektur End-to-End (Referensi Lengkap)
 
-Dokumen ini memuat cetak biru (*blueprint*) penataan fitur, optimasi performa sistem, serta arsitektur alur kerja hulu-ke-hilir (*end-to-end*) agar ekosistem COOCA ERP & POS bekerja secara terstruktur, berkinerja tinggi, aman, dan mudah dioperasikan.
+Dokumen ini memuat cetak biru (*blueprint*) penataan fitur, optimasi performa sistem, serta arsitektur alur kerja hulu-ke-hilir (*end-to-end*) agar ekosistem COOCA ID & POS bekerja secara terstruktur, berkinerja tinggi, aman, dan mudah dioperasikan.
 
 ---
 

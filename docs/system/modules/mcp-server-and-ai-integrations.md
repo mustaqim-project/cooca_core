@@ -9,7 +9,7 @@
 
 ## 1. Ikhtisar & Tujuan Arsitektural
 
-Modul **Model Context Protocol (MCP) Server** COOCA memungkinkan AI Agent eksternal (Claude Desktop, Cursor IDE, Antigravity, OpenAI ChatGPT Custom GPTs, Google Gemini, Ollama Local Models, LangChain, n8n, Dify) untuk berinteraksi langsung secara aman dengan database, ledger, dan mesin bisnis COOCA ERP.
+Modul **Model Context Protocol (MCP) Server** COOCA memungkinkan AI Agent eksternal (Claude Desktop, Cursor IDE, Antigravity, OpenAI ChatGPT Custom GPTs, Google Gemini, Ollama Local Models, LangChain, n8n, Dify) untuk berinteraksi langsung secara aman dengan database, ledger, dan mesin bisnis COOCA ID.
 
 ### Prinsip Keamanan & Desain:
 1. **Strict Zero-Tenant-Leak Isolation**: Parameter `business_id` **dilarang keras** diekspos ke AI client. AI client dilarang menentukan ID bisnis. Identitas tenant ditentukan 100% dari MCP Bearer Token (`mcp_access_tokens.token_hash`) yang diautentikasi ke `Context::requireBusiness()`.
