@@ -105,6 +105,16 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::put('/billing-packages/{billingPackage}', [AdminBillingPackageController::class, 'update'])->name('billing-packages.update');
         Route::post('/billing-packages/{billingPackage}/toggle', [AdminBillingPackageController::class, 'toggle'])->name('billing-packages.toggle');
 
+        // SaaS Subscription Promos & Vouchers
+        Route::prefix('promos')->name('promos.')->group(function (): void {
+            Route::get('/', [\App\Http\Controllers\Admin\AdminPromoController::class, 'index'])->name('index');
+            Route::post('/', [\App\Http\Controllers\Admin\AdminPromoController::class, 'store'])->name('store');
+            Route::put('/{promo}', [\App\Http\Controllers\Admin\AdminPromoController::class, 'update'])->name('update');
+            Route::post('/{promo}/toggle', [\App\Http\Controllers\Admin\AdminPromoController::class, 'toggle'])->name('toggle');
+            Route::delete('/{promo}', [\App\Http\Controllers\Admin\AdminPromoController::class, 'destroy'])->name('destroy');
+            Route::post('/seed-defaults', [\App\Http\Controllers\Admin\AdminPromoController::class, 'seedDefaults'])->name('seed-defaults');
+        });
+
         // SaaS Subscription Management & Payment Approval
         Route::get('/subscriptions', [AdminSubscriptionController::class, 'index'])->name('subscriptions.index');
         Route::get('/subscriptions/{payment}', [AdminSubscriptionController::class, 'show'])->name('subscriptions.show');

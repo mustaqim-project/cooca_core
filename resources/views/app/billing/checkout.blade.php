@@ -110,11 +110,11 @@
                 label: 'Standard',
                 badge: 'UMKM Pemula',
                 badgeColor: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800',
-                monthly: 29000,
-                annual: 290000,
+                monthly: {{ (float) ($allTierPrices['standard']['monthly'] ?? 29000) }},
+                annual: {{ (float) ($allTierPrices['standard']['annual'] ?? 290000) }},
                 popular: false,
                 desc: 'Cocok untuk 1 usaha rintisan dengan 100 produk dan kasir POS digital.',
-                features: ['1 Bisnis', '100 Produk & 20 Resep', '1.000 Struk Kasir/bln', '2 Lokasi (Toko/Gudang)', '3 Karyawan / Staf', '5 Meja Dine-In', 'Ekspor / Impor Excel', '50 Notifikasi WA/bln']
+                features: ['1 Bisnis Cooca', '100 Produk & 20 Formula Resep', '1.000 Transaksi Kasir/bln', '2 Lokasi (Toko & Gudang)', '3 Akun Staf / Karyawan', '5 Meja Kasir Dine-in', 'POS Kasir Digital & Offline Sync', 'Ekspor / Impor Excel', '50 Notifikasi WhatsApp/bln']
             },
             premium: {
                 key: 'premium',
@@ -122,11 +122,11 @@
                 label: 'Premium',
                 badge: 'Paling Populer',
                 badgeColor: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800',
-                monthly: 89000,
-                annual: 890000,
+                monthly: {{ (float) ($allTierPrices['premium']['monthly'] ?? 89000) }},
+                annual: {{ (float) ($allTierPrices['premium']['annual'] ?? 890000) }},
                 popular: true,
                 desc: 'Solusi lengkap multi-cabang, resep & kasir unlimited, KDS, dan otomasi stok.',
-                features: ['3 Bisnis (Multi-Company)', 'Produk & Resep Unlimited', 'Kasir POS Unlimited', '5 Cabang & Meja Unlimited', '10 Karyawan', 'KDS Dapur & Transfer Stok', 'Multi-Pricing Cabang', 'Komisi & Kasbon', '200 Notifikasi WA/bln']
+                features: ['3 Bisnis (Kelola 3 Brand)', 'Produk & Resep Unlimited', 'Transaksi Kasir Unlimited', '5 Cabang & Meja Unlimited', '10 Akun Staf / Karyawan', 'Kitchen Display System (KDS)', 'Transfer Antar Cabang & Multi-Price', 'Komisi Kasir & Kasbon', '200 Notifikasi WhatsApp/bln']
             },
             prestige: {
                 key: 'prestige',
@@ -134,11 +134,11 @@
                 label: 'Prestige',
                 badge: 'Enterprise UMKM',
                 badgeColor: 'bg-purple-50 text-purple-700 dark:bg-purple-950/50 dark:text-purple-400 border-purple-200 dark:border-purple-800',
-                monthly: 199000,
-                annual: 1990000,
+                monthly: {{ (float) ($allTierPrices['prestige']['monthly'] ?? 199000) }},
+                annual: {{ (float) ($allTierPrices['prestige']['annual'] ?? 1990000) }},
                 popular: false,
                 desc: 'Kapasitas penuh enterprise tanpa batas, pajak PPh 21 TER, dan slip gaji WhatsApp.',
-                features: ['Bisnis & Cabang Unlimited', 'Semua Fitur Tanpa Batas', 'Karyawan Unlimited', 'Pajak PPh 21 TER (PP 58/2023)', 'Auto Slip Gaji WhatsApp', '1.000 Notifikasi WA/bln', 'Prioritas Dukungan 24/7']
+                features: ['Bisnis & Cabang Unlimited', 'Semua Fitur Tanpa Batas', 'Karyawan / Staf Unlimited', 'Modul Pajak PPh 21 TER (PP 58/2023)', 'Auto Slip Gaji via WhatsApp', 'Akuntansi Jurnal Otomatis Terpadu', '1.000 Notifikasi WhatsApp/bln', 'Prioritas Dukungan Teknis 24/7']
             }
         },
         selectedDurationDays: {{ $defaultDurationDays }},
@@ -150,6 +150,74 @@
         isSubmitting: false,
         durationTiers: {{ \Illuminate\Support\Js::from($durationTiers) }},
         packages: {{ \Illuminate\Support\Js::from($packagesData) }},
+        
+        // Promo Voucher State
+        promoCodeInput: '{{ old('promo_code', request('promo', '')) }}',
+        appliedPromo: null,
+        promoLoading: false,
+        promoError: '',
+        promoSuccessMessage: '',
+
+        init() {
+            if (this.promoCodeInput.trim()) {
+                this.validateAndApplyPromo();
+            }
+        },
+
+        async validateAndApplyPromo() {
+            const code = this.promoCodeInput.trim().toUpperCase();
+            if (!code) {
+                this.promoError = 'Silakan masukkan kode promo / voucher.';
+                return;
+            }
+            this.promoLoading = true;
+            this.promoError = '';
+            this.promoSuccessMessage = '';
+            try {
+                const res = await fetch('{{ route('billing.promo.validate') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        code: code,
+                        tier: this.selectedTier,
+                        cycle: this.cycle,
+                        order_type: this.orderType,
+                        package_id: this.packageId
+                    })
+                });
+                const data = await res.json();
+                if (res.ok && data.valid) {
+                    this.appliedPromo = data;
+                    this.promoCodeInput = data.promo.code;
+                    this.promoSuccessMessage = data.message;
+                } else {
+                    this.appliedPromo = null;
+                    this.promoError = data.message || 'Kode promo tidak dapat digunakan.';
+                }
+            } catch (err) {
+                this.appliedPromo = null;
+                this.promoError = 'Gagal memeriksa promo. Periksa koneksi Anda.';
+            } finally {
+                this.promoLoading = false;
+            }
+        },
+
+        removePromo() {
+            this.appliedPromo = null;
+            this.promoCodeInput = '';
+            this.promoError = '';
+            this.promoSuccessMessage = '';
+        },
+
+        onPlanChanged() {
+            if (this.appliedPromo) {
+                this.validateAndApplyPromo();
+            }
+        },
     
         get filteredPackages() {
             if (this.orderType !== 'subscription') return this.packages;
@@ -171,12 +239,31 @@
             if (selectedPkg) return Number(selectedPkg.price);
             return this.topupPrice;
         },
+
+        get discountAmount() {
+            if (!this.appliedPromo) return 0;
+            const base = this.currentPrice;
+            if (this.appliedPromo.promo.discount_type === 'percentage') {
+                const percent = Number(this.appliedPromo.promo.discount_value) || 0;
+                let disc = (base * percent) / 100;
+                if (this.appliedPromo.promo.max_discount_amount) {
+                    disc = Math.min(disc, Number(this.appliedPromo.promo.max_discount_amount));
+                }
+                return Math.round(disc);
+            }
+            return Math.min(base, Number(this.appliedPromo.promo.discount_value) || 0);
+        },
+
+        get totalPayable() {
+            return Math.max(0, this.currentPrice - this.discountAmount);
+        },
     
         selectDuration(days) {
             this.selectedDurationDays = days;
             this.cycle = days >= 360 ? 'annual' : 'monthly';
             const match = this.packages.find(p => p.duration_days === days);
             if (match) this.packageId = match.id;
+            this.onPlanChanged();
         },
     
         formatRupiah(val) {
@@ -246,6 +333,7 @@
             <input type="hidden" name="order_type" value="{{ $type }}">
             <input type="hidden" name="package_id" :value="packageId">
             <input type="hidden" name="payment_method" :value="paymentMethod">
+            <input type="hidden" name="promo_code" :value="appliedPromo ? appliedPromo.promo.code : ''">
 
             <!-- Left Column: Step Cards (2 cols) -->
             <div class="lg:col-span-2 space-y-6">
@@ -274,14 +362,14 @@
                             <!-- Segmented Cycle Toggle (Monthly vs Annual) -->
                             <div
                                 class="inline-flex p-1 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] self-start sm:self-auto">
-                                <button type="button" @click="cycle = 'monthly'"
+                                <button type="button" @click="cycle = 'monthly'; onPlanChanged();"
                                     :class="cycle === 'monthly' ?
                                         'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs' :
                                         'text-gray-500 hover:text-black dark:hover:text-white'"
                                     class="px-3 py-1.5 rounded-[9px] text-xs font-semibold transition-all">
                                     {{ __('billing.monthly') }}
                                 </button>
-                                <button type="button" @click="cycle = 'annual'"
+                                <button type="button" @click="cycle = 'annual'; onPlanChanged();"
                                     :class="cycle === 'annual' ?
                                         'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs' :
                                         'text-gray-500 hover:text-black dark:hover:text-white'"
@@ -304,9 +392,9 @@
                                     @foreach ($packages->where('price', '<=', 0) as $promoPkg)
                                         <div role="radio" tabindex="0"
                                             :aria-checked="packageId === '{{ $promoPkg->id }}' ? 'true' : 'false'"
-                                            @click="packageId = '{{ $promoPkg->id }}'; selectedTier = 'promo';"
-                                            @keydown.space.prevent="packageId = '{{ $promoPkg->id }}'; selectedTier = 'promo';"
-                                            @keydown.enter.prevent="packageId = '{{ $promoPkg->id }}'; selectedTier = 'promo';"
+                                            @click="packageId = '{{ $promoPkg->id }}'; selectedTier = 'promo'; onPlanChanged();"
+                                            @keydown.space.prevent="packageId = '{{ $promoPkg->id }}'; selectedTier = 'promo'; onPlanChanged();"
+                                            @keydown.enter.prevent="packageId = '{{ $promoPkg->id }}'; selectedTier = 'promo'; onPlanChanged();"
                                             :class="packageId === '{{ $promoPkg->id }}' ?
                                                 'border-[#34C759] bg-green-50/40 dark:bg-green-950/30 ring-2 ring-[#34C759]' :
                                                 'border-black/[0.06] dark:border-white/[0.08] bg-black/[0.01] dark:bg-white/[0.02] hover:border-black/[0.14]'"
@@ -342,8 +430,8 @@
                             <!-- Standard Tier -->
                             <div role="radio" tabindex="0"
                                 :aria-checked="selectedTier === 'standard' ? 'true' : 'false'"
-                                @click="selectedTier = 'standard'" @keydown.space.prevent="selectedTier = 'standard'"
-                                @keydown.enter.prevent="selectedTier = 'standard'"
+                                @click="selectedTier = 'standard'; onPlanChanged();" @keydown.space.prevent="selectedTier = 'standard'; onPlanChanged();"
+                                @keydown.enter.prevent="selectedTier = 'standard'; onPlanChanged();"
                                 :class="selectedTier === 'standard' ?
                                     'border-[#007AFF] bg-blue-50/30 dark:bg-blue-900/20 ring-2 ring-[#007AFF]' :
                                     'border-black/[0.06] dark:border-white/[0.08] bg-black/[0.01] dark:bg-white/[0.02] hover:border-black/[0.14] dark:hover:border-white/[0.16]'"
@@ -368,9 +456,9 @@
                                     </div>
                                     <div class="pt-2 border-t border-black/[0.06] dark:border-white/[0.08]">
                                         <div class="text-xl font-bold font-mono tabular-nums text-black dark:text-white"
-                                            x-text="cycle === 'annual' ? 'Rp 290.000' : 'Rp 29.000'"></div>
+                                            x-text="'Rp ' + formatRupiah(cycle === 'annual' ? tierPlans.standard.annual : tierPlans.standard.monthly)"></div>
                                         <div class="text-[10px] text-gray-500 dark:text-gray-400 font-mono mt-0.5"
-                                            x-text="cycle === 'annual' ? 'per tahun (≈ Rp 24.167/bln)' : 'per bulan (tagihan fleksibel)'">
+                                            x-text="cycle === 'annual' ? 'per tahun (≈ Rp ' + formatRupiah(Math.round(tierPlans.standard.annual / 12)) + '/bln)' : 'per bulan (tagihan fleksibel)'">
                                         </div>
                                     </div>
                                     <ul class="space-y-1.5 pt-2 text-[11px] text-gray-600 dark:text-gray-300">
@@ -379,19 +467,22 @@
                                                 Cooca</span></li>
                                         <li class="flex items-center gap-1.5"><i data-lucide="check"
                                                 class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>100 Produk &amp; 20
-                                                Resep</span></li>
+                                                Formula Resep</span></li>
                                         <li class="flex items-center gap-1.5"><i data-lucide="check"
-                                                class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>1.000 Struk
+                                                class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>1.000 Transaksi
                                                 Kasir/bln</span></li>
                                         <li class="flex items-center gap-1.5"><i data-lucide="check"
                                                 class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>2 Lokasi
-                                                (Toko/Gudang)</span></li>
+                                                (Toko &amp; Gudang)</span></li>
                                         <li class="flex items-center gap-1.5"><i data-lucide="check"
-                                                class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>3 Karyawan /
-                                                Staf</span></li>
+                                                class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>3 Akun Staf /
+                                                Karyawan</span></li>
                                         <li class="flex items-center gap-1.5"><i data-lucide="check"
                                                 class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>5 Meja Kasir
                                                 Dine-in</span></li>
+                                        <li class="flex items-center gap-1.5"><i data-lucide="check"
+                                                class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>POS Kasir &amp;
+                                                Offline Sync</span></li>
                                         <li class="flex items-center gap-1.5"><i data-lucide="check"
                                                 class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>Ekspor / Impor
                                                 Excel</span></li>
@@ -405,8 +496,8 @@
                             <!-- Premium Tier (Most Popular) -->
                             <div role="radio" tabindex="0"
                                 :aria-checked="selectedTier === 'premium' ? 'true' : 'false'"
-                                @click="selectedTier = 'premium'" @keydown.space.prevent="selectedTier = 'premium'"
-                                @keydown.enter.prevent="selectedTier = 'premium'"
+                                @click="selectedTier = 'premium'; onPlanChanged();" @keydown.space.prevent="selectedTier = 'premium'; onPlanChanged();"
+                                @keydown.enter.prevent="selectedTier = 'premium'; onPlanChanged();"
                                 :class="selectedTier === 'premium' ?
                                     'border-[#007AFF] bg-blue-50/30 dark:bg-blue-900/20 ring-2 ring-[#007AFF]' :
                                     'border-black/[0.06] dark:border-white/[0.08] bg-black/[0.01] dark:bg-white/[0.02] hover:border-black/[0.14] dark:hover:border-white/[0.16]'"
@@ -435,33 +526,39 @@
                                     </div>
                                     <div class="pt-2 border-t border-black/[0.06] dark:border-white/[0.08]">
                                         <div class="text-xl font-bold font-mono tabular-nums text-[#007AFF] dark:text-[#0A84FF]"
-                                            x-text="cycle === 'annual' ? 'Rp 890.000' : 'Rp 89.000'"></div>
+                                            x-text="'Rp ' + formatRupiah(cycle === 'annual' ? tierPlans.premium.annual : tierPlans.premium.monthly)"></div>
                                         <div class="text-[10px] text-gray-500 dark:text-gray-400 font-mono mt-0.5"
-                                            x-text="cycle === 'annual' ? 'per tahun (≈ Rp 74.167/bln)' : 'per bulan (tagihan fleksibel)'">
+                                            x-text="cycle === 'annual' ? 'per tahun (≈ Rp ' + formatRupiah(Math.round(tierPlans.premium.annual / 12)) + '/bln)' : 'per bulan (tagihan fleksibel)'">
                                         </div>
                                     </div>
                                     <ul class="space-y-1.5 pt-2 text-[11px] text-gray-600 dark:text-gray-300">
                                         <li class="flex items-center gap-1.5"><i data-lucide="check"
                                                 class="w-3.5 h-3.5 text-[#007AFF] shrink-0"></i><span><strong>3
-                                                    Bisnis</strong> (Kelola 3 Brand)</span></li>
+                                                     Bisnis</strong> (Kelola 3 Brand)</span></li>
                                         <li class="flex items-center gap-1.5"><i data-lucide="check"
                                                 class="w-3.5 h-3.5 text-[#007AFF] shrink-0"></i><span>Produk &amp; Resep
+                                                <strong>Unlimited</strong></span></li>
+                                        <li class="flex items-center gap-1.5"><i data-lucide="check"
+                                                class="w-3.5 h-3.5 text-[#007AFF] shrink-0"></i><span>Transaksi Kasir
                                                 <strong>Unlimited</strong></span></li>
                                         <li class="flex items-center gap-1.5"><i data-lucide="check"
                                                 class="w-3.5 h-3.5 text-[#007AFF] shrink-0"></i><span>5 Cabang &amp; Meja
                                                 Unlimited</span></li>
                                         <li class="flex items-center gap-1.5"><i data-lucide="check"
-                                                class="w-3.5 h-3.5 text-[#007AFF] shrink-0"></i><span>10 Karyawan /
-                                                Staf</span></li>
+                                                class="w-3.5 h-3.5 text-[#007AFF] shrink-0"></i><span>10 Akun Staf /
+                                                Karyawan</span></li>
                                         <li class="flex items-center gap-1.5"><i data-lucide="check"
-                                                class="w-3.5 h-3.5 text-[#007AFF] shrink-0"></i><span>KDS Dapur &amp;
-                                                Transfer Stok</span></li>
+                                                class="w-3.5 h-3.5 text-[#007AFF] shrink-0"></i><span>Kitchen Display System
+                                                (KDS)</span></li>
                                         <li class="flex items-center gap-1.5"><i data-lucide="check"
-                                                class="w-3.5 h-3.5 text-[#007AFF] shrink-0"></i><span>Multi-Pricing per
-                                                Cabang</span></li>
+                                                class="w-3.5 h-3.5 text-[#007AFF] shrink-0"></i><span>Transfer Antar Gudang
+                                                &amp; Multi-Price</span></li>
                                         <li class="flex items-center gap-1.5"><i data-lucide="check"
                                                 class="w-3.5 h-3.5 text-[#007AFF] shrink-0"></i><span>Komisi Kasir &amp;
                                                 Kasbon</span></li>
+                                        <li class="flex items-center gap-1.5"><i data-lucide="check"
+                                                class="w-3.5 h-3.5 text-[#007AFF] shrink-0"></i><span>200 Notifikasi WA /
+                                                bln</span></li>
                                     </ul>
                                 </div>
                             </div>
@@ -469,8 +566,8 @@
                             <!-- Prestige Tier (Enterprise) -->
                             <div role="radio" tabindex="0"
                                 :aria-checked="selectedTier === 'prestige' ? 'true' : 'false'"
-                                @click="selectedTier = 'prestige'" @keydown.space.prevent="selectedTier = 'prestige'"
-                                @keydown.enter.prevent="selectedTier = 'prestige'"
+                                @click="selectedTier = 'prestige'; onPlanChanged();" @keydown.space.prevent="selectedTier = 'prestige'; onPlanChanged();"
+                                @keydown.enter.prevent="selectedTier = 'prestige'; onPlanChanged();"
                                 :class="selectedTier === 'prestige' ?
                                     'border-[#007AFF] bg-blue-50/30 dark:bg-blue-900/20 ring-2 ring-[#007AFF]' :
                                     'border-black/[0.06] dark:border-white/[0.08] bg-black/[0.01] dark:bg-white/[0.02] hover:border-black/[0.14] dark:hover:border-white/[0.16]'"
@@ -495,15 +592,15 @@
                                     </div>
                                     <div class="pt-2 border-t border-black/[0.06] dark:border-white/[0.08]">
                                         <div class="text-xl font-bold font-mono tabular-nums text-purple-600 dark:text-purple-400"
-                                            x-text="cycle === 'annual' ? 'Rp 1.990.000' : 'Rp 199.000'"></div>
+                                            x-text="'Rp ' + formatRupiah(cycle === 'annual' ? tierPlans.prestige.annual : tierPlans.prestige.monthly)"></div>
                                         <div class="text-[10px] text-gray-500 dark:text-gray-400 font-mono mt-0.5"
-                                            x-text="cycle === 'annual' ? 'per tahun (≈ Rp 165.833/bln)' : 'per bulan (tagihan fleksibel)'">
+                                            x-text="cycle === 'annual' ? 'per tahun (≈ Rp ' + formatRupiah(Math.round(tierPlans.prestige.annual / 12)) + '/bln)' : 'per bulan (tagihan fleksibel)'">
                                         </div>
                                     </div>
                                     <ul class="space-y-1.5 pt-2 text-[11px] text-gray-600 dark:text-gray-300">
                                         <li class="flex items-center gap-1.5"><i data-lucide="check"
                                                 class="w-3.5 h-3.5 text-purple-600 shrink-0"></i><span><strong>Bisnis &amp;
-                                                    Cabang Unlimited</strong></span></li>
+                                                     Cabang Unlimited</strong></span></li>
                                         <li class="flex items-center gap-1.5"><i data-lucide="check"
                                                 class="w-3.5 h-3.5 text-purple-600 shrink-0"></i><span>Karyawan / Staf
                                                 <strong>Unlimited</strong></span></li>
@@ -513,6 +610,9 @@
                                         <li class="flex items-center gap-1.5"><i data-lucide="check"
                                                 class="w-3.5 h-3.5 text-purple-600 shrink-0"></i><span>Auto Kirim Slip Gaji
                                                 WhatsApp</span></li>
+                                        <li class="flex items-center gap-1.5"><i data-lucide="check"
+                                                class="w-3.5 h-3.5 text-purple-600 shrink-0"></i><span>Akuntansi Jurnal
+                                                Otomatis</span></li>
                                         <li class="flex items-center gap-1.5"><i data-lucide="check"
                                                 class="w-3.5 h-3.5 text-purple-600 shrink-0"></i><span>1.000 Notifikasi
                                                 WhatsApp/bln</span></li>
@@ -809,6 +909,57 @@
                         </template>
                     </div>
 
+                    <!-- Promo / Voucher Module Bento Apple HIG -->
+                    <div class="border-t border-black/[0.06] dark:border-white/[0.08] pt-4 space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <label class="text-[11px] font-bold uppercase tracking-wider text-black/60 dark:text-white/60 font-mono flex items-center gap-1.5">
+                                <i data-lucide="ticket-percent" class="w-3.5 h-3.5 text-[#007AFF]"></i>
+                                <span>Kupon Promo / Diskon</span>
+                            </label>
+                            <template x-if="appliedPromo">
+                                <button type="button" @click="removePromo()" class="text-[11px] font-semibold text-red-500 hover:underline">
+                                    Hapus Kupon
+                                </button>
+                            </template>
+                        </div>
+
+                        <!-- Active Promo Banner -->
+                        <template x-if="appliedPromo">
+                            <div class="p-3 rounded-[14px] bg-[#34C759]/10 border border-[#34C759]/25 flex items-center justify-between">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-7 h-7 rounded-[8px] bg-[#34C759] text-white flex items-center justify-center shrink-0">
+                                        <i data-lucide="check" class="w-4 h-4" stroke-width="2.5"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-[12.5px] font-bold font-mono text-black dark:text-white" x-text="appliedPromo.promo.code"></div>
+                                        <div class="text-[11px] text-[#34C759] dark:text-[#30D158] font-semibold" x-text="appliedPromo.promo.formatted_discount + ' berhasil diterapkan'"></div>
+                                    </div>
+                                </div>
+                                <span class="text-[12px] font-extrabold font-mono text-[#34C759] tabular-nums" x-text="'- Rp ' + formatRupiah(discountAmount)"></span>
+                            </div>
+                        </template>
+
+                        <!-- Promo Input & Button -->
+                        <template x-if="!appliedPromo">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <div class="relative flex-1">
+                                        <input type="text" x-model="promoCodeInput" @keydown.enter.prevent="validateAndApplyPromo()"
+                                            placeholder="Masukkan kode promo..."
+                                            class="w-full h-10 pl-8 pr-3 rounded-[12px] text-[12.5px] uppercase font-mono font-bold bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                        <i data-lucide="tag" class="w-3.5 h-3.5 absolute left-2.5 top-3.5 text-black/40 dark:text-white/40"></i>
+                                    </div>
+                                    <button type="button" @click="validateAndApplyPromo()" :disabled="promoLoading || !promoCodeInput.trim()"
+                                        class="h-10 px-3.5 rounded-[12px] text-[12.5px] font-semibold bg-black/[0.05] dark:bg-white/[0.08] hover:bg-[#007AFF] hover:text-white text-black dark:text-white transition-all disabled:opacity-40 disabled:pointer-events-none flex items-center gap-1.5 shrink-0">
+                                        <span x-show="promoLoading" class="animate-spin w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full"></span>
+                                        <span x-text="promoLoading ? 'Cek...' : 'Terapkan'"></span>
+                                    </button>
+                                </div>
+                                <p x-show="promoError" x-text="promoError" class="text-[11px] text-red-500 font-medium mt-1.5 pl-1"></p>
+                            </div>
+                        </template>
+                    </div>
+
                     <!-- Price Breakdown -->
                     <div class="border-t border-black/[0.06] dark:border-white/[0.08] pt-4 space-y-2 text-xs">
                         <div class="flex items-center justify-between text-gray-500 dark:text-gray-400">
@@ -817,7 +968,17 @@
                                 x-text="currentPrice <= 0 ? '{{ __('billing.free_rp_zero') }}' : ('Rp ' + formatRupiah(currentPrice))">
                             </span>
                         </div>
-                        <div x-show="currentPrice > 0"
+
+                        <!-- Diskon Kupon Promo -->
+                        <div x-show="discountAmount > 0" class="flex items-center justify-between text-[#34C759] dark:text-[#30D158] font-semibold">
+                            <span class="flex items-center gap-1">
+                                <i data-lucide="ticket" class="w-3.5 h-3.5"></i>
+                                <span x-text="'Potongan Promo (' + (appliedPromo?.promo?.code || '') + '):'"></span>
+                            </span>
+                            <span class="font-mono tabular-nums font-bold" x-text="'- Rp ' + formatRupiah(discountAmount)"></span>
+                        </div>
+
+                        <div x-show="totalPayable > 0"
                             class="flex items-center justify-between text-gray-500 dark:text-gray-400">
                             <span>{{ __('billing.payment_gateway') }}</span>
                             <span class="font-mono text-[#007AFF] text-[11px] font-semibold">{{ __('billing.payment_gateway_tripay') }}</span>
@@ -827,7 +988,7 @@
                             <span class="font-bold text-black dark:text-white text-sm">{{ __('billing.total_pay') }}:</span>
                             <span
                                 class="font-bold text-xl sm:text-2xl text-[#007AFF] dark:text-[#0A84FF] font-mono tabular-nums"
-                                x-text="currentPrice <= 0 ? 'Rp 0' : ('Rp ' + formatRupiah(currentPrice))"></span>
+                                x-text="totalPayable <= 0 ? 'Rp 0 (Gratis Promo)' : ('Rp ' + formatRupiah(totalPayable))"></span>
                         </div>
                     </div>
 
@@ -835,17 +996,17 @@
                     @if (\App\Support\Context::hasPermission('billing.manage'))
                         <button type="submit" :disabled="isSubmitting"
                             class="w-full h-12 rounded-[14px] text-[15px] font-semibold shadow-sm transition-all flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-[#007AFF] focus-visible:outline-none"
-                            :class="currentPrice <= 0 ? 'bg-[#FF9500] hover:bg-[#FF9F0A] text-white' :
-                                'bg-[#007AFF] hover:bg-[#0071E3] text-white'">
+                            :class="totalPayable <= 0 ? 'bg-[#34C759] hover:bg-[#30D158] text-white shadow-[#34C759]/25' :
+                                'bg-[#007AFF] hover:bg-[#0071E3] text-white shadow-[#007AFF]/25'">
                             <span x-show="isSubmitting"
                                 class="animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full"
                                 aria-hidden="true"></span>
-                            <i data-lucide="sparkles" class="w-4 h-4" x-show="!isSubmitting && currentPrice <= 0"
+                            <i data-lucide="sparkles" class="w-4 h-4" x-show="!isSubmitting && totalPayable <= 0"
                                 aria-hidden="true"></i>
                             <span
-                                x-text="isSubmitting ? '{{ __('billing.process_order') }}' : (currentPrice <= 0 ? '{{ __('billing.activate_promo_now') }}' : '{{ __('billing.proceed_payment_tripay') }}')"></span>
+                                x-text="isSubmitting ? '{{ __('billing.process_order') }}' : (totalPayable <= 0 ? 'Aktifkan Paket dengan Voucher Promo' : '{{ __('billing.proceed_payment_tripay') }}')"></span>
                             <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"
-                                x-show="!isSubmitting && currentPrice > 0" aria-hidden="true"></i>
+                                x-show="!isSubmitting && totalPayable > 0" aria-hidden="true"></i>
                         </button>
 
                         <p class="text-[11px] text-center text-gray-500 dark:text-gray-400 leading-relaxed">

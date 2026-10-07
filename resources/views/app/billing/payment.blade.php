@@ -368,6 +368,15 @@
                             <span class="font-bold tabular-nums text-black dark:text-white">Rp
                                 {{ number_format($payment->amount, 0, ',', '.') }}</span>
                         </div>
+                        @if ($payment->hasDiscount())
+                            <div class="flex items-center justify-between text-xs text-[#34C759] dark:text-[#30D158]">
+                                <span class="font-sans flex items-center gap-1 font-semibold">
+                                    <i data-lucide="ticket" class="w-3.5 h-3.5"></i>
+                                    <span>Diskon Promo ({{ $payment->promo_code }}):</span>
+                                </span>
+                                <span class="font-bold tabular-nums">- Rp {{ number_format($payment->discount_amount, 0, ',', '.') }}</span>
+                            </div>
+                        @endif
                         <div
                             class="flex items-center justify-between text-xs pt-1 border-t border-black/[0.06] dark:border-white/[0.08] font-bold">
                             <span class="text-black dark:text-white font-sans">{{ __('billing.final_total_bill') }}</span>

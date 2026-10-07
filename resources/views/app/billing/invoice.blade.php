@@ -317,9 +317,34 @@
                             </td>
                         </tr>
 
-                        @if ($payment->unique_code > 0)
+                        @if ($payment->hasDiscount())
                             <tr class="align-top">
                                 <td class="py-3 px-3 text-center font-mono text-gray-600 tabular-nums">2</td>
+                                <td class="py-3 px-3">
+                                    <div class="font-bold text-[#34C759] leading-tight">Voucher Promo Diskon ({{ $payment->promo_code }})</div>
+                                    <div class="text-[10px] text-gray-500 font-mono mt-0.5">KODE: {{ $payment->promo_code }}</div>
+                                    <div class="text-[10px] text-gray-600 mt-1 leading-relaxed">
+                                        Insentif subsidi promo langganan resmi Cooca.
+                                    </div>
+                                </td>
+                                <td class="py-3 px-3 text-center font-mono text-gray-700 uppercase">
+                                    Voucher
+                                </td>
+                                <td class="py-3 px-3 text-right font-mono font-semibold text-black tabular-nums">
+                                    1
+                                </td>
+                                <td class="py-3 px-3 text-right font-mono text-[#34C759] font-semibold whitespace-nowrap tabular-nums">
+                                    -Rp {{ number_format((float) $payment->discount_amount, 0, ',', '.') }}
+                                </td>
+                                <td class="py-3 px-3 text-right font-mono font-bold text-[#34C759] whitespace-nowrap tabular-nums">
+                                    -Rp {{ number_format((float) $payment->discount_amount, 0, ',', '.') }}
+                                </td>
+                            </tr>
+                        @endif
+
+                        @if ($payment->unique_code > 0)
+                            <tr class="align-top">
+                                <td class="py-3 px-3 text-center font-mono text-gray-600 tabular-nums">{{ $payment->hasDiscount() ? '3' : '2' }}</td>
                                 <td class="py-3 px-3">
                                     <div class="font-bold text-black leading-tight">{{ __('billing.unique_code_desc_title') }}</div>
                                     <div class="text-[10px] text-gray-500 font-mono mt-0.5">{{ __('billing.code_label') }} VERIF-AUTO</div>
@@ -405,6 +430,15 @@
                                 Rp {{ number_format((float) $payment->amount, 0, ',', '.') }}
                             </span>
                         </div>
+
+                        @if ($payment->hasDiscount())
+                            <div class="flex justify-between text-[#34C759] font-medium">
+                                <span>Diskon Promo ({{ $payment->promo_code }})</span>
+                                <span class="font-mono font-semibold tabular-nums">
+                                    -Rp {{ number_format((float) $payment->discount_amount, 0, ',', '.') }}
+                                </span>
+                            </div>
+                        @endif
 
                         @if ($payment->unique_code > 0)
                             <div class="flex justify-between text-gray-600">

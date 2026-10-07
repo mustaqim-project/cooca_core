@@ -808,6 +808,12 @@ final class AdminSettingController extends Controller
         $validated = $request->validate([
             'subscription_price_monthly' => ['nullable', 'numeric', 'min:0'],
             'subscription_price_annual' => ['nullable', 'numeric', 'min:0'],
+            'subscription_price_standard_monthly' => ['nullable', 'numeric', 'min:0'],
+            'subscription_price_standard_annual' => ['nullable', 'numeric', 'min:0'],
+            'subscription_price_premium_monthly' => ['nullable', 'numeric', 'min:0'],
+            'subscription_price_premium_annual' => ['nullable', 'numeric', 'min:0'],
+            'subscription_price_prestige_monthly' => ['nullable', 'numeric', 'min:0'],
+            'subscription_price_prestige_annual' => ['nullable', 'numeric', 'min:0'],
             'subscription_ai_tokens_monthly' => ['nullable', 'integer', 'min:0'],
             'subscription_annual_discount_badge' => ['nullable', 'string', 'max:64'],
             'ai_token_topup_price' => ['nullable', 'numeric', 'min:0'],
@@ -817,22 +823,36 @@ final class AdminSettingController extends Controller
             'storage_topup_gb' => ['nullable', 'integer', 'min:1'],
         ]);
 
-        foreach (
-            [
-                'subscription_price_monthly',
-                'subscription_price_annual',
-                'subscription_ai_tokens_monthly',
-                'subscription_annual_discount_badge',
-                'ai_token_topup_price',
-                'ai_token_topup_amount',
-                'owner_storage_limit_gb',
-                'storage_topup_price',
-                'storage_topup_gb',
-            ] as $setting
-        ) {
+        $settings = [
+            'subscription_price_monthly',
+            'subscription_price_annual',
+            'subscription_price_standard_monthly',
+            'subscription_price_standard_annual',
+            'subscription_price_premium_monthly',
+            'subscription_price_premium_annual',
+            'subscription_price_prestige_monthly',
+            'subscription_price_prestige_annual',
+            'subscription_ai_tokens_monthly',
+            'subscription_annual_discount_badge',
+            'ai_token_topup_price',
+            'ai_token_topup_amount',
+            'owner_storage_limit_gb',
+            'storage_topup_price',
+            'storage_topup_gb',
+        ];
+
+        foreach ($settings as $setting) {
             if (isset($validated[$setting])) {
                 SystemSetting::set($setting, (string) $validated[$setting], 'billing');
             }
+        }
+
+        // Backward compatibility sync
+        if (isset($validated['subscription_price_standard_monthly'])) {
+            SystemSetting::set('subscription_price_monthly', (string) $validated['subscription_price_standard_monthly'], 'billing');
+        }
+        if (isset($validated['subscription_price_standard_annual'])) {
+            SystemSetting::set('subscription_price_annual', (string) $validated['subscription_price_standard_annual'], 'billing');
         }
 
         return back()->with('success', 'Harga & kuota default billing Cooca berhasil diperbarui.');

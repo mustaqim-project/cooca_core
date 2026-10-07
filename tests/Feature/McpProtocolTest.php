@@ -407,7 +407,16 @@ final class McpProtocolTest extends TestCase
             ->get('/settings/integrations/mcp');
 
         $response->assertStatus(200);
-        $response->assertSee('Integrasi AI & Model Context Protocol (MCP)');
-        $response->assertSee('Claude Desktop Test');
+        $response->assertSee(__('mcp.page_title'));
+        $response->assertSee('Claude Desktop');
+        $response->assertSee('Claude Code CLI');
+        $response->assertSee('Cursor');
+        $response->assertSee('ChatGPT');
+        $response->assertSee('Google Gemini');
+        $response->assertSee('Local / Ollama');
+        $response->assertSee('Dify');
+        $response->assertSee('LangChain');
+        $response->assertSee(__('mcp.tools_catalog_title'));
+        $response->assertSee(__('mcp.troubleshooting_title'));
     }
 }

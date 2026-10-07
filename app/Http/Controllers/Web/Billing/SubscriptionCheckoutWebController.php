@@ -11,6 +11,7 @@ use App\Models\BusinessSubscription;
 use App\Models\PaymentAccount;
 use App\Models\BillingPackage;
 use App\Models\SubscriptionPayment;
+use App\Models\SubscriptionPromo;
 use App\Models\SystemSetting;
 use App\Support\Context;
 use Carbon\Carbon;
@@ -45,6 +46,7 @@ final class SubscriptionCheckoutWebController extends Controller
             $cycle = 'monthly';
         }
 
+        $allTierPrices = $this->entitlementService->getAllTierPrices();
         $monthlyPrice = $this->entitlementService->getMonthlyPrice();
         $annualPrice = $this->entitlementService->getAnnualPrice();
         $basePrice = $cycle === 'annual' ? $annualPrice : $monthlyPrice;
@@ -105,11 +107,81 @@ final class SubscriptionCheckoutWebController extends Controller
             'basePrice',
             'monthlyPrice',
             'annualPrice',
+            'allTierPrices',
             'annualDiscountBadge',
             'paymentAccounts',
             'currentUsage'
             , 'topupPrice', 'topupQuantity', 'packages', 'packagesData', 'packageMode'
         ));
+    }
+
+    /**
+     * Validate a promo voucher code via AJAX during checkout.
+     */
+    public function validatePromo(Request $request): JsonResponse
+    {
+        $business = Context::requireBusiness();
+        $code = strtoupper(trim((string) $request->input('code', '')));
+        $tier = (string) $request->input('tier', BusinessSubscription::TIER_STANDARD);
+        $cycle = (string) $request->input('cycle', 'monthly');
+        $orderType = (string) $request->input('order_type', 'subscription');
+        $packageId = $request->input('package_id');
+
+        if (empty($code)) {
+            return response()->json([
+                'valid' => false,
+                'message' => 'Silakan masukkan kode promo / voucher.',
+            ], 422);
+        }
+
+        $promo = SubscriptionPromo::where('code', $code)->first();
+        if (! $promo) {
+            return response()->json([
+                'valid' => false,
+                'message' => "Kode promo '{$code}' tidak ditemukan atau salah ketik.",
+            ], 404);
+        }
+
+        // Hitung estimasi harga awal
+        $originalAmount = 0.0;
+        if ($orderType === 'subscription') {
+            $originalAmount = $this->entitlementService->getTierPrice($tier, $cycle);
+        } elseif (! empty($packageId)) {
+            $package = BillingPackage::active()->find($packageId);
+            $originalAmount = $package ? (float) $package->price : 0.0;
+        } elseif ($orderType === 'storage') {
+            $originalAmount = $this->entitlementService->getStorageTopupPrice();
+        }
+
+        $validation = $promo->validateFor($originalAmount, $tier, $cycle, $business->id);
+        if (! $validation['valid']) {
+            return response()->json([
+                'valid' => false,
+                'message' => $validation['reason'],
+            ], 422);
+        }
+
+        $discountAmount = $promo->calculateDiscount($originalAmount);
+        $finalAmount = max(0.0, $originalAmount - $discountAmount);
+
+        return response()->json([
+            'valid' => true,
+            'promo' => [
+                'id' => $promo->id,
+                'code' => $promo->code,
+                'name' => $promo->name,
+                'discount_type' => $promo->discount_type,
+                'discount_value' => (float) $promo->discount_value,
+                'formatted_discount' => $promo->formatted_discount,
+            ],
+            'original_amount' => $originalAmount,
+            'discount_amount' => $discountAmount,
+            'total_payable' => $finalAmount,
+            'formatted_original' => 'Rp ' . number_format($originalAmount, 0, ',', '.'),
+            'formatted_discount' => '- Rp ' . number_format($discountAmount, 0, ',', '.'),
+            'formatted_total' => 'Rp ' . number_format($finalAmount, 0, ',', '.'),
+            'message' => "Kode promo '{$promo->code}' berhasil diterapkan! Anda hemat Rp " . number_format($discountAmount, 0, ',', '.') . '.',
+        ]);
     }
 
     /**
@@ -144,6 +216,7 @@ final class SubscriptionCheckoutWebController extends Controller
             'cycle' => ['nullable', 'string', 'in:monthly,annual'],
             'tier' => ['nullable', 'string', 'in:standard,premium,prestige'],
             'payment_method' => [$isFreePackage ? 'nullable' : 'required', 'string', 'in:' . implode(',', $validCodes)],
+            'promo_code' => ['nullable', 'string', 'max:32'],
         ]);
 
         // If free package (price = 0): Instant activation, no payment & no confirmation needed!
@@ -157,10 +230,34 @@ final class SubscriptionCheckoutWebController extends Controller
                 ]));
         }
 
+        // Process Promo Voucher if supplied
+        $promo = null;
+        if ($request->filled('promo_code')) {
+            $promoCode = strtoupper(trim((string) $request->input('promo_code')));
+            $foundPromo = SubscriptionPromo::where('code', $promoCode)->first();
+            if ($foundPromo) {
+                $targetTier = $validated['tier'] ?? $request->input('tier', BusinessSubscription::TIER_STANDARD);
+                $targetCycle = $validated['cycle'] ?? 'monthly';
+                $rawAmount = ($package && $orderType !== 'subscription')
+                    ? (float) $package->price
+                    : ($orderType === 'storage'
+                        ? $this->entitlementService->getStorageTopupPrice()
+                        : $this->entitlementService->getTierPrice($targetTier, $targetCycle));
+
+                $valRes = $foundPromo->validateFor($rawAmount, $targetTier, $targetCycle, $business->id);
+                if (! $valRes['valid']) {
+                    return back()->with('error', 'Kode promo tidak dapat digunakan: ' . $valRes['reason'])->withInput();
+                }
+                $promo = $foundPromo;
+            } else {
+                return back()->with('error', "Kode promo '{$promoCode}' tidak valid atau kadaluarsa.")->withInput();
+            }
+        }
+
         $paymentMethod = $validated['payment_method'] ?? SubscriptionPayment::METHOD_QRIS;
 
         $payment = ($package && $orderType !== 'subscription')
-            ? $this->entitlementService->createPackageOrder($business, $user, $package, $paymentMethod)
+            ? $this->entitlementService->createPackageOrder($business, $user, $package, $paymentMethod, $promo)
             : ($orderType === 'ai_token'
             ? $this->entitlementService->createTokenTopupOrder($business, $user, $paymentMethod)
             : ($orderType === 'storage'
@@ -170,8 +267,15 @@ final class SubscriptionCheckoutWebController extends Controller
                     $user,
                     $validated['cycle'] ?? 'monthly',
                     $paymentMethod,
-                    $validated['tier'] ?? $request->input('tier', BusinessSubscription::TIER_STANDARD)
+                    $validated['tier'] ?? $request->input('tier', BusinessSubscription::TIER_STANDARD),
+                    $promo
                 )));
+
+        // If payment is already approved (e.g., 100% discount promo voucher)
+        if ($payment->status === SubscriptionPayment::STATUS_APPROVED) {
+            return redirect()->route('billing.payment.invoice', $payment)
+                ->with('success', "Pembayaran selesai! Paket {$payment->subscription_tier} berhasil diaktifkan dengan voucher {$payment->promo_code}.");
+        }
 
         // Automatically trigger TriPay transaction for all non-free TriPay orders
         $isTripayChannel = array_key_exists($payment->payment_method, SubscriptionPayment::TRIPAY_CHANNELS)

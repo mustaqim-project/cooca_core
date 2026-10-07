@@ -27,12 +27,12 @@ final class AdminBillingPackageController extends Controller
         $subscriptionAiTokensMonthly = SystemSetting::get('subscription_ai_tokens_monthly', '10000000');
         $subscriptionAnnualDiscountBadge = SystemSetting::get('subscription_annual_discount_badge', 'Hemat 2 Bulan');
 
-        $priceStandardMonthly = '29000';
-        $priceStandardAnnual = '290000';
-        $pricePremiumMonthly = '89000';
-        $pricePremiumAnnual = '890000';
-        $pricePrestigeMonthly = '199000';
-        $pricePrestigeAnnual = '1990000';
+        $priceStandardMonthly = SystemSetting::get('subscription_price_standard_monthly', $subscriptionPriceMonthly);
+        $priceStandardAnnual = SystemSetting::get('subscription_price_standard_annual', $subscriptionPriceAnnual);
+        $pricePremiumMonthly = SystemSetting::get('subscription_price_premium_monthly', '89000');
+        $pricePremiumAnnual = SystemSetting::get('subscription_price_premium_annual', '890000');
+        $pricePrestigeMonthly = SystemSetting::get('subscription_price_prestige_monthly', '199000');
+        $pricePrestigeAnnual = SystemSetting::get('subscription_price_prestige_annual', '1990000');
 
         // Default top-up pricing for token & storage catalogs
         $aiTokenTopupPrice = SystemSetting::get('ai_token_topup_price', '50000');

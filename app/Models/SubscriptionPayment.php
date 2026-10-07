@@ -179,12 +179,15 @@ class SubscriptionPayment extends Model
         'user_id',
         'payment_type',
         'billing_package_id',
+        'promo_id',
+        'promo_code',
         'package_name',
         'package_duration_days',
         'order_number',
         'plan_code',
         'cycle',
         'amount',
+        'discount_amount',
         'unique_code',
         'total_payable',
         'topup_quantity',
@@ -218,6 +221,7 @@ class SubscriptionPayment extends Model
     {
         return [
             'amount' => 'float',
+            'discount_amount' => 'float',
             'unique_code' => 'integer',
             'total_payable' => 'float',
             'topup_quantity' => 'integer',
@@ -257,6 +261,16 @@ class SubscriptionPayment extends Model
     public function billingPackage(): BelongsTo
     {
         return $this->belongsTo(BillingPackage::class, 'billing_package_id');
+    }
+
+    public function promo(): BelongsTo
+    {
+        return $this->belongsTo(SubscriptionPromo::class, 'promo_id');
+    }
+
+    public function hasDiscount(): bool
+    {
+        return (float) $this->discount_amount > 0;
     }
 
     /**

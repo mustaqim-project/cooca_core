@@ -158,34 +158,95 @@
                         </button>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-1">
-                        <div>
-                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Bulanan
-                                (Rp)</label>
-                            <input type="number" name="subscription_price_monthly"
-                                value="{{ $subscriptionPriceMonthly ?? 29000 }}" min="0" step="1000"
-                                class="w-full h-10 px-3.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] text-[16px] sm:text-[13px] tabular-nums font-bold text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition">
+                    <div class="space-y-4 pt-1">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <!-- Standard Tier -->
+                            <div class="p-4 rounded-[16px] bg-emerald-500/[0.04] border border-emerald-500/20 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="px-2.5 py-0.5 rounded-[8px] text-[11px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">
+                                        Standard Plan
+                                    </span>
+                                    <span class="text-[11px] text-black/50 dark:text-white/50">UMKM Pemula</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2.5">
+                                    <div>
+                                        <label class="block text-[11px] font-semibold text-black/70 dark:text-white/70 mb-1">Bulanan (Rp)</label>
+                                        <input type="number" name="subscription_price_standard_monthly"
+                                            value="{{ $priceStandardMonthly ?? 29000 }}" min="0" step="1000"
+                                            class="w-full h-9 px-3 bg-white dark:bg-black/20 border border-black/[0.08] dark:border-white/[0.1] rounded-[10px] text-[13px] tabular-nums font-bold text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-semibold text-black/70 dark:text-white/70 mb-1">Tahunan (Rp)</label>
+                                        <input type="number" name="subscription_price_standard_annual"
+                                            value="{{ $priceStandardAnnual ?? 290000 }}" min="0" step="1000"
+                                            class="w-full h-9 px-3 bg-white dark:bg-black/20 border border-black/[0.08] dark:border-white/[0.1] rounded-[10px] text-[13px] tabular-nums font-bold text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Premium Tier -->
+                            <div class="p-4 rounded-[16px] bg-indigo-500/[0.04] border border-indigo-500/20 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="px-2.5 py-0.5 rounded-[8px] text-[11px] font-bold bg-indigo-500/15 text-indigo-700 dark:text-indigo-400">
+                                        Premium Plan
+                                    </span>
+                                    <span class="text-[11px] text-indigo-600 dark:text-indigo-400 font-semibold">Paling Populer</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2.5">
+                                    <div>
+                                        <label class="block text-[11px] font-semibold text-black/70 dark:text-white/70 mb-1">Bulanan (Rp)</label>
+                                        <input type="number" name="subscription_price_premium_monthly"
+                                            value="{{ $pricePremiumMonthly ?? 89000 }}" min="0" step="1000"
+                                            class="w-full h-9 px-3 bg-white dark:bg-black/20 border border-black/[0.08] dark:border-white/[0.1] rounded-[10px] text-[13px] tabular-nums font-bold text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/40">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-semibold text-black/70 dark:text-white/70 mb-1">Tahunan (Rp)</label>
+                                        <input type="number" name="subscription_price_premium_annual"
+                                            value="{{ $pricePremiumAnnual ?? 890000 }}" min="0" step="1000"
+                                            class="w-full h-9 px-3 bg-white dark:bg-black/20 border border-black/[0.08] dark:border-white/[0.1] rounded-[10px] text-[13px] tabular-nums font-bold text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/40">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Prestige Tier -->
+                            <div class="p-4 rounded-[16px] bg-purple-500/[0.04] border border-purple-500/20 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="px-2.5 py-0.5 rounded-[8px] text-[11px] font-bold bg-purple-500/15 text-purple-700 dark:text-purple-400">
+                                        Prestige Plan
+                                    </span>
+                                    <span class="text-[11px] text-black/50 dark:text-white/50">Enterprise</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2.5">
+                                    <div>
+                                        <label class="block text-[11px] font-semibold text-black/70 dark:text-white/70 mb-1">Bulanan (Rp)</label>
+                                        <input type="number" name="subscription_price_prestige_monthly"
+                                            value="{{ $pricePrestigeMonthly ?? 199000 }}" min="0" step="1000"
+                                            class="w-full h-9 px-3 bg-white dark:bg-black/20 border border-black/[0.08] dark:border-white/[0.1] rounded-[10px] text-[13px] tabular-nums font-bold text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/40">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-semibold text-black/70 dark:text-white/70 mb-1">Tahunan (Rp)</label>
+                                        <input type="number" name="subscription_price_prestige_annual"
+                                            value="{{ $pricePrestigeAnnual ?? 1990000 }}" min="0" step="1000"
+                                            class="w-full h-9 px-3 bg-white dark:bg-black/20 border border-black/[0.08] dark:border-white/[0.1] rounded-[10px] text-[13px] tabular-nums font-bold text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/40">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Tahunan
-                                (Rp)</label>
-                            <input type="number" name="subscription_price_annual"
-                                value="{{ $subscriptionPriceAnnual ?? 290000 }}" min="0" step="1000"
-                                class="w-full h-10 px-3.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] text-[16px] sm:text-[13px] tabular-nums font-bold text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition">
-                        </div>
-                        <div>
-                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Kuota
-                                Token AI / Bulan</label>
-                            <input type="number" name="subscription_ai_tokens_monthly"
-                                value="{{ $subscriptionAiTokensMonthly ?? 10000000 }}" min="0" step="100000"
-                                class="w-full h-10 px-3.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] text-[16px] sm:text-[13px] tabular-nums font-bold text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition">
-                        </div>
-                        <div>
-                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Badge
-                                Promo Tahunan</label>
-                            <input type="text" name="subscription_annual_discount_badge"
-                                value="{{ $subscriptionAnnualDiscountBadge ?? 'Hemat 2 Bulan' }}" maxlength="64"
-                                class="w-full h-10 px-3.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] text-[16px] sm:text-[13px] font-bold text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition">
+
+                        <!-- General & Promo Badge settings -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-black/[0.06] dark:border-white/[0.08]">
+                            <div>
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Badge Promo Tahunan</label>
+                                <input type="text" name="subscription_annual_discount_badge"
+                                    value="{{ $subscriptionAnnualDiscountBadge ?? 'Hemat 2 Bulan' }}" maxlength="64"
+                                    class="w-full h-10 px-3.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] text-[16px] sm:text-[13px] font-bold text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition">
+                            </div>
+                            <div>
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Kuota Token AI / Bulan</label>
+                                <input type="number" name="subscription_ai_tokens_monthly"
+                                    value="{{ $subscriptionAiTokensMonthly ?? 10000000 }}" min="0" step="100000"
+                                    class="w-full h-10 px-3.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] text-[16px] sm:text-[13px] tabular-nums font-bold text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition">
+                            </div>
                         </div>
                     </div>
                 </form>

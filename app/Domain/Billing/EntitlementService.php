@@ -23,6 +23,8 @@ use App\Models\PurchaseOrder;
 use App\Models\PosOrder;
 use App\Models\QuotaMonthlyUsage;
 use App\Models\SubscriptionPayment;
+use App\Models\SubscriptionPromo;
+use App\Models\SubscriptionPromoUsage;
 use App\Models\Supplier;
 use App\Models\SystemSetting;
 use App\Models\User;
@@ -249,6 +251,56 @@ final class EntitlementService
         }
 
         return self::DEFAULT_ANNUAL_PRICE;
+    }
+
+    /**
+     * Get dynamically configured price for a specific tier and cycle.
+     */
+    public function getTierPrice(string $tier, string $cycle = 'monthly'): float
+    {
+        $tier = strtolower($tier);
+        $isAnnual = $cycle === 'annual';
+
+        return match ($tier) {
+            BusinessSubscription::TIER_PRESTIGE => (float) (
+                $isAnnual
+                    ? SystemSetting::get('subscription_price_prestige_annual', (string) self::PRICE_PRESTIGE_ANNUAL)
+                    : SystemSetting::get('subscription_price_prestige_monthly', (string) self::PRICE_PRESTIGE_MONTHLY)
+            ),
+            BusinessSubscription::TIER_PREMIUM => (float) (
+                $isAnnual
+                    ? SystemSetting::get('subscription_price_premium_annual', (string) self::PRICE_PREMIUM_ANNUAL)
+                    : SystemSetting::get('subscription_price_premium_monthly', (string) self::PRICE_PREMIUM_MONTHLY)
+            ),
+            default => (float) (
+                $isAnnual
+                    ? SystemSetting::get('subscription_price_standard_annual', (string) SystemSetting::get('subscription_price_annual', (string) self::PRICE_STANDARD_ANNUAL))
+                    : SystemSetting::get('subscription_price_standard_monthly', (string) SystemSetting::get('subscription_price_monthly', (string) self::PRICE_STANDARD_MONTHLY))
+            ),
+        };
+    }
+
+    /**
+     * Get all tier prices matrix for checkout UI and comparison tables.
+     *
+     * @return array<string, array{monthly: float, annual: float}>
+     */
+    public function getAllTierPrices(): array
+    {
+        return [
+            'standard' => [
+                'monthly' => $this->getTierPrice('standard', 'monthly'),
+                'annual'  => $this->getTierPrice('standard', 'annual'),
+            ],
+            'premium' => [
+                'monthly' => $this->getTierPrice('premium', 'monthly'),
+                'annual'  => $this->getTierPrice('premium', 'annual'),
+            ],
+            'prestige' => [
+                'monthly' => $this->getTierPrice('prestige', 'monthly'),
+                'annual'  => $this->getTierPrice('prestige', 'annual'),
+            ],
+        ];
     }
 
     /**
@@ -1152,7 +1204,8 @@ final class EntitlementService
         User $user,
         string $cycle = 'monthly',
         string $paymentMethod = SubscriptionPayment::METHOD_QRIS,
-        string $tier = BusinessSubscription::TIER_STANDARD
+        string $tier = BusinessSubscription::TIER_STANDARD,
+        ?SubscriptionPromo $promo = null
     ): SubscriptionPayment {
         $isAnnual = $cycle === 'annual';
 
@@ -1168,22 +1221,23 @@ final class EntitlementService
             default => $isAnnual ? BusinessSubscription::PLAN_STANDARD_ANNUAL : BusinessSubscription::PLAN_STANDARD_MONTHLY,
         };
 
-        $baseAmount = match ($tier) {
-            BusinessSubscription::TIER_PRESTIGE => $isAnnual ? 1990000.0 : 199000.0,
-            BusinessSubscription::TIER_PREMIUM => $isAnnual ? 890000.0 : 89000.0,
-            default => $isAnnual ? 290000.0 : 29000.0,
-        };
+        $baseAmount = $this->getTierPrice($tier, $cycle);
+        $discountAmount = 0.0;
+        $promoId = null;
+        $promoCode = null;
 
-        if ($tier === BusinessSubscription::TIER_STANDARD) {
-            if ($isAnnual && SystemSetting::get('subscription_price_annual') !== null) {
-                $baseAmount = (float) SystemSetting::get('subscription_price_annual');
-            } elseif (! $isAnnual && SystemSetting::get('subscription_price_monthly') !== null) {
-                $baseAmount = (float) SystemSetting::get('subscription_price_monthly');
+        if ($promo !== null) {
+            $validation = $promo->validateFor($baseAmount, $tier, $cycle, $business->id);
+            if ($validation['valid']) {
+                $discountAmount = $promo->calculateDiscount($baseAmount);
+                $promoId = $promo->id;
+                $promoCode = $promo->code;
+            } else {
+                $promo = null;
             }
         }
 
-        $uniqueCode = 0;
-        $totalPayable = $baseAmount;
+        $totalPayable = max(0.0, round($baseAmount - $discountAmount, 2));
 
         // Generate unique order number SUB-YYYYMM-XXXX
         $orderNumber = $this->nextOrderNumber('SUB-' . date('Ym') . '-');
@@ -1194,7 +1248,7 @@ final class EntitlementService
             default => 'Paket Standard ' . ($isAnnual ? 'Tahunan' : 'Bulanan'),
         };
 
-        return SubscriptionPayment::create([
+        $payment = SubscriptionPayment::create([
             'business_id' => $business->id,
             'user_id' => $user->id,
             'order_number' => $orderNumber,
@@ -1202,16 +1256,47 @@ final class EntitlementService
             'package_name' => $packageName,
             'cycle' => $isAnnual ? 'annual' : 'monthly',
             'amount' => $baseAmount,
+            'promo_id' => $promoId,
+            'promo_code' => $promoCode,
+            'discount_amount' => $discountAmount,
             'unique_code' => 0,
             'total_payable' => $totalPayable,
-            'payment_method' => $paymentMethod,
-            'payment_gateway' => SubscriptionPayment::GATEWAY_TRIPAY,
+            'payment_method' => $totalPayable <= 0.0 ? SubscriptionPayment::METHOD_FREE_PROMO : $paymentMethod,
+            'payment_gateway' => $totalPayable <= 0.0 ? SubscriptionPayment::GATEWAY_MANUAL : SubscriptionPayment::GATEWAY_TRIPAY,
             'status' => SubscriptionPayment::STATUS_PENDING,
         ]);
+
+        if ($promo !== null && $discountAmount > 0) {
+            SubscriptionPromoUsage::create([
+                'promo_id' => $promo->id,
+                'business_id' => $business->id,
+                'user_id' => $user->id,
+                'subscription_payment_id' => $payment->id,
+                'order_number' => $payment->order_number,
+                'discount_amount' => $discountAmount,
+                'final_paid_amount' => $totalPayable,
+            ]);
+            $promo->increment('used_count');
+        }
+
+        if ($totalPayable <= 0.0) {
+            return $this->approvePayment(
+                payment: $payment,
+                admin: null,
+                adminNotes: 'Aktivasi otomatis via Kode Promo Diskon 100% (' . ($promoCode ?? 'FREE') . ')'
+            );
+        }
+
+        return $payment;
     }
 
-    public function createPackageOrder(Business $business, User $user, BillingPackage $package, string $paymentMethod = SubscriptionPayment::METHOD_QRIS): SubscriptionPayment
-    {
+    public function createPackageOrder(
+        Business $business,
+        User $user,
+        BillingPackage $package,
+        string $paymentMethod = SubscriptionPayment::METHOD_QRIS,
+        ?SubscriptionPromo $promo = null
+    ): SubscriptionPayment {
         // If package is free / promo trial (price <= 0), activate immediately without payment
         if ((float) $package->price <= 0.0) {
             return $this->activateFreePackage($business, $user, $package);
@@ -1220,26 +1305,69 @@ final class EntitlementService
         $orderNumber = $this->nextOrderNumber('PKG-' . date('Ym') . '-');
         $paymentType = $package->type;
         $isSubscription = $paymentType === BillingPackage::TYPE_SUBSCRIPTION;
+        $baseAmount = (float) $package->price;
+        $discountAmount = 0.0;
+        $promoId = null;
+        $promoCode = null;
 
-        return SubscriptionPayment::create([
+        if ($promo !== null) {
+            $validation = $promo->validateFor($baseAmount, null, null, $business->id);
+            if ($validation['valid']) {
+                $discountAmount = $promo->calculateDiscount($baseAmount);
+                $promoId = $promo->id;
+                $promoCode = $promo->code;
+            } else {
+                $promo = null;
+            }
+        }
+
+        $totalPayable = max(0.0, round($baseAmount - $discountAmount, 2));
+
+        $payment = SubscriptionPayment::create([
             'business_id' => $business->id,
             'user_id' => $user->id,
             'payment_type' => $paymentType,
             'billing_package_id' => $package->id,
+            'promo_id' => $promoId,
+            'promo_code' => $promoCode,
+            'discount_amount' => $discountAmount,
             'package_name' => $package->name,
             'package_duration_days' => $package->duration_days,
             'order_number' => $orderNumber,
             'plan_code' => $isSubscription ? BusinessSubscription::PLAN_CORE_MONTHLY : 'topup',
             'cycle' => $isSubscription ? 'package' : 'one_time',
-            'amount' => $package->price,
+            'amount' => $baseAmount,
             'unique_code' => 0,
-            'total_payable' => $package->price,
+            'total_payable' => $totalPayable,
             'topup_quantity' => $package->token_quantity,
             'topup_storage_bytes' => $package->storage_bytes,
-            'payment_method' => $paymentMethod,
-            'payment_gateway' => SubscriptionPayment::GATEWAY_TRIPAY,
+            'payment_method' => $totalPayable <= 0.0 ? SubscriptionPayment::METHOD_FREE_PROMO : $paymentMethod,
+            'payment_gateway' => $totalPayable <= 0.0 ? SubscriptionPayment::GATEWAY_MANUAL : SubscriptionPayment::GATEWAY_TRIPAY,
             'status' => SubscriptionPayment::STATUS_PENDING,
         ]);
+
+        if ($promo !== null && $discountAmount > 0) {
+            SubscriptionPromoUsage::create([
+                'promo_id' => $promo->id,
+                'business_id' => $business->id,
+                'user_id' => $user->id,
+                'subscription_payment_id' => $payment->id,
+                'order_number' => $payment->order_number,
+                'discount_amount' => $discountAmount,
+                'final_paid_amount' => $totalPayable,
+            ]);
+            $promo->increment('used_count');
+        }
+
+        if ($totalPayable <= 0.0) {
+            return $this->approvePayment(
+                payment: $payment,
+                admin: null,
+                adminNotes: 'Aktivasi otomatis via Kode Promo Diskon 100% (' . ($promoCode ?? 'FREE') . ')'
+            );
+        }
+
+        return $payment;
     }
 
     /**

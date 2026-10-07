@@ -480,6 +480,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         Route::get('/patungan', [SubscriptionCheckoutWebController::class, 'checkout'])->middleware('require.permission:billing.manage')->name('billing.patungan');
         Route::post('/billing/upgrade', [BillingAndLimitWebController::class, 'upgrade'])->middleware('require.permission:billing.manage')->name('billing.upgrade');
         Route::get('/billing/checkout', [SubscriptionCheckoutWebController::class, 'checkout'])->middleware('require.permission:billing.manage')->name('billing.checkout');
+        Route::post('/billing/promo/validate', [SubscriptionCheckoutWebController::class, 'validatePromo'])->middleware('require.permission:billing.manage')->name('billing.promo.validate');
         Route::post('/billing/order', [SubscriptionCheckoutWebController::class, 'store'])->middleware('require.permission:billing.manage')->name('billing.order.store');
         Route::match(['GET', 'POST'], '/billing/payments/{payment}', [SubscriptionCheckoutWebController::class, 'payment'])->middleware('require.permission:billing.view')->name('billing.payment.show');
         Route::get('/billing/payments/{payment}/status', [SubscriptionCheckoutWebController::class, 'checkStatus'])->middleware('require.permission:billing.view')->name('billing.payment.status');
