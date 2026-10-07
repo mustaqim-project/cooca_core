@@ -46,6 +46,8 @@ class WhatsAppLogsExportTest extends TestCase
         $user->update(['active_business_id' => $business->id]);
         Context::setBusiness($business);
 
+        app(\App\Domain\Billing\EntitlementService::class)->upgradeToCore($business, 'monthly');
+
         return [$user, $business];
     }
 

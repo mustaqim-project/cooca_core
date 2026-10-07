@@ -423,7 +423,7 @@
             @keydown.escape.window="openComposerModal = false"
             role="dialog"
             aria-modal="true">
-            <div class="relative w-full max-w-[96vw] xl:max-w-7xl 2xl:max-w-[1550px] rounded-[26px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-2xl p-6 sm:p-8 space-y-6 my-4 max-h-[94vh] overflow-y-auto"
+            <div class="relative w-full max-w-5xl xl:max-w-6xl 2xl:max-w-[1550px] rounded-[26px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-2xl p-6 sm:p-8 space-y-6 my-4 max-h-[94vh] overflow-y-auto"
                 @click.away="openComposerModal = false">
 
                 {{-- Modal Header --}}
