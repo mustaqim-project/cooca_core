@@ -423,7 +423,7 @@
             @keydown.escape.window="openComposerModal = false"
             role="dialog"
             aria-modal="true">
-            <div class="relative w-full max-w-5xl xl:max-w-6xl rounded-[26px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-2xl p-6 sm:p-8 space-y-6 my-6 max-h-[92vh] overflow-y-auto"
+            <div class="relative w-full max-w-[96vw] xl:max-w-7xl 2xl:max-w-[1550px] rounded-[26px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-2xl p-6 sm:p-8 space-y-6 my-4 max-h-[94vh] overflow-y-auto"
                 @click.away="openComposerModal = false">
 
                 {{-- Modal Header --}}
@@ -448,7 +448,7 @@
                     <input type="hidden" name="media_format" :value="mediaFormat">
                     <input type="hidden" name="social_media_account_id" :value="selectedAccounts[0] || ''">
 
-                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                         {{-- LEFT COLUMN: FORM CONTROLS (Col-span 7) --}}
                         <div class="lg:col-span-7 space-y-4">
                             {{-- 1. Target Accounts Multi-Selector (Bento Tiles) --}}
@@ -471,12 +471,8 @@
                                                     x-model="selectedAccounts" class="rounded text-[#007AFF] focus:ring-[#007AFF]">
                                                 <div class="min-w-0">
                                                     <div class="text-[13px] font-bold truncate">{{ $acc->account_name }}</div>
-                                                    <div class="text-[11px] opacity-75 capitalize flex items-center gap-1.5">
+                                                    <div class="text-[11.5px] opacity-75 capitalize font-medium">
                                                         <span>{{ $acc->platform }}</span>
-                                                        @if($acc->username)
-                                                            <span>•</span>
-                                                            <span class="font-mono text-[#007AFF]">{{ $acc->username }}</span>
-                                                        @endif
                                                     </div>
                                                 </div>
                                             </div>

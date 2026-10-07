@@ -481,10 +481,27 @@ class MetaSocialMediaClient
     }
 
     /**
-     * Reply to a Facebook or Instagram comment.
+     * Reply to a Facebook or Instagram comment, or reply to a Meta Messenger message.
      */
-    public function replyComment(string $platform, string $commentId, string $pageToken, string $message): array
+    public function replyComment(string $platform, string $commentId, string $pageToken, string $message, ?string $recipientId = null): array
     {
+        if (strtolower($platform) === 'messenger') {
+            $targetRecipientId = $recipientId ?: $commentId;
+            $response = Http::asJson()->post($this->endpoint('me/messages', $pageToken), [
+                'recipient'      => ['id' => $targetRecipientId],
+                'message'        => ['text' => $message],
+                'messaging_type' => 'RESPONSE',
+                'access_token'   => $pageToken,
+            ]);
+
+            if (! $response->successful()) {
+                Log::error('Meta Messenger reply failed', ['body' => $response->body()]);
+                throw new \RuntimeException($response->json('error.message') ?? 'Gagal membalas pesan Meta Messenger.');
+            }
+
+            return $response->json();
+        }
+
         $path = strtolower($platform) === 'instagram' ? "{$commentId}/replies" : "{$commentId}/comments";
 
         $response = Http::asForm()->post($this->endpoint($path, $pageToken), [

@@ -239,12 +239,22 @@ class SocialMediaService
             throw new \RuntimeException('Akun media sosial terkait tidak aktif.');
         }
 
-        $res = $this->client->replyComment(
-            $comment->platform,
-            $comment->platform_comment_id,
-            $account->access_token,
-            $message
-        );
+        if (strtolower((string) $comment->platform) === 'messenger') {
+            $res = $this->client->replyComment(
+                $comment->platform,
+                $comment->platform_comment_id,
+                $account->access_token,
+                $message,
+                $comment->from_id
+            );
+        } else {
+            $res = $this->client->replyComment(
+                $comment->platform,
+                $comment->platform_comment_id,
+                $account->access_token,
+                $message
+            );
+        }
 
         $replyCommentId = (string) ($res['id'] ?? '');
 

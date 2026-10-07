@@ -63,16 +63,13 @@
                     </div>
 
                     <!-- Meta Free Tier Info Callout -->
-                    <div class="p-4 rounded-[16px] bg-[#007AFF]/8 border border-[#007AFF]/20 text-[12.5px] text-black/75 dark:text-white/75 space-y-1.5">
-                        <div class="flex items-center justify-between font-bold text-[#007AFF]">
-                            <span class="flex items-center gap-1.5">
-                                <i data-lucide="sparkles" class="w-4 h-4 shrink-0"></i>
-                                <span>{{ __('whatsapp.free_tier_banner_title') }}</span>
-                            </span>
+                    <div class="px-3.5 py-2.5 rounded-[14px] bg-[#007AFF]/8 border border-[#007AFF]/20 text-[12px] flex items-center justify-between gap-3 text-black/75 dark:text-white/75">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <i data-lucide="sparkles" class="w-4 h-4 text-[#007AFF] shrink-0"></i>
+                            <span class="font-semibold text-[#007AFF] truncate">{{ __('whatsapp.free_tier_banner_title') }}</span>
+                            <span class="text-black/55 dark:text-white/55 hidden sm:inline">• 1.000 percakapan gratis/bulan</span>
                         </div>
-                        <p class="leading-relaxed text-black/65 dark:text-white/65 text-[12px]">
-                            {{ __('whatsapp.free_tier_banner_desc') }}
-                        </p>
+                        <span class="text-[11px] font-bold text-[#007AFF] shrink-0 bg-[#007AFF]/10 px-2.5 py-0.5 rounded-full">Resmi Meta</span>
                     </div>
 
                     <!-- EMBEDDED SIGNUP FLOW (1-CLICK ONBOARDING) -->
@@ -309,38 +306,60 @@
         <!-- ===================================================== -->
         <!-- 4. OFFICIAL META MESSAGE TEMPLATES CATALOG (ANTI-BLOKIR) -->
         <!-- ===================================================== -->
-        <div class="rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-sm p-5 sm:p-7 space-y-6 transition-colors">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-black/5 dark:border-white/10">
+        <div class="rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-sm p-5 sm:p-7 space-y-5 transition-colors"
+            x-data="{ tplFilter: 'all' }">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-black/5 dark:border-white/10">
                 <div class="flex items-start gap-3.5">
-                    <div class="w-12 h-12 rounded-[16px] bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] flex items-center justify-center shrink-0 shadow-sm">
-                        <i data-lucide="shield-check" class="w-6 h-6"></i>
+                    <div class="w-11 h-11 rounded-[14px] bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] flex items-center justify-center shrink-0 shadow-xs">
+                        <i data-lucide="shield-check" class="w-5 h-5"></i>
                     </div>
                     <div>
                         <div class="flex items-center gap-2 flex-wrap">
-                            <h2 class="text-[17px] font-bold text-black dark:text-white tracking-tight">
+                            <h2 class="text-[16px] sm:text-[17px] font-bold text-black dark:text-white tracking-tight">
                                 {{ __('whatsapp.meta_catalog_title') }}
                             </h2>
-                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/25">
+                            <span class="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/25">
                                 {{ __('whatsapp.meta_compliant_badge') }}
                             </span>
                         </div>
-                        <p class="text-[12.5px] text-black/55 dark:text-white/55 mt-1 leading-relaxed">
+                        <p class="text-[12px] text-black/55 dark:text-white/55 mt-0.5 leading-relaxed">
                             {{ __('whatsapp.meta_catalog_subtitle') }}
                         </p>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-2.5 shrink-0">
+                <div class="flex items-center gap-2 shrink-0">
                     <a href="{{ route('whatsapp.broadcast.index', ['open_composer' => 1]) }}"
-                        class="min-h-[44px] px-4 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[13px] font-bold inline-flex items-center gap-2 shadow-sm transition active:scale-[0.98]">
+                        class="min-h-[40px] px-3.5 rounded-[11px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[12.5px] font-bold inline-flex items-center gap-2 shadow-sm transition active:scale-[0.98]">
                         <i data-lucide="megaphone" class="w-4 h-4"></i>
                         <span>{{ __('whatsapp.send_blast_with_template') }}</span>
                     </a>
                 </div>
             </div>
 
+            {{-- Category Filter Pills (Apple HIG Segmented Control) --}}
+            <div class="flex items-center gap-2 p-1 bg-black/[0.04] dark:bg-white/[0.06] rounded-[13px] w-fit">
+                <button type="button" @click="tplFilter = 'all'"
+                    class="px-3 py-1.5 rounded-[10px] text-[12px] font-semibold transition-all cursor-pointer"
+                    :class="tplFilter === 'all' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'">
+                    <span>Semua (10)</span>
+                </button>
+                <button type="button" @click="tplFilter = 'UTILITY'"
+                    class="px-3 py-1.5 rounded-[10px] text-[12px] font-semibold transition-all cursor-pointer flex items-center gap-1.5"
+                    :class="tplFilter === 'UTILITY' ? 'bg-white dark:bg-[#2C2C2E] text-[#007AFF] shadow-xs' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'">
+                    <span class="w-2 h-2 rounded-full bg-[#007AFF]"></span>
+                    <span>Operasional / Utility (7)</span>
+                </button>
+                <button type="button" @click="tplFilter = 'MARKETING'"
+                    class="px-3 py-1.5 rounded-[10px] text-[12px] font-semibold transition-all cursor-pointer flex items-center gap-1.5"
+                    :class="tplFilter === 'MARKETING' ? 'bg-white dark:bg-[#2C2C2E] text-[#34C759] shadow-xs' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'">
+                    <span class="w-2 h-2 rounded-full bg-[#34C759]"></span>
+                    <span>Pemasaran / Marketing (3)</span>
+                </button>
+            </div>
+
             <!-- Bento Grid: 10 Operational System Templates for Store -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
                 @php
                     $storeTemplates = [
                         [
@@ -427,34 +446,48 @@
                 @endphp
 
                 @foreach ($storeTemplates as $tpl)
-                    <div class="rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/10 p-4 sm:p-5 flex flex-col justify-between space-y-3.5 hover:border-[#34C759]/30 transition-all">
+                    <div x-show="tplFilter === 'all' || tplFilter === '{{ $tpl['category'] }}'"
+                        x-transition:enter="ease-out duration-150"
+                        x-transition:enter-start="opacity-0 scale-98"
+                        x-transition:enter-end="opacity-100 scale-100"
+                        class="rounded-[18px] bg-black/[0.015] dark:bg-white/[0.02] border border-black/5 dark:border-white/10 p-4 flex flex-col justify-between space-y-3 hover:border-black/15 dark:hover:border-white/15 transition-all">
                         <div class="space-y-2">
                             <div class="flex items-center justify-between gap-2">
-                                <span class="px-2.5 py-0.5 rounded-[6px] text-[10.5px] font-bold uppercase tracking-wider
-                                    {{ $tpl['category'] === 'UTILITY' ? 'bg-[#007AFF]/15 text-[#007AFF]' : 'bg-[#34C759]/15 text-[#34C759]' }}">
+                                <span class="px-2 py-0.5 rounded-[6px] text-[10px] font-bold uppercase tracking-wider
+                                    {{ $tpl['category'] === 'UTILITY' ? 'bg-[#007AFF]/12 text-[#007AFF]' : 'bg-[#34C759]/12 text-[#34C759]' }}">
                                     {{ $tpl['category'] }}
                                 </span>
-                                <span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#34C759]">
+                                <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-[#34C759]">
                                     <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span>
                                     <span>{{ __('whatsapp.approved_meta_badge') }}</span>
                                 </span>
                             </div>
 
-                            <div class="pt-1">
-                                <h3 class="text-[14.5px] font-bold text-black dark:text-white">{{ $tpl['title'] }}</h3>
-                                <code class="text-[11.5px] font-mono text-[#007AFF] block mt-0.5">{{ $tpl['name'] }}</code>
-                                <p class="text-[12px] text-black/60 dark:text-white/60 mt-1 leading-relaxed">
+                            <div class="pt-0.5">
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="{{ $tpl['icon'] }}" class="w-4 h-4 {{ $tpl['category'] === 'UTILITY' ? 'text-[#007AFF]' : 'text-[#34C759]' }} shrink-0"></i>
+                                    <h3 class="text-[13.5px] font-bold text-black dark:text-white leading-tight">{{ $tpl['title'] }}</h3>
+                                </div>
+                                <code class="text-[11px] font-mono text-black/50 dark:text-white/50 block mt-1">{{ $tpl['name'] }}</code>
+                                <p class="text-[11.5px] text-black/60 dark:text-white/60 mt-1 line-clamp-2 leading-relaxed">
                                     {{ $tpl['desc'] }}
                                 </p>
                             </div>
                         </div>
 
                         <div class="pt-2.5 border-t border-black/5 dark:border-white/10 flex items-center justify-between text-[11px]">
-                            <span class="text-black/45 dark:text-white/45 font-medium">{{ $tpl['badge'] }}</span>
-                            <span class="text-[#34C759] font-bold inline-flex items-center gap-1">
-                                <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
-                                <span>{{ __('whatsapp.safe_24h_badge') }}</span>
-                            </span>
+                            <span class="text-black/45 dark:text-white/45 font-medium truncate max-w-[150px]">{{ $tpl['badge'] }}</span>
+                            @if($tpl['category'] === 'MARKETING')
+                                <a href="{{ route('whatsapp.broadcast.index', ['open_composer' => 1]) }}"
+                                    class="text-[11px] font-bold text-[#007AFF] hover:underline flex items-center gap-0.5">
+                                    <span>Blast</span> <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                                </a>
+                            @else
+                                <span class="text-[#34C759] font-semibold inline-flex items-center gap-1">
+                                    <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                                    <span>Aman 24 Jam</span>
+                                </span>
+                            @endif
                         </div>
                     </div>
                 @endforeach
@@ -466,7 +499,7 @@
             <div x-show="showDisconnectModal" x-cloak
                 role="dialog" aria-modal="true" aria-labelledby="disconnect-modal-title"
                 @keydown.escape.window="showDisconnectModal = false"
-                class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 dark:bg-black/75 backdrop-blur-md"
+                class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/70 dark:bg-black/85"
                 x-transition:enter="ease-out duration-200"
                 x-transition:enter-start="opacity-0"
                 x-transition:enter-end="opacity-100"

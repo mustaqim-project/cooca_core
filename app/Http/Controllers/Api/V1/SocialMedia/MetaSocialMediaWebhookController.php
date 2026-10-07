@@ -123,6 +123,38 @@ class MetaSocialMediaWebhookController extends Controller
                     }
                 }
             }
+
+            // 4. Process incoming Meta Messenger direct messages
+            foreach ($entry['messaging'] ?? [] as $msgEvent) {
+                $senderId = (string) data_get($msgEvent, 'sender.id');
+                $recipientId = (string) data_get($msgEvent, 'recipient.id');
+                $messageData = data_get($msgEvent, 'message', []);
+                $mid = (string) data_get($messageData, 'mid');
+                $text = (string) data_get($messageData, 'text');
+                $timestamp = data_get($msgEvent, 'timestamp');
+
+                if (! empty($senderId) && ! empty($text) && $senderId !== $account->account_id) {
+                    SocialMediaComment::updateOrCreate(
+                        [
+                            'business_id'         => $businessId,
+                            'platform'            => 'messenger',
+                            'platform_comment_id' => $mid ?: (string) \Illuminate\Support\Str::uuid(),
+                        ],
+                        [
+                            'social_media_account_id' => $account->id,
+                            'social_media_post_id'    => null,
+                            'platform_post_id'        => $recipientId,
+                            'parent_comment_id'       => null,
+                            'from_id'                 => $senderId,
+                            'from_name'               => 'Meta Messenger User',
+                            'message'                 => $text,
+                            'is_from_page'            => false,
+                            'status'                  => 'unread',
+                            'created_time'            => $timestamp ? date('Y-m-d H:i:s', (int) ($timestamp / 1000)) : now(),
+                        ]
+                    );
+                }
+            }
         }
 
         return response()->json(['status' => 'EVENT_RECEIVED'], 200);

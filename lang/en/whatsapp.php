@@ -145,7 +145,7 @@ return [
     'broadcast_subtitle'               => 'Send bulk promotions & special notifications to all registered customers',
     'broadcast_header_title'           => 'WhatsApp Promotional Broadcast',
     'broadcast_header_subtitle'        => 'Send bulk promotions & special notifications to registered customers',
-    'new_broadcast_btn'                => 'New Broadcast',
+    'new_broadcast_btn'                => 'Create New Promo Blast',
     'total_campaigns'                  => 'Total Campaigns',
     'total_sent'                       => 'Delivered Messages',
     'total_target'                     => 'Total Target',

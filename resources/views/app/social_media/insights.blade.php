@@ -539,33 +539,41 @@
                 <div class="rounded-[20px] p-4.5 border transition-all flex flex-col justify-between gap-4 {{ $fb['connected'] ? 'bg-[#1877F2]/[0.03] dark:bg-[#1877F2]/[0.06] border-[#1877F2]/20' : 'bg-black/[0.02] dark:bg-white/[0.02] border-black/5 dark:border-white/5' }}">
                     <div class="space-y-3">
                         <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-2">
-                                <div class="w-8 h-8 rounded-full bg-[#1877F2] text-white flex items-center justify-center shrink-0">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-8 h-8 rounded-full bg-[#1877F2] text-white flex items-center justify-center shrink-0 shadow-xs">
                                     <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
                                 </div>
-                                <div>
-                                    <h4 class="text-[13px] font-bold text-black dark:text-white">Facebook</h4>
-                                    <p class="text-[11px] text-black/50 dark:text-white/50 truncate max-w-[140px]">{{ $fb['connected'] ? ($fb['account']->account_name ?? 'Facebook Page') : __('social_media.channel_desc_fb') }}</p>
+                                <div class="min-w-0">
+                                    <h4 class="text-[13px] font-bold text-black dark:text-white leading-tight">Facebook</h4>
+                                    <p class="text-[11px] text-black/50 dark:text-white/50 truncate max-w-[130px]">{{ $fb['connected'] ? ($fb['account']->account_name ?? 'Facebook Page') : __('social_media.channel_desc_fb') }}</p>
                                 </div>
                             </div>
                             @if($fb['connected'])
-                                <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> {{ __('social_media.status_active') }}
+                                <span class="inline-flex items-center gap-1.5 text-[10.5px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full shrink-0">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> {{ __('social_media.status_active') }}
                                 </span>
                             @else
-                                <span class="text-[11px] font-semibold text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded-full">{{ __('social_media.not_connected') }}</span>
+                                <span class="text-[10.5px] font-semibold text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded-full shrink-0">{{ __('social_media.not_connected') }}</span>
                             @endif
                         </div>
 
                         @if($fb['connected'])
-                            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-black/5 dark:border-white/5">
-                                <div>
+                            <div class="grid grid-cols-2 gap-2 pt-2.5 border-t border-black/5 dark:border-white/5">
+                                <div class="bg-black/[0.015] dark:bg-white/[0.02] p-2 rounded-[10px]">
                                     <span class="text-[10px] text-black/45 dark:text-white/45 block">{{ __('social_media.stat_followers') }}</span>
-                                    <span class="text-[16px] font-bold text-black dark:text-white tabular-nums">{{ number_format($fb['followers']) }}</span>
+                                    <span class="text-[15px] font-bold text-black dark:text-white tabular-nums">{{ number_format($fb['followers']) }}</span>
                                 </div>
-                                <div>
+                                <div class="bg-black/[0.015] dark:bg-white/[0.02] p-2 rounded-[10px]">
                                     <span class="text-[10px] text-black/45 dark:text-white/45 block">{{ __('social_media.stat_engagement_rate') }}</span>
-                                    <span class="text-[16px] font-bold text-[#1877F2] tabular-nums">{{ number_format($fb['engagement_rate'], 1) }}%</span>
+                                    <span class="text-[15px] font-bold text-[#1877F2] tabular-nums">{{ number_format($fb['engagement_rate'], 1) }}%</span>
+                                </div>
+                                <div class="bg-black/[0.015] dark:bg-white/[0.02] p-2 rounded-[10px]">
+                                    <span class="text-[10px] text-black/45 dark:text-white/45 block">{{ __('social_media.kpi_reach') }}</span>
+                                    <span class="text-[13px] font-bold text-black/80 dark:text-white/80 tabular-nums">{{ number_format($fb['reach']) }}</span>
+                                </div>
+                                <div class="bg-black/[0.015] dark:bg-white/[0.02] p-2 rounded-[10px]">
+                                    <span class="text-[10px] text-black/45 dark:text-white/45 block">Post Terbit</span>
+                                    <span class="text-[13px] font-bold text-black/80 dark:text-white/80 tabular-nums">{{ number_format($fb['posts_count']) }}</span>
                                 </div>
                             </div>
                         @endif
@@ -583,33 +591,41 @@
                 <div class="rounded-[20px] p-4.5 border transition-all flex flex-col justify-between gap-4 {{ $ig['connected'] ? 'bg-[#E4405F]/[0.03] dark:bg-[#E4405F]/[0.06] border-[#E4405F]/20' : 'bg-black/[0.02] dark:bg-white/[0.02] border-black/5 dark:border-white/5' }}">
                     <div class="space-y-3">
                         <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-2">
-                                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-[#FFB700] via-[#E4405F] to-[#833AB4] text-white flex items-center justify-center shrink-0">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-[#FFB700] via-[#E4405F] to-[#833AB4] text-white flex items-center justify-center shrink-0 shadow-xs">
                                     <x-social-icon platform="instagram" class="w-4 h-4" />
                                 </div>
-                                <div>
-                                    <h4 class="text-[13px] font-bold text-black dark:text-white">Instagram</h4>
-                                    <p class="text-[11px] text-black/50 dark:text-white/50 truncate max-w-[140px]">{{ $ig['connected'] ? ($ig['account']->username ?? $ig['account']->account_name ?? '@toko') : __('social_media.channel_desc_ig') }}</p>
+                                <div class="min-w-0">
+                                    <h4 class="text-[13px] font-bold text-black dark:text-white leading-tight">Instagram</h4>
+                                    <p class="text-[11px] text-black/50 dark:text-white/50 truncate max-w-[130px]">{{ $ig['connected'] ? ($ig['account']->username ?? $ig['account']->account_name ?? 'Instagram Business') : __('social_media.channel_desc_ig') }}</p>
                                 </div>
                             </div>
                             @if($ig['connected'])
-                                <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> {{ __('social_media.status_active') }}
+                                <span class="inline-flex items-center gap-1.5 text-[10.5px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full shrink-0">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> {{ __('social_media.status_active') }}
                                 </span>
                             @else
-                                <span class="text-[11px] font-semibold text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded-full">{{ __('social_media.not_connected') }}</span>
+                                <span class="text-[10.5px] font-semibold text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded-full shrink-0">{{ __('social_media.not_connected') }}</span>
                             @endif
                         </div>
 
                         @if($ig['connected'])
-                            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-black/5 dark:border-white/5">
-                                <div>
+                            <div class="grid grid-cols-2 gap-2 pt-2.5 border-t border-black/5 dark:border-white/5">
+                                <div class="bg-black/[0.015] dark:bg-white/[0.02] p-2 rounded-[10px]">
                                     <span class="text-[10px] text-black/45 dark:text-white/45 block">{{ __('social_media.stat_followers') }}</span>
-                                    <span class="text-[16px] font-bold text-black dark:text-white tabular-nums">{{ number_format($ig['followers']) }}</span>
+                                    <span class="text-[15px] font-bold text-black dark:text-white tabular-nums">{{ number_format($ig['followers']) }}</span>
                                 </div>
-                                <div>
+                                <div class="bg-black/[0.015] dark:bg-white/[0.02] p-2 rounded-[10px]">
                                     <span class="text-[10px] text-black/45 dark:text-white/45 block">{{ __('social_media.stat_engagement_rate') }}</span>
-                                    <span class="text-[16px] font-bold text-[#E4405F] tabular-nums">{{ number_format($ig['engagement_rate'], 1) }}%</span>
+                                    <span class="text-[15px] font-bold text-[#E4405F] tabular-nums">{{ number_format($ig['engagement_rate'], 1) }}%</span>
+                                </div>
+                                <div class="bg-black/[0.015] dark:bg-white/[0.02] p-2 rounded-[10px]">
+                                    <span class="text-[10px] text-black/45 dark:text-white/45 block">{{ __('social_media.kpi_reach') }}</span>
+                                    <span class="text-[13px] font-bold text-black/80 dark:text-white/80 tabular-nums">{{ number_format($ig['reach']) }}</span>
+                                </div>
+                                <div class="bg-black/[0.015] dark:bg-white/[0.02] p-2 rounded-[10px]">
+                                    <span class="text-[10px] text-black/45 dark:text-white/45 block">Total Media</span>
+                                    <span class="text-[13px] font-bold text-black/80 dark:text-white/80 tabular-nums">{{ number_format($ig['metrics']['media_count'] ?? $ig['posts_count']) }}</span>
                                 </div>
                             </div>
                         @endif
@@ -627,33 +643,41 @@
                 <div class="rounded-[20px] p-4.5 border transition-all flex flex-col justify-between gap-4 {{ $tt['connected'] ? 'bg-black/[0.04] dark:bg-white/[0.06] border-black/15 dark:border-white/15' : 'bg-black/[0.02] dark:bg-white/[0.02] border-black/5 dark:border-white/5' }}">
                     <div class="space-y-3">
                         <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-2">
-                                <div class="w-8 h-8 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center shrink-0">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-8 h-8 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center shrink-0 shadow-xs">
                                     <x-social-icon platform="tiktok" class="w-4 h-4" />
                                 </div>
-                                <div>
-                                    <h4 class="text-[13px] font-bold text-black dark:text-white">TikTok</h4>
-                                    <p class="text-[11px] text-black/50 dark:text-white/50 truncate max-w-[140px]">{{ $tt['connected'] ? ($tt['account']->username ?? $tt['account']->account_name ?? 'TikTok Account') : __('social_media.channel_desc_tt') }}</p>
+                                <div class="min-w-0">
+                                    <h4 class="text-[13px] font-bold text-black dark:text-white leading-tight">TikTok</h4>
+                                    <p class="text-[11px] text-black/50 dark:text-white/50 truncate max-w-[130px]">{{ $tt['connected'] ? ($tt['account']->username ?? $tt['account']->account_name ?? 'TikTok Business') : __('social_media.channel_desc_tt') }}</p>
                                 </div>
                             </div>
                             @if($tt['connected'])
-                                <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> {{ __('social_media.status_active') }}
+                                <span class="inline-flex items-center gap-1.5 text-[10.5px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full shrink-0">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> {{ __('social_media.status_active') }}
                                 </span>
                             @else
-                                <span class="text-[11px] font-semibold text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded-full">{{ __('social_media.not_connected') }}</span>
+                                <span class="text-[10.5px] font-semibold text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded-full shrink-0">{{ __('social_media.not_connected') }}</span>
                             @endif
                         </div>
 
                         @if($tt['connected'])
-                            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-black/5 dark:border-white/5">
-                                <div>
+                            <div class="grid grid-cols-2 gap-2 pt-2.5 border-t border-black/5 dark:border-white/5">
+                                <div class="bg-black/[0.015] dark:bg-white/[0.02] p-2 rounded-[10px]">
                                     <span class="text-[10px] text-black/45 dark:text-white/45 block">{{ __('social_media.stat_followers') }}</span>
-                                    <span class="text-[16px] font-bold text-black dark:text-white tabular-nums">{{ number_format($tt['followers']) }}</span>
+                                    <span class="text-[15px] font-bold text-black dark:text-white tabular-nums">{{ number_format($tt['followers']) }}</span>
                                 </div>
-                                <div>
+                                <div class="bg-black/[0.015] dark:bg-white/[0.02] p-2 rounded-[10px]">
                                     <span class="text-[10px] text-black/45 dark:text-white/45 block">{{ __('social_media.stat_engagement_rate') }}</span>
-                                    <span class="text-[16px] font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">{{ number_format($tt['engagement_rate'], 1) }}%</span>
+                                    <span class="text-[15px] font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">{{ number_format($tt['engagement_rate'], 1) }}%</span>
+                                </div>
+                                <div class="bg-black/[0.015] dark:bg-white/[0.02] p-2 rounded-[10px]">
+                                    <span class="text-[10px] text-black/45 dark:text-white/45 block">{{ __('social_media.kpi_reach') }}</span>
+                                    <span class="text-[13px] font-bold text-black/80 dark:text-white/80 tabular-nums">{{ number_format($tt['reach']) }}</span>
+                                </div>
+                                <div class="bg-black/[0.015] dark:bg-white/[0.02] p-2 rounded-[10px]">
+                                    <span class="text-[10px] text-black/45 dark:text-white/45 block">Post Terbit</span>
+                                    <span class="text-[13px] font-bold text-black/80 dark:text-white/80 tabular-nums">{{ number_format($tt['posts_count']) }}</span>
                                 </div>
                             </div>
                         @endif
@@ -671,33 +695,41 @@
                 <div class="rounded-[20px] p-4.5 border transition-all flex flex-col justify-between gap-4 {{ $li['connected'] ? 'bg-[#0A66C2]/[0.03] dark:bg-[#0A66C2]/[0.06] border-[#0A66C2]/20' : 'bg-black/[0.02] dark:bg-white/[0.02] border-black/5 dark:border-white/5' }}">
                     <div class="space-y-3">
                         <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-2">
-                                <div class="w-8 h-8 rounded-full bg-[#0A66C2] text-white flex items-center justify-center shrink-0">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-8 h-8 rounded-full bg-[#0A66C2] text-white flex items-center justify-center shrink-0 shadow-xs">
                                     <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.762-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
                                 </div>
-                                <div>
-                                    <h4 class="text-[13px] font-bold text-black dark:text-white">LinkedIn</h4>
-                                    <p class="text-[11px] text-black/50 dark:text-white/50 truncate max-w-[140px]">{{ $li['connected'] ? ($li['account']->account_name ?? 'LinkedIn Page') : __('social_media.channel_desc_li') }}</p>
+                                <div class="min-w-0">
+                                    <h4 class="text-[13px] font-bold text-black dark:text-white leading-tight">LinkedIn</h4>
+                                    <p class="text-[11px] text-black/50 dark:text-white/50 truncate max-w-[130px]">{{ $li['connected'] ? ($li['account']->account_name ?? 'LinkedIn Page') : __('social_media.channel_desc_li') }}</p>
                                 </div>
                             </div>
                             @if($li['connected'])
-                                <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> {{ __('social_media.status_active') }}
+                                <span class="inline-flex items-center gap-1.5 text-[10.5px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full shrink-0">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> {{ __('social_media.status_active') }}
                                 </span>
                             @else
-                                <span class="text-[11px] font-semibold text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded-full">{{ __('social_media.not_connected') }}</span>
+                                <span class="text-[10.5px] font-semibold text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded-full shrink-0">{{ __('social_media.not_connected') }}</span>
                             @endif
                         </div>
 
                         @if($li['connected'])
-                            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-black/5 dark:border-white/5">
-                                <div>
+                            <div class="grid grid-cols-2 gap-2 pt-2.5 border-t border-black/5 dark:border-white/5">
+                                <div class="bg-black/[0.015] dark:bg-white/[0.02] p-2 rounded-[10px]">
                                     <span class="text-[10px] text-black/45 dark:text-white/45 block">{{ __('social_media.stat_followers') }}</span>
-                                    <span class="text-[16px] font-bold text-black dark:text-white tabular-nums">{{ number_format($li['followers']) }}</span>
+                                    <span class="text-[15px] font-bold text-black dark:text-white tabular-nums">{{ number_format($li['followers']) }}</span>
                                 </div>
-                                <div>
+                                <div class="bg-black/[0.015] dark:bg-white/[0.02] p-2 rounded-[10px]">
                                     <span class="text-[10px] text-black/45 dark:text-white/45 block">{{ __('social_media.stat_engagement_rate') }}</span>
-                                    <span class="text-[16px] font-bold text-[#0A66C2] tabular-nums">{{ number_format($li['engagement_rate'], 1) }}%</span>
+                                    <span class="text-[15px] font-bold text-[#0A66C2] tabular-nums">{{ number_format($li['engagement_rate'], 1) }}%</span>
+                                </div>
+                                <div class="bg-black/[0.015] dark:bg-white/[0.02] p-2 rounded-[10px]">
+                                    <span class="text-[10px] text-black/45 dark:text-white/45 block">{{ __('social_media.kpi_reach') }}</span>
+                                    <span class="text-[13px] font-bold text-black/80 dark:text-white/80 tabular-nums">{{ number_format($li['reach']) }}</span>
+                                </div>
+                                <div class="bg-black/[0.015] dark:bg-white/[0.02] p-2 rounded-[10px]">
+                                    <span class="text-[10px] text-black/45 dark:text-white/45 block">Post Terbit</span>
+                                    <span class="text-[13px] font-bold text-black/80 dark:text-white/80 tabular-nums">{{ number_format($li['posts_count']) }}</span>
                                 </div>
                             </div>
                         @endif
@@ -710,6 +742,173 @@
                     @endif
                 </div>
             </div>
+        </div>
+
+        {{-- 5B. GALERI KONTEN & PERFORMA LIVE MEDIA SOSIAL --}}
+        <div class="rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 sm:p-6 shadow-xs space-y-5">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-black/[0.06] dark:border-white/[0.08]">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="layout-template" class="w-5 h-5 text-[#E4405F]"></i>
+                        <h3 class="text-[16px] sm:text-[17px] font-bold text-black dark:text-white tracking-tight">
+                            Galeri Konten & Performa Live Media Sosial
+                        </h3>
+                    </div>
+                    <p class="text-[12px] text-black/50 dark:text-white/50 mt-0.5">
+                        Daftar media dan postingan terkini dari akun resmi yang terhubung beserta data likes, komentar, dan tautan live
+                    </p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-[12px] font-semibold text-black/60 dark:text-white/60 bg-black/[0.04] dark:bg-white/[0.06] px-3 py-1 rounded-full tabular-nums">
+                        @if(!empty($recentMedia) && count($recentMedia) > 0)
+                            {{ count($recentMedia) }} Media Live
+                        @else
+                            {{ $posts->count() }} Konten Tersedia
+                        @endif
+                    </span>
+                    <button @click="syncAccountsMetrics()" :disabled="isSyncingAccounts"
+                        class="h-8 px-3 rounded-[9px] text-[12px] font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 transition-all flex items-center gap-1 cursor-pointer">
+                        <i data-lucide="refresh-cw" class="w-3.5 h-3.5" :class="{'animate-spin': isSyncingAccounts}"></i>
+                        <span>Sync Live</span>
+                    </button>
+                </div>
+            </div>
+
+            @if (!empty($recentMedia) && count($recentMedia) > 0)
+                {{-- Live Instagram Media Grid --}}
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    @foreach ($recentMedia as $item)
+                        <div class="p-3.5 rounded-[18px] bg-black/[0.015] dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/[0.08] space-y-3 flex flex-col justify-between hover:border-black/20 dark:hover:border-white/20 transition-all group">
+                            <div class="space-y-2.5">
+                                <div class="relative w-full aspect-video rounded-[12px] overflow-hidden bg-black/5 dark:bg-white/5">
+                                    @if (!empty($item['thumbnail_url']) || !empty($item['media_url']))
+                                        <img src="{{ $item['thumbnail_url'] ?: $item['media_url'] }}"
+                                            alt="Post Media" class="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300">
+                                    @else
+                                        <div class="w-full h-full flex items-center justify-center text-black/30 dark:text-white/30">
+                                            <i data-lucide="image" class="w-8 h-8"></i>
+                                        </div>
+                                    @endif
+                                    <div class="absolute top-2 left-2">
+                                        @if (($item['media_product_type'] ?? '') === 'REELS' || ($item['media_type'] ?? '') === 'VIDEO')
+                                            <span class="px-2 py-0.5 rounded-[6px] text-[10px] font-bold bg-black/75 text-white backdrop-blur-xs flex items-center gap-1 shadow-xs">
+                                                <i data-lucide="film" class="w-3 h-3 text-[#E1306C]"></i>
+                                                <span>REELS</span>
+                                            </span>
+                                        @elseif(($item['media_type'] ?? '') === 'CAROUSEL_ALBUM')
+                                            <span class="px-2 py-0.5 rounded-[6px] text-[10px] font-bold bg-black/75 text-white backdrop-blur-xs flex items-center gap-1 shadow-xs">
+                                                <i data-lucide="layers" class="w-3 h-3 text-[#007AFF]"></i>
+                                                <span>CAROUSEL</span>
+                                            </span>
+                                        @else
+                                            <span class="px-2 py-0.5 rounded-[6px] text-[10px] font-bold bg-black/75 text-white backdrop-blur-xs flex items-center gap-1 shadow-xs">
+                                                <i data-lucide="image" class="w-3 h-3 text-[#34C759]"></i>
+                                                <span>FEED</span>
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <p class="text-[12px] text-black/80 dark:text-white/80 line-clamp-2 leading-relaxed">
+                                    {{ !empty($item['caption']) ? $item['caption'] : '(Tidak ada keterangan teks)' }}
+                                </p>
+                            </div>
+
+                            <div class="pt-2.5 border-t border-black/[0.05] dark:border-white/[0.06] flex items-center justify-between">
+                                <div class="flex items-center gap-3 text-[11.5px] text-black/60 dark:text-white/60">
+                                    <span class="flex items-center gap-1" title="Suka">
+                                        <i data-lucide="heart" class="w-3.5 h-3.5 text-[#E1306C]"></i>
+                                        <strong class="tabular-nums text-black dark:text-white">{{ number_format((int)($item['like_count'] ?? 0)) }}</strong>
+                                    </span>
+                                    <span class="flex items-center gap-1" title="Komentar">
+                                        <i data-lucide="message-circle" class="w-3.5 h-3.5 text-[#007AFF]"></i>
+                                        <strong class="tabular-nums text-black dark:text-white">{{ number_format((int)($item['comments_count'] ?? 0)) }}</strong>
+                                    </span>
+                                </div>
+
+                                @if (!empty($item['permalink']))
+                                    <a href="{{ $item['permalink'] }}" target="_blank" rel="noopener noreferrer"
+                                        class="p-1 rounded-[7px] text-black/40 dark:text-white/40 hover:text-[#007AFF] dark:hover:text-[#007AFF] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                                        title="Buka tautan media asli">
+                                        <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                                    </a>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @elseif($posts->isNotEmpty())
+                {{-- Published Content From Connected Accounts --}}
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    @foreach($posts->take(8) as $postItem)
+                        @php
+                            $firstMediaUrl = ($postItem->media_urls && count($postItem->media_urls) > 0) ? $postItem->media_urls[0] : null;
+                            $postLikes = $postItem->getMetric('likes');
+                            $postComments = $postItem->getMetric('comments');
+                        @endphp
+                        <div class="p-3.5 rounded-[18px] bg-black/[0.015] dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/[0.08] space-y-3 flex flex-col justify-between hover:border-black/20 dark:hover:border-white/20 transition-all group">
+                            <div class="space-y-2.5">
+                                <div class="relative w-full aspect-video rounded-[12px] overflow-hidden bg-black/5 dark:bg-white/5">
+                                    @if($firstMediaUrl)
+                                        <img src="{{ $firstMediaUrl }}" alt="Post Media" class="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300">
+                                    @else
+                                        <div class="w-full h-full flex items-center justify-center text-black/30 dark:text-white/30">
+                                            <i data-lucide="file-text" class="w-7 h-7"></i>
+                                        </div>
+                                    @endif
+
+                                    <div class="absolute top-2 left-2 flex items-center gap-1">
+                                        @foreach($postItem->targets as $target)
+                                            <span class="px-1.5 py-0.5 rounded-[5px] text-[9.5px] font-bold bg-black/75 text-white backdrop-blur-xs flex items-center gap-1 shadow-xs">
+                                                <x-social-icon :platform="strtolower((string)$target->platform)" class="w-2.5 h-2.5" />
+                                                <span>{{ strtoupper((string)$target->platform) }}</span>
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                                <p class="text-[12px] text-black/80 dark:text-white/80 line-clamp-2 leading-relaxed">
+                                    {{ $postItem->content ?: '(Tidak ada caption)' }}
+                                </p>
+                            </div>
+
+                            <div class="pt-2.5 border-t border-black/[0.05] dark:border-white/[0.06] flex items-center justify-between">
+                                <div class="flex items-center gap-3 text-[11.5px] text-black/60 dark:text-white/60">
+                                    <span class="flex items-center gap-1" title="Suka">
+                                        <i data-lucide="heart" class="w-3.5 h-3.5 text-[#E1306C]"></i>
+                                        <strong class="tabular-nums text-black dark:text-white">{{ number_format($postLikes) }}</strong>
+                                    </span>
+                                    <span class="flex items-center gap-1" title="Komentar">
+                                        <i data-lucide="message-circle" class="w-3.5 h-3.5 text-[#007AFF]"></i>
+                                        <strong class="tabular-nums text-black dark:text-white">{{ number_format($postComments) }}</strong>
+                                    </span>
+                                </div>
+
+                                <a href="{{ route('social-media.posts.index') }}" class="p-1 rounded-[7px] text-black/40 dark:text-white/40 hover:text-[#007AFF] dark:hover:text-[#007AFF] hover:bg-black/5 dark:hover:bg-white/5 transition-colors" title="Lihat di Post Studio">
+                                    <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+                                </a>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <div class="p-10 text-center space-y-3 rounded-[18px] bg-black/[0.015] dark:bg-white/[0.02] border border-dashed border-black/10 dark:border-white/10">
+                    <div class="w-10 h-10 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center mx-auto text-black/40 dark:text-white/40">
+                        <i data-lucide="image" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <p class="text-[13px] font-semibold text-black/70 dark:text-white/70">Belum ada media tersinkronisasi</p>
+                        <p class="text-[11.5px] text-black/45 dark:text-white/45 mt-0.5 max-w-sm mx-auto">
+                            Klik tombol "Sync Live" di kanan atas untuk menyegarkan media terbaru dari akun media sosial yang telah terhubung.
+                        </p>
+                    </div>
+                    <button @click="syncAccountsMetrics()" :disabled="isSyncingAccounts"
+                        class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-[10px] text-[12px] font-semibold text-white bg-black dark:bg-white dark:text-black hover:opacity-90 transition-all cursor-pointer">
+                        <i data-lucide="radio" class="w-3.5 h-3.5"></i>
+                        <span>Sinkronisasi Media Sekarang</span>
+                    </button>
+                </div>
+            @endif
         </div>
 
         {{-- 6. RECENT POST INSIGHTS TABLE & LIST --}}

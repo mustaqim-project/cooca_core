@@ -328,25 +328,33 @@
         <!-- =================================================================== -->
         <template x-teleport="body">
             <div x-show="createModalOpen" x-cloak
-                class="fixed inset-0 z-[200] flex items-center justify-center p-0 sm:p-4 lg:p-6 overflow-hidden"
+                class="fixed inset-0 z-[200] overflow-y-auto"
                 @keydown.escape.window="closeCreateModal()">
 
-            <!-- Backdrop Frosted Glass -->
-            <div x-show="createModalOpen" x-transition:enter="ease-out duration-200"
-                x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-                x-transition:leave="ease-in duration-150" x-transition:leave-start="opacity-100"
-                x-transition:leave-end="opacity-0" @click="closeCreateModal()"
-                class="fixed inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-md"></div>
+                <!-- Backdrop Overlay: Solid dark overlay (no backdrop-blur on fullscreen layer to eliminate Chromium child dialog blur defect) -->
+                <div x-show="createModalOpen"
+                    x-transition:enter="ease-out duration-200"
+                    x-transition:enter-start="opacity-0"
+                    x-transition:enter-end="opacity-100"
+                    x-transition:leave="ease-in duration-150"
+                    x-transition:leave-start="opacity-100"
+                    x-transition:leave-end="opacity-0"
+                    @click="closeCreateModal()"
+                    class="fixed inset-0 bg-black/70 dark:bg-black/85 transition-opacity"
+                    aria-hidden="true"></div>
 
-            <!-- XXL Bento Canvas Container -->
-            <div x-show="createModalOpen" x-transition:enter="ease-out duration-200"
-                x-transition:enter-start="opacity-0 scale-95 translate-y-4 sm:translate-y-0"
-                x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-                x-transition:leave="ease-in duration-150"
-                x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-                x-transition:leave-end="opacity-0 scale-95 translate-y-4 sm:translate-y-0"
-                role="dialog" aria-modal="true" aria-labelledby="broadcastModalTitle"
-                class="relative w-full max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1350px] bg-[#F2F2F7] dark:bg-[#000000] sm:rounded-[24px] rounded-t-[28px] max-h-[95vh] sm:max-h-[92vh] flex flex-col overflow-hidden shadow-2xl border border-black/10 dark:border-white/10 z-10">
+                <!-- Centering Wrapper -->
+                <div class="min-h-full flex items-end sm:items-center justify-center p-0 sm:p-4 lg:p-6 text-center">
+                    <!-- XXL Bento Canvas Container -->
+                    <div x-show="createModalOpen"
+                        x-transition:enter="ease-out duration-200"
+                        x-transition:enter-start="opacity-0 scale-95 translate-y-4 sm:translate-y-0"
+                        x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                        x-transition:leave="ease-in duration-150"
+                        x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                        x-transition:leave-end="opacity-0 scale-95 translate-y-4 sm:translate-y-0"
+                        role="dialog" aria-modal="true" aria-labelledby="broadcastModalTitle"
+                        class="relative w-full max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1350px] bg-[#F2F2F7] dark:bg-[#121212] sm:rounded-[24px] rounded-t-[28px] max-h-[95vh] sm:max-h-[92vh] flex flex-col overflow-hidden shadow-2xl border border-black/10 dark:border-white/10 z-10 text-left">
 
                 <!-- Mobile Grab Bar -->
                 <div class="sm:hidden w-10 h-1.5 bg-black/20 dark:bg-white/20 rounded-full mx-auto my-2.5 shrink-0"></div>
@@ -857,8 +865,9 @@
                     </div>
                 </footer>
 
+                    </div>
+                </div>
             </div>
-        </div>
         </template>
 
     </div>

@@ -23,26 +23,53 @@
 
         <x-module-tabs module="communication" />
 
-        {{-- 3. FILTER PILLS --}}
-        <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-4 shadow-sm flex flex-wrap items-center justify-between gap-4">
-            <div class="flex flex-wrap items-center gap-2">
-                <span class="text-[12px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider mr-1">{{ __('social_media.filter_status_label') }}:</span>
-                <a href="{{ route('social-media.inbox.index', ['status' => 'all']) }}"
-                    class="min-h-[44px] sm:min-h-0 sm:h-7 px-3.5 sm:px-3 rounded-full text-[12px] font-medium transition-colors flex items-center justify-center {{ $status === 'all' ? 'bg-[#007AFF] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
-                    {{ __('social_media.all_comments_filter', ['count' => $comments->total()]) }}
-                </a>
-                <a href="{{ route('social-media.inbox.index', ['status' => 'unread']) }}"
-                    class="min-h-[44px] sm:min-h-0 sm:h-7 px-3.5 sm:px-3 rounded-full text-[12px] font-medium transition-colors flex items-center justify-center {{ $status === 'unread' ? 'bg-[#FF9500] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
-                    {{ __('social_media.unread_comments_filter') }}
-                </a>
-                <a href="{{ route('social-media.inbox.index', ['status' => 'replied']) }}"
-                    class="min-h-[44px] sm:min-h-0 sm:h-7 px-3.5 sm:px-3 rounded-full text-[12px] font-medium transition-colors flex items-center justify-center {{ $status === 'replied' ? 'bg-[#34C759] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
-                    {{ __('social_media.replied_comments_filter') }}
-                </a>
+        {{-- 3. FILTER PILLS (STATUS & CHANNEL TABS) --}}
+        <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-4 shadow-sm space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                {{-- Status Filter Pills --}}
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="text-[12px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider mr-1">{{ __('social_media.filter_status_label') }}:</span>
+                    <a href="{{ route('social-media.inbox.index', ['status' => 'all', 'channel' => request('channel', 'all')]) }}"
+                        class="min-h-[44px] sm:min-h-0 sm:h-7 px-3.5 sm:px-3 rounded-full text-[12px] font-medium transition-colors flex items-center justify-center {{ $status === 'all' ? 'bg-[#007AFF] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
+                        {{ __('social_media.all_comments_filter', ['count' => $comments->total()]) }}
+                    </a>
+                    <a href="{{ route('social-media.inbox.index', ['status' => 'unread', 'channel' => request('channel', 'all')]) }}"
+                        class="min-h-[44px] sm:min-h-0 sm:h-7 px-3.5 sm:px-3 rounded-full text-[12px] font-medium transition-colors flex items-center justify-center {{ $status === 'unread' ? 'bg-[#FF9500] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
+                        {{ __('social_media.unread_comments_filter') }}
+                    </a>
+                    <a href="{{ route('social-media.inbox.index', ['status' => 'replied', 'channel' => request('channel', 'all')]) }}"
+                        class="min-h-[44px] sm:min-h-0 sm:h-7 px-3.5 sm:px-3 rounded-full text-[12px] font-medium transition-colors flex items-center justify-center {{ $status === 'replied' ? 'bg-[#34C759] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
+                        {{ __('social_media.replied_comments_filter') }}
+                    </a>
+                </div>
+
+                {{-- Channel Filter Pills --}}
+                <div class="flex flex-wrap items-center gap-1.5 pt-2 sm:pt-0 border-t sm:border-t-0 border-black/5 dark:border-white/5 w-full sm:w-auto">
+                    <span class="text-[12px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider mr-1">Saluran:</span>
+                    <a href="{{ route('social-media.inbox.index', ['status' => $status, 'channel' => 'all']) }}"
+                        class="px-2.5 py-1 rounded-[8px] text-[11.5px] font-medium transition-colors {{ request('channel', 'all') === 'all' ? 'bg-black dark:bg-white text-white dark:text-black font-bold' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
+                        Semua
+                    </a>
+                    <a href="{{ route('social-media.inbox.index', ['status' => $status, 'channel' => 'messenger']) }}"
+                        class="px-2.5 py-1 rounded-[8px] text-[11.5px] font-medium transition-colors flex items-center gap-1.5 {{ request('channel') === 'messenger' ? 'bg-[#007AFF] text-white font-bold' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
+                        <x-social-icon platform="messenger" class="w-3.5 h-3.5" />
+                        <span>Meta Messenger</span>
+                    </a>
+                    <a href="{{ route('social-media.inbox.index', ['status' => $status, 'channel' => 'instagram']) }}"
+                        class="px-2.5 py-1 rounded-[8px] text-[11.5px] font-medium transition-colors flex items-center gap-1.5 {{ request('channel') === 'instagram' ? 'bg-[#E1306C] text-white font-bold' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
+                        <x-social-icon platform="instagram" class="w-3.5 h-3.5" />
+                        <span>Instagram</span>
+                    </a>
+                    <a href="{{ route('social-media.inbox.index', ['status' => $status, 'channel' => 'facebook']) }}"
+                        class="px-2.5 py-1 rounded-[8px] text-[11.5px] font-medium transition-colors flex items-center gap-1.5 {{ request('channel') === 'facebook' ? 'bg-[#1877F2] text-white font-bold' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
+                        <x-social-icon platform="facebook" class="w-3.5 h-3.5" />
+                        <span>Facebook</span>
+                    </a>
+                </div>
             </div>
         </div>
 
-        {{-- 4. COMMENTS LIST --}}
+        {{-- 4. COMMENTS & MESSAGES LIST --}}
         <div id="comments-container">
         @if($comments->isEmpty())
             <div class="rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-12 text-center shadow-sm space-y-4">
@@ -54,6 +81,9 @@
                     <p class="text-[13px] text-black/60 dark:text-white/60">
                         {{ __('social_media.inbox_clean_desc') }}
                     </p>
+                    <p class="text-[11.5px] text-black/45 dark:text-white/45 pt-1">
+                        Pesan dari Meta Messenger &amp; Instagram Direct serta komentar publik akan otomatis disinkronkan dan dapat dibalas langsung dari panel ini.
+                    </p>
                 </div>
             </div>
         @else
@@ -64,7 +94,7 @@
                         <div class="flex items-start gap-3.5 min-w-0">
                             {{-- Platform Icon Avatar --}}
                             <div class="w-10 h-10 rounded-[12px] flex items-center justify-center text-white shrink-0 shadow-sm
-                                {{ $c->platform === 'facebook' ? 'bg-[#1877F2]' : ($c->platform === 'instagram' ? 'bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF]' : ($c->platform === 'tiktok' ? 'bg-black dark:bg-white dark:text-black' : ($c->platform === 'linkedin' ? 'bg-[#0A66C2]' : 'bg-black/10 text-black dark:text-white'))) }}">
+                                {{ $c->platform === 'messenger' ? 'bg-gradient-to-tr from-[#00B2FF] via-[#006AFF] to-[#8000FF]' : ($c->platform === 'facebook' ? 'bg-[#1877F2]' : ($c->platform === 'instagram' ? 'bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF]' : ($c->platform === 'tiktok' ? 'bg-black dark:bg-white dark:text-black' : ($c->platform === 'linkedin' ? 'bg-[#0A66C2]' : 'bg-black/10 text-black dark:text-white')))) }}">
                                 <x-social-icon :platform="$c->platform" class="w-5 h-5" />
                             </div>
 
@@ -72,15 +102,15 @@
                             <div class="space-y-1 min-w-0">
                                 <div class="flex flex-wrap items-center gap-2">
                                     <span class="text-[13.5px] font-bold text-black dark:text-white">
-                                        {{ $c->sender_name ?: __('social_media.user_label', ['platform' => ucfirst($c->platform)]) }}
+                                        {{ $c->sender_name ?: ($c->from_name ?: ($c->platform === 'messenger' ? 'Pengguna Meta Messenger' : __('social_media.user_label', ['platform' => ucfirst($c->platform)]))) }}
                                     </span>
                                     <span class="text-[11px] text-black/40 dark:text-white/40">•</span>
                                     <span class="text-[11.5px] text-black/50 dark:text-white/50">
                                         {{ $c->created_time ? $c->created_time->diffForHumans() : $c->created_at->diffForHumans() }}
                                     </span>
                                     <span class="text-[11px] text-black/40 dark:text-white/40">•</span>
-                                    <span class="text-[11px] font-medium text-black/60 dark:text-white/60">
-                                        {{ $c->account ? $c->account->account_name : ucfirst($c->platform) }}
+                                    <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full {{ $c->platform === 'messenger' ? 'bg-[#007AFF]/12 text-[#007AFF]' : 'bg-black/5 dark:bg-white/5 text-black/60 dark:text-white/60' }}">
+                                        {{ $c->platform === 'messenger' ? 'Meta Messenger' : ($c->account ? $c->account->account_name : ucfirst($c->platform)) }}
                                     </span>
                                 </div>
 
@@ -94,6 +124,11 @@
                                     <div class="text-[11.5px] text-black/50 dark:text-white/50 flex items-center gap-1.5 pt-0.5">
                                         <i data-lucide="link-2" class="w-3.5 h-3.5"></i>
                                         <span class="truncate max-w-md">{{ __('social_media.in_post_reference', ['content' => Str::limit($c->post->content, 60)]) }}</span>
+                                    </div>
+                                @elseif($c->platform === 'messenger')
+                                    <div class="text-[11px] text-[#007AFF] flex items-center gap-1.5 pt-0.5">
+                                        <i data-lucide="message-circle" class="w-3 h-3"></i>
+                                        <span>Pesan Langsung Resmi (Direct Message Meta)</span>
                                     </div>
                                 @endif
                             </div>
@@ -115,14 +150,15 @@
                                 </span>
                             @endif
 
-                            <button type="button" @click="prepareReply(@js($c->id), @js($c->sender_name ?: __('social_media.user_label', ['platform' => ucfirst($c->platform)])), @js($c->message), @js($c->platform))"
+                            <button type="button" @click="prepareReply(@js($c->id), @js($c->sender_name ?: ($c->from_name ?: ($c->platform === 'messenger' ? 'Pengguna Messenger' : __('social_media.user_label', ['platform' => ucfirst($c->platform)])))), @js($c->message), @js($c->platform))"
                                 class="min-h-[44px] sm:min-h-0 sm:h-8 px-3.5 rounded-[9px] text-[12.5px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all inline-flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
                                 <i data-lucide="corner-up-left" class="w-3.5 h-3.5"></i>
-                                <span>{{ __('social_media.reply_action_btn') }}</span>
+                                <span>{{ $c->platform === 'messenger' ? 'Balas Pesan' : __('social_media.reply_action_btn') }}</span>
                             </button>
                         </div>
                     </div>
                 @endforeach
+            </div>
             </div>
 
             <div class="pt-4">

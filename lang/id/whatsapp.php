@@ -145,7 +145,7 @@ return [
     'broadcast_subtitle'               => 'Kirim promosi massal & notifikasi spesial ke seluruh pelanggan terdaftar',
     'broadcast_header_title'           => 'Blast Promosi WhatsApp',
     'broadcast_header_subtitle'        => 'Kirim promosi massal & notifikasi spesial ke pelanggan terdaftar',
-    'new_broadcast_btn'                => 'Broadcast Baru',
+    'new_broadcast_btn'                => 'Buat Blast Promosi Baru',
     'total_campaigns'                  => 'Total Kampanye',
     'total_sent'                       => 'Pesan Terkirim',
     'total_target'                     => 'Total Target',

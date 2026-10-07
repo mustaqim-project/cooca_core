@@ -853,12 +853,13 @@ class SocialMediaWebController extends Controller implements HasMiddleware
     }
 
     /**
-     * Inbox & Comments Management.
+     * Inbox & Comments Management (Facebook, Instagram & Meta Messenger).
      */
     public function inbox(Request $request): View
     {
         $business = Context::requireBusiness();
         $status = (string) $request->query('status', 'all');
+        $channel = (string) $request->query('channel', 'all');
 
         $query = SocialMediaComment::where('business_id', $business->id)
             ->where('is_from_page', false)
@@ -871,9 +872,13 @@ class SocialMediaWebController extends Controller implements HasMiddleware
             $query->where('status', 'replied');
         }
 
+        if ($channel !== 'all') {
+            $query->where('platform', $channel);
+        }
+
         $comments = $query->paginate(20);
 
-        return view('app.social_media.inbox', compact('business', 'comments', 'status'));
+        return view('app.social_media.inbox', compact('business', 'comments', 'status', 'channel'));
     }
 
     /**
@@ -975,7 +980,7 @@ class SocialMediaWebController extends Controller implements HasMiddleware
             if ($platform === 'facebook') {
                 $followers = (int) ($metrics['followers'] ?? $metrics['fans'] ?? 0);
                 $totalFollowers += $followers;
-                $engRate = $channelReach > 0 ? round(($channelEngagement / $channelReach) * 100, 2) : (float) ($metrics['engagement_rate'] ?? 2.8);
+                $engRate = $channelReach > 0 ? round(($channelEngagement / $channelReach) * 100, 2) : (float) ($metrics['engagement_rate'] ?? 0.0);
 
                 $channelInsights['facebook'] = [
                     'connected'       => true,
@@ -996,7 +1001,7 @@ class SocialMediaWebController extends Controller implements HasMiddleware
                 $totalFollowers += $followers;
                 $totalLikes += (int) ($metrics['total_likes'] ?? 0);
                 $totalComments += (int) ($metrics['total_comments'] ?? 0);
-                $engRate = $channelReach > 0 ? round(($channelEngagement / $channelReach) * 100, 2) : (float) ($metrics['engagement_rate'] ?? 4.2);
+                $engRate = $channelReach > 0 ? round(($channelEngagement / $channelReach) * 100, 2) : (float) ($metrics['engagement_rate'] ?? 0.0);
 
                 $channelInsights['instagram'] = [
                     'connected'       => true,
@@ -1016,7 +1021,7 @@ class SocialMediaWebController extends Controller implements HasMiddleware
             } elseif ($platform === 'tiktok') {
                 $followers = (int) ($metrics['followers_count'] ?? $metrics['followers'] ?? 0);
                 $totalFollowers += $followers;
-                $engRate = $channelReach > 0 ? round(($channelEngagement / $channelReach) * 100, 2) : (float) ($metrics['engagement_rate'] ?? 5.6);
+                $engRate = $channelReach > 0 ? round(($channelEngagement / $channelReach) * 100, 2) : (float) ($metrics['engagement_rate'] ?? 0.0);
 
                 $channelInsights['tiktok'] = [
                     'connected'       => true,
@@ -1033,7 +1038,7 @@ class SocialMediaWebController extends Controller implements HasMiddleware
             } elseif ($platform === 'linkedin') {
                 $followers = (int) ($metrics['followers_count'] ?? $metrics['followers'] ?? 0);
                 $totalFollowers += $followers;
-                $engRate = $channelReach > 0 ? round(($channelEngagement / $channelReach) * 100, 2) : (float) ($metrics['engagement_rate'] ?? 1.9);
+                $engRate = $channelReach > 0 ? round(($channelEngagement / $channelReach) * 100, 2) : (float) ($metrics['engagement_rate'] ?? 0.0);
 
                 $channelInsights['linkedin'] = [
                     'connected'       => true,
@@ -1050,7 +1055,7 @@ class SocialMediaWebController extends Controller implements HasMiddleware
             } elseif ($platform === 'threads') {
                 $followers = (int) ($metrics['followers_count'] ?? $metrics['followers'] ?? 0);
                 $totalFollowers += $followers;
-                $engRate = (float) ($metrics['engagement_rate'] ?? 3.1);
+                $engRate = $channelReach > 0 ? round(($channelEngagement / $channelReach) * 100, 2) : (float) ($metrics['engagement_rate'] ?? 0.0);
 
                 $channelInsights['threads'] = [
                     'connected'       => true,
@@ -1250,12 +1255,15 @@ class SocialMediaWebController extends Controller implements HasMiddleware
             return $p->getMetric('reach') + ($p->getMetric('likes') * 2) + ($p->getMetric('comments') * 3);
         })->take(4)->values();
 
+        $recentMedia = $channelInsights['instagram']['recent_media'] ?? [];
+
         return view('app.social_media.insights', compact(
             'business',
             'accounts',
             'posts',
             'analytics',
             'channelInsights',
+            'recentMedia',
             'trendData',
             'trafficTimingData',
             'formatStats',

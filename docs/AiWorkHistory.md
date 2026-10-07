@@ -34,6 +34,71 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 - **Database Changes:** Tabel baru, migrasi skema, kolom tambahan, atau indexing.
 - **API / Route Changes:** Endpoint baru atau perubahan signature HTTP.
 
+### [WORK-2026-10-07-326] Restrukturisasi UI/UX & Standarisasi Omnichannel Media Sosial & WhatsApp Suite (Reorganisasi Kartu Koneksi, Full Studio Post Modal, Integrasi Meta Messenger, Metrik Real & Galeri Media, Reduksi Kepadatan WhatsApp & Perbaikan Backdrop Blast Modal)
+
+- **Date:** 2026-10-07
+- **Status:** COMPLETED
+- **Module:** Social Media & WhatsApp Omnichannel Suites (`resources/views/app/social_media/index.blade.php`, `posts.blade.php`, `inbox.blade.php`, `insights.blade.php`, `resources/views/app/whatsapp/index.blade.php`, `broadcast.blade.php`, `MetaSocialMediaClient.php`, `SocialMediaService.php`, `MetaSocialMediaWebhookController.php`, `SocialMediaWebController.php`, `lang/id/whatsapp.php`, `lang/en/whatsapp.php`)
+- **Feature:** 6-Point UI/UX Overhaul & Architecture Alignment: Reorganized Platform Connection Cards, Clean Account Selector in Post Studio Modal, Meta Messenger Integration in Unified Inbox, Real Data Insights & Live Content Gallery, Simplified WhatsApp Overview with Segmented Templates, Non-Blurred High-Z-Index WABA Broadcast Modal.
+- **Work Type:** UI/UX (Apple HIG Bento) | Feature | Architecture | Bug Fix | Localization | Multi-Platform Integration
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Seluruh ekosistem Social Media (`/social-media`) dan WhatsApp (`/whatsapp`) COOCA dirancang untuk merchant UMKM agar dapat mengelola koneksi multi-kanal resmi (Meta Facebook, Instagram, TikTok, LinkedIn, WhatsApp Business API). Berdasarkan evaluasi visual & audit layout terperinci dari tangkapan layar pengguna:
+  1. Halaman integrasi koneksi terlalu padat dan memiliki bento card redundant ("Security & Business Data Isolation"). Struktur tombol koneksi perlu dirapikan menjadi 3 kartu platform terpisah (1. Meta, 2. TikTok, 3. LinkedIn) dengan logo + judul yang jelas, daftar akun terhubung dengan tombol disconnect, dan tombol connect/update yang ringkas.
+  2. Modal buat postingan terlalu sempit dan menampilkan handle/username (`@...`) yang membingungkan. Pemilihan kanal harus hanya menampilkan nama akun dan platform saja tanpa username, serta layout modal studio diperlebar maksimal.
+  3. Kotak masuk terpadu (Inbox) belum mendukung percakapan Meta Messenger (DM Facebook Page) secara end-to-end.
+  4. Halaman Insights mengandung angka persentase sintetis/asumsi palsu (fallback `2.8%`, `4.2%`, dll.) dan belum menampilkan galeri konten live media sosial yang memuat preview visual media, badge tipe format, metrik like/komentar, dan tautan permalink.
+  5. Halaman ikhtisar WhatsApp terlalu padat dengan teks regulasi dan 10 template card menumpuk.
+  6. Modal dialog WhatsApp Broadcast mengalami defect rendering (seluruh modal ter-blur di peramban Chromium akibat stacking context `backdrop-blur-md` dan overflow) serta label tombol perlu diselaraskan ke WABA standard ("Buat Blast Promosi Baru").
+
+#### 2. What Was Done
+
+1. **Reorganisasi Kartu Koneksi Platform (`index.blade.php`):**
+   - Menghapus total kartu bento redundant "Security & Business Data Isolation".
+   - Menata ulang grid menjadi 3 kartu platform utama: (1) Meta (Facebook & Instagram), (2) TikTok, (3) LinkedIn.
+   - Setiap kartu memiliki header elegan dengan logo platform resmi + judul, daftar akun terhubung dengan status aktif dan tombol putus koneksi individual, serta tombol sambungkan/perbarui yang ringkas.
+2. **Optimalisasi Composer Modal Studio (`posts.blade.php`):**
+   - Pada pilihan "Pilih Kanal Publikasi *", menghilangkan penampilan handle/username (`@handle` atau email). Hanya menampilkan nama akun dan nama kanal (platform).
+   - Memperluas modal dialog menjadi studio penuh (`max-w-[96vw] xl:max-w-7xl 2xl:max-w-[1550px]`) dengan tata letak dua kolom luas yang responsif.
+3. **Integrasi Meta Messenger Terpadu (`MetaSocialMediaClient.php`, `SocialMediaService.php`, `MetaSocialMediaWebhookController.php`, `inbox.blade.php`, `social-icon.blade.php`):**
+   - Menambahkan ikon resmi Meta Messenger SVG pada komponen social-icon.
+   - Mengimplementasikan `replyMessengerMessage()` pada `MetaSocialMediaClient` menggunakan endpoint Graph API `me/messages` dengan `recipient.id` (`from_id`).
+   - Memperbarui `SocialMediaService::replyComment()` untuk mendukung pengiriman parameter `from_id` khusus saat platform adalah `messenger`, dengan tetap mempertahankan arsitektur 4-argumen untuk mock pengujian Facebook/Instagram.
+   - Menambahkan parser webhook Messenger pada `MetaSocialMediaWebhookController` untuk pesan masuk (messages event).
+   - Menambahkan filter kanal "Messenger" dan integrasi pengiriman balasan langsung pada antarmuka Inbox.
+4. **Wawasan Nyata (Zero Fake Numbers) & Galeri Konten Live (`insights.blade.php` & `SocialMediaWebController.php`):**
+   - Menghapus angka persentase engagement rate fallback sintetis (`2.8%`, `4.2%`, dll.). Engagement rate kini dihitung murni dari `(total_interactions / reach) * 100` atau default `0.0%` tanpa asumsi angka fiktif.
+   - Mempercantik kartu "Connected Channels Performance" dengan metrik followers real, live engagement rate, reach, dan postingan.
+   - Menambahkan Seksi 5B "Galeri Konten & Performa Live Media Sosial" yang menampilkan kartu preview media, badge format (REELS, CAROUSEL, IMAGE, VIDEO), jumlah interaksi likes & komentar, serta tautan permalink langsung ke postingan media sosial.
+5. **Penyederhanaan Tampilan WhatsApp (`resources/views/app/whatsapp/index.blade.php`):**
+   - Meringkas callout batas gratis Meta (Free Tier 1.000 percakapan) menjadi strip notifikasi ramping.
+   - Mengelompokkan 10 template broadcast ke dalam segmented control filter interaktif Alpine.js (`tplFilter = 'all' | 'UTILITY' | 'MARKETING'`).
+   - Merapikan visual kartu template dengan tombol aksi cepat langsung ("Blast").
+6. **Perbaikan Backdrop Modal & Standar WABA (`resources/views/app/whatsapp/broadcast.blade.php`, `lang/id/whatsapp.php`, `lang/en/whatsapp.php`):**
+   - Memperbaiki defect CSS blur pada Chromium: memisahkan backdrop overlay solid gelap (`bg-black/70`) dari wrapper konten dengan posisi `fixed inset-0 z-[200] overflow-y-auto`, mengeliminasi bug rendering di mana seluruh dialog menjadi buram/tidak terbaca.
+   - Menyesuaikan i18n label tombol utama menjadi `"Buat Blast Promosi Baru"` (ID) dan `"Create New Promo Blast"` (EN).
+
+#### 3. Technical Changes
+
+- **Files Affected:**
+  - `resources/views/app/social_media/index.blade.php`
+  - `resources/views/app/social_media/posts.blade.php`
+  - `resources/views/components/social-icon.blade.php`
+  - `app/Domain/SocialMedia/Clients/MetaSocialMediaClient.php`
+  - `app/Domain/SocialMedia/SocialMediaService.php`
+  - `app/Http/Controllers/Api/V1/SocialMedia/MetaSocialMediaWebhookController.php`
+  - `app/Http/Controllers/Web/SocialMedia/SocialMediaWebController.php`
+  - `resources/views/app/social_media/inbox.blade.php`
+  - `resources/views/app/social_media/insights.blade.php`
+  - `resources/views/app/whatsapp/index.blade.php`
+  - `resources/views/app/whatsapp/broadcast.blade.php`
+  - `lang/id/whatsapp.php`
+  - `lang/en/whatsapp.php`
+  - `docs/AiWorkHistory.md`
+- **Database Changes:** Tidak ada perubahan skema (100% kompatibel ke belakang).
+- **API / Route Changes:** Tidak ada breaking changes pada signature endpoint publik.
+
 ### [WORK-2026-10-07-325] Audit Komprehensif Penuh & Eksekusi Perbaikan Suite Media Sosial COOCA (Zero Hardcoded i18n, Eliminasi window.location.reload, Apple HIG Bottom Sheet, Touch Target Ergonomis, & Anti-Slop Bento)
 
 - **Date:** 2026-10-07
