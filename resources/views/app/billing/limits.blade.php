@@ -326,19 +326,40 @@
                         </div>
                         <div>
                             <h3 class="text-base font-black text-slate-900 dark:text-white">Free</h3>
-                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Untuk solo rintisan awal tanpa biaya.</p>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Untuk usaha mikro rumahan dan pedagang solo tanpa biaya.</p>
                         </div>
                         <div class="pt-2 border-t border-slate-100 dark:border-slate-800">
                             <div class="text-2xl font-black font-mono tabular-nums text-slate-900 dark:text-white">Rp 0</div>
                             <div class="text-[10px] text-slate-400 font-mono">Gratis selamanya</div>
                         </div>
-                        <ul class="space-y-1.5 pt-2 text-[11px] text-slate-600 dark:text-slate-300">
-                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i><span>1 Bisnis</span></li>
+
+                        <!-- Ringkasan Kapasitas Inti -->
+                        <div class="grid grid-cols-3 gap-1 py-2 px-2.5 rounded-[12px] bg-slate-50 dark:bg-slate-800/50 text-[10.5px] font-mono border border-slate-200/60 dark:border-slate-700/60 text-center">
+                            <div>
+                                <div class="text-slate-400 text-[9px] uppercase">Storage</div>
+                                <div class="font-bold text-slate-800 dark:text-slate-200">1 GB</div>
+                            </div>
+                            <div>
+                                <div class="text-slate-400 text-[9px] uppercase">Staf</div>
+                                <div class="font-bold text-slate-800 dark:text-slate-200">1 Akun</div>
+                            </div>
+                            <div>
+                                <div class="text-slate-400 text-[9px] uppercase">Lokasi</div>
+                                <div class="font-bold text-slate-800 dark:text-slate-200">1 Toko</div>
+                            </div>
+                        </div>
+
+                        <ul class="space-y-1.5 pt-1 text-[11px] text-slate-600 dark:text-slate-300">
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i><span>1 Bisnis Cooca</span></li>
                             <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i><span>10 Produk &amp; 3 Resep</span></li>
-                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i><span>30 Kasir POS / bln</span></li>
-                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i><span>1 Toko + 1 Gudang</span></li>
-                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i><span>1 Staf (Solo Owner)</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i><span>10 Bahan Baku</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i><span>15 Pelanggan &amp; 2 Pemasok</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i><span>30 Transaksi Kasir POS / bln</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i><span>3 Faktur &amp; 3 PO / bln</span></li>
                             <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i><span>10 Notifikasi WA / bln</span></li>
+                            <li class="flex items-center gap-1.5 text-rose-500/80 dark:text-rose-400/80"><i data-lucide="lock" class="w-3.5 h-3.5 text-rose-500 shrink-0"></i><span>Fitur AI Terkunci</span></li>
+                            <li class="flex items-center gap-1.5 text-slate-400 line-through"><i data-lucide="x" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i><span>Transfer Stok Antar-Cabang</span></li>
+                            <li class="flex items-center gap-1.5 text-slate-400 line-through"><i data-lucide="x" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i><span>Kitchen Display System (KDS)</span></li>
                         </ul>
                     </div>
                     <div class="mt-5 pt-3 border-t border-slate-100 dark:border-slate-800">
@@ -367,7 +388,7 @@
                         </div>
                         <div>
                             <h3 class="text-base font-black text-slate-900 dark:text-white">Standard</h3>
-                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Usaha rintisan dengan kasir POS aktif.</p>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Cocok untuk usaha rintisan dengan kasir POS aktif &amp; 1–3 staf.</p>
                         </div>
                         <div class="pt-2 border-t border-slate-100 dark:border-slate-800">
                             <div class="text-2xl font-black font-mono tabular-nums text-slate-900 dark:text-white"
@@ -375,16 +396,34 @@
                             <div class="text-[10px] text-slate-500 font-mono"
                                 x-text="pricingCycle === 'annual' ? 'per tahun (≈ Rp 24.167/bln)' : 'per bulan (fleksibel)'"></div>
                         </div>
-                        <ul class="space-y-1.5 pt-2 text-[11px] text-slate-600 dark:text-slate-300">
+
+                        <!-- Ringkasan Kapasitas Inti -->
+                        <div class="grid grid-cols-3 gap-1 py-2 px-2.5 rounded-[12px] bg-emerald-50/70 dark:bg-emerald-950/30 text-[10.5px] font-mono border border-emerald-200/60 dark:border-emerald-800/60 text-center">
+                            <div>
+                                <div class="text-emerald-600/70 dark:text-emerald-400/70 text-[9px] uppercase">Storage</div>
+                                <div class="font-bold text-emerald-800 dark:text-emerald-300">3 GB</div>
+                            </div>
+                            <div>
+                                <div class="text-emerald-600/70 dark:text-emerald-400/70 text-[9px] uppercase">Staf</div>
+                                <div class="font-bold text-emerald-800 dark:text-emerald-300">3 Staf</div>
+                            </div>
+                            <div>
+                                <div class="text-emerald-600/70 dark:text-emerald-400/70 text-[9px] uppercase">Lokasi</div>
+                                <div class="font-bold text-emerald-800 dark:text-emerald-300">2 Lokasi</div>
+                            </div>
+                        </div>
+
+                        <ul class="space-y-1.5 pt-1 text-[11px] text-slate-600 dark:text-slate-300">
                             <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>1 Bisnis Cooca</span></li>
-                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>100 Produk &amp; 20 Resep</span></li>
-                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>1.000 Kasir POS / bln</span></li>
-                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>2 Lokasi (Toko/Gudang)</span></li>
-                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>3 Karyawan / Staf</span></li>
-                            @if($business->hasDineInFeature())
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span><strong>100 Produk</strong> &amp; 20 Resep HPP</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>30 Bahan Baku</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>100 Pelanggan &amp; 5 Pemasok</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span><strong>1.000 Kasir POS / bln</strong></span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>15 Faktur &amp; 15 PO / bln</span></li>
                             <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>5 Meja Kasir POS (Dine-In)</span></li>
-                            @endif
-                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>Ekspor / Impor Excel</span></li>
+                            <li class="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-300 font-semibold"><i data-lucide="sparkles" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>Akses Fitur AI (BYOAI API Key)</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>Otorisasi PIN Kasir &amp; Laci Kas</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>Ekspor / Impor Massal Excel</span></li>
                             <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>50 Notifikasi WA / bln</span></li>
                         </ul>
                     </div>
@@ -419,7 +458,7 @@
                         </div>
                         <div>
                             <h3 class="text-base font-black text-slate-900 dark:text-white">Premium</h3>
-                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Multi-cabang, KDS dapur, komisi kasir.</p>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Solusi lengkap multi-cabang, KDS dapur, komisi kasir &amp; resep.</p>
                         </div>
                         <div class="pt-2 border-t border-slate-100 dark:border-slate-800">
                             <div class="text-2xl font-black font-mono tabular-nums text-indigo-600 dark:text-indigo-400"
@@ -427,16 +466,35 @@
                             <div class="text-[10px] text-slate-500 font-mono"
                                 x-text="pricingCycle === 'annual' ? 'per tahun (≈ Rp 74.167/bln)' : 'per bulan (fleksibel)'"></div>
                         </div>
-                        <ul class="space-y-1.5 pt-2 text-[11px] text-slate-600 dark:text-slate-300">
-                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i><span><strong>3 Bisnis</strong> (Kelola 3 Brand)</span></li>
-                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i><span>Produk &amp; Resep <strong>Unlimited</strong></span></li>
+
+                        <!-- Ringkasan Kapasitas Inti -->
+                        <div class="grid grid-cols-3 gap-1 py-2 px-2.5 rounded-[12px] bg-indigo-50/70 dark:bg-indigo-950/30 text-[10.5px] font-mono border border-indigo-200/60 dark:border-indigo-800/60 text-center">
+                            <div>
+                                <div class="text-indigo-600/70 dark:text-indigo-400/70 text-[9px] uppercase">Storage</div>
+                                <div class="font-bold text-indigo-800 dark:text-indigo-300">10 GB</div>
+                            </div>
+                            <div>
+                                <div class="text-indigo-600/70 dark:text-indigo-400/70 text-[9px] uppercase">Staf</div>
+                                <div class="font-bold text-indigo-800 dark:text-indigo-300">10 Staf</div>
+                            </div>
+                            <div>
+                                <div class="text-indigo-600/70 dark:text-indigo-400/70 text-[9px] uppercase">Lokasi</div>
+                                <div class="font-bold text-indigo-800 dark:text-indigo-300">5 Lokasi</div>
+                            </div>
+                        </div>
+
+                        <ul class="space-y-1.5 pt-1 text-[11px] text-slate-600 dark:text-slate-300">
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i><span><strong>3 Bisnis</strong> (Kelola 3 Brand Toko)</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i><span>Produk, Resep &amp; Bahan <strong>Unlimited</strong></span></li>
                             <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i><span>Transaksi Kasir <strong>Unlimited</strong></span></li>
-                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i><span>5 Lokasi &amp; Meja <strong>Unlimited</strong></span></li>
-                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i><span>10 Karyawan / Staf</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i><span>Faktur &amp; PO <strong>Unlimited</strong></span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i><span>Meja Kasir Dine-In <strong>Unlimited</strong></span></li>
                             <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i><span>KDS Dapur &amp; Transfer Cabang</span></li>
-                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i><span>Multi-Pricing per Cabang</span></li>
-                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i><span>Komisi Staf, Kasbon, BPJS/THR</span></li>
-                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i><span>200 Notifikasi WA / bln</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i><span>Multi-Pricing per Cabang Toko</span></li>
+                            <li class="flex items-center gap-1.5 text-indigo-700 dark:text-indigo-300 font-semibold"><i data-lucide="sparkles" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i><span>Full Cooca AI Suite (Office + Chat CS)</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i><span>Komisi Kasir, Kasbon, BPJS/THR</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i><span>Jurnal Akuntansi &amp; Laba Rugi Cabang</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i><span>200 Notifikasi WA &amp; 30 Post Medsos/bln</span></li>
                         </ul>
                     </div>
                     <div class="mt-5 pt-3 border-t border-slate-100 dark:border-slate-800">
@@ -467,7 +525,7 @@
                         </div>
                         <div>
                             <h3 class="text-base font-black text-slate-900 dark:text-white">Prestige</h3>
-                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Kapasitas unlimited &amp; pajak PPh 21 TER.</p>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Kapasitas unlimited penuh, pajak PPh 21 TER, &amp; slip gaji WA.</p>
                         </div>
                         <div class="pt-2 border-t border-slate-100 dark:border-slate-800">
                             <div class="text-2xl font-black font-mono tabular-nums text-purple-600 dark:text-purple-400"
@@ -475,14 +533,35 @@
                             <div class="text-[10px] text-slate-500 font-mono"
                                 x-text="pricingCycle === 'annual' ? 'per tahun (≈ Rp 165.833/bln)' : 'per bulan (fleksibel)'"></div>
                         </div>
-                        <ul class="space-y-1.5 pt-2 text-[11px] text-slate-600 dark:text-slate-300">
+
+                        <!-- Ringkasan Kapasitas Inti -->
+                        <div class="grid grid-cols-3 gap-1 py-2 px-2.5 rounded-[12px] bg-purple-50/70 dark:bg-purple-950/30 text-[10.5px] font-mono border border-purple-200/60 dark:border-purple-800/60 text-center">
+                            <div>
+                                <div class="text-purple-600/70 dark:text-purple-400/70 text-[9px] uppercase">Storage</div>
+                                <div class="font-bold text-purple-800 dark:text-purple-300">30 GB</div>
+                            </div>
+                            <div>
+                                <div class="text-purple-600/70 dark:text-purple-400/70 text-[9px] uppercase">Staf</div>
+                                <div class="font-bold text-purple-800 dark:text-purple-300">∞ Bebas</div>
+                            </div>
+                            <div>
+                                <div class="text-purple-600/70 dark:text-purple-400/70 text-[9px] uppercase">Lokasi</div>
+                                <div class="font-bold text-purple-800 dark:text-purple-300">∞ Bebas</div>
+                            </div>
+                        </div>
+
+                        <ul class="space-y-1.5 pt-1 text-[11px] text-slate-600 dark:text-slate-300">
                             <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-purple-600 shrink-0"></i><span><strong>Bisnis Unlimited</strong> (Multi-Company)</span></li>
-                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-purple-600 shrink-0"></i><span>Lokasi &amp; Gudang <strong>Unlimited</strong></span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-purple-600 shrink-0"></i><span>Cabang &amp; Gudang <strong>Unlimited</strong></span></li>
                             <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-purple-600 shrink-0"></i><span>Karyawan / Staf <strong>Unlimited</strong></span></li>
-                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-purple-600 shrink-0"></i><span>Tax PPh 21 TER (PP 58/2023)</span></li>
-                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-purple-600 shrink-0"></i><span>Auto Kirim Slip Gaji via WhatsApp</span></li>
-                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-purple-600 shrink-0"></i><span>1.000 Notifikasi WA / bln</span></li>
-                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-purple-600 shrink-0"></i><span>Prioritas Dukungan Teknis 24/7</span></li>
+                            <li class="flex items-center gap-1.5 text-purple-700 dark:text-purple-300 font-semibold"><i data-lucide="sparkles" class="w-3.5 h-3.5 text-purple-600 shrink-0"></i><span>Tax PPh 21 TER (PP 58/2023) Lengkap</span></li>
+                            <li class="flex items-center gap-1.5 text-purple-700 dark:text-purple-300 font-semibold"><i data-lucide="sparkles" class="w-3.5 h-3.5 text-purple-600 shrink-0"></i><span>Auto Kirim Slip Gaji via WhatsApp</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-purple-600 shrink-0"></i><span>Modul BPJS Lengkap &amp; Auto-THR WA</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-purple-600 shrink-0"></i><span>Laporan SPT Pajak e-Bupot DJP</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-purple-600 shrink-0"></i><span>Konsolidasi Laba Rugi Multi-Bisnis</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-purple-600 shrink-0"></i><span><strong>1.000 Notifikasi WA / bln</strong></span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-purple-600 shrink-0"></i><span>Posting Media Sosial Unlimited</span></li>
+                            <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-purple-600 shrink-0"></i><span>Prioritas Dukungan Teknis 24/7 CS</span></li>
                         </ul>
                     </div>
                     <div class="mt-5 pt-3 border-t border-slate-100 dark:border-slate-800">
@@ -497,6 +576,427 @@
                                 <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
                             </a>
                         @endif
+                    </div>
+                </div>
+            </div>
+
+            <!-- Callout Edukasi Fitur AI & BYOAI -->
+            <div class="rounded-[18px] bg-gradient-to-r from-indigo-50/80 via-purple-50/60 to-cyan-50/80 dark:from-indigo-950/30 dark:via-purple-950/20 dark:to-cyan-950/30 border border-indigo-200/80 dark:border-indigo-800/60 p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="flex items-start gap-3.5">
+                    <div class="w-10 h-10 rounded-[12px] bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                        <i data-lucide="bot" class="w-5 h-5"></i>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <h4 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">Ketentuan Akses Fitur Asisten &amp; Prediksi AI (Cooca AI)</h4>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-700 dark:bg-indigo-900/60 dark:text-indigo-300 font-mono">Model BYOAI</span>
+                        </div>
+                        <p class="text-[12px] text-slate-600 dark:text-slate-300 leading-relaxed max-w-3xl">
+                            Fitur AI (Lobby AI Office, Prediksi Penjualan Kasir POS 14 Hari, Deteksi Anomali/Fraud, BCG Menu Matrix, serta Draf Balasan CS di Kotak Masuk Terpadu) <strong>tersedia pada Paket Standard, Premium, dan Prestige</strong>. Cooca mengusung model <em>Bring Your Own AI (BYOAI)</em>: Anda dapat menghubungkan API Key resmi milik Anda sendiri (misal: Google Gemini gratis, OpenAI ChatGPT, Anthropic Claude, Groq) secara langsung tanpa mark-up biaya komputasi token platform.
+                        </p>
+                    </div>
+                </div>
+                <div class="shrink-0 flex items-center gap-2">
+                    <a href="{{ route('cooca-ai.providers') }}"
+                        class="px-4 py-2.5 rounded-[12px] text-xs font-bold text-slate-800 dark:text-white bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 shadow-2xs transition flex items-center gap-1.5 whitespace-nowrap">
+                        <i data-lucide="settings-2" class="w-4 h-4 text-indigo-600 dark:text-indigo-400"></i>
+                        <span>Kelola Provider AI</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Matriks Perbandingan Detail Seluruh Fitur & Limitasi Antar Paket (Apple HIG Table) -->
+            <div class="rounded-[22px] bg-white dark:bg-slate-900 border border-black/[0.06] dark:border-white/[0.08] shadow-xs overflow-hidden" x-data="{ expandedMatrix: true }">
+                <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-800/20">
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            <i data-lucide="layers" class="w-4 h-4 text-indigo-600 dark:text-indigo-400"></i>
+                            <span>Tabel Matriks Perbandingan Detail Seluruh Fitur &amp; Limitasi</span>
+                        </h3>
+                        <p class="text-[11.5px] text-slate-500 dark:text-slate-400 mt-0.5">
+                            Rincian komparasi kapasitas kuota, fasilitas multi-cabang, HRM, perpajakan, dan kecerdasan buatan antar paket.
+                        </p>
+                    </div>
+                    <button type="button" @click="expandedMatrix = !expandedMatrix"
+                        class="px-3 py-1.5 rounded-[10px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition flex items-center gap-1.5 self-start sm:self-auto cursor-pointer">
+                        <span x-text="expandedMatrix ? 'Sembunyikan Matriks' : 'Buka Matriks Lengkap'"></span>
+                        <i data-lucide="chevron-down" class="w-3.5 h-3.5 transition-transform" :class="expandedMatrix ? 'rotate-180' : ''"></i>
+                    </button>
+                </div>
+
+                <div x-show="expandedMatrix" x-collapse>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-800/70 text-[11px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                                    <th class="py-3 px-4 w-[36%] font-bold">Fitur / Sumber Daya</th>
+                                    <th class="py-3 px-3 text-center w-[16%]">Free (Rp 0)</th>
+                                    <th class="py-3 px-3 text-center w-[16%] text-emerald-700 dark:text-emerald-400">Standard (Rp 29k)</th>
+                                    <th class="py-3 px-3 text-center w-[16%] text-indigo-700 dark:text-indigo-400 font-bold bg-indigo-50/50 dark:bg-indigo-950/20">Premium (Rp 89k)</th>
+                                    <th class="py-3 px-3 text-center w-[16%] text-purple-700 dark:text-purple-400">Prestige (Rp 199k)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60 font-sans text-slate-700 dark:text-slate-300 text-[12px]">
+
+                                <!-- GRUP 1: AI & INTELEGENSI BISNIS -->
+                                <tr class="bg-indigo-50/30 dark:bg-indigo-950/10 font-bold text-slate-900 dark:text-white">
+                                    <td colspan="5" class="py-2.5 px-4 text-[11.5px] uppercase tracking-wider font-mono flex items-center gap-2">
+                                        <i data-lucide="bot" class="w-3.5 h-3.5 text-indigo-600"></i>
+                                        <span>1. Fitur Kecerdasan Buatan (Cooca AI Suite)</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Akses Cooca AI &amp; POS Intelligence</td>
+                                    <td class="py-2.5 px-3 text-center text-slate-400"><i data-lucide="lock" class="w-4 h-4 text-rose-500 inline"></i> Terkunci</td>
+                                    <td class="py-2.5 px-3 text-center font-semibold text-emerald-600"><i data-lucide="check" class="w-4 h-4 inline"></i> Terbuka</td>
+                                    <td class="py-2.5 px-3 text-center font-bold text-indigo-600 bg-indigo-50/30 dark:bg-indigo-950/10"><i data-lucide="check" class="w-4 h-4 inline"></i> Full Suite</td>
+                                    <td class="py-2.5 px-3 text-center font-bold text-purple-600"><i data-lucide="check" class="w-4 h-4 inline"></i> Full Suite</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Integrasi BYOAI (Gemini Gratis, OpenAI, Claude, Groq)</td>
+                                    <td class="py-2.5 px-3 text-center text-slate-400">-</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">Bebas Terhubung</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-indigo-600 bg-indigo-50/30 dark:bg-indigo-950/10">Bebas Terhubung</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-purple-600">Bebas Terhubung</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Sales Forecasting POS (Prediksi 14 Hari)</td>
+                                    <td class="py-2.5 px-3 text-center text-slate-400"><i data-lucide="x" class="w-4 h-4 inline"></i></td>
+                                    <td class="py-2.5 px-3 text-center text-emerald-600"><i data-lucide="check" class="w-4 h-4 inline"></i></td>
+                                    <td class="py-2.5 px-3 text-center text-indigo-600 bg-indigo-50/30 dark:bg-indigo-950/10"><i data-lucide="check" class="w-4 h-4 inline"></i></td>
+                                    <td class="py-2.5 px-3 text-center text-purple-600"><i data-lucide="check" class="w-4 h-4 inline"></i></td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Deteksi Anomali &amp; Fraud Kasir</td>
+                                    <td class="py-2.5 px-3 text-center text-slate-400"><i data-lucide="x" class="w-4 h-4 inline"></i></td>
+                                    <td class="py-2.5 px-3 text-center text-emerald-600"><i data-lucide="check" class="w-4 h-4 inline"></i></td>
+                                    <td class="py-2.5 px-3 text-center text-indigo-600 bg-indigo-50/30 dark:bg-indigo-950/10"><i data-lucide="check" class="w-4 h-4 inline"></i></td>
+                                    <td class="py-2.5 px-3 text-center text-purple-600"><i data-lucide="check" class="w-4 h-4 inline"></i></td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Menu Engineering BCG Matrix &amp; Saran Bundling</td>
+                                    <td class="py-2.5 px-3 text-center text-slate-400"><i data-lucide="x" class="w-4 h-4 inline"></i></td>
+                                    <td class="py-2.5 px-3 text-center text-emerald-600"><i data-lucide="check" class="w-4 h-4 inline"></i></td>
+                                    <td class="py-2.5 px-3 text-center text-indigo-600 bg-indigo-50/30 dark:bg-indigo-950/10"><i data-lucide="check" class="w-4 h-4 inline"></i></td>
+                                    <td class="py-2.5 px-3 text-center text-purple-600"><i data-lucide="check" class="w-4 h-4 inline"></i></td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Draft Balasan AI Grounded di Kotak Masuk Terpadu</td>
+                                    <td class="py-2.5 px-3 text-center text-slate-400"><i data-lucide="x" class="w-4 h-4 inline"></i></td>
+                                    <td class="py-2.5 px-3 text-center text-emerald-600"><i data-lucide="check" class="w-4 h-4 inline"></i></td>
+                                    <td class="py-2.5 px-3 text-center text-indigo-600 bg-indigo-50/30 dark:bg-indigo-950/10"><i data-lucide="check" class="w-4 h-4 inline"></i></td>
+                                    <td class="py-2.5 px-3 text-center text-purple-600"><i data-lucide="check" class="w-4 h-4 inline"></i></td>
+                                </tr>
+
+                                <!-- GRUP 2: AKUN OWNER & KAPASITAS DASAR -->
+                                <tr class="bg-slate-50/80 dark:bg-slate-800/40 font-bold text-slate-900 dark:text-white">
+                                    <td colspan="5" class="py-2.5 px-4 text-[11.5px] uppercase tracking-wider font-mono flex items-center gap-2">
+                                        <i data-lucide="building" class="w-3.5 h-3.5 text-cyan-600"></i>
+                                        <span>2. Kapasitas Akun Owner &amp; Cloud Storage</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Maksimal Entitas Bisnis / Toko</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">1 Bisnis</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">1 Bisnis</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-indigo-600 bg-indigo-50/30 dark:bg-indigo-950/10">Hingga 3 Bisnis</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-purple-600">∞ Unlimited</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Akun Pengguna Staf / Karyawan</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">1 (Solo Owner)</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">3 Karyawan</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-indigo-600 bg-indigo-50/30 dark:bg-indigo-950/10">10 Karyawan</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-purple-600">∞ Unlimited</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Kapasitas Cloud Storage Terproteksi</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">1 GB</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">3 GB</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-indigo-600 bg-indigo-50/30 dark:bg-indigo-950/10">10 GB</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-purple-600">30 GB (+ Top-up)</td>
+                                </tr>
+
+                                <!-- GRUP 3: MASTER DATA & STOK -->
+                                <tr class="bg-slate-50/80 dark:bg-slate-800/40 font-bold text-slate-900 dark:text-white">
+                                    <td colspan="5" class="py-2.5 px-4 text-[11.5px] uppercase tracking-wider font-mono flex items-center gap-2">
+                                        <i data-lucide="package" class="w-3.5 h-3.5 text-amber-600"></i>
+                                        <span>3. Master Data Operasional &amp; Bahan</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Katalog Produk &amp; SKU</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">10 Produk</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">100 Produk</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-indigo-600 bg-indigo-50/30 dark:bg-indigo-950/10">∞ Unlimited</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-purple-600">∞ Unlimited</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Formula Resep HPP / BOM</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">3 Resep</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">20 Resep</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-indigo-600 bg-indigo-50/30 dark:bg-indigo-950/10">∞ Unlimited</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-purple-600">∞ Unlimited</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Bahan Baku (Raw Materials)</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">10 Bahan</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">30 Bahan</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-indigo-600 bg-indigo-50/30 dark:bg-indigo-950/10">∞ Unlimited</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-purple-600">∞ Unlimited</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Kontak Pelanggan CRM</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">15 Kontak</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">100 Kontak</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-indigo-600 bg-indigo-50/30 dark:bg-indigo-950/10">1.000 Kontak</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-purple-600">∞ Unlimited</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Pemasok / Vendor</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">2 Vendor</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">5 Vendor</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-indigo-600 bg-indigo-50/30 dark:bg-indigo-950/10">∞ Unlimited</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-purple-600">∞ Unlimited</td>
+                                </tr>
+
+                                <!-- GRUP 4: TRANSAKSI BULANAN -->
+                                <tr class="bg-slate-50/80 dark:bg-slate-800/40 font-bold text-slate-900 dark:text-white">
+                                    <td colspan="5" class="py-2.5 px-4 text-[11.5px] uppercase tracking-wider font-mono flex items-center gap-2">
+                                        <i data-lucide="shopping-cart" class="w-3.5 h-3.5 text-emerald-600"></i>
+                                        <span>4. Transaksi Bulanan (Reset Tiap Tanggal 1)</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Transaksi Kasir POS</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">30 struk / bln</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-semibold text-emerald-600">1.000 struk / bln</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-indigo-600 bg-indigo-50/30 dark:bg-indigo-950/10">∞ Unlimited</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-purple-600">∞ Unlimited</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Faktur Penjualan B2B (Invoices)</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">3 faktur / bln</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">15 faktur / bln</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-indigo-600 bg-indigo-50/30 dark:bg-indigo-950/10">∞ Unlimited</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-purple-600">∞ Unlimited</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Purchase Order Pembelian (PO)</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">3 PO / bln</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">15 PO / bln</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-indigo-600 bg-indigo-50/30 dark:bg-indigo-950/10">∞ Unlimited</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-purple-600">∞ Unlimited</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Struk Notifikasi WhatsApp Gateway</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">10 pesan / bln</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">50 pesan / bln</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-indigo-600 bg-indigo-50/30 dark:bg-indigo-950/10">200 pesan / bln</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-purple-600">1.000 pesan / bln</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Jadwal Postingan Media Sosial</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">3 post / bln</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">10 post / bln</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-indigo-600 bg-indigo-50/30 dark:bg-indigo-950/10">30 post / bln</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-purple-600">∞ Unlimited</td>
+                                </tr>
+
+                                <!-- GRUP 5: MULTI-CABANG & RESTORAN F&B -->
+                                <tr class="bg-slate-50/80 dark:bg-slate-800/40 font-bold text-slate-900 dark:text-white">
+                                    <td colspan="5" class="py-2.5 px-4 text-[11.5px] uppercase tracking-wider font-mono flex items-center gap-2">
+                                        <i data-lucide="store" class="w-3.5 h-3.5 text-blue-600"></i>
+                                        <span>5. Multi-Cabang, Gudang &amp; Restoran F&amp;B</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Cabang Toko / Outlet Fisik</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">1 Outlet</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">1 Outlet</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-indigo-600 bg-indigo-50/30 dark:bg-indigo-950/10">Hingga 3 Cabang</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-purple-600">∞ Unlimited</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Gudang / Dapur Pusat (Central Kitchen)</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">1 Gudang</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">1 Gudang</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-indigo-600 bg-indigo-50/30 dark:bg-indigo-950/10">Hingga 3 Gudang</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-purple-600">∞ Unlimited</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Surat Jalan Transfer Stok Antar-Cabang</td>
+                                    <td class="py-2.5 px-3 text-center text-slate-400"><i data-lucide="x" class="w-4 h-4 inline"></i></td>
+                                    <td class="py-2.5 px-3 text-center text-slate-400"><i data-lucide="x" class="w-4 h-4 inline"></i></td>
+                                    <td class="py-2.5 px-3 text-center text-indigo-600 font-bold bg-indigo-50/30 dark:bg-indigo-950/10"><i data-lucide="check" class="w-4 h-4 inline"></i> Bebas Transfer</td>
+                                    <td class="py-2.5 px-3 text-center text-purple-600 font-bold"><i data-lucide="check" class="w-4 h-4 inline"></i> Bebas Transfer</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Multi-Pricing (Beda Harga per Cabang Toko)</td>
+                                    <td class="py-2.5 px-3 text-center text-slate-400"><i data-lucide="x" class="w-4 h-4 inline"></i> 1 Harga</td>
+                                    <td class="py-2.5 px-3 text-center text-slate-400"><i data-lucide="x" class="w-4 h-4 inline"></i> 1 Harga</td>
+                                    <td class="py-2.5 px-3 text-center text-indigo-600 font-bold bg-indigo-50/30 dark:bg-indigo-950/10"><i data-lucide="check" class="w-4 h-4 inline"></i> Beda Harga</td>
+                                    <td class="py-2.5 px-3 text-center text-purple-600 font-bold"><i data-lucide="check" class="w-4 h-4 inline"></i> Beda Harga</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Denah Meja Kasir POS (Dine-In)</td>
+                                    <td class="py-2.5 px-3 text-center text-slate-400">0 Meja</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">5 Meja</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-indigo-600 bg-indigo-50/30 dark:bg-indigo-950/10">∞ Unlimited</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-purple-600">∞ Unlimited</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Kitchen Display System (KDS Layar Dapur)</td>
+                                    <td class="py-2.5 px-3 text-center text-slate-400"><i data-lucide="x" class="w-4 h-4 inline"></i></td>
+                                    <td class="py-2.5 px-3 text-center text-slate-400"><i data-lucide="x" class="w-4 h-4 inline"></i></td>
+                                    <td class="py-2.5 px-3 text-center text-indigo-600 font-bold bg-indigo-50/30 dark:bg-indigo-950/10"><i data-lucide="check" class="w-4 h-4 inline"></i> Aktif</td>
+                                    <td class="py-2.5 px-3 text-center text-purple-600 font-bold"><i data-lucide="check" class="w-4 h-4 inline"></i> Aktif</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Self-Order QR Meja Pelanggan</td>
+                                    <td class="py-2.5 px-3 text-center text-slate-400"><i data-lucide="x" class="w-4 h-4 inline"></i></td>
+                                    <td class="py-2.5 px-3 text-center text-slate-400"><i data-lucide="x" class="w-4 h-4 inline"></i></td>
+                                    <td class="py-2.5 px-3 text-center text-indigo-600 font-bold bg-indigo-50/30 dark:bg-indigo-950/10"><i data-lucide="check" class="w-4 h-4 inline"></i> Aktif</td>
+                                    <td class="py-2.5 px-3 text-center text-purple-600 font-bold"><i data-lucide="check" class="w-4 h-4 inline"></i> Aktif</td>
+                                </tr>
+
+                                <!-- GRUP 6: HRM & PENGGAJIAN -->
+                                <tr class="bg-slate-50/80 dark:bg-slate-800/40 font-bold text-slate-900 dark:text-white">
+                                    <td colspan="5" class="py-2.5 px-4 text-[11.5px] uppercase tracking-wider font-mono flex items-center gap-2">
+                                        <i data-lucide="users" class="w-3.5 h-3.5 text-violet-600"></i>
+                                        <span>6. HRM, Presensi &amp; Penggajian Staf</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Otorisasi PIN Kasir &amp; Shift Kasir</td>
+                                    <td class="py-2.5 px-3 text-center text-slate-400"><i data-lucide="x" class="w-4 h-4 inline"></i></td>
+                                    <td class="py-2.5 px-3 text-center text-emerald-600"><i data-lucide="check" class="w-4 h-4 inline"></i> PIN Kasir</td>
+                                    <td class="py-2.5 px-3 text-center text-indigo-600 bg-indigo-50/30 dark:bg-indigo-950/10"><i data-lucide="check" class="w-4 h-4 inline"></i> Custom Roles</td>
+                                    <td class="py-2.5 px-3 text-center text-purple-600 font-bold"><i data-lucide="check" class="w-4 h-4 inline"></i> Granular RBAC</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Presensi Shift / Absensi Karyawan</td>
+                                    <td class="py-2.5 px-3 text-center text-slate-400">-</td>
+                                    <td class="py-2.5 px-3 text-center">Presensi POS</td>
+                                    <td class="py-2.5 px-3 text-center font-bold text-indigo-600 bg-indigo-50/30 dark:bg-indigo-950/10">GPS + POS</td>
+                                    <td class="py-2.5 px-3 text-center font-bold text-purple-600">Multi-Cabang</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Sistem Komisi Kinerja Staf / Kasir</td>
+                                    <td class="py-2.5 px-3 text-center text-slate-400"><i data-lucide="x" class="w-4 h-4 inline"></i></td>
+                                    <td class="py-2.5 px-3 text-center text-slate-400"><i data-lucide="x" class="w-4 h-4 inline"></i></td>
+                                    <td class="py-2.5 px-3 text-center text-indigo-600 font-bold bg-indigo-50/30 dark:bg-indigo-950/10"><i data-lucide="check" class="w-4 h-4 inline"></i> Per Struk</td>
+                                    <td class="py-2.5 px-3 text-center text-purple-600 font-bold"><i data-lucide="check" class="w-4 h-4 inline"></i> Komisi Bertingkat</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Buku Kasbon &amp; Cicilan Pinjaman Karyawan</td>
+                                    <td class="py-2.5 px-3 text-center text-slate-400"><i data-lucide="x" class="w-4 h-4 inline"></i></td>
+                                    <td class="py-2.5 px-3 text-center text-slate-500">Catatan Kasar</td>
+                                    <td class="py-2.5 px-3 text-center text-indigo-600 font-bold bg-indigo-50/30 dark:bg-indigo-950/10"><i data-lucide="check" class="w-4 h-4 inline"></i> Buku Cicilan</td>
+                                    <td class="py-2.5 px-3 text-center text-purple-600 font-bold"><i data-lucide="check" class="w-4 h-4 inline"></i> Auto-Potong Gaji</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Skema Pekerja Harian Lepas (Daily Worker)</td>
+                                    <td class="py-2.5 px-3 text-center text-slate-400"><i data-lucide="x" class="w-4 h-4 inline"></i></td>
+                                    <td class="py-2.5 px-3 text-center text-slate-400"><i data-lucide="x" class="w-4 h-4 inline"></i></td>
+                                    <td class="py-2.5 px-3 text-center text-indigo-600 font-bold bg-indigo-50/30 dark:bg-indigo-950/10"><i data-lucide="check" class="w-4 h-4 inline"></i> Upah Harian</td>
+                                    <td class="py-2.5 px-3 text-center text-purple-600 font-bold"><i data-lucide="check" class="w-4 h-4 inline"></i> Harian + Borongan</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Kalkulasi BPJS TK &amp; BPJS Kesehatan</td>
+                                    <td class="py-2.5 px-3 text-center text-slate-400"><i data-lucide="x" class="w-4 h-4 inline"></i></td>
+                                    <td class="py-2.5 px-3 text-center text-slate-400"><i data-lucide="x" class="w-4 h-4 inline"></i></td>
+                                    <td class="py-2.5 px-3 text-center text-indigo-600 bg-indigo-50/30 dark:bg-indigo-950/10">Kalkulator Persentase</td>
+                                    <td class="py-2.5 px-3 text-center text-purple-600 font-bold"><i data-lucide="check" class="w-4 h-4 inline"></i> Modul Terpadu</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Kalkulasi THR Berbasis Tanggal Masuk (Join Date)</td>
+                                    <td class="py-2.5 px-3 text-center text-slate-400"><i data-lucide="x" class="w-4 h-4 inline"></i></td>
+                                    <td class="py-2.5 px-3 text-center text-slate-400"><i data-lucide="x" class="w-4 h-4 inline"></i></td>
+                                    <td class="py-2.5 px-3 text-center text-indigo-600 bg-indigo-50/30 dark:bg-indigo-950/10">Rumus Manual</td>
+                                    <td class="py-2.5 px-3 text-center text-purple-600 font-bold"><i data-lucide="check" class="w-4 h-4 inline"></i> Otomatis Join Date</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Slip Gaji Digital via WhatsApp Otomatis</td>
+                                    <td class="py-2.5 px-3 text-center text-slate-400"><i data-lucide="x" class="w-4 h-4 inline"></i></td>
+                                    <td class="py-2.5 px-3 text-center text-slate-400"><i data-lucide="x" class="w-4 h-4 inline"></i></td>
+                                    <td class="py-2.5 px-3 text-center text-slate-500 bg-indigo-50/30 dark:bg-indigo-950/10">Rekap Sederhana</td>
+                                    <td class="py-2.5 px-3 text-center text-purple-600 font-bold"><i data-lucide="check" class="w-4 h-4 inline"></i> Auto-Kirim Slip WA</td>
+                                </tr>
+
+                                <!-- GRUP 7: PERPAJAKAN & PEMBUKUAN KEUANGAN -->
+                                <tr class="bg-slate-50/80 dark:bg-slate-800/40 font-bold text-slate-900 dark:text-white">
+                                    <td colspan="5" class="py-2.5 px-4 text-[11.5px] uppercase tracking-wider font-mono flex items-center gap-2">
+                                        <i data-lucide="calculator" class="w-3.5 h-3.5 text-emerald-600"></i>
+                                        <span>7. Perpajakan &amp; Akuntansi Finansial</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Pajak Restoran (PB1 10%) &amp; PPN Kasir</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">Tarif Flat</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">Tarif Flat</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-indigo-600 bg-indigo-50/30 dark:bg-indigo-950/10">Multi-Tarif Fleksibel</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-purple-600">Multi-Tarif Fleksibel</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">PPh Final UMKM 0.5% (PP 55/2022)</td>
+                                    <td class="py-2.5 px-3 text-center text-slate-400"><i data-lucide="x" class="w-4 h-4 inline"></i></td>
+                                    <td class="py-2.5 px-3 text-center text-slate-500">Rekap Omzet</td>
+                                    <td class="py-2.5 px-3 text-center text-indigo-600 bg-indigo-50/30 dark:bg-indigo-950/10"><i data-lucide="check" class="w-4 h-4 inline"></i> Batas 500 Juta</td>
+                                    <td class="py-2.5 px-3 text-center text-purple-600 font-bold"><i data-lucide="check" class="w-4 h-4 inline"></i> Rekonsiliasi SPT</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Pajak Karyawan PPh 21 TER (PP 58/2023)</td>
+                                    <td class="py-2.5 px-3 text-center text-slate-400"><i data-lucide="x" class="w-4 h-4 inline"></i></td>
+                                    <td class="py-2.5 px-3 text-center text-slate-400"><i data-lucide="x" class="w-4 h-4 inline"></i></td>
+                                    <td class="py-2.5 px-3 text-center text-slate-500 bg-indigo-50/30 dark:bg-indigo-950/10">Estimasi Bruto</td>
+                                    <td class="py-2.5 px-3 text-center text-purple-600 font-bold"><i data-lucide="check" class="w-4 h-4 inline"></i> TER A/B/C + Des</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Jurnal Akuntansi Otomatis &amp; Laba Rugi Cabang</td>
+                                    <td class="py-2.5 px-3 text-center text-slate-400"><i data-lucide="x" class="w-4 h-4 inline"></i></td>
+                                    <td class="py-2.5 px-3 text-center text-slate-400"><i data-lucide="x" class="w-4 h-4 inline"></i></td>
+                                    <td class="py-2.5 px-3 text-center text-indigo-600 font-bold bg-indigo-50/30 dark:bg-indigo-950/10"><i data-lucide="check" class="w-4 h-4 inline"></i> per Cabang</td>
+                                    <td class="py-2.5 px-3 text-center text-purple-600 font-bold"><i data-lucide="check" class="w-4 h-4 inline"></i> Konsolidasian</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Ekspor &amp; Impor Massal Excel/CSV</td>
+                                    <td class="py-2.5 px-3 text-center text-slate-500">Ekspor Dasar</td>
+                                    <td class="py-2.5 px-3 text-center text-emerald-600"><i data-lucide="check" class="w-4 h-4 inline"></i> Lengkap</td>
+                                    <td class="py-2.5 px-3 text-center text-indigo-600 font-bold bg-indigo-50/30 dark:bg-indigo-950/10"><i data-lucide="check" class="w-4 h-4 inline"></i> Lengkap</td>
+                                    <td class="py-2.5 px-3 text-center text-purple-600 font-bold"><i data-lucide="check" class="w-4 h-4 inline"></i> Lengkap</td>
+                                </tr>
+
+                                <!-- GRUP 8: JAMINAN KEAMANAN & DUKUNGAN -->
+                                <tr class="bg-slate-50/80 dark:bg-slate-800/40 font-bold text-slate-900 dark:text-white">
+                                    <td colspan="5" class="py-2.5 px-4 text-[11.5px] uppercase tracking-wider font-mono flex items-center gap-2">
+                                        <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-600"></i>
+                                        <span>8. Jaminan Privasi &amp; Dukungan Pelanggan</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Jaminan No Data Punishment (Data Tidak Pernah Dihapus)</td>
+                                    <td class="py-2.5 px-3 text-center text-emerald-600 font-bold"><i data-lucide="check" class="w-4 h-4 inline"></i> 100% Aman</td>
+                                    <td class="py-2.5 px-3 text-center text-emerald-600 font-bold"><i data-lucide="check" class="w-4 h-4 inline"></i> 100% Aman</td>
+                                    <td class="py-2.5 px-3 text-center text-indigo-600 font-bold bg-indigo-50/30 dark:bg-indigo-950/10"><i data-lucide="check" class="w-4 h-4 inline"></i> 100% Aman</td>
+                                    <td class="py-2.5 px-3 text-center text-purple-600 font-bold"><i data-lucide="check" class="w-4 h-4 inline"></i> 100% Aman</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Akses Data Historis saat Downgrade / Expired</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">Read-Only</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">Read-Only</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-indigo-600 bg-indigo-50/30 dark:bg-indigo-950/10">Read-Only</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-purple-600">Read-Only</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-4 font-medium">Jalur Bantuan Customer Support</td>
+                                    <td class="py-2.5 px-3 text-center text-slate-500 font-mono">Komunitas</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">Email Support</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-indigo-600 bg-indigo-50/30 dark:bg-indigo-950/10">WhatsApp CS</td>
+                                    <td class="py-2.5 px-3 text-center font-mono font-bold text-purple-600">24/7 Dedicated Manager</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>

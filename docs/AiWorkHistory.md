@@ -32,6 +32,42 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 - **Files Affected:** Daftar berkas controller, service, model, blade, atau route yang dimodifikasi.
 - **Database Changes:** Tabel baru, migrasi skema, kolom tambahan, atau indexing.
+### [WORK-2026-10-07-331] Detailisasi Halaman Billing Limits & Matriks Komparasi Fitur Komprehensif Antar Paket
+
+- **Date:** 2026-10-07
+- **Status:** COMPLETED
+- **Module:** Billing & SaaS Entitlements (`resources/views/app/billing/limits.blade.php`, `BillingSubmoduleSecurityAndErgonomicsTest`)
+- **Feature:** Transparansi Rincian Kuota & Entitlement Paket (Free Solo Rp0, Standard Rp29k, Premium Rp89k, Prestige Rp199k), Ringkasan Kapasitas Inti Bento, Callout Edukasi Model BYOAI Cooca AI Suite, dan Matriks Komparasi 8 Domain Layanan.
+- **Work Type:** UI/UX (Apple HIG Bento UI) | Documentation & Transparency | Entitlement System
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Pengguna/pedagang UMKM memerlukan informasi transparan dan mendalam mengenai paket langganan mana yang diperlukan untuk mengakses fitur Cooca AI (karena pada tier Free muncul peringatan kuota AI tercapai), rincian kuota kapasitas masing-masing tier, serta perbedaan spesifik fitur antar paket (Free, Standard, Premium, Prestige).
+- **Masalah:** Kartu ringkasan paket sebelumnya pada halaman `/billing/limits` hanya menampilkan ringkasan singkat sehingga pengguna bingung paket apa yang wajib dipilih untuk mengaktifkan fitur Cooca AI dan apa saja batasan tiap paket.
+- **Target:** Memperkaya `resources/views/app/billing/limits.blade.php` dengan detail lengkap:
+  1. Empat Bento Cards interaktif dengan ringkasan kapasitas inti (Cloud Storage, Staf, Cabang/Lokasi), status akses AI, kuota operasional, dan toggle penagihan bulanan vs tahunan.
+  2. Callout edukasi model BYOAI (*Bring Your Own AI*) yang menjelaskan bahwa Cooca AI (Office Lobby, Prediksi Penjualan Kasir POS 14 Hari, Deteksi Anomali/Fraud, BCG Menu Matrix, serta Draf Balasan CS di Kotak Masuk Terpadu) aktif di paket Standard, Premium, dan Prestige tanpa pungutan biaya mark-up token platform, serta menyediakan tautan langsung ke `/cooca-ai/providers`.
+  3. Tabel Matriks Komparasi Komprehensif (Apple HIG Style) yang merinci 8 domain operasional bisnis: Fitur AI, Kapasitas Akun & Cloud Storage, Master Data Operasional, Transaksi Bulanan, Multi-Cabang & Restoran F&B, HRM Presensi & Penggajian, Perpajakan & Akuntansi Finansial, serta Jaminan Privasi (No Data Punishment).
+
+#### 2. What Was Done
+
+1. **Detailisasi 4 Bento Cards Paket Langganan (`resources/views/app/billing/limits.blade.php`):**
+   - **Free (Rp 0):** Solo Owner, 1 GB Storage, 1 Toko, 10 Produk, 3 Resep, 10 Bahan, 15 Pelanggan, 30 Struk POS/bln, 3 Faktur/PO, 10 Notifikasi WA/bln, Fitur AI Terkunci.
+   - **Standard (Rp 29.000/bln | Rp 290.000/thn):** UMKM Pemula, 3 GB Storage, 3 Staf, 2 Lokasi, 100 Produk, 20 Resep, 30 Bahan, 100 Pelanggan, 1.000 Struk POS/bln, 15 Faktur/PO, 5 Meja POS Dine-In, Akses Fitur AI (BYOAI API Key), Otorisasi PIN Kasir & Laci Kas, Ekspor/Impor Massal Excel.
+   - **Premium (Rp 89.000/bln | Rp 890.000/thn - Populer):** Scale-Up UMKM, 10 GB Storage, 10 Staf, 5 Lokasi, 3 Bisnis, Produk/Resep/Bahan Unlimited, Transaksi Kasir POS Unlimited, Faktur/PO Unlimited, Meja Dine-In Unlimited, KDS Layar Dapur & Transfer Antar-Cabang, Multi-Pricing per Cabang, Full Cooca AI Suite, Komisi Kasir, Kasbon, BPJS/THR, Jurnal Akuntansi, 200 Notifikasi WA & 30 Post Medsos/bln.
+   - **Prestige (Rp 199.000/bln | Rp 1.990.000/thn):** Enterprise UMKM, 30 GB Storage, Multi-Company Unlimited, Cabang & Gudang Unlimited, Karyawan Unlimited, Tax PPh 21 TER (PP 58/2023) Lengkap, Auto Kirim Slip Gaji via WhatsApp, Modul BPJS & Auto-THR WA, Laporan SPT Pajak e-Bupot DJP, Konsolidasi Laba Rugi Multi-Bisnis, 1.000 Notifikasi WA/bln, Post Medsos Unlimited, Prioritas Dukungan Teknis 24/7 CS.
+2. **Penambahan Callout Edukasi Model BYOAI:**
+   - Menjelaskan bahwa merchant dapat menghubungkan API Key Google Gemini (gratis tier dari Google AI Studio), OpenAI, Anthropic Claude, atau Groq secara transparan tanpa mark-up biaya token.
+3. **Penyusunan Tabel Matriks Perbandingan Detail (8 Domain Bisnis):**
+   - Menambahkan tabel responsif dengan toggle akordeon (*expandedMatrix*) yang memetakan puluhan fitur hulu-ke-hilir untuk kepastian transparansi pengguna.
+4. **Validasi & Verifikasi Otomatis:**
+   - Menjalankan `php artisan view:clear` dan pengujian `BillingSubmoduleSecurityAndErgonomicsTest` serta `SaaSPlanAndEntitlementTest` (13 tests, 64 assertions: 100% PASS).
+
+#### 3. Technical Changes
+
+- **Files Affected:** `resources/views/app/billing/limits.blade.php`, `docs/AiWorkHistory.md`.
+- **Database Changes:** Tidak ada perubahan database (menggunakan arsitektur kuota & entitlement yang sudah ada).
+
 ### [WORK-2026-10-07-330] Integrasi Kotak Masuk Terpadu Omnichannel (WhatsApp & Meta Business Suite) dengan Cooca AI Grounded Knowledge Assistant & Mini CRM Backoffice
 
 - **Date:** 2026-10-07
