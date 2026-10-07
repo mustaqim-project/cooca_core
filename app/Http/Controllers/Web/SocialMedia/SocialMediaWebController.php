@@ -908,8 +908,8 @@ class SocialMediaWebController extends Controller implements HasMiddleware
             ->get();
 
         // Staf Kasir / Admin untuk Delegasi Percakapan
-        $staffMembers = \App\Models\User::where('business_id', $business->id)
-            ->select(['id', 'name', 'email'])
+        $staffMembers = $business->users()
+            ->select(['users.id', 'users.name', 'users.email'])
             ->get();
 
         // Rakit Percakapan Omnichannel Terpadu
