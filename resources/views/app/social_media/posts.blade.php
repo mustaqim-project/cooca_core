@@ -162,17 +162,7 @@
                                 <div class="flex items-center gap-2.5">
                                     <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-[12px] font-bold shadow-sm
                                         {{ $post->platform === 'facebook' ? 'bg-[#1877F2]' : ($post->platform === 'instagram' ? 'bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF]' : ($post->platform === 'tiktok' ? 'bg-black dark:bg-white dark:text-black' : ($post->platform === 'linkedin' ? 'bg-[#0A66C2]' : 'bg-black/10 text-black dark:text-white'))) }}">
-                                        @if($post->platform === 'facebook')
-                                            <i data-lucide="facebook" class="w-4 h-4"></i>
-                                        @elseif($post->platform === 'instagram')
-                                            <i data-lucide="instagram" class="w-4 h-4"></i>
-                                        @elseif($post->platform === 'tiktok')
-                                            <i data-lucide="video" class="w-4 h-4"></i>
-                                        @elseif($post->platform === 'linkedin')
-                                            <i data-lucide="linkedin" class="w-4 h-4"></i>
-                                        @else
-                                            <i data-lucide="at-sign" class="w-4 h-4"></i>
-                                        @endif
+                                        <x-social-icon :platform="$post->platform" class="w-4 h-4" />
                                     </div>
                                     <div class="min-w-0">
                                         <div class="text-[13px] font-bold text-black dark:text-white truncate">
@@ -422,8 +412,17 @@
         @endif
 
         {{-- 5. UNIFIED COMPOSER MODAL SHEET (Apple HIG Bento Design XXL) --}}
-        <div x-show="openComposerModal" style="display: none;"
-            class="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5">
+        <div x-show="openComposerModal" style="display: none;" x-cloak
+            x-transition:enter="transition ease-out duration-250"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            class="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5"
+            @keydown.escape.window="openComposerModal = false"
+            role="dialog"
+            aria-modal="true">
             <div class="relative w-full max-w-5xl xl:max-w-6xl rounded-[26px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-2xl p-6 sm:p-8 space-y-6 my-6 max-h-[92vh] overflow-y-auto"
                 @click.away="openComposerModal = false">
 
@@ -438,7 +437,7 @@
                             <p class="text-[12.5px] text-black/55 dark:text-white/55">{{ __('social_media.composer_subtitle') }}</p>
                         </div>
                     </div>
-                    <button type="button" @click="openComposerModal = false" class="text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white p-1 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                    <button type="button" @click="openComposerModal = false" class="w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center rounded-full text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer">
                         <i data-lucide="x" class="w-5 h-5"></i>
                     </button>
                 </div>
@@ -482,17 +481,7 @@
                                                 </div>
                                             </div>
                                             <div class="w-7 h-7 rounded-[9px] flex items-center justify-center shrink-0 {{ $acc->platform === 'facebook' ? 'bg-[#1877F2]/15 text-[#1877F2]' : ($acc->platform === 'instagram' ? 'bg-[#E1306C]/15 text-[#E1306C]' : ($acc->platform === 'tiktok' ? 'bg-black/10 dark:bg-white/15 text-black dark:text-white' : ($acc->platform === 'linkedin' ? 'bg-[#0A66C2]/15 text-[#0A66C2]' : 'bg-black/10 text-black dark:text-white'))) }}">
-                                                @if($acc->platform === 'facebook')
-                                                    <i data-lucide="facebook" class="w-4 h-4"></i>
-                                                @elseif($acc->platform === 'instagram')
-                                                    <i data-lucide="instagram" class="w-4 h-4"></i>
-                                                @elseif($acc->platform === 'tiktok')
-                                                    <i data-lucide="video" class="w-4 h-4"></i>
-                                                @elseif($acc->platform === 'linkedin')
-                                                    <i data-lucide="linkedin" class="w-4 h-4"></i>
-                                                @else
-                                                    <i data-lucide="at-sign" class="w-4 h-4"></i>
-                                                @endif
+                                                <x-social-icon :platform="$acc->platform" class="w-4 h-4" />
                                             </div>
                                         </label>
                                     @endforeach
@@ -822,12 +811,7 @@
                                                 <div class="flex items-center justify-between">
                                                     <label class="text-[12px] font-bold text-black/80 dark:text-white/80 capitalize flex items-center gap-2">
                                                         <div class="w-5 h-5 rounded-[6px] flex items-center justify-center text-[10px] {{ $acc->platform === 'facebook' ? 'bg-[#1877F2]/15 text-[#1877F2]' : ($acc->platform === 'instagram' ? 'bg-[#E1306C]/15 text-[#E1306C]' : ($acc->platform === 'tiktok' ? 'bg-black/10 dark:bg-white/15 text-black dark:text-white' : ($acc->platform === 'linkedin' ? 'bg-[#0A66C2]/15 text-[#0A66C2]' : 'bg-black/10 text-black dark:text-white'))) }}">
-                                                            @if($acc->platform === 'facebook') <i data-lucide="facebook" class="w-3 h-3"></i>
-                                                            @elseif($acc->platform === 'instagram') <i data-lucide="instagram" class="w-3 h-3"></i>
-                                                            @elseif($acc->platform === 'tiktok') <i data-lucide="video" class="w-3 h-3"></i>
-                                                            @elseif($acc->platform === 'linkedin') <i data-lucide="linkedin" class="w-3 h-3"></i>
-                                                            @else <i data-lucide="at-sign" class="w-3 h-3"></i>
-                                                            @endif
+                                                            <x-social-icon :platform="$acc->platform" class="w-3 h-3" />
                                                         </div>
                                                         <span>{{ $acc->account_name }} ({{ ucfirst($acc->platform) }})</span>
                                                         <span class="text-[10.5px] font-normal px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-black/60 dark:text-white/60">
@@ -953,17 +937,7 @@
                                                 <div class="flex items-center justify-between">
                                                     <div class="flex items-center gap-2 min-w-0">
                                                         <div class="w-6 h-6 rounded-[7px] flex items-center justify-center shrink-0 {{ $acc->platform === 'facebook' ? 'bg-[#1877F2]/15 text-[#1877F2]' : ($acc->platform === 'instagram' ? 'bg-[#E1306C]/15 text-[#E1306C]' : ($acc->platform === 'tiktok' ? 'bg-black/10 dark:bg-white/15 text-black dark:text-white' : ($acc->platform === 'linkedin' ? 'bg-[#0A66C2]/15 text-[#0A66C2]' : 'bg-black/10 text-black dark:text-white'))) }}">
-                                                            @if($acc->platform === 'facebook')
-                                                                <i data-lucide="facebook" class="w-3.5 h-3.5"></i>
-                                                            @elseif($acc->platform === 'instagram')
-                                                                <i data-lucide="instagram" class="w-3.5 h-3.5"></i>
-                                                            @elseif($acc->platform === 'tiktok')
-                                                                <i data-lucide="video" class="w-3.5 h-3.5"></i>
-                                                            @elseif($acc->platform === 'linkedin')
-                                                                <i data-lucide="linkedin" class="w-3.5 h-3.5"></i>
-                                                            @else
-                                                                <i data-lucide="at-sign" class="w-3.5 h-3.5"></i>
-                                                            @endif
+                                                            <x-social-icon :platform="$acc->platform" class="w-3.5 h-3.5" />
                                                         </div>
                                                         <span class="text-[12px] font-bold text-black dark:text-white truncate">{{ $acc->account_name }}</span>
                                                         <span class="text-[10.5px] text-black/50 dark:text-white/50 uppercase font-mono">({{ $acc->platform }})</span>
@@ -1334,15 +1308,15 @@
                             <i data-lucide="calendar-clock" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <h3 class="text-[16px] font-bold text-black dark:text-white">Preview &amp; Kelola Konten</h3>
+                            <h3 class="text-[16px] font-bold text-black dark:text-white">{{ __('social_media.preview_manage_title') }}</h3>
                             <div class="flex items-center gap-2 mt-0.5">
-                                <span class="text-[12px] text-black/50 dark:text-white/50" x-text="'Akun: ' + (pmPost.account_name || '-')"></span>
+                                <span class="text-[12px] text-black/50 dark:text-white/50" x-text="@js(__('social_media.account_prefix')) + ': ' + (pmPost.account_name || '-')"></span>
                                 <span class="text-black/30 dark:text-white/30">•</span>
                                 <span class="text-[11.5px] uppercase font-bold text-[#5856D6]" x-text="pmPost.platform || '-'"></span>
                             </div>
                         </div>
                     </div>
-                    <button type="button" @click="postManagerOpen = false" class="w-8 h-8 rounded-full flex items-center justify-center text-black/40 dark:text-white/40 hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer">
+                    <button type="button" @click="postManagerOpen = false" class="w-9 h-9 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-black/40 dark:text-white/40 hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer">
                         <i data-lucide="x" class="w-4 h-4"></i>
                     </button>
                 </div>
@@ -1353,8 +1327,8 @@
                     {{-- Status Banner & Scheduled Time --}}
                     <div class="flex flex-wrap items-center justify-between gap-2 p-3 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5">
                         <div class="flex items-center gap-2">
-                            <span class="text-[11px] font-bold uppercase tracking-wider text-black/40 dark:text-white/40">Status:</span>
-                            <span x-text="pmPost.status === 'scheduled' ? '🗓 Terjadwal' : (pmPost.status === 'pending' ? '⏳ Mengantre' : (pmPost.status === 'failed' ? '❌ Gagal' : '⚠️ Sebagian Gagal'))"
+                            <span class="text-[11px] font-bold uppercase tracking-wider text-black/40 dark:text-white/40">{{ __('social_media.filter_status_label') }}:</span>
+                            <span x-text="pmPost.status === 'scheduled' ? @js(__('social_media.status_label_scheduled')) : (pmPost.status === 'pending' ? @js(__('social_media.status_label_pending')) : (pmPost.status === 'failed' ? @js(__('social_media.status_label_failed')) : @js(__('social_media.status_label_partially_failed'))))"
                                   class="px-2.5 py-1 rounded-full text-[12px] font-bold"
                                   :class="pmPost.status === 'scheduled' ? 'bg-[#5856D6]/15 text-[#5856D6]' : (pmPost.status === 'pending' ? 'bg-[#007AFF]/15 text-[#007AFF]' : 'bg-[#FF3B30]/15 text-[#FF3B30]')"></span>
                         </div>
@@ -1368,8 +1342,8 @@
                     <template x-if="pmPost.media_urls && pmPost.media_urls.length > 0">
                         <div class="space-y-2.5">
                             <div class="text-[11px] font-bold uppercase tracking-wider text-black/40 dark:text-white/40 flex items-center justify-between">
-                                <span>Preview Media</span>
-                                <span class="font-normal lowercase" x-text="pmPost.media_urls.length + ' file media'"></span>
+                                <span>{{ __('social_media.media_preview_title') }}</span>
+                                <span class="font-normal lowercase" x-text="pmPost.media_urls.length + ' ' + @js(__('social_media.media_files_count'))"></span>
                             </div>
                             <div class="rounded-[18px] overflow-hidden border border-black/10 dark:border-white/10 bg-black aspect-video max-h-72 flex items-center justify-center relative shadow-inner">
                                 <template x-if="pmPost.media_type === 'video' || pmPost.media_type === 'reels'">
@@ -1440,10 +1414,10 @@
                     <div class="flex items-center gap-2">
                         <button type="button" @click="pmTab = 'preview'"
                                 :class="pmTab === 'preview' ? 'bg-black text-white dark:bg-white dark:text-black shadow-xs' : 'bg-black/5 dark:bg-white/10 text-black/70 dark:text-white/70 hover:bg-black/10'"
-                                class="h-8 px-3.5 rounded-full text-[12px] font-semibold transition-colors cursor-pointer">{{ __('social_media.preview_content_tab') }}</button>
+                                class="min-h-[44px] sm:min-h-0 sm:h-8 px-4 sm:px-3.5 rounded-full text-[12px] font-semibold transition-colors cursor-pointer inline-flex items-center justify-center">{{ __('social_media.preview_content_tab') }}</button>
                         <button type="button" @click="pmTab = 'reschedule'"
                                 :class="pmTab === 'reschedule' ? 'bg-[#5856D6] text-white shadow-xs' : 'bg-[#5856D6]/10 text-[#5856D6] hover:bg-[#5856D6]/20'"
-                                class="h-8 px-3.5 rounded-full text-[12px] font-semibold transition-colors inline-flex items-center gap-1.5 cursor-pointer">
+                                class="min-h-[44px] sm:min-h-0 sm:h-8 px-4 sm:px-3.5 rounded-full text-[12px] font-semibold transition-colors inline-flex items-center justify-center gap-1.5 cursor-pointer">
                             <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
                             <span>{{ __('social_media.reschedule_tab') }}</span>
                         </button>
@@ -1456,7 +1430,7 @@
                         <button type="button" x-show="pmTab === 'reschedule'" x-cloak
                                 @click="doReschedule()"
                                 :disabled="pmLoading || !pmNewScheduledAt"
-                                class="flex-1 h-10 rounded-[12px] text-[13px] font-bold text-white bg-[#5856D6] hover:bg-[#4F4EC2] active:scale-[0.97] transition-all disabled:opacity-50 inline-flex items-center justify-center gap-2 cursor-pointer shadow-xs">
+                                class="flex-1 min-h-[44px] sm:min-h-0 sm:h-10 rounded-[12px] text-[13px] font-bold text-white bg-[#5856D6] hover:bg-[#4F4EC2] active:scale-[0.97] transition-all disabled:opacity-50 inline-flex items-center justify-center gap-2 cursor-pointer shadow-xs">
                             <i data-lucide="loader-2" class="w-4 h-4 animate-spin" x-show="pmLoading" x-cloak></i>
                             <i data-lucide="save" class="w-4 h-4" x-show="!pmLoading"></i>
                             <span>{{ __('social_media.save_new_schedule_btn') }}</span>
@@ -1466,7 +1440,7 @@
                         <button type="button" x-show="pmTab === 'preview'" x-cloak
                                 @click="doPublishNow()"
                                 :disabled="pmLoading"
-                                class="flex-1 h-10 rounded-[12px] text-[13px] font-bold text-white bg-[#34C759] hover:bg-[#2FB34F] active:scale-[0.97] transition-all disabled:opacity-50 inline-flex items-center justify-center gap-2 cursor-pointer shadow-xs">
+                                class="flex-1 min-h-[44px] sm:min-h-0 sm:h-10 rounded-[12px] text-[13px] font-bold text-white bg-[#34C759] hover:bg-[#2FB34F] active:scale-[0.97] transition-all disabled:opacity-50 inline-flex items-center justify-center gap-2 cursor-pointer shadow-xs">
                             <i data-lucide="loader-2" class="w-4 h-4 animate-spin" x-show="pmLoading" x-cloak></i>
                             <i data-lucide="send" class="w-4 h-4" x-show="!pmLoading"></i>
                             <span>{{ __('social_media.publish_now_btn') }}</span>
@@ -1476,7 +1450,7 @@
                         <button type="button" x-show="pmTab === 'preview'" x-cloak
                                 @click="doDelete()"
                                 :disabled="pmLoading"
-                                class="h-10 px-4 rounded-[12px] text-[13px] font-bold text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/20 active:scale-[0.97] transition-all disabled:opacity-50 inline-flex items-center justify-center gap-2 cursor-pointer">
+                                class="min-h-[44px] sm:min-h-0 sm:h-10 px-4 rounded-[12px] text-[13px] font-bold text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/20 active:scale-[0.97] transition-all disabled:opacity-50 inline-flex items-center justify-center gap-2 cursor-pointer">
                             <i data-lucide="trash-2" class="w-4 h-4"></i>
                             <span>{{ __('social_media.delete_post_btn') }}</span>
                         </button>
