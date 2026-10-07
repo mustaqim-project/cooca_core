@@ -162,7 +162,7 @@ return [
     'support_help' => 'Support & Help',
     'restart_tour' => 'Restart Onboarding Tour',
     'language_select' => 'Select Language',
-    'lang_id' => 'Bahasa Indonesia',
+    'lang_id' => 'Indonesia',
     'lang_en' => 'English',
     'default_subtitle' => 'Integrated COGS & Commercial Management Platform',
     'open_pos' => 'Open POS',

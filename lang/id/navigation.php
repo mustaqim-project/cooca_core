@@ -162,7 +162,7 @@ return [
     'support_help' => 'Dukungan & Bantuan',
     'restart_tour' => 'Ulang Panduan Tour',
     'language_select' => 'Pilih Bahasa',
-    'lang_id' => 'Bahasa Indonesia',
+    'lang_id' => 'Indonesia',
     'lang_en' => 'English',
     'default_subtitle' => 'Sistem Perhitungan HPP & Manajemen Komersial Terintegrasi',
     'open_pos' => 'Kasir POS',
