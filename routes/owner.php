@@ -749,6 +749,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         // WhatsApp Gateway Toko
         Route::prefix('whatsapp')->name('whatsapp.')->middleware(['module:channels_marketing', 'require.permission:whatsapp.view'])->group(function (): void {
             Route::get('/', [WhatsAppWebController::class, 'index'])->name('index');
+            Route::get('/inbox', fn() => redirect()->route('social-media.inbox.index', ['channel' => 'whatsapp']))->name('inbox.index');
             Route::get('/qr', [WhatsAppWebController::class, 'getQr'])->name('qr');
             Route::get('/status', [WhatsAppWebController::class, 'checkStatus'])->name('status');
             Route::get('/logs', [WhatsAppWebController::class, 'logs'])->name('logs.index');
@@ -810,9 +811,14 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
             Route::post('/targets/{target}/retry', [SocialMediaWebController::class, 'retryTarget'])->middleware('require.permission:social_media.manage')->name('targets.retry');
             Route::get('/calendar', [SocialMediaWebController::class, 'calendar'])->name('calendar');
 
-            // Comments & Inbox
+            // Comments & Unified Omnichannel Inbox
             Route::get('/inbox', [SocialMediaWebController::class, 'inbox'])->name('inbox.index');
-            Route::post('/comments/{comment}/reply', [SocialMediaWebController::class, 'replyComment'])->middleware(['throttle:15,1', 'require.permission:social_media.manage'])->name('comments.reply');
+            Route::post('/comments/{comment}/reply', [SocialMediaWebController::class, 'replyComment'])->middleware(['throttle:30,1', 'require.permission:social_media.manage'])->name('comments.reply');
+            Route::post('/inbox/send-reply', [SocialMediaWebController::class, 'sendReply'])->middleware(['throttle:30,1', 'require.permission:social_media.manage'])->name('inbox.send-reply');
+            Route::post('/inbox/ai-reply', [SocialMediaWebController::class, 'generateAiReply'])->middleware(['throttle:30,1', 'require.permission:social_media.manage'])->name('inbox.ai-reply');
+            Route::post('/inbox/toggle-status', [SocialMediaWebController::class, 'updateConversationStatus'])->middleware('require.permission:social_media.manage')->name('inbox.toggle-status');
+            Route::post('/inbox/customer-labels', [SocialMediaWebController::class, 'updateCustomerLabels'])->middleware('require.permission:social_media.manage')->name('inbox.customer-labels');
+            Route::post('/inbox/customer-notes', [SocialMediaWebController::class, 'addCustomerNote'])->middleware('require.permission:social_media.manage')->name('inbox.customer-notes');
 
             // Analytics & Insights
             Route::get('/insights', [SocialMediaWebController::class, 'insights'])->name('insights.index');

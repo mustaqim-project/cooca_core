@@ -13,6 +13,11 @@
             :title="__('whatsapp.title')"
             :subtitle="__('whatsapp.subtitle', ['business' => $business->name])">
             <x-slot:actions>
+                <a href="{{ route('whatsapp.inbox.index') }}"
+                    class="flex-1 sm:flex-initial min-h-[44px] px-4 rounded-[12px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0062cc] active:scale-[0.98] transition-all flex items-center justify-center gap-2 w-full sm:w-auto shadow-sm shadow-[#007AFF]/25">
+                    <i data-lucide="message-square" class="w-4 h-4 text-white"></i>
+                    <span>{{ __('social_media.tab_inbox') }}</span>
+                </a>
                 <a href="{{ route('whatsapp.logs.index') }}"
                     class="flex-1 sm:flex-initial min-h-[44px] px-4 rounded-[12px] text-[13px] font-semibold text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.98] transition-all flex items-center justify-center gap-2 w-full sm:w-auto">
                     <i data-lucide="history" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
@@ -110,10 +115,17 @@
                                     <span class="text-[11.5px] text-black/50 dark:text-white/50 font-mono truncate max-w-[260px]">
                                         {{ __('whatsapp.waba_id_label') }}: <span x-text="metaAccount.waba_id"></span>
                                     </span>
-                                    <button type="button" @click="disconnectMeta()"
-                                        class="min-h-[44px] px-4 rounded-[12px] text-[12.5px] font-bold text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/15 active:scale-[0.98] transition-all flex items-center justify-center">
-                                        {{ __('whatsapp.disconnect_btn') }}
-                                    </button>
+                                    <div class="flex items-center gap-2">
+                                        <a href="{{ route('whatsapp.inbox.index') }}"
+                                            class="min-h-[44px] px-4 rounded-[12px] text-[12.5px] font-bold text-white bg-[#007AFF] hover:bg-[#0062cc] active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-sm">
+                                            <i data-lucide="message-square" class="w-4 h-4"></i>
+                                            <span>{{ __('social_media.tab_inbox') }}</span>
+                                        </a>
+                                        <button type="button" @click="disconnectMeta()"
+                                            class="min-h-[44px] px-4 rounded-[12px] text-[12.5px] font-bold text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/15 active:scale-[0.98] transition-all flex items-center justify-center">
+                                            {{ __('whatsapp.disconnect_btn') }}
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </template>
