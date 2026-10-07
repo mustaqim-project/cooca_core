@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Web\SocialMedia;
 
 use App\Domain\SocialMedia\SocialMediaService;
 use App\Http\Controllers\Controller;
+use App\Models\Business;
 use App\Models\SocialMediaAccount;
 use App\Models\SocialMediaComment;
 use App\Models\SocialMediaPost;
