@@ -543,4 +543,195 @@ class SocialMediaService
             $post->update(['local_media_paths' => null]);
         }
     }
+
+    /**
+     * Synchronize incoming inbox messages and comments from connected Meta accounts (Facebook & Instagram).
+     *
+     * @return array{success: bool, message: string, synced_count: int, accounts_count: int}
+     */
+    public function syncMetaInbox(Business $business): array
+    {
+        $accounts = SocialMediaAccount::where('business_id', $business->id)
+            ->where('status', 'active')
+            ->whereIn('platform', ['facebook', 'instagram'])
+            ->get();
+
+        if ($accounts->isEmpty()) {
+            return [
+                'success'        => false,
+                'message'        => 'Belum ada akun Facebook Page atau Instagram yang terhubung aktif. Silakan hubungkan akun di Saluran & Akun Media Sosial.',
+                'synced_count'   => 0,
+                'accounts_count' => 0,
+            ];
+        }
+
+        $syncedCount = 0;
+
+        foreach ($accounts as $account) {
+            $token = (string) ($account->access_token ?? '');
+            $accountId = (string) ($account->account_id ?? '');
+
+            if (empty($token) || empty($accountId)) {
+                continue;
+            }
+
+            if ($account->platform === 'facebook') {
+                // 1. Sync Facebook Page Messenger Conversations
+                try {
+                    $conversations = $this->client->getPageConversations($accountId, $token);
+                    foreach ($conversations as $conv) {
+                        $convId = (string) ($conv['id'] ?? '');
+                        $messages = (array) data_get($conv, 'messages.data', []);
+
+                        if (! empty($messages)) {
+                            foreach ($messages as $msg) {
+                                $fromId = (string) data_get($msg, 'from.id');
+                                $fromName = (string) (data_get($msg, 'from.name') ?: 'Pengguna Facebook');
+                                $text = (string) ($msg['message'] ?? '');
+                                $msgId = (string) ($msg['id'] ?? '');
+
+                                if (! empty($msgId) && ! empty($text) && $fromId !== $accountId) {
+                                    SocialMediaComment::updateOrCreate(
+                                        [
+                                            'business_id'         => $business->id,
+                                            'platform'            => 'messenger',
+                                            'platform_comment_id' => $msgId,
+                                        ],
+                                        [
+                                            'social_media_account_id' => $account->id,
+                                            'social_media_post_id'    => null,
+                                            'platform_post_id'        => $convId ?: null,
+                                            'parent_comment_id'       => null,
+                                            'from_id'                 => $fromId,
+                                            'from_name'               => $fromName,
+                                            'message'                 => $text,
+                                            'is_from_page'            => false,
+                                            'status'                  => 'unread',
+                                            'created_time'            => isset($msg['created_time']) ? \Illuminate\Support\Carbon::parse($msg['created_time']) : now(),
+                                        ]
+                                    );
+                                    $syncedCount++;
+                                }
+                            }
+                        } elseif (! empty($conv['snippet'])) {
+                            $sender = data_get($conv, 'senders.data.0', []);
+                            $senderId = (string) ($sender['id'] ?? '');
+                            $senderName = (string) ($sender['name'] ?? 'Pengguna Facebook');
+                            if ($senderId !== $accountId) {
+                                SocialMediaComment::updateOrCreate(
+                                    [
+                                        'business_id'         => $business->id,
+                                        'platform'            => 'messenger',
+                                        'platform_comment_id' => 'fb_conv_' . $convId,
+                                    ],
+                                    [
+                                        'social_media_account_id' => $account->id,
+                                        'social_media_post_id'    => null,
+                                        'platform_post_id'        => $convId ?: null,
+                                        'parent_comment_id'       => null,
+                                        'from_id'                 => $senderId ?: null,
+                                        'from_name'               => $senderName,
+                                        'message'                 => $conv['snippet'],
+                                        'is_from_page'            => false,
+                                        'status'                  => 'unread',
+                                        'created_time'            => isset($conv['updated_time']) ? \Illuminate\Support\Carbon::parse($conv['updated_time']) : now(),
+                                    ]
+                                );
+                                $syncedCount++;
+                            }
+                        }
+                    }
+                } catch (\Throwable $e) {
+                    Log::warning("[SocialMediaService] Sync FB conversations error: {$e->getMessage()}");
+                }
+
+                // 2. Sync Facebook Page Feed Comments
+                try {
+                    $posts = $this->client->getPageFeedComments($accountId, $token);
+                    foreach ($posts as $post) {
+                        $postId = (string) ($post['id'] ?? '');
+                        $comments = (array) data_get($post, 'comments.data', []);
+                        foreach ($comments as $comment) {
+                            $fromId = (string) data_get($comment, 'from.id');
+                            $fromName = (string) (data_get($comment, 'from.name') ?: 'Pengguna Facebook');
+                            $text = (string) ($comment['message'] ?? '');
+                            $commentId = (string) ($comment['id'] ?? '');
+
+                            if (! empty($commentId) && ! empty($text) && $fromId !== $accountId) {
+                                SocialMediaComment::updateOrCreate(
+                                    [
+                                        'business_id'         => $business->id,
+                                        'platform'            => 'facebook',
+                                        'platform_comment_id' => $commentId,
+                                    ],
+                                    [
+                                        'social_media_account_id' => $account->id,
+                                        'social_media_post_id'    => null,
+                                        'platform_post_id'        => $postId ?: null,
+                                        'parent_comment_id'       => null,
+                                        'from_id'                 => $fromId,
+                                        'from_name'               => $fromName,
+                                        'message'                 => $text,
+                                        'is_from_page'            => false,
+                                        'status'                  => 'unread',
+                                        'created_time'            => isset($comment['created_time']) ? \Illuminate\Support\Carbon::parse($comment['created_time']) : now(),
+                                    ]
+                                );
+                                $syncedCount++;
+                            }
+                        }
+                    }
+                } catch (\Throwable $e) {
+                    Log::warning("[SocialMediaService] Sync FB feed comments error: {$e->getMessage()}");
+                }
+            } elseif ($account->platform === 'instagram') {
+                // 3. Sync Instagram Media Comments
+                try {
+                    $mediaList = $this->client->getInstagramMediaComments($accountId, $token);
+                    foreach ($mediaList as $media) {
+                        $mediaId = (string) ($media['id'] ?? '');
+                        $comments = (array) data_get($media, 'comments.data', []);
+                        foreach ($comments as $comment) {
+                            $commentId = (string) ($comment['id'] ?? '');
+                            $text = (string) ($comment['text'] ?? '');
+                            $username = (string) ($comment['username'] ?? (data_get($comment, 'from.username') ?: 'Pengguna Instagram'));
+                            $fromId = (string) (data_get($comment, 'from.id') ?: $commentId);
+
+                            if (! empty($commentId) && ! empty($text)) {
+                                SocialMediaComment::updateOrCreate(
+                                    [
+                                        'business_id'         => $business->id,
+                                        'platform'            => 'instagram',
+                                        'platform_comment_id' => $commentId,
+                                    ],
+                                    [
+                                        'social_media_account_id' => $account->id,
+                                        'social_media_post_id'    => null,
+                                        'platform_post_id'        => $mediaId ?: null,
+                                        'parent_comment_id'       => null,
+                                        'from_id'                 => $fromId,
+                                        'from_name'               => '@' . ltrim($username, '@'),
+                                        'message'                 => $text,
+                                        'is_from_page'            => false,
+                                        'status'                  => 'unread',
+                                        'created_time'            => isset($comment['timestamp']) ? \Illuminate\Support\Carbon::parse($comment['timestamp']) : now(),
+                                    ]
+                                );
+                                $syncedCount++;
+                            }
+                        }
+                    }
+                } catch (\Throwable $e) {
+                    Log::warning("[SocialMediaService] Sync IG comments error: {$e->getMessage()}");
+                }
+            }
+        }
+
+        return [
+            'success'        => true,
+            'message'        => "Sinkronisasi berhasil. {$syncedCount} pesan & komentar dari Meta berhasil diperbarui ke inbox.",
+            'synced_count'   => $syncedCount,
+            'accounts_count' => $accounts->count(),
+        ];
+    }
 }

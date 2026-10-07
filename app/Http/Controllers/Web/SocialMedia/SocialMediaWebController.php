@@ -45,10 +45,11 @@ class SocialMediaWebController extends Controller implements HasMiddleware
                 'updateConversationStatus',
                 'updateCustomerLabels',
                 'addCustomerNote',
+                'syncMetaInbox',
             ]),
             new Middleware('entitlement:social_post', only: ['storePost']),
             new Middleware('throttle:30,1', only: ['replyComment', 'sendReply', 'generateAiReply']),
-            new Middleware('throttle:10,1', only: ['syncAccountsInsights', 'syncInsights']),
+            new Middleware('throttle:10,1', only: ['syncAccountsInsights', 'syncInsights', 'syncMetaInbox']),
         ];
     }
 
@@ -915,6 +916,21 @@ class SocialMediaWebController extends Controller implements HasMiddleware
         // Rakit Percakapan Omnichannel Terpadu
         $threads = $this->buildOmnichannelThreads($business, $comments->items(), $cleanWaNumber, $waRawPhone);
 
+        // Validasi Status Konfigurasi AI Toko (Bring Your Own AI)
+        $activeAiConfig = \App\Models\AiProviderConfig::where('business_id', $business->id)
+            ->where('is_active', true)
+            ->whereNotNull('api_key')
+            ->where('api_key', '!=', '')
+            ->first();
+        $hasAiConfig = ($activeAiConfig !== null);
+
+        // Status Koneksi Meta (Facebook Page & Instagram)
+        $metaAccounts = SocialMediaAccount::where('business_id', $business->id)
+            ->where('status', 'active')
+            ->whereIn('platform', ['facebook', 'instagram'])
+            ->get();
+        $hasMetaConnected = $metaAccounts->isNotEmpty();
+
         return view('app.social_media.inbox', compact(
             'business',
             'comments',
@@ -926,7 +942,11 @@ class SocialMediaWebController extends Controller implements HasMiddleware
             'waLink',
             'cleanWaNumber',
             'products',
-            'staffMembers'
+            'staffMembers',
+            'hasAiConfig',
+            'activeAiConfig',
+            'hasMetaConnected',
+            'metaAccounts'
         ));
     }
 
@@ -1012,6 +1032,22 @@ class SocialMediaWebController extends Controller implements HasMiddleware
     {
         $business = Context::requireBusiness();
 
+        // Validasi Wajib Konfigurasi AI Terlebih Dahulu
+        $activeAiConfig = \App\Models\AiProviderConfig::where('business_id', $business->id)
+            ->where('is_active', true)
+            ->whereNotNull('api_key')
+            ->where('api_key', '!=', '')
+            ->first();
+
+        if (! $activeAiConfig) {
+            return response()->json([
+                'success'      => false,
+                'needs_config' => true,
+                'error'        => 'Fitur AI belum dapat digunakan. Silakan atur konfigurasi AI (Bring Your Own AI) terlebih dahulu di menu Cooca AI.',
+                'redirect_url' => route('cooca-ai.providers'),
+            ], 422);
+        }
+
         $validated = $request->validate([
             'message'       => ['required', 'string', 'max:2000'],
             'channel'       => ['nullable', 'string', 'max:50'],
@@ -1035,6 +1071,32 @@ class SocialMediaWebController extends Controller implements HasMiddleware
             'provider_used'               => $aiResult['provider_used'],
             'anti_hallucination_verified' => true,
         ]);
+    }
+
+    /**
+     * AJAX: Sinkronkan pesan dan komentar secara langsung dari Meta Graph API (Facebook Page & Instagram).
+     */
+    public function syncMetaInbox(Request $request): JsonResponse
+    {
+        $business = Context::requireBusiness();
+
+        try {
+            $result = $this->socialService->syncMetaInbox($business);
+
+            return response()->json([
+                'success'        => $result['success'],
+                'message'        => $result['message'],
+                'synced_count'   => $result['synced_count'] ?? 0,
+                'accounts_count' => $result['accounts_count'] ?? 0,
+            ]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('[SocialMediaWebController] syncMetaInbox failed: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menyinkronkan data dari Meta: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**

@@ -733,5 +733,116 @@ class MetaSocialMediaClient
             'recent_posts' => $recentPosts,
         ];
     }
+
+    /**
+     * Fetch conversations and incoming direct messages from a Facebook Page.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function getPageConversations(string $pageId, string $pageToken, int $limit = 20): array
+    {
+        try {
+            $res = Http::timeout(10)->get($this->endpoint("{$pageId}/conversations", $pageToken), [
+                'fields'       => 'id,updated_time,senders,snippet,unread_count,messages{id,message,created_time,from,to}',
+                'limit'        => $limit,
+                'access_token' => $pageToken,
+            ]);
+
+            if ($res->successful()) {
+                return (array) ($res->json('data') ?? []);
+            }
+
+            Log::warning("[MetaSocialMediaClient] getPageConversations failed for page {$pageId}: " . $res->body());
+
+            return [];
+        } catch (\Throwable $e) {
+            Log::warning("[MetaSocialMediaClient] getPageConversations exception: " . $e->getMessage());
+
+            return [];
+        }
+    }
+
+    /**
+     * Fetch recent posts and their comments from a Facebook Page feed.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function getPageFeedComments(string $pageId, string $pageToken, int $limit = 15): array
+    {
+        try {
+            $res = Http::timeout(10)->get($this->endpoint("{$pageId}/feed", $pageToken), [
+                'fields'       => 'id,message,created_time,comments{id,message,created_time,from}',
+                'limit'        => $limit,
+                'access_token' => $pageToken,
+            ]);
+
+            if ($res->successful()) {
+                return (array) ($res->json('data') ?? []);
+            }
+
+            Log::warning("[MetaSocialMediaClient] getPageFeedComments failed for page {$pageId}: " . $res->body());
+
+            return [];
+        } catch (\Throwable $e) {
+            Log::warning("[MetaSocialMediaClient] getPageFeedComments exception: " . $e->getMessage());
+
+            return [];
+        }
+    }
+
+    /**
+     * Fetch media comments from an Instagram Professional/Business Account.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function getInstagramMediaComments(string $igUserId, string $pageToken, int $limit = 15): array
+    {
+        try {
+            $res = Http::timeout(10)->get($this->endpoint("{$igUserId}/media", $pageToken), [
+                'fields'       => 'id,caption,timestamp,comments{id,text,timestamp,from,username}',
+                'limit'        => $limit,
+                'access_token' => $pageToken,
+            ]);
+
+            if ($res->successful()) {
+                return (array) ($res->json('data') ?? []);
+            }
+
+            Log::warning("[MetaSocialMediaClient] getInstagramMediaComments failed for IG user {$igUserId}: " . $res->body());
+
+            return [];
+        } catch (\Throwable $e) {
+            Log::warning("[MetaSocialMediaClient] getInstagramMediaComments exception: " . $e->getMessage());
+
+            return [];
+        }
+    }
+
+    /**
+     * Fetch Instagram Direct conversations if permitted by page access token.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function getInstagramConversations(string $igUserId, string $pageToken, int $limit = 15): array
+    {
+        try {
+            $res = Http::timeout(10)->get($this->endpoint("{$igUserId}/conversations", $pageToken), [
+                'platform'     => 'instagram',
+                'fields'       => 'id,updated_time,messages{id,message,created_time,from}',
+                'limit'        => $limit,
+                'access_token' => $pageToken,
+            ]);
+
+            if ($res->successful()) {
+                return (array) ($res->json('data') ?? []);
+            }
+
+            return [];
+        } catch (\Throwable $e) {
+            Log::warning("[MetaSocialMediaClient] getInstagramConversations exception: " . $e->getMessage());
+
+            return [];
+        }
+    }
 }
 
