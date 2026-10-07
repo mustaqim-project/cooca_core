@@ -145,7 +145,7 @@
                     class="min-h-[44px] px-4 rounded-[12px] bg-black/[0.03] hover:bg-black/[0.06] dark:bg-white/[0.06] dark:hover:bg-white/[0.1] text-xs font-semibold active:scale-[0.98] transition-all text-gray-700 dark:text-gray-300 border border-black/[0.06] dark:border-white/[0.08] cursor-pointer flex items-center justify-center">
                     {{ __('billing.back') }}
                 </a>
-                <button type="button" onclick="window.print()"
+                {{-- <button type="button" onclick="window.print()"
                     class="min-h-[44px] px-4 rounded-[12px] bg-black/[0.03] hover:bg-black/[0.06] dark:bg-white/[0.06] dark:hover:bg-white/[0.1] text-gray-700 dark:text-gray-300 text-xs font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition-all border border-black/[0.06] dark:border-white/[0.08] cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500 dark:text-gray-400" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -154,7 +154,7 @@
                         <rect x="6" y="14" width="12" height="8" rx="1" />
                     </svg>
                     <span>{{ __('billing.action_print_printer') }}</span>
-                </button>
+                </button> --}}
                 <button id="btnDownloadPdf" type="button" onclick="downloadPDF()"
                     class="min-h-[44px] px-4.5 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-xs font-bold shadow-xs flex items-center justify-center gap-2 active:scale-[0.98] transition-all cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
