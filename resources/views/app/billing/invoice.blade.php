@@ -38,16 +38,23 @@
 
         @page {
             size: A4 portrait;
-            margin: 14mm 15mm 14mm 15mm;
+            margin: 10mm 12mm 10mm 12mm;
         }
 
         .print-sheet {
             background-color: #ffffff !important;
             color: #0f172a !important;
+            width: 100% !important;
+            max-width: 800px !important;
+            min-width: 740px !important;
+            margin: 0 auto !important;
+            box-sizing: border-box !important;
+            padding: 36px 40px !important;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
         }
 
         @media print {
-
             html,
             body {
                 background-color: #ffffff !important;
@@ -70,6 +77,7 @@
                 margin: 0 !important;
                 width: 100% !important;
                 max-width: 100% !important;
+                min-width: 0 !important;
             }
 
             table {
@@ -90,14 +98,6 @@
             th {
                 page-break-inside: avoid !important;
                 break-inside: avoid !important;
-            }
-
-            thead {
-                display: table-header-group !important;
-            }
-
-            tfoot {
-                display: table-footer-group !important;
             }
 
             .keep-together {
@@ -124,9 +124,24 @@
 
         $siteLogoSetting = \App\Models\SystemSetting::get('site_logo_light')
             ?? \App\Models\SystemSetting::get('site_logo_dark');
-        $coocaLogoUrl = $siteLogoSetting
-            ? \App\Domain\Storage\AdminStorage::publicUrl($siteLogoSetting)
-            : asset('assets/image/cooca-logo-landscape.png');
+
+        $coocaLogoBase64 = null;
+        if ($siteLogoSetting && \Illuminate\Support\Facades\Storage::disk('public')->exists($siteLogoSetting)) {
+            try {
+                $mime = \Illuminate\Support\Facades\Storage::disk('public')->mimeType($siteLogoSetting) ?? 'image/png';
+                $raw = \Illuminate\Support\Facades\Storage::disk('public')->get($siteLogoSetting);
+                $coocaLogoBase64 = 'data:' . $mime . ';base64,' . base64_encode($raw);
+            } catch (\Throwable $e) {}
+        }
+
+        if (! $coocaLogoBase64) {
+            $defaultLogoPath = public_path('assets/image/cooca-logo-landscape.png');
+            if (file_exists($defaultLogoPath)) {
+                $coocaLogoBase64 = 'data:image/png;base64,' . base64_encode(file_get_contents($defaultLogoPath));
+            } else {
+                $coocaLogoBase64 = asset('assets/image/cooca-logo-landscape.png');
+            }
+        }
     @endphp
 
     <!-- Floating Top Action Bar -->
@@ -145,7 +160,7 @@
                     class="min-h-[44px] px-4 rounded-[12px] bg-black/[0.03] hover:bg-black/[0.06] dark:bg-white/[0.06] dark:hover:bg-white/[0.1] text-xs font-semibold active:scale-[0.98] transition-all text-gray-700 dark:text-gray-300 border border-black/[0.06] dark:border-white/[0.08] cursor-pointer flex items-center justify-center">
                     {{ __('billing.back') }}
                 </a>
-                {{-- <button type="button" onclick="window.print()"
+                <button type="button" onclick="window.print()"
                     class="min-h-[44px] px-4 rounded-[12px] bg-black/[0.03] hover:bg-black/[0.06] dark:bg-white/[0.06] dark:hover:bg-white/[0.1] text-gray-700 dark:text-gray-300 text-xs font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition-all border border-black/[0.06] dark:border-white/[0.08] cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500 dark:text-gray-400" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -154,7 +169,7 @@
                         <rect x="6" y="14" width="12" height="8" rx="1" />
                     </svg>
                     <span>{{ __('billing.action_print_printer') }}</span>
-                </button> --}}
+                </button>
                 <button id="btnDownloadPdf" type="button" onclick="downloadPDF()"
                     class="min-h-[44px] px-4.5 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-xs font-bold shadow-xs flex items-center justify-center gap-2 active:scale-[0.98] transition-all cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
@@ -205,162 +220,163 @@
     </div>
 
     <!-- Outer responsive wrapper -->
-    <div class="max-w-4xl mx-auto overflow-x-auto shadow-xl rounded-[20px]">
-        <!-- Paper Sheet Container (Strict A4 Layout on Paper & Screen) -->
-        <main class="print-sheet bg-white p-6 sm:p-10 md:p-12 text-black space-y-6 min-w-[620px] sm:min-w-0"
+    <div class="max-w-4xl mx-auto overflow-x-auto pb-6">
+        <!-- Paper Sheet Container (Strict A4 Layout on Paper & Screen, Zero Overlap) -->
+        <main class="print-sheet bg-white text-black"
             aria-label="{{ __('billing.invoice_official_aria_label') }}">
 
             <!-- Header / Kop Surat Resmi Cooca ID -->
-            <div class="flex justify-between items-start border-b-2 border-black pb-5">
-                <div class="space-y-2 max-w-md">
-                    <div class="flex items-center mb-1.5">
-                        <img src="{{ $coocaLogoUrl }}" alt="COOCA" class="h-10 sm:h-11 w-auto max-w-[200px] object-contain">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #000000; padding-bottom: 16px; margin-bottom: 18px;">
+                <div style="width: 58%; max-width: 58%;">
+                    <div style="margin-bottom: 8px;">
+                        <img src="{{ $coocaLogoBase64 }}" alt="COOCA" style="height: 40px; width: auto; max-width: 190px; object-fit: contain; display: block;">
                     </div>
-                    <div class="space-y-0.5 text-xs text-gray-600 leading-relaxed">
-                        {{-- <p class="font-medium">{{ __('billing.company_tagline') }}
-                        </p> --}}
-                        <p>Website: https://cooca.id | Email: billing@cooca.id | CS: +62 852-8786-4176</p>
-                        {{-- <p class="font-mono text-[11px] tabular-nums">NPWP: 01.234.567.8-012.000 | SK Kemenkumham Terdaftar</p> --}}
+                    <div style="font-size: 11px; color: #475569; line-height: 1.45;">
+                        <p style="margin: 0; font-weight: 500;">{{ __('billing.company_tagline') }}</p>
+                        <p style="margin: 2px 0 0 0;">Website: https://cooca.id | Email: billing@cooca.id | CS: +62 852-8786-4176</p>
                     </div>
                 </div>
 
-                <div class="text-right space-y-0.5">
-                    <div class="text-lg font-black tracking-wider text-black uppercase">{{ __('billing.invoice_header_title') }}</div>
-                    <div class="text-sm font-mono font-black text-black tabular-nums">{{ $payment->order_number }}</div>
-                    <div class="text-xs text-gray-500 font-mono tabular-nums">
+                <div style="width: 40%; max-width: 40%; text-align: right;">
+                    <div style="font-size: 18px; font-weight: 900; letter-spacing: 0.05em; color: #000000; text-transform: uppercase;">
+                        {{ __('billing.invoice_header_title') }}
+                    </div>
+                    <div style="font-size: 13px; font-family: monospace; font-weight: 800; color: #000000; margin-top: 2px;">
+                        {{ $payment->order_number }}
+                    </div>
+                    <div style="font-size: 11px; color: #64748b; font-family: monospace; margin-top: 2px;">
                         {{ __('billing.transaction_id') }} #{{ $payment->id }}
                     </div>
-                    <div class="text-[11px] font-bold uppercase tracking-wider text-gray-600 mt-1">
-                        {{ __('billing.status_label') }} <span
-                            class="font-black {{ $isApproved ? 'text-[#34C759]' : ($payment->isRejected() ? 'text-[#FF3B30]' : 'text-[#FF9500]') }}">{{ strtoupper(str_replace('_', ' ', $payment->status)) }}</span>
+                    <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; color: #475569;">
+                        {{ __('billing.status_label') }} <span style="font-weight: 900; color: {{ $isApproved ? '#16a34a' : ($payment->isRejected() ? '#dc2626' : '#d97706') }};">
+                            {{ strtoupper(str_replace('_', ' ', $payment->status)) }}
+                        </span>
                     </div>
                 </div>
             </div>
 
             <!-- Detail Pihak Tertagih & Tanggal Tagihan -->
-            <div class="grid grid-cols-2 gap-8 text-xs pt-1">
-                <div class="space-y-1.5">
-                    <div class="font-bold text-gray-500 uppercase tracking-wider text-[10px]">{{ __('billing.bill_to') }}</div>
-                    <div class="text-sm font-black text-black font-mono">{{ $business->name }}</div>
-                    <div class="font-bold text-gray-800">{{ $payment->user?->name ?? __('billing.business_owner') }}</div>
-                    <div class="text-gray-600 font-mono">Email: {{ $payment->user?->email ?? '-' }}</div>
-                    <div class="text-gray-600 font-mono tabular-nums">{{ __('billing.workspace_id') }} {{ $business->id }}</div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; font-size: 11px; margin-bottom: 20px;">
+                <div style="width: 48%; line-height: 1.5;">
+                    <div style="font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; font-size: 10px; margin-bottom: 2px;">
+                        {{ __('billing.bill_to') }}
+                    </div>
+                    <div style="font-size: 13px; font-weight: 800; color: #000000; font-family: monospace;">{{ $business->name }}</div>
+                    <div style="font-weight: 700; color: #1e293b;">{{ $payment->user?->name ?? __('billing.business_owner') }}</div>
+                    <div style="color: #475569; font-family: monospace;">Email: {{ $payment->user?->email ?? '-' }}</div>
+                    <div style="color: #64748b; font-family: monospace;">{{ __('billing.workspace_id') }} {{ $business->id }}</div>
                 </div>
 
-                <div class="space-y-1.5 text-right font-sans">
-                    <div class="flex justify-end gap-3">
-                        <span class="text-gray-500">{{ __('billing.invoice_date') }}</span>
-                        <span
-                            class="font-mono font-bold text-black tabular-nums">{{ $payment->created_at->translatedFormat('d F Y') }}</span>
+                <div style="width: 48%; text-align: right; line-height: 1.5;">
+                    <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                        <span style="color: #64748b;">{{ __('billing.invoice_date') }}</span>
+                        <span style="font-family: monospace; font-weight: 700; color: #000000;">{{ $payment->created_at->translatedFormat('d F Y') }}</span>
                     </div>
-                    <div class="flex justify-end gap-3">
-                        <span class="text-gray-500">{{ __('billing.due_date') }}</span>
-                        <span
-                            class="font-mono font-bold text-black tabular-nums">{{ $payment->created_at->copy()->addDay()->translatedFormat('d F Y') }}</span>
+                    <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 2px;">
+                        <span style="color: #64748b;">{{ __('billing.due_date') }}</span>
+                        <span style="font-family: monospace; font-weight: 700; color: #000000;">{{ $payment->created_at->copy()->addDay()->translatedFormat('d F Y') }}</span>
                     </div>
-                    <div class="flex justify-end gap-3">
-                        <span class="text-gray-500">{{ __('billing.payment_method_label') }}</span>
-                        <span
-                            class="font-semibold text-gray-800">{{ $methodDetails['name'] ?? strtoupper($payment->payment_method) }}</span>
+                    <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 2px;">
+                        <span style="color: #64748b;">{{ __('billing.payment_method_label') }}</span>
+                        <span style="font-weight: 700; color: #1e293b;">{{ $methodDetails['name'] ?? strtoupper($payment->payment_method) }}</span>
                     </div>
                     @if ($payment->approved_at)
-                        <div class="flex justify-end gap-3">
-                            <span class="text-gray-500">{{ __('billing.payment_time') }}</span>
-                            <span
-                                class="font-mono font-bold text-[#34C759] tabular-nums">{{ $payment->approved_at->translatedFormat('d F Y, H:i') }}
-                                WIB</span>
+                        <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 2px;">
+                            <span style="color: #64748b;">{{ __('billing.payment_time') }}</span>
+                            <span style="font-family: monospace; font-weight: 800; color: #16a34a;">
+                                {{ $payment->approved_at->translatedFormat('d F Y, H:i') }} WIB
+                            </span>
                         </div>
                     @endif
                 </div>
             </div>
 
             <!-- Tabel Rincian Paket Layanan SaaS -->
-            <div class="overflow-visible pt-2">
-                <table class="w-full text-left text-xs border-collapse">
+            <div style="margin-bottom: 20px;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
                     <thead>
-                        <tr class="border-y-2 border-black bg-gray-50 text-black">
-                            <th class="py-2.5 px-3 font-bold w-10 text-center">{{ __('billing.table_no') }}</th>
-                            <th class="py-2.5 px-3 font-bold">{{ __('billing.table_description') }}</th>
-                            <th class="py-2.5 px-3 font-bold text-center w-28">{{ __('billing.table_duration_unit') }}</th>
-                            <th class="py-2.5 px-3 font-bold text-right w-14">{{ __('billing.table_qty') }}</th>
-                            <th class="py-2.5 px-3 font-bold text-right w-28 whitespace-nowrap">{{ __('billing.table_unit_price') }}</th>
-                            <th class="py-2.5 px-3 font-bold text-right w-32 whitespace-nowrap">{{ __('billing.table_amount') }}</th>
+                        <tr style="border-top: 2px solid #000000; border-bottom: 2px solid #000000; background-color: #f8fafc; color: #000000;">
+                            <th style="padding: 8px 10px; font-weight: 700; width: 36px; text-align: center;">{{ __('billing.table_no') }}</th>
+                            <th style="padding: 8px 10px; font-weight: 700; text-align: left;">{{ __('billing.table_description') }}</th>
+                            <th style="padding: 8px 10px; font-weight: 700; text-align: center; width: 110px;">{{ __('billing.table_duration_unit') }}</th>
+                            <th style="padding: 8px 10px; font-weight: 700; text-align: right; width: 44px;">{{ __('billing.table_qty') }}</th>
+                            <th style="padding: 8px 10px; font-weight: 700; text-align: right; width: 110px; white-space: nowrap;">{{ __('billing.table_unit_price') }}</th>
+                            <th style="padding: 8px 10px; font-weight: 700; text-align: right; width: 120px; white-space: nowrap;">{{ __('billing.table_amount') }}</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        <tr class="align-top">
-                            <td class="py-3 px-3 text-center font-mono text-gray-600 tabular-nums">1</td>
-                            <td class="py-3 px-3">
-                                <div class="font-bold text-black leading-tight">
+                    <tbody>
+                        <tr style="border-bottom: 1px solid #e2e8f0; vertical-align: top;">
+                            <td style="padding: 10px 10px; text-align: center; font-family: monospace; color: #64748b;">1</td>
+                            <td style="padding: 10px 10px;">
+                                <div style="font-weight: 800; color: #000000; line-height: 1.25;">
                                     {{ $payment->package_name ?? ($payment->cycle === 'annual' ? __('billing.plan_core_annual') : ($payment->cycle === 'monthly' ? __('billing.plan_core_monthly') : __('billing.topup_business_quota'))) }}
                                 </div>
-                                <div class="text-[10px] text-gray-500 font-mono mt-0.5">
+                                <div style="font-size: 10px; color: #64748b; font-family: monospace; margin-top: 2px;">
                                     {{ __('billing.code_label') }} {{ $payment->plan_code ?: 'COOCA-SUB' }}
                                 </div>
-                                <div class="text-[10px] text-gray-600 mt-1 leading-relaxed">
+                                <div style="font-size: 10px; color: #475569; margin-top: 4px; line-height: 1.4;">
                                     {{ __('billing.service_license_desc') }}
                                 </div>
                             </td>
-                            <td class="py-3 px-3 text-center font-mono text-gray-700 uppercase">
+                            <td style="padding: 10px 10px; text-align: center; font-family: monospace; color: #334155; text-transform: uppercase;">
                                 {{ $durationText }}
                             </td>
-                            <td class="py-3 px-3 text-right font-mono font-semibold text-black tabular-nums">
+                            <td style="padding: 10px 10px; text-align: right; font-family: monospace; font-weight: 600; color: #000000;">
                                 1
                             </td>
-                            <td class="py-3 px-3 text-right font-mono text-gray-800 whitespace-nowrap tabular-nums">
+                            <td style="padding: 10px 10px; text-align: right; font-family: monospace; color: #334155; white-space: nowrap;">
                                 Rp {{ number_format((float) $payment->amount, 0, ',', '.') }}
                             </td>
-                            <td class="py-3 px-3 text-right font-mono font-bold text-black whitespace-nowrap tabular-nums">
+                            <td style="padding: 10px 10px; text-align: right; font-family: monospace; font-weight: 800; color: #000000; white-space: nowrap;">
                                 Rp {{ number_format((float) $payment->amount, 0, ',', '.') }}
                             </td>
                         </tr>
 
                         @if ($payment->hasDiscount())
-                            <tr class="align-top">
-                                <td class="py-3 px-3 text-center font-mono text-gray-600 tabular-nums">2</td>
-                                <td class="py-3 px-3">
-                                    <div class="font-bold text-[#34C759] leading-tight">Voucher Promo Diskon ({{ $payment->promo_code }})</div>
-                                    <div class="text-[10px] text-gray-500 font-mono mt-0.5">KODE: {{ $payment->promo_code }}</div>
-                                    <div class="text-[10px] text-gray-600 mt-1 leading-relaxed">
+                            <tr style="border-bottom: 1px solid #e2e8f0; vertical-align: top;">
+                                <td style="padding: 10px 10px; text-align: center; font-family: monospace; color: #64748b;">2</td>
+                                <td style="padding: 10px 10px;">
+                                    <div style="font-weight: 800; color: #16a34a; line-height: 1.25;">Voucher Promo Diskon ({{ $payment->promo_code }})</div>
+                                    <div style="font-size: 10px; color: #64748b; font-family: monospace; margin-top: 2px;">KODE: {{ $payment->promo_code }}</div>
+                                    <div style="font-size: 10px; color: #475569; margin-top: 4px; line-height: 1.4;">
                                         Insentif subsidi promo langganan resmi Cooca.
                                     </div>
                                 </td>
-                                <td class="py-3 px-3 text-center font-mono text-gray-700 uppercase">
+                                <td style="padding: 10px 10px; text-align: center; font-family: monospace; color: #334155; text-transform: uppercase;">
                                     Voucher
                                 </td>
-                                <td class="py-3 px-3 text-right font-mono font-semibold text-black tabular-nums">
+                                <td style="padding: 10px 10px; text-align: right; font-family: monospace; font-weight: 600; color: #000000;">
                                     1
                                 </td>
-                                <td class="py-3 px-3 text-right font-mono text-[#34C759] font-semibold whitespace-nowrap tabular-nums">
+                                <td style="padding: 10px 10px; text-align: right; font-family: monospace; font-weight: 600; color: #16a34a; white-space: nowrap;">
                                     -Rp {{ number_format((float) $payment->discount_amount, 0, ',', '.') }}
                                 </td>
-                                <td class="py-3 px-3 text-right font-mono font-bold text-[#34C759] whitespace-nowrap tabular-nums">
+                                <td style="padding: 10px 10px; text-align: right; font-family: monospace; font-weight: 800; color: #16a34a; white-space: nowrap;">
                                     -Rp {{ number_format((float) $payment->discount_amount, 0, ',', '.') }}
                                 </td>
                             </tr>
                         @endif
 
                         @if ($payment->unique_code > 0)
-                            <tr class="align-top">
-                                <td class="py-3 px-3 text-center font-mono text-gray-600 tabular-nums">{{ $payment->hasDiscount() ? '3' : '2' }}</td>
-                                <td class="py-3 px-3">
-                                    <div class="font-bold text-black leading-tight">{{ __('billing.unique_code_desc_title') }}</div>
-                                    <div class="text-[10px] text-gray-500 font-mono mt-0.5">{{ __('billing.code_label') }} VERIF-AUTO</div>
-                                    <div class="text-[10px] text-gray-600 mt-1 leading-relaxed">
+                            <tr style="border-bottom: 1px solid #e2e8f0; vertical-align: top;">
+                                <td style="padding: 10px 10px; text-align: center; font-family: monospace; color: #64748b;">{{ $payment->hasDiscount() ? '3' : '2' }}</td>
+                                <td style="padding: 10px 10px;">
+                                    <div style="font-weight: 800; color: #000000; line-height: 1.25;">{{ __('billing.unique_code_desc_title') }}</div>
+                                    <div style="font-size: 10px; color: #64748b; font-family: monospace; margin-top: 2px;">{{ __('billing.code_label') }} VERIF-AUTO</div>
+                                    <div style="font-size: 10px; color: #475569; margin-top: 4px; line-height: 1.4;">
                                         {{ __('billing.unique_code_explanation') }}
                                     </div>
                                 </td>
-                                <td class="py-3 px-3 text-center font-mono text-gray-700 uppercase">
+                                <td style="padding: 10px 10px; text-align: center; font-family: monospace; color: #334155; text-transform: uppercase;">
                                     Trans
                                 </td>
-                                <td class="py-3 px-3 text-right font-mono font-semibold text-black tabular-nums">
+                                <td style="padding: 10px 10px; text-align: right; font-family: monospace; font-weight: 600; color: #000000;">
                                     1
                                 </td>
-                                <td
-                                    class="py-3 px-3 text-right font-mono text-[#FF9500] font-semibold whitespace-nowrap tabular-nums">
+                                <td style="padding: 10px 10px; text-align: right; font-family: monospace; font-weight: 600; color: #d97706; white-space: nowrap;">
                                     +Rp {{ $uniqueStr }}
                                 </td>
-                                <td class="py-3 px-3 text-right font-mono font-bold text-[#FF9500] whitespace-nowrap tabular-nums">
+                                <td style="padding: 10px 10px; text-align: right; font-family: monospace; font-weight: 800; color: #d97706; white-space: nowrap;">
                                     +Rp {{ $uniqueStr }}
                                 </td>
                             </tr>
@@ -369,118 +385,157 @@
                 </table>
             </div>
 
-            <!-- Footer: Kalkulasi Finansial & Otorisasi Resmi -->
-            <div class="keep-together space-y-6 pt-2">
-                <div class="flex justify-between items-start border-t-2 border-black pt-3 gap-6 text-xs">
+            <!-- Footer: Informasi Pembayaran Sistem & Kalkulasi Finansial (Zero Overlap) -->
+            <div class="keep-together" style="margin-top: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; border-top: 2px solid #000000; padding-top: 14px; gap: 20px;">
 
-                    <!-- Left: Bank Account Instructions & Transfer Data -->
-                    <div class="space-y-4 w-1/2">
-                        <div
-                            class="p-3.5 border-l-2 border-gray-400 bg-gray-50/80 space-y-1.5 text-gray-700 rounded-r-[12px]">
-                            <div class="font-bold text-black text-[11px] uppercase tracking-wider">{{ __('billing.cooca_official_bank_account') }}</div>
-                            <div class="pt-1 space-y-1 text-xs">
-                                <div class="flex items-baseline gap-2">
-                                    <span class="w-24 text-gray-500 shrink-0 font-medium">{{ __('billing.bank_label') }}</span>
-                                    <span class="text-gray-400">:</span>
-                                    <span class="font-bold text-black">{{ $methodDetails['bank_name'] }}</span>
+                    <!-- Left: Informasi Transaksi & Pembayaran Sistem -->
+                    <div style="width: 54%; max-width: 54%;">
+                        <div style="padding: 12px 14px; background-color: #f8fafc; border-radius: 0 10px 10px 0; border: 1px solid #e2e8f0; border-left: 3px solid #0f172a;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; margin-bottom: 8px;">
+                                <div style="font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #0f172a;">
+                                    Informasi Transaksi &amp; Pembayaran
                                 </div>
-                                <div class="flex items-baseline gap-2">
-                                    <span class="w-24 text-gray-500 shrink-0 font-medium">{{ __('billing.account_number_label') }}</span>
-                                    <span class="text-gray-400">:</span>
-                                    <span
-                                        class="font-mono font-bold text-black text-sm tracking-wider tabular-nums">{{ $methodDetails['account_number'] }}</span>
-                                </div>
-                                <div class="flex items-baseline gap-2">
-                                    <span class="w-24 text-gray-500 shrink-0 font-medium">{{ __('billing.account_holder_label') }}</span>
-                                    <span class="text-gray-400">:</span>
-                                    <span class="font-bold text-black">{{ $methodDetails['account_name'] }}</span>
-                                </div>
+                                <span style="font-family: monospace; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background-color: #e2e8f0; color: #334155;">
+                                    {{ strtoupper($payment->payment_gateway ?: 'SISTEM') }}
+                                </span>
                             </div>
-                            @if ($payment->sender_account_name)
-                                <div class="pt-2 mt-2 border-t border-gray-200 text-[11px] space-y-0.5">
-                                    <div><span class="text-gray-500">{{ __('billing.sender_account_label') }}</span> <strong
-                                            class="text-black">{{ $payment->sender_account_name }}
-                                            ({{ $payment->sender_bank ?? '-' }})</strong></div>
+
+                            <table style="width: 100%; border-collapse: collapse; font-size: 11px; line-height: 1.55;">
+                                <tbody>
+                                    <tr>
+                                        <td style="width: 105px; color: #64748b; padding: 2px 0; font-weight: 500;">Metode Bayar</td>
+                                        <td style="width: 10px; color: #94a3b8; padding: 2px 0;">:</td>
+                                        <td style="color: #0f172a; padding: 2px 0; font-weight: 700;">
+                                            {{ $methodDetails['name'] ?? strtoupper($payment->payment_method) }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="color: #64748b; padding: 2px 0; font-weight: 500;">Gateway / Kanal</td>
+                                        <td style="color: #94a3b8; padding: 2px 0;">:</td>
+                                        <td style="color: #0f172a; padding: 2px 0; font-weight: 600;">
+                                            {{ $payment->isTripay() || str_starts_with($payment->payment_method, 'tripay_') || in_array($payment->payment_method, ['qris', 'qris2', 'bca_va', 'mandiri_va', 'bri_va', 'bni_va', 'permata_va', 'indomaret', 'alfamart']) ? 'TriPay Payment Gateway (Otomatis)' : 'Sistem Pembayaran Cooca' }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="color: #64748b; padding: 2px 0; font-weight: 500;">No. Referensi</td>
+                                        <td style="color: #94a3b8; padding: 2px 0;">:</td>
+                                        <td style="color: #0f172a; padding: 2px 0; font-family: monospace; font-weight: 700;">
+                                            {{ $payment->gateway_reference ?: ($payment->tripay_reference ?: $payment->order_number) }}
+                                        </td>
+                                    </tr>
+                                    @if ($payment->gateway_pay_code)
+                                        <tr>
+                                            <td style="color: #64748b; padding: 2px 0; font-weight: 500;">Kode / No. VA</td>
+                                            <td style="color: #94a3b8; padding: 2px 0;">:</td>
+                                            <td style="color: #0f172a; padding: 2px 0; font-family: monospace; font-weight: 700; letter-spacing: 0.05em;">
+                                                {{ $payment->gateway_pay_code }}
+                                            </td>
+                                        </tr>
+                                    @endif
+                                    <tr>
+                                        <td style="color: #64748b; padding: 2px 0; font-weight: 500;">Status Bayar</td>
+                                        <td style="color: #94a3b8; padding: 2px 0;">:</td>
+                                        <td style="padding: 2px 0; font-weight: 800; color: {{ $isApproved ? '#16a34a' : ($payment->isRejected() ? '#dc2626' : '#d97706') }};">
+                                            @if ($isApproved)
+                                                LUNAS (Terverifikasi Otomatis)
+                                            @elseif ($payment->status === 'cancelled')
+                                                DIBATALKAN / KEDALUWARSA
+                                            @elseif ($payment->status === 'rejected')
+                                                DITOLAK
+                                            @else
+                                                MENUNGGU PEMBAYARAN
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="color: #64748b; padding: 2px 0; font-weight: 500;">Waktu Transaksi</td>
+                                        <td style="color: #94a3b8; padding: 2px 0;">:</td>
+                                        <td style="color: #334155; padding: 2px 0; font-family: monospace;">
+                                            {{ $payment->approved_at ? $payment->approved_at->translatedFormat('d F Y, H:i') . ' WIB' : ($payment->created_at ? $payment->created_at->translatedFormat('d F Y, H:i') . ' WIB' : '-') }}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            @if ($payment->isManual() && $payment->sender_account_name)
+                                <div style="margin-top: 8px; padding-top: 6px; border-top: 1px solid #e2e8f0; font-size: 11px; color: #475569;">
+                                    <div><span style="color: #64748b;">Pengirim:</span> <strong>{{ $payment->sender_account_name }} ({{ $payment->sender_bank ?? '-' }})</strong></div>
                                     @if ($payment->proof_uploaded_at)
-                                        <div><span class="text-gray-500">{{ __('billing.proof_sent_time') }}</span> <span
-                                                class="font-mono text-gray-700 tabular-nums">{{ $payment->proof_uploaded_at->translatedFormat('d F Y, H:i') }}
-                                                WIB</span></div>
+                                        <div style="font-size: 10px; color: #64748b; font-family: monospace; margin-top: 2px;">
+                                            Struk dikirim: {{ $payment->proof_uploaded_at->translatedFormat('d F Y, H:i') }} WIB
+                                        </div>
                                     @endif
                                 </div>
                             @endif
                         </div>
 
                         @if ($payment->notes)
-                            <div>
-                                <div class="font-bold text-black mb-0.5">{{ __('billing.additional_notes') }}</div>
-                                <div
-                                    class="text-gray-600 whitespace-pre-line bg-gray-50 p-2.5 rounded-[10px] border border-gray-200">
-                                    {{ $payment->notes }}</div>
+                            <div style="margin-top: 10px;">
+                                <div style="font-weight: 700; color: #0f172a; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">
+                                    {{ __('billing.additional_notes') }}
+                                </div>
+                                <div style="color: #475569; white-space: pre-line; background-color: #f8fafc; padding: 8px 10px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 11px; line-height: 1.4;">
+                                    {{ $payment->notes }}
+                                </div>
                             </div>
                         @endif
                     </div>
 
                     <!-- Right: Financial Ledger Calculation -->
-                    <div class="w-72 space-y-2">
-                        <div class="flex justify-between text-gray-600">
-                            <span>{{ __('billing.subtotal_bill') }}</span>
-                            <span class="font-mono font-semibold text-black tabular-nums">
-                                Rp {{ number_format((float) $payment->amount, 0, ',', '.') }}
-                            </span>
-                        </div>
-
-                        @if ($payment->hasDiscount())
-                            <div class="flex justify-between text-[#34C759] font-medium">
-                                <span>Diskon Promo ({{ $payment->promo_code }})</span>
-                                <span class="font-mono font-semibold tabular-nums">
-                                    -Rp {{ number_format((float) $payment->discount_amount, 0, ',', '.') }}
-                                </span>
-                            </div>
-                        @endif
-
-                        @if ($payment->unique_code > 0)
-                            <div class="flex justify-between text-gray-600">
-                                <span class="text-[#FF9500]">{{ __('billing.unique_code_verification') }}</span>
-                                <span class="font-mono font-semibold text-[#FF9500] tabular-nums">
-                                    +Rp {{ $uniqueStr }}
-                                </span>
-                            </div>
-                        @endif
-
-                        <div
-                            class="pt-2 border-t-2 border-black flex justify-between items-center text-sm font-bold text-black">
-                            <span>{{ __('billing.total_bill') }}</span>
-                            <span class="font-mono text-base text-black font-bold tabular-nums">
-                                Rp {{ number_format((float) $payment->total_payable, 0, ',', '.') }}
-                            </span>
-                        </div>
-
-                        <div class="flex justify-between text-gray-600 pt-1">
-                            <span>{{ __('billing.paid_amount') }}</span>
-                            <span
-                                class="font-mono font-semibold tabular-nums {{ $isApproved ? 'text-[#34C759]' : 'text-gray-500' }}">
-                                Rp
-                                {{ $isApproved ? number_format((float) $payment->total_payable, 0, ',', '.') : '0' }}
-                            </span>
-                        </div>
-
-                        <div
-                            class="flex justify-between items-center pt-2 border-t border-gray-300 font-bold {{ $isApproved ? 'text-[#34C759]' : 'text-[#FF9500]' }}">
-                            <span>{{ __('billing.remaining_bill') }}</span>
-                            <span class="font-mono text-base font-bold tabular-nums">
-                                {{ $isApproved ? __('billing.paid_full') : 'Rp ' . number_format((float) $payment->total_payable, 0, ',', '.') }}
-                            </span>
-                        </div>
+                    <div style="width: 42%; max-width: 42%;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 12px; line-height: 1.6;">
+                            <tbody>
+                                <tr>
+                                    <td style="color: #475569; padding: 3px 0;">{{ __('billing.subtotal_bill') }}</td>
+                                    <td style="text-align: right; font-family: monospace; font-weight: 600; color: #0f172a; padding: 3px 0;">
+                                        Rp {{ number_format((float) $payment->amount, 0, ',', '.') }}
+                                    </td>
+                                </tr>
+                                @if ($payment->hasDiscount())
+                                    <tr>
+                                        <td style="color: #16a34a; font-weight: 500; padding: 3px 0;">Diskon Promo ({{ $payment->promo_code }})</td>
+                                        <td style="text-align: right; font-family: monospace; font-weight: 600; color: #16a34a; padding: 3px 0;">
+                                            -Rp {{ number_format((float) $payment->discount_amount, 0, ',', '.') }}
+                                        </td>
+                                    </tr>
+                                @endif
+                                @if ($payment->unique_code > 0)
+                                    <tr>
+                                        <td style="color: #d97706; padding: 3px 0;">{{ __('billing.unique_code_verification') }}</td>
+                                        <td style="text-align: right; font-family: monospace; font-weight: 600; color: #d97706; padding: 3px 0;">
+                                            +Rp {{ $uniqueStr }}
+                                        </td>
+                                    </tr>
+                                @endif
+                                <tr style="border-top: 2px solid #000000;">
+                                    <td style="font-weight: 800; color: #000000; padding: 6px 0; font-size: 13px;">{{ __('billing.total_bill') }}</td>
+                                    <td style="text-align: right; font-family: monospace; font-weight: 800; color: #000000; padding: 6px 0; font-size: 14px;">
+                                        Rp {{ number_format((float) $payment->total_payable, 0, ',', '.') }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="color: #475569; padding: 3px 0;">{{ __('billing.paid_amount') }}</td>
+                                    <td style="text-align: right; font-family: monospace; font-weight: 600; padding: 3px 0; color: {{ $isApproved ? '#16a34a' : '#64748b' }};">
+                                        Rp {{ $isApproved ? number_format((float) $payment->total_payable, 0, ',', '.') : '0' }}
+                                    </td>
+                                </tr>
+                                <tr style="border-top: 1px solid #cbd5e1;">
+                                    <td style="font-weight: 700; padding: 6px 0; color: {{ $isApproved ? '#16a34a' : '#d97706' }};">
+                                        {{ __('billing.remaining_bill') }}
+                                    </td>
+                                    <td style="text-align: right; font-family: monospace; font-weight: 800; font-size: 14px; padding: 6px 0; color: {{ $isApproved ? '#16a34a' : '#d97706' }};">
+                                        {{ $isApproved ? __('billing.paid_full') : 'Rp ' . number_format((float) $payment->total_payable, 0, ',', '.') }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
 
                         <!-- Official Stamp Seal if Approved -->
                         @if ($isApproved)
-                            <div class="pt-3 text-center">
-                                <div
-                                    class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-[12px] border-2 border-[#34C759] text-[#34C759] font-bold text-xs font-mono uppercase tracking-widest rotate-[-3deg] shadow-xs">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-[#34C759]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                                        <polyline points="20 6 9 17 4 12"/>
-                                    </svg>
-                                    <span>{{ __('billing.stamp_paid_verified') }}</span>
+                            <div style="margin-top: 12px; text-align: center;">
+                                <div style="display: inline-block; padding: 5px 14px; border: 2px solid #16a34a; color: #16a34a; font-weight: 800; font-size: 11px; font-family: monospace; text-transform: uppercase; letter-spacing: 0.1em; border-radius: 8px; transform: rotate(-2deg);">
+                                    ✓ {{ __('billing.stamp_paid_verified') }}
                                 </div>
                             </div>
                         @endif
@@ -488,30 +543,25 @@
                 </div>
 
                 <!-- Digital Signatures & Authorization Blocks -->
-                <div class="pt-8 grid grid-cols-2 gap-12 text-center text-xs">
-                    <div class="space-y-16">
-                        <div>
-                            <div class="text-gray-500">{{ __('billing.accepted_and_approved_by') }}</div>
-                            <div class="font-bold text-black mt-1 font-mono">
-                                {{ $business->name }}
-                            </div>
+                <div style="margin-top: 32px; padding-top: 16px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; text-align: center; font-size: 11px;">
+                    <div style="width: 45%;">
+                        <div style="color: #64748b; margin-bottom: 4px;">{{ __('billing.accepted_and_approved_by') }}</div>
+                        <div style="font-weight: 700; color: #000000; font-family: monospace; font-size: 12px;">
+                            {{ $business->name }}
                         </div>
-                        <div class="border-t border-gray-400 w-48 mx-auto pt-1 font-semibold text-gray-700">
+                        <div style="margin-top: 48px; border-top: 1px solid #94a3b8; width: 180px; margin-left: auto; margin-right: auto; padding-top: 4px; font-weight: 600; color: #334155;">
                             ( {{ $payment->user?->name ?? __('billing.business_owner') }} )
                         </div>
                     </div>
 
-                    <div class="space-y-16">
-                        <div>
-                            <div class="text-gray-500">{{ __('billing.cooca_company_name') }}</div>
-                            <div class="font-bold text-black mt-1">{{ __('billing.billing_finance_department') }}</div>
-                        </div>
-                        <div class="border-t border-gray-400 w-48 mx-auto pt-1 font-semibold text-gray-700">
+                    <div style="width: 45%;">
+                        <div style="color: #64748b; margin-bottom: 4px;">{{ __('billing.cooca_company_name') }}</div>
+                        <div style="font-weight: 700; color: #000000; font-size: 12px;">{{ __('billing.billing_finance_department') }}</div>
+                        <div style="margin-top: 48px; border-top: 1px solid #94a3b8; width: 200px; margin-left: auto; margin-right: auto; padding-top: 4px; font-weight: 600; color: #334155;">
                             {{ __('billing.cooca_digital_auth_system') }}
                         </div>
                     </div>
                 </div>
-
             </div>
 
         </main>
@@ -533,13 +583,11 @@
             `;
 
             const element = document.querySelector('.print-sheet');
-            const prevPadding = element.style.padding;
-            element.style.padding = '0px';
-
             const filename = 'Faktur-Cooca-{{ $payment->order_number }}.pdf';
 
+            // Options calibrated for exact A4 output with zero overlap
             const opt = {
-                margin: [14, 15, 14, 15],
+                margin: [8, 8, 8, 8],
                 filename: filename,
                 image: {
                     type: 'jpeg',
@@ -549,7 +597,9 @@
                     scale: 2,
                     useCORS: true,
                     logging: false,
-                    scrollY: 0
+                    scrollY: 0,
+                    scrollX: 0,
+                    backgroundColor: '#ffffff'
                 },
                 jsPDF: {
                     unit: 'mm',
@@ -563,7 +613,6 @@
 
             if (typeof html2pdf !== 'undefined') {
                 html2pdf().set(opt).from(element).save().then(() => {
-                    element.style.padding = prevPadding;
                     btn.disabled = false;
                     btn.classList.remove('opacity-75', 'cursor-wait');
                     btn.innerHTML = `
@@ -574,7 +623,6 @@
                         btn.innerHTML = originalHtml;
                     }, 3500);
                 }).catch(err => {
-                    element.style.padding = prevPadding;
                     console.error('html2pdf error:', err);
                     btn.disabled = false;
                     btn.classList.remove('opacity-75', 'cursor-wait');
@@ -582,7 +630,9 @@
                     window.print();
                 });
             } else {
-                element.style.padding = prevPadding;
+                btn.disabled = false;
+                btn.classList.remove('opacity-75', 'cursor-wait');
+                btn.innerHTML = originalHtml;
                 window.print();
             }
         }
