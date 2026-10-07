@@ -813,6 +813,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
 
             // Analytics & Insights
             Route::get('/insights', [SocialMediaWebController::class, 'insights'])->name('insights.index');
+            Route::post('/insights/accounts/sync', [SocialMediaWebController::class, 'syncAccountsInsights'])->middleware('throttle:10,1')->name('insights.accounts.sync');
             Route::post('/insights/{post}/sync', [SocialMediaWebController::class, 'syncInsights'])->middleware('throttle:10,1')->name('insights.sync');
         });
 

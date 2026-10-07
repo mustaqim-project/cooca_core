@@ -887,8 +887,13 @@ class SocialMediaWebController extends Controller
     {
         $business = Context::requireBusiness();
 
+        $accounts = SocialMediaAccount::where('business_id', $business->id)
+            ->where('status', 'active')
+            ->get();
+
         $posts = SocialMediaPost::where('business_id', $business->id)
             ->where('status', 'published')
+            ->with(['targets.account', 'account'])
             ->latest('published_at')
             ->take(15)
             ->get();
@@ -898,7 +903,9 @@ class SocialMediaWebController extends Controller
         $totalLikes = 0;
         $totalComments = 0;
         $totalShares = 0;
+        $totalFollowers = 0;
 
+        // 1. Post performance aggregation
         foreach ($posts as $p) {
             $totalImpressions += $p->getMetric('impressions');
             $totalReach += $p->getMetric('reach');
@@ -907,7 +914,69 @@ class SocialMediaWebController extends Controller
             $totalShares += $p->getMetric('shares');
         }
 
+        // 2. Channel performance aggregation from connected accounts
+        $channelInsights = [
+            'facebook'  => ['connected' => false, 'account' => null, 'metrics' => []],
+            'instagram' => ['connected' => false, 'account' => null, 'metrics' => []],
+            'tiktok'    => ['connected' => false, 'account' => null, 'metrics' => []],
+            'linkedin'  => ['connected' => false, 'account' => null, 'metrics' => []],
+            'threads'   => ['connected' => false, 'account' => null, 'metrics' => []],
+        ];
+
+        foreach ($accounts as $account) {
+            $platform = strtolower((string) $account->platform);
+            $metrics = (array) data_get($account->metadata, 'metrics', []);
+
+            if ($platform === 'facebook') {
+                $followers = (int) ($metrics['followers'] ?? $metrics['fans'] ?? 0);
+                $totalFollowers += $followers;
+                $channelInsights['facebook'] = [
+                    'connected' => true,
+                    'account'   => $account,
+                    'metrics'   => $metrics,
+                    'followers' => $followers,
+                    'fans'      => (int) ($metrics['fans'] ?? 0),
+                    'talking'   => (int) ($metrics['talking_about'] ?? 0),
+                ];
+            } elseif ($platform === 'instagram') {
+                $followers = (int) ($metrics['followers'] ?? 0);
+                $totalFollowers += $followers;
+                $totalLikes += (int) ($metrics['total_likes'] ?? 0);
+                $totalComments += (int) ($metrics['total_comments'] ?? 0);
+                $channelInsights['instagram'] = [
+                    'connected'       => true,
+                    'account'         => $account,
+                    'metrics'         => $metrics,
+                    'followers'       => $followers,
+                    'following'       => (int) ($metrics['following'] ?? 0),
+                    'media_count'     => (int) ($metrics['media_count'] ?? 0),
+                    'engagement_rate' => (float) ($metrics['engagement_rate'] ?? 0.0),
+                    'recent_media'    => $metrics['recent_media'] ?? [],
+                ];
+            } elseif ($platform === 'tiktok') {
+                $channelInsights['tiktok'] = [
+                    'connected' => true,
+                    'account'   => $account,
+                    'metrics'   => $metrics,
+                ];
+            } elseif ($platform === 'linkedin') {
+                $channelInsights['linkedin'] = [
+                    'connected' => true,
+                    'account'   => $account,
+                    'metrics'   => $metrics,
+                ];
+            } elseif ($platform === 'threads') {
+                $channelInsights['threads'] = [
+                    'connected' => true,
+                    'account'   => $account,
+                    'metrics'   => $metrics,
+                ];
+            }
+        }
+
         $analytics = [
+            'total_followers'   => $totalFollowers,
+            'total_connected'   => $accounts->count(),
             'total_impressions' => $totalImpressions,
             'total_reach'       => $totalReach,
             'total_engagement'  => $totalLikes + $totalComments + $totalShares,
@@ -916,7 +985,30 @@ class SocialMediaWebController extends Controller
             'total_shares'      => $totalShares,
         ];
 
-        return view('app.social_media.insights', compact('business', 'posts', 'analytics'));
+        return view('app.social_media.insights', compact('business', 'accounts', 'posts', 'analytics', 'channelInsights'));
+    }
+
+    /**
+     * AJAX: Sync live metrics for all connected accounts.
+     */
+    public function syncAccountsInsights(Request $request): JsonResponse
+    {
+        $business = Context::requireBusiness();
+
+        try {
+            $results = $this->socialService->syncAllAccountMetrics($business);
+
+            return response()->json([
+                'success' => true,
+                'message' => __('social_media.accounts_insights_refreshed'),
+                'results' => $results,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'error'   => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\SocialMedia;
 
 use App\Domain\SocialMedia\Clients\MetaSocialMediaClient;
+use App\Domain\SocialMedia\SocialMediaManager;
 use App\Models\Business;
 use App\Models\SocialMediaAccount;
 use App\Models\SocialMediaComment;
@@ -16,9 +17,14 @@ use Illuminate\Support\Facades\Storage;
 
 class SocialMediaService
 {
+    protected SocialMediaManager $socialMediaManager;
+
     public function __construct(
-        protected MetaSocialMediaClient $client
-    ) {}
+        protected MetaSocialMediaClient $client,
+        ?SocialMediaManager $socialMediaManager = null
+    ) {
+        $this->socialMediaManager = $socialMediaManager ?? app(SocialMediaManager::class);
+    }
 
     public function getClient(): MetaSocialMediaClient
     {
@@ -265,28 +271,165 @@ class SocialMediaService
     }
 
     /**
-     * Sync performance metrics for a published post.
+     * Sync performance metrics for a published post across all target channels.
      */
     public function syncPostMetrics(Business $business, SocialMediaPost $post): array
     {
-        if ($post->business_id !== $business->id || ! $post->platform_post_id) {
+        if ($post->business_id !== $business->id) {
             return $post->metrics ?? [];
         }
 
-        $account = $post->account;
-        if (! $account || ! $account->isConnected()) {
-            return $post->metrics ?? [];
+        $post->loadMissing(['targets.account', 'account']);
+        $totalMetrics = [
+            'impressions' => 0,
+            'reach'       => 0,
+            'likes'       => 0,
+            'comments'    => 0,
+            'shares'      => 0,
+            'saved'       => 0,
+        ];
+
+        // 1. If post has multi-channel targets, sync each target independently
+        if ($post->targets->isNotEmpty()) {
+            foreach ($post->targets as $target) {
+                if (! $target->platform_post_id || ! $target->account || ! $target->account->isConnected()) {
+                    continue;
+                }
+
+                $provider = $this->socialMediaManager->getProviderForChannel($target->channel);
+                try {
+                    $targetMetrics = $provider->syncMetrics($target->account, $target->platform_post_id);
+                    $target->update(['metrics' => $targetMetrics]);
+
+                    foreach (['impressions', 'reach', 'likes', 'comments', 'shares', 'saved'] as $key) {
+                        $totalMetrics[$key] += (int) ($targetMetrics[$key] ?? 0);
+                    }
+                } catch (\Throwable $e) {
+                    Log::warning("Failed syncing target metrics for target {$target->id}: {$e->getMessage()}");
+                }
+            }
+        } elseif ($post->platform_post_id && $post->account && $post->account->isConnected()) {
+            // Fallback for single account posts (e.g. Meta)
+            $provider = $this->socialMediaManager->getProviderForChannel($post->platform);
+            try {
+                $totalMetrics = $provider->syncMetrics($post->account, $post->platform_post_id);
+            } catch (\Throwable $e) {
+                Log::warning("Failed syncing post metrics for post {$post->id}: {$e->getMessage()}");
+            }
         }
 
-        $metrics = $this->client->getPostInsights(
-            $post->platform,
-            $post->platform_post_id,
-            $account->access_token
-        );
+        $post->update(['metrics' => $totalMetrics]);
 
-        $post->update(['metrics' => $metrics]);
+        return $totalMetrics;
+    }
+
+    /**
+     * Sync organic metrics and profile information for a connected social media account.
+     */
+    public function syncAccountMetrics(Business $business, SocialMediaAccount $account): array
+    {
+        if ($account->business_id !== $business->id || ! $account->isConnected()) {
+            return (array) data_get($account->metadata, 'metrics', []);
+        }
+
+        $channel = strtolower((string) $account->platform);
+        $metrics = [];
+
+        try {
+            if ($channel === 'facebook') {
+                $pageMetrics = $this->client->getFacebookPageMetrics($account->account_id, $account->access_token);
+                $pageData = $pageMetrics['page'] ?? [];
+                $metrics = [
+                    'followers'     => (int) ($pageData['followers_count'] ?? $pageData['fan_count'] ?? 0),
+                    'fans'          => (int) ($pageData['fan_count'] ?? 0),
+                    'talking_about' => (int) ($pageData['talking_about_count'] ?? 0),
+                    'category'      => (string) ($pageData['category'] ?? ($account->metadata['category'] ?? 'Facebook Page')),
+                    'recent_posts'  => $pageMetrics['recent_posts'] ?? [],
+                    'synced_at'     => now()->toIso8601String(),
+                ];
+            } elseif ($channel === 'instagram') {
+                $igMetrics = $this->client->getInstagramAccountMetrics($account->account_id, $account->access_token);
+                $profile = $igMetrics['profile'] ?? [];
+                $metrics = [
+                    'followers'          => (int) ($profile['followers_count'] ?? 0),
+                    'following'          => (int) ($profile['follows_count'] ?? 0),
+                    'media_count'        => (int) ($profile['media_count'] ?? 0),
+                    'total_likes'        => (int) ($igMetrics['total_likes'] ?? 0),
+                    'total_comments'     => (int) ($igMetrics['total_comments'] ?? 0),
+                    'total_interactions' => (int) ($igMetrics['total_interactions'] ?? 0),
+                    'engagement_rate'    => (float) ($igMetrics['engagement_rate'] ?? 0.0),
+                    'reels_count'        => (int) ($igMetrics['reels_count'] ?? 0),
+                    'feed_count'         => (int) ($igMetrics['feed_count'] ?? 0),
+                    'quota_usage'        => (int) ($igMetrics['quota_usage'] ?? 0),
+                    'recent_media'       => $igMetrics['recent_media'] ?? [],
+                    'synced_at'          => now()->toIso8601String(),
+                ];
+
+                if (! empty($profile['username']) && empty($account->username)) {
+                    $account->username = "@{$profile['username']}";
+                }
+                if (! empty($profile['profile_picture_url'])) {
+                    $account->profile_picture_url = $profile['profile_picture_url'];
+                }
+            } elseif ($channel === 'tiktok') {
+                $provider = $this->socialMediaManager->getProvider('tiktok');
+                $creatorInfo = $provider->getCreatorInfo($account);
+                $metrics = [
+                    'nickname'        => $creatorInfo['creator_nickname'] ?? $creatorInfo['display_name'] ?? $account->account_name,
+                    'username'        => $creatorInfo['creator_username'] ?? $creatorInfo['username'] ?? $account->username,
+                    'avatar_url'      => $creatorInfo['creator_avatar_url'] ?? $creatorInfo['avatar_url'] ?? $account->profile_picture_url,
+                    'privacy_level'   => $creatorInfo['privacy_level_options'] ?? [],
+                    'duet_disabled'   => (bool) ($creatorInfo['duet_disabled'] ?? false),
+                    'stitch_disabled' => (bool) ($creatorInfo['stitch_disabled'] ?? false),
+                    'synced_at'       => now()->toIso8601String(),
+                ];
+
+                if (! empty($metrics['avatar_url'])) {
+                    $account->profile_picture_url = $metrics['avatar_url'];
+                }
+            } elseif ($channel === 'linkedin') {
+                $provider = $this->socialMediaManager->getProvider('linkedin');
+                $profile = $provider->getCreatorInfo($account);
+                $metrics = [
+                    'name'      => $profile['name'] ?? $account->account_name,
+                    'email'     => $profile['email'] ?? $account->username,
+                    'picture'   => $profile['picture'] ?? $account->profile_picture_url,
+                    'sub'       => $profile['sub'] ?? $account->account_id,
+                    'synced_at' => now()->toIso8601String(),
+                ];
+
+                if (! empty($metrics['picture'])) {
+                    $account->profile_picture_url = $metrics['picture'];
+                }
+            }
+
+            $currentMeta = $account->metadata ?? [];
+            $currentMeta['metrics'] = $metrics;
+            $currentMeta['metrics_synced_at'] = now()->toIso8601String();
+            $account->metadata = $currentMeta;
+            $account->save();
+        } catch (\Throwable $e) {
+            Log::warning("Failed syncing account metrics for account {$account->id} ({$channel}): {$e->getMessage()}");
+        }
 
         return $metrics;
+    }
+
+    /**
+     * Synchronize metrics for all active accounts of a business.
+     */
+    public function syncAllAccountMetrics(Business $business): array
+    {
+        $accounts = SocialMediaAccount::where('business_id', $business->id)
+            ->where('status', 'active')
+            ->get();
+
+        $results = [];
+        foreach ($accounts as $account) {
+            $results[$account->id] = $this->syncAccountMetrics($business, $account);
+        }
+
+        return $results;
     }
 
     /**
