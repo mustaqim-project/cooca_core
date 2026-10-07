@@ -8,6 +8,11 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
+// Auto-purge stale compiled route cache if left over from previous deployments
+if (file_exists(base_path('bootstrap/cache/routes-v7.php'))) {
+    @unlink(base_path('bootstrap/cache/routes-v7.php'));
+}
+
 // 1. Schedule daily check for monthly AI token resets (Setiap pukul 00:05)
 Schedule::command('cooca:reset-ai-tokens')
     ->dailyAt('00:05')

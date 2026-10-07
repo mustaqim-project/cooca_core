@@ -513,8 +513,8 @@
                     <span class="whitespace-nowrap truncate min-w-0 flex-1">Paket &amp; Harga</span>
                 </a>
 
-                <a href="{{ route('admin.promos.index') }}"
-                    class="flex items-center gap-2.5 px-3 h-10 rounded-[12px] transition-all {{ request()->routeIs('admin.promos.*') ? 'bg-[#007AFF] text-white shadow-sm shadow-[#007AFF]/25 font-semibold' : 'text-[#3C3C43]/80 dark:text-[#EBEBF5]/80 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-black dark:hover:text-white' }}">
+                <a href="{{ \Illuminate\Support\Facades\Route::has('admin.promos.index') ? route('admin.promos.index') : url('/admin/promos') }}"
+                    class="flex items-center gap-2.5 px-3 h-10 rounded-[12px] transition-all {{ (request()->routeIs('admin.promos.*') || request()->is('admin/promos*')) ? 'bg-[#007AFF] text-white shadow-sm shadow-[#007AFF]/25 font-semibold' : 'text-[#3C3C43]/80 dark:text-[#EBEBF5]/80 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-black dark:hover:text-white' }}">
                     <i data-lucide="ticket-percent" class="w-4.5 h-4.5 shrink-0" stroke-width="1.8"></i>
                     <span class="whitespace-nowrap truncate min-w-0 flex-1">Kode Promo &amp; Voucher</span>
                 </a>

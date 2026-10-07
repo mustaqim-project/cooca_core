@@ -44,5 +44,10 @@ fi
 # Ensure storage/logs directory exists
 mkdir -p "$SCRIPT_DIR/storage/logs"
 
+# Auto-purge stale route cache file so newly pulled routes take effect immediately
+if [ -f "$SCRIPT_DIR/bootstrap/cache/routes-v7.php" ]; then
+    rm -f "$SCRIPT_DIR/bootstrap/cache/routes-v7.php"
+fi
+
 # Execute Laravel Schedule Run
 "$PHP_BIN" artisan schedule:run >> "$SCRIPT_DIR/storage/logs/scheduler.log" 2>&1
