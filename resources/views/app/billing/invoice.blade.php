@@ -401,9 +401,9 @@
                                 <div style="font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #0f172a;">
                                     Informasi Transaksi &amp; Pembayaran
                                 </div>
-                                <span style="font-family: monospace; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background-color: #e2e8f0; color: #334155;">
+                                {{-- <span style="font-family: monospace; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background-color: #e2e8f0; color: #334155;">
                                     {{ strtoupper($payment->payment_gateway ?: 'SISTEM') }}
-                                </span>
+                                </span> --}}
                             </div>
 
                             <table style="width: 100%; border-collapse: collapse; font-size: 11px; line-height: 1.55;">
@@ -450,7 +450,7 @@
                                         <td style="color: #64748b; padding: 2px 0; font-weight: 500;">Waktu Transaksi</td>
                                         <td style="color: #94a3b8; padding: 2px 0;">:</td>
                                         <td style="color: #334155; padding: 2px 0; font-family: monospace;">
-                                            {{ $payment->approved_at ? $payment->approved_at->translatedFormat('d F Y, H:i') . ' WIB' : ($payment->created_at ? $payment->created_at->translatedFormat('d F Y, H:i') . ' WIB' : '-') }}
+                                            {{ $approvedAtWib ? $approvedAtWib->translatedFormat('d F Y, H:i') . ' WIB' : ($createdAtWib ? $createdAtWib->translatedFormat('d F Y, H:i') . ' WIB' : '-') }}
                                         </td>
                                     </tr>
                                 </tbody>
@@ -459,9 +459,9 @@
                             @if ($payment->isManual() && $payment->sender_account_name)
                                 <div style="margin-top: 8px; padding-top: 6px; border-top: 1px solid #e2e8f0; font-size: 11px; color: #475569;">
                                     <div><span style="color: #64748b;">Pengirim:</span> <strong>{{ $payment->sender_account_name }} ({{ $payment->sender_bank ?? '-' }})</strong></div>
-                                    @if ($payment->proof_uploaded_at)
+                                    @if ($proofUploadedAtWib)
                                         <div style="font-size: 10px; color: #64748b; font-family: monospace; margin-top: 2px;">
-                                            Struk dikirim: {{ $payment->proof_uploaded_at->translatedFormat('d F Y, H:i') }} WIB
+                                            Struk dikirim: {{ $proofUploadedAtWib->translatedFormat('d F Y, H:i') }} WIB
                                         </div>
                                     @endif
                                 </div>

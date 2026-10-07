@@ -187,7 +187,7 @@
                         <td style="padding: 8px 0; color: #94a3b8; font-size: 13px;">Tanggal Pembayaran</td>
                         <td
                             style="padding: 8px 0; color: #f8fafc; font-weight: 600; text-align: right; font-size: 13px;">
-                            {{ $payment->approved_at ? $payment->approved_at->translatedFormat('d F Y, H:i') : now()->translatedFormat('d F Y, H:i') }}
+                            {{ ($payment->approved_at ?? now())->timezone('Asia/Jakarta')->translatedFormat('d F Y, H:i') }}
                             WIB
                         </td>
                     </tr>
@@ -199,7 +199,7 @@
                             <td style="padding: 8px 0; color: #94a3b8; font-size: 13px;">Masa Berlaku Hingga</td>
                             <td
                                 style="padding: 8px 0; color: #fbbf24; font-weight: 700; text-align: right; font-size: 13px;">
-                                {{ $sub->ends_at->translatedFormat('d F Y') }}
+                                {{ $sub->ends_at->timezone('Asia/Jakarta')->translatedFormat('d F Y') }}
                             </td>
                         </tr>
                     @endif

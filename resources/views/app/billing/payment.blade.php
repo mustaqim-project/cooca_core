@@ -26,6 +26,9 @@
         $bankCode = strtolower($payment->payment_method ?? '');
         $isCancelledOrExpired = $payment->isCancelled() || $payment->isExpired();
         $expiresAt = $payment->getExpiresAt();
+        $expiresAtWib = $expiresAt?->copy()->timezone('Asia/Jakarta');
+        $approvedAtWib = $payment->approved_at?->copy()->timezone('Asia/Jakarta');
+        $rejectedAtWib = $payment->rejected_at?->copy()->timezone('Asia/Jakarta');
         $remainingSeconds = max(0, $expiresAt ? (int) now()->diffInSeconds($expiresAt, false) : 0);
         if ($isCancelledOrExpired) {
             $remainingSeconds = 0;
@@ -313,7 +316,7 @@
                         <span
                             class="text-xs font-mono font-bold uppercase tracking-wider text-[#FF3B30]">{{ __('billing.status_notification') }}</span>
                         <span
-                            class="text-[11px] text-gray-500 dark:text-gray-400 font-mono">{{ $payment->rejected_at?->format('d M Y H:i') }}</span>
+                            class="text-[11px] text-gray-500 dark:text-gray-400 font-mono">{{ $rejectedAtWib ? $rejectedAtWib->format('d M Y H:i') . ' WIB' : '' }}</span>
                     </div>
                     <h4 id="status-rejected-heading" class="font-bold text-black dark:text-white text-base">
                         {{ __('billing.payment_expired_cancelled') }}</h4>
@@ -362,7 +365,7 @@
                         <span
                             class="text-xs font-mono font-bold uppercase tracking-wider text-[#34C759]">{{ __('billing.payment_verified') }}</span>
                         <span class="text-[11px] text-gray-500 dark:text-gray-400 font-mono">
-                            {{ $payment->approved_at ? $payment->approved_at->format('d M Y H:i') : __('billing.instant_activation') }}
+                            {{ $approvedAtWib ? $approvedAtWib->format('d M Y H:i') . ' WIB' : __('billing.instant_activation') }}
                         </span>
                     </div>
                     <h4 id="status-approved-heading"
@@ -371,7 +374,7 @@
                         {{ __('billing.features_activated') }} <strong
                             class="text-black dark:text-white">{{ $payment->package_name ?? 'Cooca' }}</strong>
                         @if($payment->business->subscription?->ends_at)
-                            {{ __('billing.until') }} <strong class="text-black dark:text-white font-mono">{{ $payment->business->subscription->ends_at->format('d M Y') }}</strong>.
+                            {{ __('billing.until') }} <strong class="text-black dark:text-white font-mono">{{ $payment->business->subscription->ends_at->timezone('Asia/Jakarta')->format('d M Y') }}</strong>.
                         @endif
                     </p>
                 </div>
@@ -431,11 +434,11 @@
                             </div>
                             <div class="text-xs text-red-500 dark:text-red-400 mt-1 flex items-center gap-1.5" x-show="isCancelled || isExpired">
                                 <i data-lucide="x-circle" class="w-3.5 h-3.5 text-[#FF3B30]" aria-hidden="true"></i>
-                                <span>{{ __('billing.order_expired_badge') }} ({{ $expiresAt ? $expiresAt->format('d M Y, H:i') . ' WIB' : '15 Menit' }})</span>
+                                <span>{{ __('billing.order_expired_badge') }} ({{ $expiresAtWib ? $expiresAtWib->format('d M Y, H:i') . ' WIB' : '15 Menit' }})</span>
                             </div>
                             <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1.5" x-show="!isCancelled && !isExpired">
                                 <i data-lucide="clock" class="w-3.5 h-3.5 text-[#007AFF]" aria-hidden="true"></i>
-                                <span>{{ __('billing.payment_deadline_until', ['time' => $expiresAt ? $expiresAt->format('d M Y, H:i') . ' WIB' : '15 Menit']) }}</span>
+                                <span>{{ __('billing.payment_deadline_until', ['time' => $expiresAtWib ? $expiresAtWib->format('d M Y, H:i') . ' WIB' : '15 Menit']) }}</span>
                             </div>
                         </div>
 
@@ -796,7 +799,7 @@
                             <div class="flex items-center justify-between">
                                 <span class="text-gray-500 dark:text-gray-400 font-sans">{{ __('billing.payment_deadline') }}</span>
                                 <span class="font-mono text-amber-600 dark:text-amber-400 font-semibold" :class="(isCancelled || isExpired) ? 'text-[#FF3B30] line-through' : ''">
-                                    {{ $expiresAt ? $expiresAt->format('d M Y, H:i') . ' WIB' : '15 Menit' }}
+                                    {{ $expiresAtWib ? $expiresAtWib->format('d M Y, H:i') . ' WIB' : '15 Menit' }}
                                 </span>
                             </div>
                         </div>

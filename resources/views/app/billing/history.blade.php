@@ -291,7 +291,7 @@
 
                                     <!-- Date -->
                                     <td class="py-3.5 px-4 font-mono text-gray-500 dark:text-gray-400 text-[11px] tabular-nums">
-                                        {{ $p->created_at->format('d M Y, H:i') }}
+                                        {{ $p->created_at->timezone('Asia/Jakarta')->format('d M Y, H:i') }} WIB
                                     </td>
 
                                     <!-- Action CTA -->
@@ -384,7 +384,7 @@
                                 <div
                                     class="text-[11px] font-mono text-gray-500 dark:text-gray-400 flex items-center gap-1 tabular-nums">
                                     <i data-lucide="clock" class="w-3 h-3 text-gray-400" aria-hidden="true"></i>
-                                    <span>{{ $p->created_at->format('d M Y, H:i') }}</span>
+                                    <span>{{ $p->created_at->timezone('Asia/Jakarta')->format('d M Y, H:i') }} WIB</span>
                                 </div>
 
                                 <div class="flex items-center gap-2">
