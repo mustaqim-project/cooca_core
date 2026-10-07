@@ -5,9 +5,9 @@
 @section('content')
 <script>
 function mcpSettingsHub() {
-    const appBasePath = {{ json_encode(base_path()) }};
-    const sseUrl = {{ json_encode($sseEndpoint) }};
-    const apiBase = {{ json_encode($apiBaseUrl) }};
+    const appBasePath = @json(base_path());
+    const sseUrl = @json($sseEndpoint);
+    const apiBase = @json($apiBaseUrl);
 
     return {
         openCreateModal: false,
@@ -41,7 +41,7 @@ function mcpSettingsHub() {
         },
 
         showToast(message) {
-            this.toastMessage = message || "{{ __('mcp.copied') }}";
+            this.toastMessage = message || @json(__('mcp.copied'));
             this.toastVisible = true;
             if (this.toastTimeout) clearTimeout(this.toastTimeout);
             this.toastTimeout = setTimeout(() => {
