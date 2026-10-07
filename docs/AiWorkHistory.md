@@ -68,6 +68,7 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
    - Dirancang murni menggunakan Tailwind CSS dan Alpine.js dengan estetika Apple HIG & Meta Business Suite.
    - Menyertakan modal pemilihan katalog produk untuk menyisipkan nama, harga, dan stok ke draf chat dalam 1 klik.
    - Mengadopsi sistem notifikasi non-native browser (`window.AppAlert`) dan perlindungan DOM aman (`replaceChildren()`, `@js()`).
+   - Memperbaiki query delegasi anggota staf: Mengganti `User::where('business_id', ...)` menjadi relasi `$business->users()->select(['users.id', 'users.name', 'users.email'])->get()` sesuai skema tabel membership pivot `business_users` untuk mencegah `SQLSTATE[42S22] Unknown column 'business_id' in WHERE` pada MySQL.
 5. **Verifikasi Kualitas & Keamanan (Test Suite):**
    - Seluruh 75 pengujian fitur dan hardening media sosial (`tests/Feature/SocialMedia`) lulus (green).
    - Seluruh 58 pengujian modul WhatsApp (`tests/Feature/WhatsApp`) lulus (green).
