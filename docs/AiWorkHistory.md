@@ -75,9 +75,9 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
    - Meringkas callout batas gratis Meta (Free Tier 1.000 percakapan) menjadi strip notifikasi ramping.
    - Mengelompokkan 10 template broadcast ke dalam segmented control filter interaktif Alpine.js (`tplFilter = 'all' | 'UTILITY' | 'MARKETING'`).
    - Merapikan visual kartu template dengan tombol aksi cepat langsung ("Blast").
-6. **Perbaikan Backdrop Modal & Standar WABA (`resources/views/app/whatsapp/broadcast.blade.php`, `lang/id/whatsapp.php`, `lang/en/whatsapp.php`):**
-   - Memperbaiki defect CSS blur pada Chromium: memisahkan backdrop overlay solid gelap (`bg-black/70`) dari wrapper konten dengan posisi `fixed inset-0 z-[200] overflow-y-auto`, mengeliminasi bug rendering di mana seluruh dialog menjadi buram/tidak terbaca.
-   - Menyesuaikan i18n label tombol utama menjadi `"Buat Blast Promosi Baru"` (ID) dan `"Create New Promo Blast"` (EN).
+6. **Perbaikan Backdrop Modal & Akses Interaksi WABA (`resources/views/app/whatsapp/broadcast.blade.php`, `lang/id/whatsapp.php`, `lang/en/whatsapp.php`):**
+   - Memperbaiki defect CSS modal stacking: menyatukan backdrop gelap (`bg-black/60 dark:bg-black/80`) langsung pada kontainer root modal berposisi `fixed inset-0 z-[200] overflow-y-auto` dengan anak langsung dialog kanvas bento XXL, mengeliminasi defect sibling backdrop yang sebelumnya menutupi dan memblokir pointer event/akses interaksi form di peramban Chromium.
+   - Menyesuaikan i18n label tombol utama menjadi `"Buat Blast Promosi Baru"` (ID) dan `"Create New Broadcast"` (EN).
 
 #### 3. Technical Changes
 
