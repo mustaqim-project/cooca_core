@@ -341,6 +341,43 @@ class SubscriptionPayment extends Model
         return $this->status === self::STATUS_REJECTED;
     }
 
+    public function isCancelled(): bool
+    {
+        return $this->status === self::STATUS_CANCELLED;
+    }
+
+    public function getExpiresAt(): ?\Illuminate\Support\Carbon
+    {
+        if (! $this->created_at) {
+            return $this->gateway_expired_at;
+        }
+
+        $fifteenMinutesFromCreation = $this->created_at->copy()->addMinutes(15);
+
+        if ($this->gateway_expired_at) {
+            return $this->gateway_expired_at->lessThan($fifteenMinutesFromCreation)
+                ? $this->gateway_expired_at
+                : $fifteenMinutesFromCreation;
+        }
+
+        return $fifteenMinutesFromCreation;
+    }
+
+    public function isExpired(): bool
+    {
+        if ($this->isPaid()) {
+            return false;
+        }
+
+        if ($this->status === self::STATUS_CANCELLED) {
+            return true;
+        }
+
+        $expiry = $this->getExpiresAt();
+
+        return $expiry ? now()->greaterThan($expiry) : false;
+    }
+
     public function getGatewayAttribute(): ?string
     {
         return $this->payment_gateway;
@@ -449,6 +486,14 @@ class SubscriptionPayment extends Model
 
     public function getStatusBadge(): array
     {
+        if ($this->status === self::STATUS_PENDING && $this->isExpired()) {
+            return [
+                'label' => 'Kadaluwarsa / Dibatalkan',
+                'class' => 'bg-rose-500/20 text-rose-300 border-rose-500/30',
+                'icon' => 'x-circle',
+            ];
+        }
+
         return match ($this->status) {
             self::STATUS_PENDING => [
                 'label' => 'Menunggu Pembayaran',
@@ -471,9 +516,9 @@ class SubscriptionPayment extends Model
                 'icon' => 'x-circle',
             ],
             self::STATUS_CANCELLED => [
-                'label' => 'Dibatalkan',
-                'class' => 'bg-slate-800 text-slate-400 border-slate-700',
-                'icon' => 'slash',
+                'label' => 'Kadaluwarsa / Dibatalkan',
+                'class' => 'bg-rose-500/20 text-rose-300 border-rose-500/30',
+                'icon' => 'x-circle',
             ],
             default => [
                 'label' => $this->status,

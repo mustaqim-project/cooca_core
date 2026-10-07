@@ -255,6 +255,11 @@ return [
     'transfer_proof_archive' => 'Transfer Proof Archive',
     'expired_default_note' => 'Payment time limit has expired or the transaction was cancelled by the gateway.',
     'reorder_guidance' => 'Please create a new order from the plans page or contact customer support if your funds were deducted.',
+    'order_expired_title' => 'Payment Time Limit Expired',
+    'order_expired_desc' => 'The 15-minute payment window has passed. The QRIS code and official TriPay payment links have been disabled for security.',
+    'order_expired_badge' => 'Order Expired / Cancelled',
+    'action_reorder' => 'Re-order Payment',
+    'explore_other_plans' => 'Explore Other Plans',
 
     // History Table
     'history_title' => 'Payment & Billing History',

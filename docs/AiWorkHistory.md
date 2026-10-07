@@ -34,6 +34,53 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 - **Database Changes:** Tabel baru, migrasi skema, kolom tambahan, atau indexing.
 - **API / Route Changes:** Endpoint baru atau perubahan signature HTTP.
 
+### [WORK-2026-10-07-323] Penegakan Batas Waktu Pembayaran 15 Menit, Auto-Cancellation Tagihan Kadaluwarsa, Nonaktifkan QR & Link TriPay, dan Alur Pengajuan Ulang
+
+- **Date:** 2026-10-07
+- **Status:** COMPLETED
+- **Module:** Billing, SaaS Subscription Checkout, TriPay Gateway
+- **Feature:** Strict 15-Minute Expiry Enforcement, Automatic Status Cancellation, QR Disablement on Expired Invoices, Suppress TriPay External Links, Seamless Re-order Flow
+- **Work Type:** Feature | Security | UI/UX | Business Logic
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Menindaklanjuti aturan bisnis di mana pembayaran langganan SaaS memiliki batas waktu maksimal 15 menit (sesuai standar QRIS dinamis). Jika dalam rentang 15 menit pengguna belum menyelesaikan pembayaran, tagihan harus otomatis dibatalkan (batal), kode QR tidak boleh lagi ditampilkan, link ke checkout TriPay tidak boleh lagi bisa diklik atau muncul, dan pengguna wajib diarahkan untuk mengajukan ulang tagihan baru.
+- **Masalah/Target:** Sebelumnya tagihan memiliki fallback kedaluwarsa 24 jam dari TriPay sehingga tagihan lama (>15 menit) masih membuka QR dan masih menampilkan banner "Halaman Checkout TriPay Resmi" dengan tombol "Buka Halaman TriPay". Sistem harus menghentikan ini secara tegas baik di sisi backend (database auto-cancel & API status) maupun frontend (Bento Apple HIG card kedaluwarsa & disablement).
+
+#### 2. What Was Done
+
+1. **Backend Expiry Cap 15 Menit:**
+   - Memperbarui `TripayService::createSubscriptionTransaction` agar mengirimkan `expired_time => time() + 900` (15 menit = 900 detik).
+   - Memperbarui `SubscriptionPayment::getExpiresAt()` untuk memberlakukan batas maksimal 15 menit dari `created_at`, mencegah fallback 24 jam lama menghidupkan tagihan yang sudah lewat 15 menit.
+   - Menambahkan helper `isExpired()` dan `isCancelled()` pada model `SubscriptionPayment`.
+   - Menambahkan auto-transisi status ke `SubscriptionPayment::STATUS_CANCELLED` pada `SubscriptionCheckoutWebController::payment()` dan `SubscriptionCheckoutWebController::checkStatus()` ketika waktu melebihi 15 menit.
+2. **Penghapusan Tampilan QR & Tombol TriPay Saat Batal/Kadaluwarsa:**
+   - Menyembunyikan banner "Halaman Checkout TriPay Resmi" dan link "Buka Halaman TriPay" baik secara server-side Blade `@if(!empty($payment->gateway_pay_url) && !$isCancelledOrExpired)` maupun Alpine reaktif `x-show="!isPaid && !isCancelled && !isExpired && qrisCountdown > 0"`.
+   - Mengganti visual card QRIS dengan **Bento Expired State Card**:
+     - Badge & Ikon: `x-circle` / `clock-alert` berwarna rose/merah Apple HIG.
+     - Judul: *"Batas Waktu Pembayaran Telah Habis"*.
+     - Deskripsi: *"Waktu pembayaran 15 menit telah terlewati. Kode QRIS dan link pembayaran resmi TriPay telah dinonaktifkan demi keamanan transaksi Anda."*
+     - CTA Utama: Tombol menonjol *"Ajukan Pembayaran Ulang"* menuju checkout/patungan.
+3. **Penyempurnaan Lifecycle Stepper & Live Gateway Card:**
+   - Step 2 Stepper langsung berubah menjadi merah (*"Tagihan Kadaluwarsa / Dibatalkan"*).
+   - Kolom kanan status TriPay otomatis menampilkan badge *"Dibatalkan"* dan box panduan pengajuan ulang.
+4. **Verifikasi & Test Suite:**
+   - Menambahkan test feature komprehensif `tests/Feature/SubscriptionExpiryAndCancellationTest.php` (3 test, 12 assertion pass).
+   - Menguji seluruh suite billing & subscription (23 test, 113 assertion pass).
+
+#### 3. Technical Changes
+
+- **Files Affected:**
+  - `app/Domain/Payment/TripayService.php`
+  - `app/Models/SubscriptionPayment.php`
+  - `app/Http/Controllers/Web/Billing/SubscriptionCheckoutWebController.php`
+  - `resources/views/app/billing/payment.blade.php`
+  - `lang/id/billing.php`
+  - `lang/en/billing.php`
+  - `tests/Feature/SubscriptionExpiryAndCancellationTest.php`
+
+---
+
 ### [WORK-2026-10-07-322] Unifikasi QRIS Checkout, Seamless In-App TriPay QR Presentation & Auto-Polling (Adopsi Konsep QR Order)
 
 - **Date:** 2026-10-07

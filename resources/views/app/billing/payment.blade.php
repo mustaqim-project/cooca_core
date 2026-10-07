@@ -24,23 +24,37 @@
         $methodDetails = $payment->getPaymentMethodDetails();
         $uniqueStr = str_pad((string) $payment->unique_code, 3, '0', STR_PAD_LEFT);
         $bankCode = strtolower($payment->payment_method ?? '');
+        $isCancelledOrExpired = $payment->isCancelled() || $payment->isExpired();
+        $expiresAt = $payment->getExpiresAt();
+        $remainingSeconds = max(0, $expiresAt ? (int) now()->diffInSeconds($expiresAt, false) : 0);
+        if ($isCancelledOrExpired) {
+            $remainingSeconds = 0;
+        }
+        $tierCode = $payment->billingPackage?->slug ?? $payment->plan_code ?? 'standard';
+        $cycleCode = $payment->cycle ?? 'monthly';
+        $reorderUrl = route('billing.checkout', ['tier' => $tierCode, 'cycle' => $cycleCode]);
     @endphp
 
     <div class="space-y-6 pb-28 lg:pb-10" x-data="{
         copiedText: null,
         isPaid: {{ $payment->isPaid() ? 'true' : 'false' }},
-        orderStatus: '{{ $payment->status }}',
+        isCancelled: {{ $isCancelledOrExpired ? 'true' : 'false' }},
+        isExpired: {{ $isCancelledOrExpired ? 'true' : 'false' }},
+        orderStatus: '{{ $isCancelledOrExpired ? 'cancelled' : $payment->status }}',
         checkingStatus: false,
         checkStatusFeedback: '',
         pollTimer: null,
         countdownTimer: null,
-        qrisCountdown: {{ max(0, $payment->gateway_expired_at ? (int) now()->diffInSeconds($payment->gateway_expired_at, false) : 900) }},
-        qrisCountdownFormatted: '15:00',
-        qrUrl: '{{ $payment->gateway_qr_url }}',
+        qrisCountdown: {{ $remainingSeconds }},
+        qrisCountdownFormatted: '{{ $isCancelledOrExpired ? '00:00' : '15:00' }}',
+        qrUrl: {{ ($isCancelledOrExpired || empty($payment->gateway_qr_url)) ? 'null' : "'" . $payment->gateway_qr_url . "'" }},
+        reorderUrl: '{{ $reorderUrl }}',
 
         init() {
             this.updateCountdownText();
-            if (!this.isPaid) {
+            if (this.isCancelled || this.isExpired || this.qrisCountdown <= 0) {
+                this.markExpired();
+            } else if (!this.isPaid) {
                 this.startCountdown();
                 this.startAdaptivePolling();
             }
@@ -56,6 +70,20 @@
             this.qrisCountdownFormatted = this.formatCountdown(Math.max(0, this.qrisCountdown));
         },
 
+        markExpired() {
+            this.isExpired = true;
+            this.isCancelled = true;
+            this.orderStatus = 'cancelled';
+            this.qrisCountdown = 0;
+            this.qrUrl = null;
+            this.updateCountdownText();
+            if (this.countdownTimer) clearInterval(this.countdownTimer);
+            if (this.pollTimer) clearInterval(this.pollTimer);
+            this.$nextTick(() => {
+                if (window.lucide) window.lucide.createIcons();
+            });
+        },
+
         startCountdown() {
             if (this.countdownTimer) clearInterval(this.countdownTimer);
             this.updateCountdownText();
@@ -63,23 +91,32 @@
                 if (this.qrisCountdown > 0) {
                     this.qrisCountdown--;
                     this.updateCountdownText();
+                    if (this.qrisCountdown <= 0) {
+                        this.markExpired();
+                        fetch('{{ route('billing.payment.status', $payment) }}', {
+                            headers: { 'Accept': 'application/json' }
+                        }).catch(() => {});
+                    }
                 } else {
-                    clearInterval(this.countdownTimer);
-                    if (this.pollTimer) clearInterval(this.pollTimer);
+                    this.markExpired();
                 }
             }, 1000);
         },
 
         startAdaptivePolling() {
             const doPoll = async () => {
-                if (document.hidden || this.isPaid) return;
+                if (document.hidden || this.isPaid || this.isCancelled || this.isExpired) return;
                 try {
                     const res = await fetch('{{ route('billing.payment.status', $payment) }}', {
                         headers: { 'Accept': 'application/json' }
                     });
                     if (res.ok) {
                         const data = await res.json();
-                        if (data.qr_url && !this.qrUrl) {
+                        if (data.is_expired || data.is_cancelled || data.status === 'cancelled') {
+                            this.markExpired();
+                            return;
+                        }
+                        if (data.qr_url && !this.qrUrl && !this.isExpired) {
                             this.qrUrl = data.qr_url;
                         }
                         if (data.is_paid) {
@@ -98,11 +135,12 @@
 
             this.pollTimer = setInterval(doPoll, 3000);
             document.addEventListener('visibilitychange', () => {
-                if (!document.hidden && !this.isPaid) doPoll();
+                if (!document.hidden && !this.isPaid && !this.isCancelled && !this.isExpired) doPoll();
             });
         },
 
         async checkPaymentStatus() {
+            if (this.isCancelled || this.isExpired) return;
             this.checkingStatus = true;
             this.checkStatusFeedback = window.COOCA_I18N?.billing?.checking_gateway || '{{ __('billing.checking_gateway') }}';
             try {
@@ -110,7 +148,11 @@
                     headers: { 'Accept': 'application/json' }
                 });
                 const data = await res.json();
-                if (data.qr_url && !this.qrUrl) {
+                if (data.is_expired || data.is_cancelled || data.status === 'cancelled') {
+                    this.markExpired();
+                    return;
+                }
+                if (data.qr_url && !this.qrUrl && !this.isExpired) {
                     this.qrUrl = data.qr_url;
                 }
                 if (data.is_paid) {
@@ -197,34 +239,46 @@
                 <!-- Step 2: Bayar TriPay -->
                 <div class="flex items-center gap-3">
                     <div
-                        class="w-9 h-9 rounded-[12px] {{ $payment->isPending() ? 'bg-amber-50 dark:bg-amber-900/30 border border-amber-300 dark:border-amber-700 text-[#FF9500]' : 'bg-green-50 dark:bg-green-900/30 border border-green-200/60 dark:border-green-800/60 text-[#34C759]' }} flex items-center justify-center shrink-0">
-                        @if ($payment->isPending())
-                            <i data-lucide="credit-card" class="w-4 h-4" aria-hidden="true"></i>
-                        @else
+                        class="w-9 h-9 rounded-[12px] flex items-center justify-center shrink-0 transition-colors"
+                        :class="(isCancelled || isExpired) ? 'bg-red-50 dark:bg-red-900/30 border border-red-300 dark:border-red-700 text-[#FF3B30]' : (isPaid ? 'bg-green-50 dark:bg-green-900/30 border border-green-200/60 dark:border-green-800/60 text-[#34C759]' : 'bg-amber-50 dark:bg-amber-900/30 border border-amber-300 dark:border-amber-700 text-[#FF9500]')">
+                        <template x-if="isCancelled || isExpired">
+                            <i data-lucide="x-circle" class="w-4 h-4" aria-hidden="true"></i>
+                        </template>
+                        <template x-if="!isCancelled && !isExpired && isPaid">
                             <i data-lucide="check" class="w-4 h-4" aria-hidden="true"></i>
-                        @endif
+                        </template>
+                        <template x-if="!isCancelled && !isExpired && !isPaid">
+                            <i data-lucide="credit-card" class="w-4 h-4" aria-hidden="true"></i>
+                        </template>
                     </div>
                     <div class="min-w-0">
                         <div
-                            class="text-[10px] font-mono {{ $payment->isPending() ? 'text-[#FF9500]' : 'text-[#34C759]' }} uppercase tracking-wider font-semibold">
+                            class="text-[10px] font-mono uppercase tracking-wider font-semibold"
+                            :class="(isCancelled || isExpired) ? 'text-[#FF3B30]' : (isPaid ? 'text-[#34C759]' : 'text-[#FF9500]')">
                             {{ __('billing.step_number', ['step' => 2]) }}</div>
-                        <div class="text-xs font-bold text-black dark:text-white truncate">{{ __('billing.step_2_title') }}</div>
+                        <div class="text-xs font-bold text-black dark:text-white truncate"
+                            x-text="(isCancelled || isExpired) ? '{{ __('billing.order_expired_badge') }}' : (isPaid ? '{{ __('billing.status_paid_badge') }}' : '{{ __('billing.step_2_title') }}')">
+                            {{ $isCancelledOrExpired ? __('billing.order_expired_badge') : __('billing.step_2_title') }}
+                        </div>
                     </div>
                 </div>
 
                 <!-- Step 3: Verifikasi Otomatis Gateway -->
                 <div class="flex items-center gap-3">
                     <div
-                        class="w-9 h-9 rounded-[12px] {{ $payment->isApproved() ? 'bg-green-50 dark:bg-green-900/30 border border-green-200/60 dark:border-green-800/60 text-[#34C759]' : ($payment->isPending() ? 'bg-blue-50 dark:bg-blue-900/30 border border-blue-300 dark:border-blue-700 text-[#007AFF]' : 'bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] text-gray-400') }} flex items-center justify-center shrink-0">
-                        @if ($payment->isApproved())
+                        class="w-9 h-9 rounded-[12px] flex items-center justify-center shrink-0 transition-colors"
+                        :class="isPaid ? 'bg-green-50 dark:bg-green-900/30 border border-green-200/60 dark:border-green-800/60 text-[#34C759]' : ((isCancelled || isExpired) ? 'bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] text-gray-400 opacity-60' : 'bg-blue-50 dark:bg-blue-900/30 border border-blue-300 dark:border-blue-700 text-[#007AFF]')">
+                        <template x-if="isPaid">
                             <i data-lucide="check" class="w-4 h-4" aria-hidden="true"></i>
-                        @else
-                            <i data-lucide="zap" class="w-4 h-4 text-[#007AFF]" aria-hidden="true"></i>
-                        @endif
+                        </template>
+                        <template x-if="!isPaid">
+                            <i data-lucide="zap" class="w-4 h-4" aria-hidden="true"></i>
+                        </template>
                     </div>
                     <div class="min-w-0">
                         <div
-                            class="text-[10px] font-mono {{ $payment->isApproved() ? 'text-[#34C759]' : 'text-[#007AFF]' }} uppercase tracking-wider font-semibold">
+                            class="text-[10px] font-mono uppercase tracking-wider font-semibold"
+                            :class="isPaid ? 'text-[#34C759]' : ((isCancelled || isExpired) ? 'text-gray-400' : 'text-[#007AFF]')">
                             {{ __('billing.step_number', ['step' => 3]) }}</div>
                         <div class="text-xs font-bold text-black dark:text-white truncate">{{ __('billing.step_3_title') }}</div>
                     </div>
@@ -375,15 +429,18 @@
                                 <span class="text-gray-400 text-xl font-sans font-medium">Rp</span>
                                 <span>{{ number_format($payment->total_payable, 0, ',', '.') }}</span>
                             </div>
-                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1.5">
-                                <i data-lucide="clock" class="w-3.5 h-3.5 text-[#007AFF]"
-                                    aria-hidden="true"></i>
-                                <span>{{ __('billing.payment_deadline_until', ['time' => $payment->gateway_expired_at ? $payment->gateway_expired_at->format('d M Y, H:i') . ' WIB' : '24 Jam']) }}</span>
+                            <div class="text-xs text-red-500 dark:text-red-400 mt-1 flex items-center gap-1.5" x-show="isCancelled || isExpired">
+                                <i data-lucide="x-circle" class="w-3.5 h-3.5 text-[#FF3B30]" aria-hidden="true"></i>
+                                <span>{{ __('billing.order_expired_badge') }} ({{ $expiresAt ? $expiresAt->format('d M Y, H:i') . ' WIB' : '15 Menit' }})</span>
+                            </div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1.5" x-show="!isCancelled && !isExpired">
+                                <i data-lucide="clock" class="w-3.5 h-3.5 text-[#007AFF]" aria-hidden="true"></i>
+                                <span>{{ __('billing.payment_deadline_until', ['time' => $expiresAt ? $expiresAt->format('d M Y, H:i') . ' WIB' : '15 Menit']) }}</span>
                             </div>
                         </div>
 
                         <!-- 1-Click Copy Nominal Clean Button -->
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-2" x-show="!isCancelled && !isExpired">
                             <button type="button"
                                 @click="copyToClipboard('{{ (int) $payment->total_payable }}', 'nominal')"
                                 class="h-11 px-4 rounded-[12px] text-xs font-semibold text-[#007AFF] bg-blue-50/60 hover:bg-blue-100/80 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 border border-blue-200/60 dark:border-blue-800/60 active:scale-[0.98] transition cursor-pointer flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-[#007AFF]"
@@ -455,8 +512,9 @@
                         </span>
                     </div>
 
-                    @if(!empty($payment->gateway_pay_url))
-                        <div class="p-4 rounded-[14px] bg-[#007AFF]/10 border border-[#007AFF]/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    @if(!empty($payment->gateway_pay_url) && !$isCancelledOrExpired)
+                        <div x-show="!isPaid && !isCancelled && !isExpired && qrisCountdown > 0"
+                            class="p-4 rounded-[14px] bg-[#007AFF]/10 border border-[#007AFF]/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                             <div class="space-y-0.5">
                                 <div class="text-xs font-bold text-black dark:text-white flex items-center gap-1.5">
                                     <i data-lucide="external-link" class="w-4 h-4 text-[#007AFF]"></i>
@@ -510,7 +568,45 @@
 
                     <!-- QRIS Visual Card if QRIS selected (Direct UI Presentation matching menu.blade.php concept) -->
                     @if (($methodDetails['type'] ?? '') === 'qris' || str_contains(strtolower($payment->payment_method ?? ''), 'qris'))
-                        <div
+                        <!-- 1. JIKA KADALUWARSA / BATAL: TAMPILKAN STATUS BATAL & WAJIB AJUKAN ULANG (TIDAK ADA QR MUNCUL) -->
+                        <div x-show="isCancelled || isExpired"
+                            class="p-6 rounded-[20px] bg-red-50/70 dark:bg-red-950/20 border border-red-200/80 dark:border-red-900/40 text-center space-y-5 shadow-xs">
+                            <div class="w-14 h-14 rounded-2xl bg-red-100 dark:bg-red-900/40 text-[#FF3B30] flex items-center justify-center mx-auto shadow-inner">
+                                <i data-lucide="clock-alert" class="w-7 h-7"></i>
+                            </div>
+                            
+                            <div class="space-y-1.5 max-w-sm mx-auto">
+                                <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold font-mono tracking-wide uppercase bg-red-200/60 dark:bg-red-900/60 text-red-700 dark:text-red-300">
+                                    <i data-lucide="x-circle" class="w-3.5 h-3.5"></i>
+                                    <span>{{ __('billing.order_expired_badge') }}</span>
+                                </div>
+                                <h3 class="text-base font-bold text-gray-900 dark:text-white">{{ __('billing.order_expired_title') }}</h3>
+                                <p class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                                    {{ __('billing.order_expired_desc') }}
+                                </p>
+                            </div>
+
+                            <div class="p-3.5 rounded-[14px] bg-white/80 dark:bg-white/5 border border-red-200/60 dark:border-red-900/30 flex items-center justify-between max-w-sm mx-auto text-xs">
+                                <span class="text-gray-500 font-medium">Tagihan Dibatalkan:</span>
+                                <span class="font-bold text-gray-500 line-through font-mono">Rp {{ number_format((float) $payment->total_payable, 0, ',', '.') }}</span>
+                            </div>
+
+                            <div class="pt-2 max-w-sm mx-auto space-y-2">
+                                <a :href="reorderUrl"
+                                    class="w-full h-11 px-5 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition shadow-sm cursor-pointer">
+                                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                                    <span>{{ __('billing.action_reorder') }}</span>
+                                </a>
+                                <a href="{{ url('/patungan') }}"
+                                    class="w-full h-9 px-4 rounded-[10px] text-xs font-semibold text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white flex items-center justify-center gap-1.5 transition">
+                                    <span>{{ __('billing.explore_other_plans') }}</span>
+                                    <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- 2. JIKA AKTIF: TAMPILKAN QRIS DENGAN COUNTDOWN 15 MENIT & POLLING REAL-TIME -->
+                        <div x-show="!isCancelled && !isExpired"
                             class="p-5 sm:p-6 rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] text-slate-950 dark:text-white space-y-4 shadow-sm">
                             
                             <!-- Header Bar -->
@@ -665,10 +761,19 @@
                                 <i data-lucide="check" class="w-3 h-3"></i>
                                 {{ __('billing.status_paid_badge') }}
                             </span>
+                        @elseif ($isCancelledOrExpired)
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase font-mono bg-red-50 text-[#FF3B30] dark:bg-red-950/40 dark:text-[#FF453A] border border-red-200/60 dark:border-red-800/40">
+                                <i data-lucide="x-circle" class="w-3 h-3"></i>
+                                {{ __('billing.order_expired_badge') }}
+                            </span>
                         @else
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase font-mono bg-blue-50 text-[#007AFF] dark:bg-blue-950/40 dark:text-[#0A84FF] border border-blue-200/60 dark:border-blue-800/40">
+                            <span x-show="!isCancelled && !isExpired" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase font-mono bg-blue-50 text-[#007AFF] dark:bg-blue-950/40 dark:text-[#0A84FF] border border-blue-200/60 dark:border-blue-800/40">
                                 <span class="w-1.5 h-1.5 rounded-full bg-[#007AFF] animate-ping"></span>
                                 {{ __('billing.status_auto_settle_badge') }}
+                            </span>
+                            <span x-show="isCancelled || isExpired" x-cloak class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase font-mono bg-red-50 text-[#FF3B30] dark:bg-red-950/40 dark:text-[#FF453A] border border-red-200/60 dark:border-red-800/40">
+                                <i data-lucide="x-circle" class="w-3 h-3"></i>
+                                {{ __('billing.order_expired_badge') }}
                             </span>
                         @endif
                     </div>
@@ -690,8 +795,8 @@
                             </div>
                             <div class="flex items-center justify-between">
                                 <span class="text-gray-500 dark:text-gray-400 font-sans">{{ __('billing.payment_deadline') }}</span>
-                                <span class="font-mono text-amber-600 dark:text-amber-400 font-semibold">
-                                    {{ $payment->gateway_expired_at ? $payment->gateway_expired_at->format('d M Y, H:i') . ' WIB' : ($payment->created_at ? $payment->created_at->addHours(24)->format('d M Y, H:i') . ' WIB' : '24 Jam') }}
+                                <span class="font-mono text-amber-600 dark:text-amber-400 font-semibold" :class="(isCancelled || isExpired) ? 'text-[#FF3B30] line-through' : ''">
+                                    {{ $expiresAt ? $expiresAt->format('d M Y, H:i') . ' WIB' : '15 Menit' }}
                                 </span>
                             </div>
                         </div>
@@ -707,8 +812,8 @@
                             </p>
                         </div>
 
-                        <!-- Interactive Check Status Button -->
-                        <div x-show="!isPaid" class="space-y-2 pt-1">
+                        <!-- Interactive Check Status Button (Only when pending active) -->
+                        <div x-show="!isPaid && !isCancelled && !isExpired" class="space-y-2 pt-1">
                             <button type="button" @click="checkPaymentStatus()" :disabled="checkingStatus"
                                 class="w-full h-11 rounded-[14px] text-xs sm:text-sm font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] shadow-xs transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60">
                                 <span x-show="checkingStatus" class="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" aria-hidden="true"></span>
@@ -718,6 +823,19 @@
                             <div x-show="checkStatusFeedback" x-cloak
                                 class="p-2.5 rounded-[10px] text-center text-xs font-semibold bg-black/[0.04] dark:bg-white/[0.06] text-black dark:text-white"
                                 x-text="checkStatusFeedback"></div>
+                        </div>
+
+                        <!-- Expired State Box in Right Column -->
+                        <div x-show="!isPaid && (isCancelled || isExpired)" class="p-4 rounded-[14px] bg-red-50/70 dark:bg-red-950/30 border border-red-200/70 dark:border-red-800/40 text-center space-y-2.5">
+                            <div class="w-9 h-9 rounded-full bg-red-100 dark:bg-red-900/50 text-[#FF3B30] flex items-center justify-center mx-auto">
+                                <i data-lucide="clock-alert" class="w-5 h-5"></i>
+                            </div>
+                            <div class="font-bold text-xs text-red-900 dark:text-red-200">{{ __('billing.order_expired_title') }}</div>
+                            <p class="text-[11px] text-red-700 dark:text-red-300 leading-relaxed">{{ __('billing.order_expired_desc') }}</p>
+                            <a :href="reorderUrl" class="w-full h-9 rounded-[10px] bg-[#007AFF] hover:bg-[#0071E3] text-white font-semibold text-xs inline-flex items-center justify-center gap-1.5 transition">
+                                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                                <span>{{ __('billing.action_reorder') }}</span>
+                            </a>
                         </div>
 
                         <!-- Paid Success Callout -->

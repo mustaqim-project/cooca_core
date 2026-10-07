@@ -356,13 +356,22 @@ final class SubscriptionCheckoutWebController extends Controller
         $business = Context::requireBusiness();
         abort_unless($payment->business_id === $business->id, 403);
 
+        // Auto-cancel if 15-minute payment window has expired
+        if ($payment->status === SubscriptionPayment::STATUS_PENDING && $payment->isExpired()) {
+            $payment->update([
+                'status' => SubscriptionPayment::STATUS_CANCELLED,
+                'admin_notes' => 'Tagihan otomatis dibatalkan karena melewati batas pembayaran 15 menit.',
+            ]);
+            $payment->refresh();
+        }
+
         $isTripayChannel = array_key_exists($payment->payment_method, SubscriptionPayment::TRIPAY_CHANNELS)
             || array_key_exists($payment->payment_method, SubscriptionPayment::PAYMENT_METHODS)
             || str_starts_with($payment->payment_method, 'tripay_')
             || in_array(strtolower((string) $payment->payment_method), ['qris', 'qris2', 'bcava', 'mandiriva', 'briva', 'bniva', 'permatava'], true);
 
-        // If payment gateway not initialized and order is pending, try initialize TriPay
-        if ($isTripayChannel && empty($payment->gateway_reference) && $payment->status === SubscriptionPayment::STATUS_PENDING && $payment->payment_method !== SubscriptionPayment::METHOD_FREE_PROMO) {
+        // If payment gateway not initialized and order is pending, try initialize TriPay (only if not cancelled/expired)
+        if (! $payment->isCancelled() && ! $payment->isExpired() && $isTripayChannel && empty($payment->gateway_reference) && $payment->status === SubscriptionPayment::STATUS_PENDING && $payment->payment_method !== SubscriptionPayment::METHOD_FREE_PROMO) {
             try {
                 $channelCode = $payment->getTripayChannelCode();
                 $tripayRes = $this->tripayService->createSubscriptionTransaction($payment, $channelCode);
@@ -375,7 +384,7 @@ final class SubscriptionCheckoutWebController extends Controller
                         'gateway_qr_url'    => $tripayRes['qr_url'] ?? null,
                         'gateway_qr_string' => $tripayRes['qr_string'] ?? null,
                         'gateway_fee'       => (float) ($tripayRes['fee'] ?? 0.0),
-                        'gateway_expired_at'=> isset($tripayRes['expired_time']) ? Carbon::createFromTimestamp($tripayRes['expired_time']) : null,
+                        'gateway_expired_at'=> isset($tripayRes['expired_time']) ? Carbon::createFromTimestamp($tripayRes['expired_time']) : now()->addMinutes(15),
                         'admin_notes'       => null,
                     ]);
                     $payment->refresh();
@@ -403,13 +412,25 @@ final class SubscriptionCheckoutWebController extends Controller
         $business = Context::requireBusiness();
         abort_unless($payment->business_id === $business->id, 403);
 
+        // Auto-cancel if 15-minute payment window has expired
+        if ($payment->status === SubscriptionPayment::STATUS_PENDING && $payment->isExpired()) {
+            $payment->update([
+                'status' => SubscriptionPayment::STATUS_CANCELLED,
+                'admin_notes' => 'Tagihan otomatis dibatalkan karena melewati batas pembayaran 15 menit.',
+            ]);
+            $payment->refresh();
+        }
+
+        $isCancelled = $payment->isCancelled();
+        $isExpired = $payment->isExpired() || $isCancelled;
+
         $isTripayChannel = array_key_exists($payment->payment_method, SubscriptionPayment::TRIPAY_CHANNELS)
             || array_key_exists($payment->payment_method, SubscriptionPayment::PAYMENT_METHODS)
             || str_starts_with($payment->payment_method, 'tripay_')
             || in_array(strtolower((string) $payment->payment_method), ['qris', 'qris2', 'bcava', 'mandiriva', 'briva', 'bniva', 'permatava'], true);
 
-        // If not initialized yet, try to initialize TriPay on status check as well
-        if ($isTripayChannel && empty($payment->gateway_reference) && $payment->status === SubscriptionPayment::STATUS_PENDING && $payment->payment_method !== SubscriptionPayment::METHOD_FREE_PROMO) {
+        // If not initialized yet, try to initialize TriPay on status check as well (only if not expired)
+        if (! $isExpired && $isTripayChannel && empty($payment->gateway_reference) && $payment->status === SubscriptionPayment::STATUS_PENDING && $payment->payment_method !== SubscriptionPayment::METHOD_FREE_PROMO) {
             try {
                 $channelCode = $payment->getTripayChannelCode();
                 $tripayRes = $this->tripayService->createSubscriptionTransaction($payment, $channelCode);
@@ -422,7 +443,7 @@ final class SubscriptionCheckoutWebController extends Controller
                         'gateway_qr_url'    => $tripayRes['qr_url'] ?? null,
                         'gateway_qr_string' => $tripayRes['qr_string'] ?? null,
                         'gateway_fee'       => (float) ($tripayRes['fee'] ?? 0.0),
-                        'gateway_expired_at'=> isset($tripayRes['expired_time']) ? Carbon::createFromTimestamp($tripayRes['expired_time']) : null,
+                        'gateway_expired_at'=> isset($tripayRes['expired_time']) ? Carbon::createFromTimestamp($tripayRes['expired_time']) : now()->addMinutes(15),
                         'admin_notes'       => null,
                     ]);
                     $payment->refresh();
@@ -432,16 +453,22 @@ final class SubscriptionCheckoutWebController extends Controller
             }
         }
 
+        $tier = $payment->billingPackage?->slug ?? $payment->plan_code ?? 'standard';
+        $cycle = $payment->cycle ?? 'monthly';
+
         return response()->json([
-            'success'     => true,
-            'status'      => $payment->status,
-            'is_paid'     => $payment->isPaid(),
-            'is_rejected' => $payment->isRejected(),
-            'has_qr'      => !empty($payment->gateway_qr_url) || !empty($payment->gateway_qr_string),
-            'qr_url'      => $payment->gateway_qr_url,
-            'pay_code'    => $payment->gateway_pay_code,
+            'success'           => true,
+            'status'            => $payment->status,
+            'is_paid'           => $payment->isPaid(),
+            'is_cancelled'      => $isCancelled,
+            'is_expired'        => $isExpired,
+            'is_rejected'       => $payment->isRejected(),
+            'has_qr'            => ! $isExpired && (! empty($payment->gateway_qr_url) || ! empty($payment->gateway_qr_string)),
+            'qr_url'            => $isExpired ? null : $payment->gateway_qr_url,
+            'pay_code'          => $isExpired ? null : $payment->gateway_pay_code,
             'gateway_reference' => $payment->gateway_reference,
-            'gateway_error' => $payment->admin_notes,
+            'gateway_error'     => $payment->admin_notes,
+            'reorder_url'       => route('billing.checkout', ['tier' => $tier, 'cycle' => $cycle]),
         ]);
     }
 

@@ -273,6 +273,11 @@ return [
     'transfer_proof_archive' => 'Arsip Bukti Transfer',
     'expired_default_note' => 'Batas waktu pembayaran telah habis atau transaksi dibatalkan oleh gateway.',
     'reorder_guidance' => 'Silakan buat pesanan baru melalui halaman paket atau hubungi customer support kami jika dana Anda telah terpotong.',
+    'order_expired_title' => 'Batas Waktu Pembayaran Telah Habis',
+    'order_expired_desc' => 'Waktu pembayaran 15 menit telah terlewati. Kode QRIS dan link pembayaran resmi TriPay telah dinonaktifkan demi keamanan transaksi Anda.',
+    'order_expired_badge' => 'Tagihan Kadaluwarsa / Dibatalkan',
+    'action_reorder' => 'Ajukan Pembayaran Ulang',
+    'explore_other_plans' => 'Lihat Pilihan Paket Lainnya',
 
     // History Table
     'history_title' => 'Riwayat Pembayaran & Tagihan',

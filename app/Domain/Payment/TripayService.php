@@ -526,7 +526,7 @@ final class TripayService
                 ],
             ],
             'return_url' => route('billing.payment.show', $payment->id),
-            'expired_time' => time() + 86400, // 24 hours
+            'expired_time' => time() + 900, // 15 minutes (900 seconds) as per Cooca payment checkout rule
             'signature' => $signature,
         ];
 
@@ -551,7 +551,7 @@ final class TripayService
                     'qr_string' => $data['qr_string'] ?? null,
                     'checkout_url' => $data['checkout_url'] ?? null,
                     'fee' => (float) ($data['total_fee'] ?? 0),
-                    'expired_time' => (int) ($data['expired_time'] ?? (time() + 86400)),
+                    'expired_time' => (int) ($data['expired_time'] ?? (time() + 900)),
                     'instructions' => (array) ($data['instructions'] ?? []),
                     'raw_response' => $data,
                 ];
