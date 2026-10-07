@@ -53,6 +53,7 @@ final class CheckResourceEntitlement
             'pph21' => $this->entitlementService->canCalculatePPh21($business),
             'social_post' => $this->entitlementService->canScheduleSocialPostThisMonth($business),
             'whatsapp' => $this->entitlementService->canSendWhatsAppThisMonth($business),
+            'mcp' => $this->entitlementService->canAccessMcp($business),
             'import' => $this->entitlementService->canImportData($business),
             'export' => $this->entitlementService->canExportData($business),
             'member', 'user' => $this->entitlementService->canAddMember($business),
@@ -79,6 +80,7 @@ final class CheckResourceEntitlement
                 'social_post' => 'Jadwal Postingan Media Sosial Bulanan',
                 'whatsapp' => 'Pesan WhatsApp Gateway Bulanan',
                 'ai' => 'Fitur Asisten & Prediksi AI',
+                'mcp' => 'Integrasi AI & Gateway MCP (Model Context Protocol)',
                 'import' => 'Fitur Import Data Excel/CSV',
                 'export' => 'Fitur Export Data Excel/CSV',
                 'member' => 'Tambah Karyawan / Pengguna',
@@ -95,6 +97,7 @@ final class CheckResourceEntitlement
             $upgradeFee = match ($resourceType) {
                 'pph21', 'payroll_wa' => 'Prestige (Rp199.000/bln)',
                 'recipe', 'transfer_stock', 'kds', 'branch_pricing', 'commission', 'loan', 'daily_worker', 'bpjs', 'thr', 'outlet', 'warehouse' => 'Premium (Rp89.000/bln)',
+                'mcp', 'ai' => 'Standard (Rp29.000/bln), Premium (Rp89.000/bln), atau Prestige (Rp199.000/bln)',
                 'pos', 'table', 'invoice', 'purchase_order', 'po', 'product', 'material', 'customer', 'supplier', 'member', 'user' => 'Standard (Rp29.000/bln) atau Premium (Rp89.000/bln)',
                 default => 'paket yang lebih tinggi',
             };

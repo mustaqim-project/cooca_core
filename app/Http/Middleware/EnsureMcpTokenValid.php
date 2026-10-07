@@ -47,6 +47,18 @@ final class EnsureMcpTokenValid
             return $this->unauthorizedResponse($request, 'Invalid, deactivated, or expired MCP token.');
         }
 
+        // Enforce active paid subscription requirement (Standard, Premium, Prestige)
+        $business = $token->business;
+        if ($business !== null) {
+            $entitlementService = app(\App\Domain\Billing\EntitlementService::class);
+            if (! $entitlementService->canAccessMcp($business)) {
+                return $this->forbiddenResponse(
+                    $request,
+                    'Akses gateway MCP memerlukan langganan paket aktif (Standard, Premium, atau Prestige). Silakan tingkatkan paket usaha Anda di https://cooca.id.'
+                );
+            }
+        }
+
         if ($requiredAbility !== null && ! $token->hasAbility($requiredAbility)) {
             return $this->forbiddenResponse($request, "Token lacks required ability: '{$requiredAbility}'.");
         }

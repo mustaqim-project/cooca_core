@@ -48,6 +48,8 @@ final class McpProtocolTest extends TestCase
 
         $this->user->update(['active_business_id' => $this->business->id]);
 
+        app(\App\Domain\Billing\EntitlementService::class)->upgradeToCore($this->business, 'monthly');
+
         \App\Models\Location::create([
             'business_id' => $this->business->id,
             'name'        => 'Toko Pusat',
@@ -418,5 +420,67 @@ final class McpProtocolTest extends TestCase
         $response->assertSee('LangChain');
         $response->assertSee(__('mcp.tools_catalog_title'));
         $response->assertSee(__('mcp.troubleshooting_title'));
+    }
+
+    public function test_free_plan_mcp_api_request_is_rejected_with_forbidden(): void
+    {
+        $freeBusiness = Business::create([
+            'name' => 'Free Merchant Toko',
+            'slug' => 'free-merchant-toko',
+        ]);
+        $freeUser = User::create([
+            'name'     => 'Free Owner',
+            'email'    => 'free_owner@example.com',
+            'password' => bcrypt('password123'),
+        ]);
+        $freeBusiness->users()->attach($freeUser->id, [
+            'id'        => Str::uuid(),
+            'role'      => 'owner',
+            'is_active' => true,
+        ]);
+        $freeUser->update(['active_business_id' => $freeBusiness->id]);
+
+        $freeTokenData = McpAccessToken::generateToken(
+            business: $freeBusiness,
+            user: $freeUser,
+            name: 'Free Claude Token',
+            abilities: ['*'],
+            providerHint: 'claude'
+        );
+
+        $response = $this->withHeader('Authorization', "Bearer {$freeTokenData['token']}")
+            ->postJson('/api/v1/mcp/message', [
+                'jsonrpc' => '2.0',
+                'method'  => 'ping',
+                'id'      => 99,
+            ]);
+
+        $response->assertStatus(403);
+        $this->assertSame(-32001, $response->json('error.code'));
+        $this->assertStringContainsString('langganan paket aktif', $response->json('error.message'));
+    }
+
+    public function test_free_plan_cannot_access_mcp_settings_view_and_is_redirected_to_limits(): void
+    {
+        $freeBusiness = Business::create([
+            'name' => 'Free Merchant Web',
+            'slug' => 'free-merchant-web',
+        ]);
+        $freeUser = User::create([
+            'name'     => 'Free Web Owner',
+            'email'    => 'free_web_owner@example.com',
+            'password' => bcrypt('password123'),
+        ]);
+        $freeBusiness->users()->attach($freeUser->id, [
+            'id'        => Str::uuid(),
+            'role'      => 'owner',
+            'is_active' => true,
+        ]);
+        $freeUser->update(['active_business_id' => $freeBusiness->id]);
+
+        $response = $this->actingAs($freeUser)
+            ->get('/settings/integrations/mcp');
+
+        $response->assertRedirect(route('billing.limits'));
     }
 }

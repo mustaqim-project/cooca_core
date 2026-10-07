@@ -431,6 +431,17 @@ final class EntitlementService
     }
 
     /**
+     * Can business access Model Context Protocol (MCP) integrations & gateway?
+     * MCP is an advanced capability requiring an active paid subscription (Standard, Premium, Prestige).
+     */
+    public function canAccessMcp(Business $business): bool
+    {
+        $sub = $this->getSubscription($business);
+
+        return $sub->isCorePlan();
+    }
+
+    /**
      * Can business add team members / employees?
      */
     public function canAddMember(Business $business): bool

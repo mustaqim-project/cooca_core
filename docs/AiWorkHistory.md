@@ -32,6 +32,48 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 - **Files Affected:** Daftar berkas controller, service, model, blade, atau route yang dimodifikasi.
 - **Database Changes:** Tabel baru, migrasi skema, kolom tambahan, atau indexing.
+
+### [WORK-2026-10-07-333] Pembatasan Akses Integrasi Web & Gateway API Model Context Protocol (MCP) Wajib Berlangganan Berbayar (Core Plan: Standard, Premium, Prestige)
+
+- **Date:** 2026-10-07
+- **Status:** COMPLETED
+- **Module:** Model Context Protocol (MCP) & SaaS Entitlements (`app/Domain/Billing/EntitlementService.php`, `app/Http/Middleware/EnsureMcpTokenValid.php`, `app/Http/Middleware/CheckResourceEntitlement.php`, `app/Http/Controllers/Web/Mcp/McpIntegrationWebController.php`, `routes/owner.php`, `resources/views/app/billing/limits.blade.php`, `tests/Feature/McpProtocolTest.php`)
+- **Feature:** Penguncian fitur MCP (antarmuka web `/settings/integrations/mcp`, manajemen token, dan endpoint gateway API `/api/v1/mcp/*`) khusus untuk akun yang memiliki langganan berbayar aktif (Standard, Premium, Prestige).
+- **Work Type:** Feature Enforcement | Security & SaaS Entitlement | API Gateway Protection | Automated Test Suite Alignment
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Sesuai arahan bisnis, integrasi Model Context Protocol (MCP) — yang memungkinkan agen AI pihak ketiga seperti Claude Desktop, Claude Code, Cursor IDE, ChatGPT, Google Gemini, Ollama, Dify, dan LangChain membaca data bisnis, katalog produk, stok, laporan kas/laba rugi, dan analitik Cooca — merupakan kapabilitas premium dan komputasi intensif yang wajib dibatasi hanya untuk pelanggan berbayar (*wajib subscribe*). Akun Free dilarang mengakses atau mengeksekusi tools MCP.
+- **Masalah/Target:**
+  1. Panel web manajemen integrasi MCP (`/settings/integrations/mcp`) sebelumnya belum dilindungi oleh middleware entitlement paket.
+  2. Gateway API MCP (`/api/v1/mcp/message`, `/sse`) sebelumnya hanya memvalidasi keabsahan token tanpa memeriksa status keaktifan paket langganan tenant terkait.
+  3. Pengguna paket Free harus dicegah secara tegas di layer web (di-redirect ke `/billing/limits`) maupun layer API (respons HTTP 403 Forbidden dengan standar kode JSON-RPC error `-32001`).
+  4. Pengguna paket Standard dibatasi maksimal 1 token MCP aktif, sedangkan Premium dan Prestige mendukung multi-client / unlimited token.
+  5. Halaman transparansi paket (`/billing/limits`) harus memuat informasi kapasitas token MCP pada 4 Bento Cards dan tabel matriks komparasi fitur.
+
+#### 2. What Was Done
+
+1. **Entitlement Domain Service (`app/Domain/Billing/EntitlementService.php`):**
+   - Menambahkan method `canAccessMcp(Business $business): bool { return $this->getSubscription($business)->isCorePlan(); }`.
+2. **Middleware Resource Entitlement (`app/Http/Middleware/CheckResourceEntitlement.php` & `routes/owner.php`):**
+   - Mendaftarkan entitas `'mcp'` pada middleware `entitlement:mcp` untuk memproteksi seluruh rute web `/settings/integrations/mcp/*`.
+   - Menambahkan tier upgrade fee untuk `'mcp'`.
+3. **API Gateway Token Middleware (`app/Http/Middleware/EnsureMcpTokenValid.php`):**
+   - Menambahkan validasi `canAccessMcp($token->business)`. Jika bisnis tidak memiliki paket langganan aktif, mengembalikan respons HTTP 403 Forbidden dengan JSON-RPC 2.0 error code `-32001` (*"Akses gateway MCP memerlukan langganan paket aktif (Standard, Premium, atau Prestige). Silakan tingkatkan paket usaha Anda di https://cooca.id."*).
+4. **Web Controller Proteksi Kuota Token (`app/Http/Controllers/Web/Mcp/McpIntegrationWebController.php`):**
+   - Pada `storeToken()`, memverifikasi hak akses `canAccessMcp()` dan menegakkan limit maksimal 1 token aktif untuk paket Standard.
+5. **Pembaruan Bento Cards & Matriks Komparasi (`resources/views/app/billing/limits.blade.php`):**
+   - Menampilkan status MCP pada Bento Card: Free (Terkunci), Standard (1 Token), Premium (Multi-Client), Prestige (Dedicated Unlimited).
+   - Menambahkan baris komparasi *"Gateway MCP (Model Context Protocol Universal)"* pada Tabel Matriks Detail Fitur AI.
+6. **Automated Regression & Feature Tests (`tests/Feature/McpProtocolTest.php`):**
+   - Memperbarui fixture test `setUp()` dengan aktivasi Core Plan.
+   - Menambahkan pengujian `test_free_plan_mcp_api_request_is_rejected_with_forbidden()` dan `test_free_plan_cannot_access_mcp_settings_view_and_is_redirected_to_limits()`. Seluruh 13 tests lulus 100%.
+
+#### 3. Technical Changes
+
+- **Files Affected:** `app/Domain/Billing/EntitlementService.php`, `app/Http/Middleware/CheckResourceEntitlement.php`, `routes/owner.php`, `app/Http/Middleware/EnsureMcpTokenValid.php`, `app/Http/Controllers/Web/Mcp/McpIntegrationWebController.php`, `resources/views/app/billing/limits.blade.php`, `tests/Feature/McpProtocolTest.php`, `docs/AiWorkHistory.md`.
+- **Database Changes:** Tidak ada migrasi skema baru (memanfaatkan kolom status dan tier langganan yang ada).
+
 ### [WORK-2026-10-07-332] Perbaikan Bug Entitlement AI & Pemulihan Akses Cooca AI (/cooca-ai) untuk Pelanggan Berbayar (Standard, Premium, Prestige)
 
 - **Date:** 2026-10-07

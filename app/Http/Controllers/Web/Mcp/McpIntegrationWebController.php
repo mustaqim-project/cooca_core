@@ -74,6 +74,18 @@ final class McpIntegrationWebController extends Controller
         $business = Context::requireBusiness();
         $user = auth()->user() ?? Context::user();
 
+        $entitlementService = app(\App\Domain\Billing\EntitlementService::class);
+        if (! $entitlementService->canAccessMcp($business)) {
+            return redirect()->route('billing.limits')->with('error', 'Fitur Integrasi AI Gateway (MCP) memerlukan langganan paket aktif (Standard, Premium, atau Prestige). Silakan tingkatkan paket bisnis Anda.');
+        }
+
+        $sub = $entitlementService->getSubscription($business);
+        $tier = $sub->getTier();
+        $activeTokensCount = McpAccessToken::where('business_id', $business->id)->where('is_active', true)->count();
+        if ($tier === \App\Models\BusinessSubscription::TIER_STANDARD && $activeTokensCount >= 1) {
+            return back()->with('error', 'Paket Standard terbatas maksimal 1 token MCP aktif. Tingkatkan ke Paket Premium untuk token MCP tak terbatas (multi-client).');
+        }
+
         $validated = $request->validate([
             'name'          => ['required', 'string', 'max:100'],
             'provider_hint' => ['required', 'string', 'in:claude,openai,gemini,cursor,ollama,langchain,all,custom'],
