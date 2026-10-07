@@ -420,7 +420,7 @@ class SubscriptionPayment extends Model
             'type' => 'manual',
             'bank_name' => 'Transfer Bank',
             'account_number' => '-',
-            'account_name' => 'PT Cooca Teknologi Indonesia',
+            'account_name' => 'Cooca ID',
             'icon' => 'credit-card',
             'color' => 'slate',
             'instructions' => 'Lakukan pembayaran sesuai nominal tertera.',

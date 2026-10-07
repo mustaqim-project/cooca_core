@@ -391,7 +391,7 @@ return [
     'paid_full' => 'Rp 0 (LUNAS)',
     'stamp_paid_verified' => 'LUNAS / VERIFIED DIGITAL',
     'accepted_and_approved_by' => 'Diterima dan Disetujui Oleh,',
-    'cooca_company_name' => 'PT Cooca Teknologi Indonesia,',
+    'cooca_company_name' => 'Cooca ID,',
     'billing_finance_department' => 'Bagian Billing & Keuangan',
     'cooca_digital_auth_system' => '( Sistem Otorisasi Digital Cooca )',
     'generating_pdf' => 'Membuat PDF...',

@@ -103,7 +103,7 @@ class MerchantWhatsAppWebFeatureTest extends TestCase
             'waba_id'              => '109876543210',
             'phone_number_id'      => '100012345678',
             'phone_number'         => '6281234567890',
-            'display_phone_number' => '+62 812-3456-7890',
+            'display_phone_number' => '+62 852-8786-4176',
             'verified_name'        => 'Kopi Kenangan Sejahtera Official',
             'quality_rating'       => 'GREEN',
             'messaging_limit_tier' => 'TIER_1K',
@@ -115,7 +115,7 @@ class MerchantWhatsAppWebFeatureTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('Kopi Kenangan Sejahtera Official');
-        $response->assertSee('+62 812-3456-7890');
+        $response->assertSee('+62 852-8786-4176');
         $response->assertSee('TIER_1K');
         $response->assertSee(__('whatsapp.disconnect_btn'));
     }
@@ -281,7 +281,7 @@ class MerchantWhatsAppWebFeatureTest extends TestCase
             'waba_id'              => '109876543210',
             'phone_number_id'      => '100012345678',
             'phone_number'         => '6281234567890',
-            'display_phone_number' => '+62 812-3456-7890',
+            'display_phone_number' => '+62 852-8786-4176',
             'access_token'         => 'EAABwzLixnjYBA_test_token',
             'status'               => 'active',
         ]);
@@ -844,7 +844,7 @@ class MerchantWhatsAppWebFeatureTest extends TestCase
             'waba_id'              => '109876543210',
             'phone_number_id'      => '100012345678',
             'phone_number'         => '6281234567890',
-            'display_phone_number' => '+62 812-3456-7890',
+            'display_phone_number' => '+62 852-8786-4176',
             'verified_name'        => 'Kopi Kenangan Sejahtera Official',
             'quality_rating'       => 'GREEN',
             'messaging_limit_tier' => 'TIER_1K',

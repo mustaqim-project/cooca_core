@@ -9338,7 +9338,7 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 - **UI/UX Bento Apple HIG Redesign (5 Views):**
   - `checkout.blade.php`: 3-Tier Selector (Standard, Premium, Prestige) + Add-on Selector (AI Token & Storage), Segmented Cycle Toggle (Bulanan/Tahunan `Hemat 2 Bln`), banner promo trial gratis terverifikasi otomatis, dan saluran TriPay terkurasi (QRIS, VA BCA/Mandiri/BNI/BRI, E-Wallet).
   - `history.blade.php`: Surface `bg-white dark:bg-[#1C1C1E]`, hairline border `border-black/[0.06] dark:border-white/[0.08]`, 4 Kartu Bento KPI Finansial, Apple Segmented Filter Tabs (Semua, Menunggu, Selesai, Kedaluwarsa), dan Dual-Mode responsif (Desktop Table `hidden md:block` + Mobile Card List `block md:hidden`).
-  - `invoice.blade.php`: Standarisasi faktur A4 Print Sheet resmi PT Cooca Teknologi Indonesia, tipografi SF Pro / Plus Jakarta Sans, tabular numerals, dan direct PDF download via `html2pdf.js` bebas watermark.
+  - `invoice.blade.php`: Standarisasi faktur A4 Print Sheet resmi Cooca ID, tipografi SF Pro / Plus Jakarta Sans, tabular numerals, dan direct PDF download via `html2pdf.js` bebas watermark.
   - `payment.blade.php`: Bento Apple HIG surface, 4-phase lifecycle stepper, dynamic QRIS visualizer, TriPay auto-polling, dan banner status semantik Apple.
   - `limits.blade.php`: 4 Pillar Bento KPI, showcase paket aktif (Core Plan Executive Card), Grid 4 Paket Resmi, Hub Infrastruktur Storage & AI, rincian per-bisnis & per-kategori file, modal sheet Alpine `storageLimitsManager()`, tombol recalculate sinkronisasi disk, kuota transaksi bulanan (POS, Invoices, PO, Social Media, WhatsApp), 9 kartu kapasitas master data, dan matriks perbandingan fitur.
 - **Testing & Quality Assurance:**

@@ -71,7 +71,7 @@ class AdminPaymentAccountManagementTest extends TestCase
         PaymentAccount::create([
             'bank_code' => 'bca',
             'bank_name' => 'Bank BCA Transfer',
-            'account_name' => 'PT Cooca Teknologi Indonesia',
+            'account_name' => 'Cooca ID',
             'account_number' => '8735-0812-999',
             'type' => 'bank_transfer',
             'is_active' => true,
@@ -92,7 +92,7 @@ class AdminPaymentAccountManagementTest extends TestCase
             ->post(route('admin.payment-accounts.store'), [
                 'bank_code' => 'bni',
                 'bank_name' => 'Bank Negara Indonesia (BNI)',
-                'account_name' => 'PT Cooca Teknologi Indonesia',
+                'account_name' => 'Cooca ID',
                 'account_number' => '0839-2819-291',
                 'type' => 'bank_transfer',
                 'instructions' => 'Transfer via BNI Mobile Banking',

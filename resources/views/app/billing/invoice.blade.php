@@ -204,7 +204,7 @@
         <main class="print-sheet bg-white p-6 sm:p-10 md:p-12 text-black space-y-6 min-w-[620px] sm:min-w-0"
             aria-label="{{ __('billing.invoice_official_aria_label') }}">
 
-            <!-- Header / Kop Surat Resmi PT Cooca Teknologi Indonesia -->
+            <!-- Header / Kop Surat Resmi Cooca ID -->
             <div class="flex justify-between items-start border-b-2 border-black pb-5">
                 <div class="space-y-2 max-w-md">
                     <div class="flex items-center gap-3 mb-1">
@@ -214,14 +214,12 @@
                         </div>
                         <div>
                             <div class="text-lg font-black text-black tracking-tight leading-none">COOCA.ID</div>
-                            <div class="text-[10px] font-bold text-[#007AFF] tracking-wider uppercase mt-0.5">PT Cooca
-                                Teknologi Indonesia</div>
                         </div>
                     </div>
                     <div class="space-y-0.5 text-xs text-gray-600 leading-relaxed">
                         <p class="font-medium">{{ __('billing.company_tagline') }}
                         </p>
-                        <p>Website: https://cooca.id | Email: billing@cooca.id | CS: +62 812-3456-7890</p>
+                        <p>Website: https://cooca.id | Email: billing@cooca.id | CS: +62 852-8786-4176</p>
                         <p class="font-mono text-[11px] tabular-nums">NPWP: 01.234.567.8-012.000 | SK Kemenkumham Terdaftar</p>
                     </div>
                 </div>

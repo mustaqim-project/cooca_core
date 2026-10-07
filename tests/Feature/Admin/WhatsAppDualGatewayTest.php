@@ -259,7 +259,7 @@ class WhatsAppDualGatewayTest extends TestCase
                     'data'    => [
                         'id'                   => '987654321',
                         'verified_name'        => 'Kopi Sejahtera Official',
-                        'display_phone_number' => '+62 812-3456-7890',
+                        'display_phone_number' => '+62 852-8786-4176',
                         'quality_rating'       => 'GREEN',
                     ],
                 ]);

@@ -79,7 +79,7 @@ class MetaWhatsAppCloudApiTest extends TestCase
             'waba_id'                  => '109876543210',
             'phone_number_id'          => '100012345678',
             'phone_number'             => '6281234567890',
-            'display_phone_number'     => '+62 812-3456-7890',
+            'display_phone_number'     => '+62 852-8786-4176',
             'verified_name'            => 'Kopi Nusantara',
             'quality_rating'           => 'GREEN',
             'access_token'             => $plainToken,

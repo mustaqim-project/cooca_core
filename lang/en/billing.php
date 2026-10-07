@@ -373,7 +373,7 @@ return [
     'paid_full' => 'IDR 0 (PAID)',
     'stamp_paid_verified' => 'PAID / DIGITAL VERIFIED',
     'accepted_and_approved_by' => 'Received and Approved By,',
-    'cooca_company_name' => 'PT Cooca Teknologi Indonesia,',
+    'cooca_company_name' => 'Cooca ID,',
     'billing_finance_department' => 'Billing & Finance Department',
     'cooca_digital_auth_system' => '( Cooca Digital Authorization System )',
     'generating_pdf' => 'Generating PDF...',

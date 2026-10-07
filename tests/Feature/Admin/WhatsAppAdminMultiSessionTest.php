@@ -58,7 +58,7 @@ class WhatsAppAdminMultiSessionTest extends TestCase
             'waba_id'              => '109988776655443',
             'phone_number_id'      => '101122334455667',
             'phone_number'         => '6281234567890',
-            'display_phone_number' => '+62 812-3456-7890',
+            'display_phone_number' => '+62 852-8786-4176',
             'verified_name'        => 'Kedai Kopi Nusantara',
             'access_token'         => 'EAAG_TEST_MERCHANT_TOKEN',
             'quality_rating'       => 'GREEN',
@@ -71,7 +71,7 @@ class WhatsAppAdminMultiSessionTest extends TestCase
         $response->assertOk();
         $response->assertSee('Monitoring Akun WhatsApp Merchant');
         $response->assertSee('Kedai Kopi Nusantara');
-        $response->assertSee('+62 812-3456-7890');
+        $response->assertSee('+62 852-8786-4176');
     }
 
     public function test_admin_can_update_platform_credentials(): void

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('bank_code', 32)->unique(); // bca, mandiri, bri, bni, bsi, qris, etc.
             $table->string('bank_name', 128); // e.g. Bank Central Asia (BCA)
-            $table->string('account_name', 128); // e.g. PT Cooca Teknologi Indonesia
+            $table->string('account_name', 128); // e.g. Cooca ID
             $table->string('account_number', 64); // e.g. 8735-0812-999
             $table->string('type', 32)->default('bank_transfer'); // bank_transfer, qris, e_wallet
             $table->text('instructions')->nullable();

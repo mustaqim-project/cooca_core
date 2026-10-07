@@ -109,7 +109,7 @@
                             Atas Nama Rekening (A/N) <span class="text-[#FF3B30] dark:text-[#FF453A]">*</span>
                         </label>
                         <input type="text" name="account_name" value="{{ old('account_name') }}" required
-                            placeholder="Contoh: PT Cooca Teknologi Indonesia"
+                            placeholder="Contoh: Cooca ID"
                             class="w-full h-11 px-3.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] text-[16px] md:text-[13px] text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/30 focus:border-[#007AFF] transition">
                     </div>
                 </div>
