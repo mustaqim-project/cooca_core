@@ -121,6 +121,12 @@
                 ? '365 ' . (app()->getLocale() === 'id' ? 'Hari (1 Tahun)' : 'Days (1 Year)')
                 : '30 ' . (app()->getLocale() === 'id' ? 'Hari (1 Bulan)' : 'Days (1 Month)'));
         $methodDetails = $payment->getPaymentMethodDetails();
+
+        $siteLogoSetting = \App\Models\SystemSetting::get('site_logo_light')
+            ?? \App\Models\SystemSetting::get('site_logo_dark');
+        $coocaLogoUrl = $siteLogoSetting
+            ? \App\Domain\Storage\AdminStorage::publicUrl($siteLogoSetting)
+            : asset('assets/image/cooca-logo-landscape.png');
     @endphp
 
     <!-- Floating Top Action Bar -->
@@ -207,14 +213,8 @@
             <!-- Header / Kop Surat Resmi Cooca ID -->
             <div class="flex justify-between items-start border-b-2 border-black pb-5">
                 <div class="space-y-2 max-w-md">
-                    <div class="flex items-center gap-3 mb-1">
-                        <div
-                            class="w-10 h-10 rounded-[12px] bg-black text-[#34C759] flex items-center justify-center font-black text-xl tracking-tighter shadow-md">
-                            C
-                        </div>
-                        <div>
-                            <div class="text-lg font-black text-black tracking-tight leading-none">COOCA.ID</div>
-                        </div>
+                    <div class="flex items-center mb-1.5">
+                        <img src="{{ $coocaLogoUrl }}" alt="COOCA" class="h-10 sm:h-11 w-auto max-w-[200px] object-contain">
                     </div>
                     <div class="space-y-0.5 text-xs text-gray-600 leading-relaxed">
                         <p class="font-medium">{{ __('billing.company_tagline') }}
