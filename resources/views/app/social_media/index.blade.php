@@ -14,7 +14,7 @@
             :subtitle="__('social_media.cockpit_subtitle', ['business' => $business->name])">
             <x-slot:actions>
                 <a href="{{ route('social-media.posts.index') }}"
-                    class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 w-full sm:w-auto shadow-sm">
+                    class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 w-full sm:w-auto shadow-sm">
                     <i data-lucide="plus" class="w-4 h-4"></i>
                     <span>{{ __('social_media.create_post_btn') }}</span>
                 </a>
@@ -78,7 +78,7 @@
 
                                         <div class="flex items-center gap-2 shrink-0">
                                             <button type="button" @click="disconnect('{{ $acc->id }}')"
-                                                class="min-h-[34px] px-3 rounded-[9px] text-[11.5px] font-semibold text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/15 active:scale-[0.98] transition-all">
+                                                class="min-h-[44px] sm:min-h-0 sm:h-8 px-3 rounded-[9px] text-[11.5px] font-semibold text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/15 active:scale-[0.98] transition-all inline-flex items-center justify-center cursor-pointer">
                                                 {{ __('social_media.disconnect') }}
                                             </button>
                                         </div>

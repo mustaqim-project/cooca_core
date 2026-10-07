@@ -155,7 +155,7 @@
         @else
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 @foreach($posts as $post)
-                    <div class="rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4">
+                    <div id="post-card-{{ $post->id }}" class="rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4">
                         <div class="space-y-3">
                             {{-- Header Card --}}
                             <div class="flex items-center justify-between gap-2">
@@ -725,7 +725,7 @@
                                 <div class="flex items-center justify-between text-[12.5px] font-bold text-black/80 dark:text-white/80">
                                     <div class="flex items-center gap-2">
                                         <label>{{ __('social_media.main_caption_label') }} <span class="text-[#FF3B30]">*</span></label>
-                                        <span class="text-[11px] font-normal text-black/50 dark:text-white/50">(Mapping 1 caption untuk semua saluran)</span>
+                                        <span class="text-[11px] font-normal text-black/50 dark:text-white/50">{{ __('social_media.caption_mapping_subtitle') }}</span>
                                     </div>
                                     <div class="flex items-center gap-2">
                                         {{-- COOCA 5 Hashtag Badge --}}
@@ -1560,15 +1560,18 @@
                         });
                         const data = await res.json();
                         this.pmSuccess = data.success;
-                        this.pmMessage = data.success ? ('✅ ' + data.message + ' — ' + (data.scheduled_at || '')) : ('❌ ' + (data.message || data.error || @js(__('social_media.error_occurred'))));
+                        this.pmMessage = data.success ? (data.message + ' — ' + (data.scheduled_at || '')) : (data.message || data.error || @js(__('social_media.error_occurred')));
                         if (data.success) {
                             this.pmPost.scheduled_at_label = data.scheduled_at;
                             this.pmPost.status = 'scheduled';
-                            setTimeout(() => { window.location.reload(); }, 1800);
+                            if (window.AppAlert) {
+                                AppAlert.success(data.message || @js(__('social_media.reschedule_success')));
+                            }
+                            setTimeout(() => { this.postManagerOpen = false; }, 800);
                         }
                     } catch (e) {
                         this.pmSuccess = false;
-                        this.pmMessage = '❌ ' + @js(__('social_media.connection_error_try_again'));
+                        this.pmMessage = @js(__('social_media.connection_error_try_again'));
                     } finally {
                         this.pmLoading = false;
                         this.$nextTick(() => { if (window.lucide) window.lucide.createIcons(); });
@@ -1600,11 +1603,17 @@
                         });
                         const data = await res.json();
                         this.pmSuccess = data.success;
-                        this.pmMessage = data.success ? ('✅ ' + @js(__('social_media.post_being_published_reload'))) : ('❌ ' + (data.error || @js(__('social_media.failed_to_publish'))));
-                        if (data.success) { setTimeout(() => { window.location.reload(); }, 2000); }
+                        this.pmMessage = data.success ? @js(__('social_media.publish_now_dispatched')) : (data.error || @js(__('social_media.failed_to_publish')));
+                        if (data.success) {
+                            if (window.AppAlert) {
+                                AppAlert.success(data.message || @js(__('social_media.publish_now_dispatched')));
+                            }
+                            this.pmPost.status = 'publishing';
+                            setTimeout(() => { this.postManagerOpen = false; }, 800);
+                        }
                     } catch (e) {
                         this.pmSuccess = false;
-                        this.pmMessage = '❌ ' + @js(__('social_media.connection_error_try_again'));
+                        this.pmMessage = @js(__('social_media.connection_error_try_again'));
                     } finally {
                         this.pmLoading = false;
                         this.$nextTick(() => { if (window.lucide) window.lucide.createIcons(); });
@@ -1636,11 +1645,21 @@
                         });
                         const data = await res.json();
                         this.pmSuccess = data.success;
-                        this.pmMessage = data.success ? ('✅ ' + @js(__('social_media.post_deleted_reload'))) : ('❌ ' + (data.error || data.message || @js(__('social_media.failed_to_delete'))));
-                        if (data.success) { setTimeout(() => { window.location.reload(); }, 1500); }
+                        this.pmMessage = data.success ? @js(__('social_media.destroy_success')) : (data.error || data.message || @js(__('social_media.failed_to_delete')));
+                        if (data.success) {
+                            if (window.AppAlert) {
+                                AppAlert.success(data.message || @js(__('social_media.destroy_success')));
+                            }
+                            const card = document.getElementById(`post-card-${this.pmPost.id}`);
+                            if (card) {
+                                card.classList.add('opacity-0', 'scale-95', 'transition-all', 'duration-300');
+                                setTimeout(() => card.remove(), 300);
+                            }
+                            this.postManagerOpen = false;
+                        }
                     } catch (e) {
                         this.pmSuccess = false;
-                        this.pmMessage = '❌ ' + @js(__('social_media.connection_error_try_again'));
+                        this.pmMessage = @js(__('social_media.connection_error_try_again'));
                     } finally {
                         this.pmLoading = false;
                         this.$nextTick(() => { if (window.lucide) window.lucide.createIcons(); });

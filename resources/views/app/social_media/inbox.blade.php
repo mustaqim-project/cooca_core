@@ -28,15 +28,15 @@
             <div class="flex flex-wrap items-center gap-2">
                 <span class="text-[12px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider mr-1">{{ __('social_media.filter_status_label') }}:</span>
                 <a href="{{ route('social-media.inbox.index', ['status' => 'all']) }}"
-                    class="min-h-[38px] sm:min-h-0 sm:h-7 px-3.5 sm:px-3 rounded-full text-[12px] font-medium transition-colors flex items-center {{ $status === 'all' ? 'bg-[#007AFF] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
+                    class="min-h-[44px] sm:min-h-0 sm:h-7 px-3.5 sm:px-3 rounded-full text-[12px] font-medium transition-colors flex items-center justify-center {{ $status === 'all' ? 'bg-[#007AFF] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
                     {{ __('social_media.all_comments_filter', ['count' => $comments->total()]) }}
                 </a>
                 <a href="{{ route('social-media.inbox.index', ['status' => 'unread']) }}"
-                    class="min-h-[38px] sm:min-h-0 sm:h-7 px-3.5 sm:px-3 rounded-full text-[12px] font-medium transition-colors flex items-center {{ $status === 'unread' ? 'bg-[#FF9500] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
+                    class="min-h-[44px] sm:min-h-0 sm:h-7 px-3.5 sm:px-3 rounded-full text-[12px] font-medium transition-colors flex items-center justify-center {{ $status === 'unread' ? 'bg-[#FF9500] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
                     {{ __('social_media.unread_comments_filter') }}
                 </a>
                 <a href="{{ route('social-media.inbox.index', ['status' => 'replied']) }}"
-                    class="min-h-[38px] sm:min-h-0 sm:h-7 px-3.5 sm:px-3 rounded-full text-[12px] font-medium transition-colors flex items-center {{ $status === 'replied' ? 'bg-[#34C759] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
+                    class="min-h-[44px] sm:min-h-0 sm:h-7 px-3.5 sm:px-3 rounded-full text-[12px] font-medium transition-colors flex items-center justify-center {{ $status === 'replied' ? 'bg-[#34C759] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
                     {{ __('social_media.replied_comments_filter') }}
                 </a>
             </div>
@@ -116,7 +116,7 @@
                             @endif
 
                             <button type="button" @click="prepareReply(@js($c->id), @js($c->sender_name ?: __('social_media.user_label', ['platform' => ucfirst($c->platform)])), @js($c->message), @js($c->platform))"
-                                class="h-8 px-3.5 rounded-[9px] text-[12.5px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all inline-flex items-center gap-1.5 shadow-sm">
+                                class="min-h-[44px] sm:min-h-0 sm:h-8 px-3.5 rounded-[9px] text-[12.5px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all inline-flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
                                 <i data-lucide="corner-up-left" class="w-3.5 h-3.5"></i>
                                 <span>{{ __('social_media.reply_action_btn') }}</span>
                             </button>
@@ -131,20 +131,23 @@
         @endif
         </div>
 
-        {{-- 5. REPLY MODAL SHEET (Apple HIG Bento Card Design) --}}
+        {{-- 5. REPLY MODAL SHEET (Apple HIG Bento Card Design / Mobile Bottom Sheet) --}}
         <div x-show="openReplyModal" x-cloak
             x-transition:enter="transition ease-out duration-200"
-            x-transition:enter-start="opacity-0"
-            x-transition:enter-end="opacity-100"
+            x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0"
+            x-transition:enter-end="opacity-100 translate-y-0"
             x-transition:leave="transition ease-in duration-150"
-            x-transition:leave-start="opacity-100"
-            x-transition:leave-end="opacity-0"
-            class="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5"
+            x-transition:leave-start="opacity-100 translate-y-0"
+            x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0"
+            class="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-5"
             @keydown.escape.window="openReplyModal = false"
             role="dialog"
             aria-modal="true">
-            <div class="relative w-full max-w-2xl rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-2xl p-6 sm:p-7 space-y-5 my-6"
+            <div class="relative w-full max-w-2xl rounded-t-[24px] sm:rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-2xl p-6 sm:p-7 space-y-5 my-0 sm:my-6 max-h-[90vh] overflow-y-auto"
                 @click.away="openReplyModal = false">
+
+                {{-- Mobile Pull Grabber --}}
+                <div class="sm:hidden w-12 h-1.5 rounded-full bg-black/20 dark:bg-white/20 mx-auto -mt-2 mb-2"></div>
 
                 {{-- Modal Header --}}
                 <div class="flex items-center justify-between pb-3.5 border-b border-black/5 dark:border-white/10">

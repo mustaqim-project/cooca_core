@@ -34,6 +34,62 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 - **Database Changes:** Tabel baru, migrasi skema, kolom tambahan, atau indexing.
 - **API / Route Changes:** Endpoint baru atau perubahan signature HTTP.
 
+### [WORK-2026-10-07-325] Audit Komprehensif Penuh & Eksekusi Perbaikan Suite Media Sosial COOCA (Zero Hardcoded i18n, Eliminasi window.location.reload, Apple HIG Bottom Sheet, Touch Target Ergonomis, & Anti-Slop Bento)
+
+- **Date:** 2026-10-07
+- **Status:** COMPLETED
+- **Module:** Social Media Marketing (`SocialMediaWebController`, `calendar.blade.php`, `inbox.blade.php`, `index.blade.php`, `insights.blade.php`, `posts.blade.php`, `lang/id/social_media.php`, `lang/en/social_media.php`)
+- **Feature:** Full System Audit & Remediation: Zero Hardcoded Translations, Optimistic UI Updates without Full Page Reload, Mobile Touch Target Standardization (>=44px), Mobile Bottom Sheet Transformation, Clean Typography without Raw Emojis, and 100% Passing Test Suite.
+- **Work Type:** Bug Fix | UI/UX (Bento Apple HIG) | Localization | Security & Fraud Audit | Architecture | Testing
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Modul Social Media COOCA (`/social-media`, `/social-media/posts`, `/social-media/calendar`, `/social-media/inbox`, `/social-media/insights`) digunakan oleh pelaku UMKM untuk mengelola seluruh aset media sosial resmi mereka (Facebook, Instagram, TikTok, LinkedIn). Terdapat audit menyeluruh yang mewajibkan kepatuhan standar COOCA: nol teks tanpa translasi (i18n penuh ID & EN), bebas emoji kasar di UI/JS, eliminasi pemuatan ulang halaman yang agresif (`window.location.reload`), standardisasi tap target ramah sentuhan jempol mobile ($\ge$ 44px), serta estetika Bento Apple HIG.
+- **Masalah/Target:**
+  1. **i18n & Hardcoded Strings:** Pada `insights.blade.php` terdapat lebih dari 30 string bahasa Indonesia hardcoded (label analisis algoritma, badges intensitas, golden hours, metrik mobile, nama hari, dan Chart.js dataset labels). Pada `calendar.blade.php` terdapat string hardcoded `"WIB"` dan jenis format media. Pada `posts.blade.php` terdapat subheader hardcoded. Controller `SocialMediaWebController@insights` juga menghasilkan synthetic array labels dalam bahasa Indonesia tanpa lokalisasi.
+  2. **Aggressive Page Reloads (`window.location.reload()`):** Pada `posts.blade.php`, aksi `doReschedule()`, `doPublishNow()`, dan `doDelete()` mengeksekusi `setTimeout(() => window.location.reload(), 1200)`. Pada `insights.blade.php`, `syncAccountsMetrics()` dan `refreshAllInsights()` mengeksekusi reload paksa setelah sinkronisasi. Hal ini merusak pengalaman pengguna dan menghilangkan status filter aktif.
+  3. **Visual Quality & Emojis:** Ditemukan emoji mentah (`✅`, `❌`) yang disematkan langsung di dalam string translasi dan callback JavaScript alert.
+  4. **Mobile Ergonomics & Touch Targets:** Tombol reply di `inbox.blade.php`, navigasi bulan di `calendar.blade.php`, dan tombol disconnect di `index.blade.php` memiliki tinggi di bawah 44px di mobile. Modal reply belum mengadopsi pola modern Apple HIG Mobile Bottom Sheet.
+
+#### 2. What Was Done
+
+1. **Kamus Bahasa Dwibahasa Lengkap (`lang/id/social_media.php` & `lang/en/social_media.php`):**
+   - Mendaftarkan seluruh translasi baru: algoritma rekomendasi (`algo_*`), heatmap intensity (`intensity_*`), hari (`day_mon`, `day_tue`, dll.), format media (`format_*`), zona waktu (`timezone_label`), label metrik engagement, dan status sinkronisasi.
+   - Membersihkan seluruh karakter emoji mentah pada dictionary bahasa dan menggantinya dengan teks profesional yang didukung ikon Lucide SVG.
+2. **Backend Controller Localization (`SocialMediaWebController.php`):**
+   - Melokalisasi pembuatan data sintetik analitik di method `insights()`: nama hari `$dailyDistribution`, matriks heatmap `$heatmapMatrix`, traffic timing `$trafficTimingData`, dan `$formatStats` menggunakan `__('social_media....')`.
+3. **Penyempurnaan Tampilan Analitik (`insights.blade.php`):**
+   - Mengganti seluruh 30+ string hardcoded dengan fungsi pembantu `__()`.
+   - Menghapus pemanggilan `window.location.reload()` dari `syncAccountsMetrics()` dan `refreshAllInsights()`, menggantikannya dengan pembaruan status badge DOM langsung dan non-blocking toast notifications.
+4. **Penyempurnaan Manajemen Postingan (`posts.blade.php`):**
+   - Menambahkan attribute identifier `id="post-card-{{ $post->id }}"` pada kartu postingan untuk optimistic DOM removal.
+   - Mengeliminasi `window.location.reload()` pada `doReschedule()`, `doPublishNow()`, dan `doDelete()`. Reschedule memperbarui badge waktu secara in-place, Delete menghapus kartu secara animasi halus, dan Publish memperbarui status secara instan dengan toast notifikasi.
+   - Menghapus emoji mentah dari pesan SweetAlert/AppAlert.
+5. **Ergonomi Mobile & Modal Bottom Sheet (`inbox.blade.php`):**
+   - Mengubah tap target tombol balas komentar menjadi `min-h-[44px] sm:min-h-0 sm:h-8`.
+   - Mengubah reply modal menjadi **Apple HIG Mobile Bottom Sheet** (`flex items-end sm:items-center p-0 sm:p-5`, `rounded-t-[24px] sm:rounded-[24px]`, dengan grabber pill mobile).
+6. **Ergonomi Kalender & Disconnect (`calendar.blade.php` & `index.blade.php`):**
+   - Mengubah tombol navigasi kalender ke `min-h-[44px] sm:min-h-0 sm:h-8`.
+   - Melokalisasi zona waktu dan jenis format media pada kartu agenda mobile.
+   - Mengubah tombol disconnect akun ke `min-h-[44px] sm:min-h-0 sm:h-8`.
+7. **Verifikasi & Zero Regression:**
+   - Seluruh 75 tests (439 assertions) pada `tests/Feature/SocialMedia` lulus 100%.
+
+#### 3. Technical Changes
+
+- **Files Affected:**
+  - `lang/id/social_media.php`
+  - `lang/en/social_media.php`
+  - `app/Http/Controllers/Web/SocialMedia/SocialMediaWebController.php`
+  - `resources/views/app/social_media/insights.blade.php`
+  - `resources/views/app/social_media/posts.blade.php`
+  - `resources/views/app/social_media/inbox.blade.php`
+  - `resources/views/app/social_media/calendar.blade.php`
+  - `resources/views/app/social_media/index.blade.php`
+  - `docs/AiWorkHistory.md`
+- **Database Changes:** Tidak ada perubahan skema (100% backward compatible).
+- **API / Route Changes:** Tidak ada perubahan signature HTTP.
+
 ### [WORK-2026-10-07-324] Perbaikan & Peningkatan Wawasan Media Sosial (Insights Hub, Connected Channel Metrics & Omnichannel Multi-Target Sync)
 
 - **Date:** 2026-10-07

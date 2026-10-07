@@ -142,7 +142,7 @@
                             <p class="text-[12px] text-black/50 dark:text-white/50">{{ __('social_media.chart_engagement_subtitle') }}</p>
                         </div>
                         <span class="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-[#FF9500]/10 text-[#FF9500]">
-                            {{ number_format($analytics['total_engagement'] ?? 0) }} Aksi
+                            {{ __('social_media.action_count', ['count' => number_format($analytics['total_engagement'] ?? 0)]) }}
                         </span>
                     </div>
                     <div class="h-64 sm:h-72 w-full relative">
@@ -171,7 +171,7 @@
                 {{-- AI Badge Pill --}}
                 <div class="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#007AFF]/10 text-[#007AFF] text-[12px] font-semibold shrink-0">
                     <i data-lucide="sparkles" class="w-4 h-4"></i>
-                    <span>Analisis Algoritma Perilaku Audiens</span>
+                    <span>{{ __('social_media.ai_behavior_analysis') }}</span>
                 </div>
             </div>
 
@@ -184,13 +184,13 @@
                             <i data-lucide="sun-medium" class="w-4 h-4"></i>
                             {{ __('social_media.golden_hours_title') }}
                         </span>
-                        <span class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-md bg-[#34C759]/20">Puncak</span>
+                        <span class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-md bg-[#34C759]/20">{{ __('social_media.intensity_peak_short') }}</span>
                     </div>
                     <div class="text-[15px] font-bold text-black dark:text-white">
                         {{ $trafficTimingData['peak_hours_text'] }}
                     </div>
                     <p class="text-[11px] text-black/55 dark:text-white/55 leading-snug">
-                        Istirahat siang & waktu santai malam memiliki views 3x lebih tinggi.
+                        {{ __('social_media.golden_hours_hint') }}
                     </p>
                 </div>
 
@@ -201,13 +201,13 @@
                             <i data-lucide="moon" class="w-4 h-4 text-neutral-400"></i>
                             {{ __('social_media.low_traffic_title') }}
                         </span>
-                        <span class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-md bg-black/5 dark:bg-white/10">Sepi</span>
+                        <span class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-md bg-black/5 dark:bg-white/10">{{ __('social_media.intensity_low_short') }}</span>
                     </div>
                     <div class="text-[15px] font-bold text-black dark:text-white">
                         {{ $trafficTimingData['low_hours_text'] }}
                     </div>
                     <p class="text-[11px] text-black/55 dark:text-white/55 leading-snug">
-                        Hindari publikasi promo penting di jam ini karena audiens sedang offline.
+                        {{ __('social_media.low_traffic_hint') }}
                     </p>
                 </div>
 
@@ -218,13 +218,13 @@
                             <i data-lucide="calendar-check-2" class="w-4 h-4"></i>
                             {{ __('social_media.best_days_title') }}
                         </span>
-                        <span class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-md bg-[#007AFF]/20">Efektif</span>
+                        <span class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-md bg-[#007AFF]/20">{{ __('social_media.best_days_badge') }}</span>
                     </div>
                     <div class="text-[15px] font-bold text-black dark:text-white">
                         {{ $trafficTimingData['best_days_text'] }}
                     </div>
                     <p class="text-[11px] text-black/55 dark:text-white/55 leading-snug">
-                        Menjelang akhir pekan menghasilkan interaksi belanja paling tinggi.
+                        {{ __('social_media.best_days_hint') }}
                     </p>
                 </div>
 
@@ -235,13 +235,13 @@
                             <i data-lucide="clapperboard" class="w-4 h-4"></i>
                             {{ __('social_media.best_format_title') }}
                         </span>
-                        <span class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-md bg-[#AF52DE]/20">Viral</span>
+                        <span class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-md bg-[#AF52DE]/20">{{ __('social_media.best_format_badge') }}</span>
                     </div>
                     <div class="text-[14px] font-bold text-black dark:text-white truncate">
                         {{ $trafficTimingData['best_format_text'] }}
                     </div>
                     <p class="text-[11px] text-black/55 dark:text-white/55 leading-snug">
-                        Video pendek & multi-foto katalog menjangkau 2.4x akun baru.
+                        {{ __('social_media.best_format_hint') }}
                     </p>
                 </div>
             </div>
@@ -259,7 +259,7 @@
                             <p class="text-[11px] text-black/50 dark:text-white/50">{{ __('social_media.hourly_traffic_curve_sub') }}</p>
                         </div>
                         <span class="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md">
-                            Peak: 12.00 & 19.00
+                            {{ __('social_media.intensity_peak_short') }}: 12.00 & 19.00
                         </span>
                     </div>
                     <div class="h-48 sm:h-56 w-full relative">
@@ -330,7 +330,7 @@
                     <table class="w-full text-[11px] border-collapse min-w-[620px]">
                         <thead>
                             <tr class="text-black/50 dark:text-white/50 border-b border-black/[0.04] dark:border-white/[0.06]">
-                                <th class="py-2 px-3 text-left font-semibold w-24">Hari</th>
+                                <th class="py-2 px-3 text-left font-semibold w-24">{{ __('social_media.day_header') }}</th>
                                 <th class="py-2 px-3 text-center font-medium">{{ __('social_media.time_block_dawn') }}</th>
                                 <th class="py-2 px-3 text-center font-medium">{{ __('social_media.time_block_morning') }}</th>
                                 <th class="py-2 px-3 text-center font-medium">{{ __('social_media.time_block_work') }}</th>
@@ -352,10 +352,10 @@
                                                 default => 'bg-black/[0.03] dark:bg-white/[0.04] text-black/40 dark:text-white/40',
                                             };
                                             $cellText = match($slotScore) {
-                                                4 => 'Puncak',
-                                                3 => 'Ramai',
-                                                2 => 'Normal',
-                                                default => 'Sepi',
+                                                4 => __('social_media.intensity_peak_short'),
+                                                3 => __('social_media.intensity_high_short'),
+                                                2 => __('social_media.intensity_normal_short'),
+                                                default => __('social_media.intensity_low_short'),
                                             };
                                         @endphp
                                         <td class="py-2 px-2 text-center">
@@ -405,16 +405,16 @@
                                 </div>
                                 <div>
                                     <div class="text-[13px] font-bold text-black dark:text-white">{{ $fmt['name'] }}</div>
-                                    <div class="text-[11px] text-black/50 dark:text-white/50">{{ $fmt['count'] }} Postingan Terbit</div>
+                                    <div class="text-[11px] text-black/50 dark:text-white/50">{{ __('social_media.published_posts_count', ['count' => $fmt['count']]) }}</div>
                                 </div>
                             </div>
 
                             <div class="text-right">
                                 <div class="text-[13px] font-bold text-black dark:text-white tabular-nums">
-                                    {{ number_format($fmt['reach']) }} Reach
+                                    {{ number_format($fmt['reach']) }} {{ __('social_media.kpi_reach') }}
                                 </div>
                                 <div class="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold tabular-nums">
-                                    {{ number_format($fmt['engagement']) }} Interaksi
+                                    {{ number_format($fmt['engagement']) }} {{ __('social_media.kpi_engagement') }}
                                 </div>
                             </div>
                         </div>
@@ -434,7 +434,7 @@
                     </div>
 
                     <a href="{{ route('social-media.posts.index') }}" class="text-[12px] font-semibold text-[#007AFF] hover:underline flex items-center gap-1">
-                        Lihat Semua Postingan <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                        {{ __('social_media.view_all_posts') }} <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
                     </a>
                 </div>
 
@@ -492,19 +492,19 @@
                                 {{-- Metrics Row --}}
                                 <div class="pt-2 border-t border-black/[0.04] dark:border-white/[0.06] grid grid-cols-4 gap-1 text-center text-[10px]">
                                     <div>
-                                        <span class="text-black/45 dark:text-white/45 block">Reach</span>
+                                        <span class="text-black/45 dark:text-white/45 block">{{ __('social_media.kpi_reach') }}</span>
                                         <span class="font-bold text-black dark:text-white tabular-nums">{{ number_format($tpReach) }}</span>
                                     </div>
                                     <div>
-                                        <span class="text-black/45 dark:text-white/45 block">Suka</span>
+                                        <span class="text-black/45 dark:text-white/45 block">{{ __('social_media.kpi_likes') }}</span>
                                         <span class="font-bold text-[#FF2D55] tabular-nums">{{ number_format($tpLikes) }}</span>
                                     </div>
                                     <div>
-                                        <span class="text-black/45 dark:text-white/45 block">Komen</span>
+                                        <span class="text-black/45 dark:text-white/45 block">{{ __('social_media.kpi_comments') }}</span>
                                         <span class="font-bold text-[#AF52DE] tabular-nums">{{ number_format($tpComments) }}</span>
                                     </div>
                                     <div>
-                                        <span class="text-black/45 dark:text-white/45 block">Share</span>
+                                        <span class="text-black/45 dark:text-white/45 block">{{ __('social_media.kpi_shares') }}</span>
                                         <span class="font-bold text-[#007AFF] tabular-nums">{{ number_format($tpShares) }}</span>
                                     </div>
                                 </div>
@@ -514,8 +514,8 @@
                 @else
                     <div class="p-8 text-center rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5">
                         <i data-lucide="sparkles" class="w-8 h-8 text-black/20 dark:text-white/20 mx-auto mb-2"></i>
-                        <p class="text-[13px] font-semibold text-black/70 dark:text-white/70">Belum Ada Riwayat Konten</p>
-                        <p class="text-[11px] text-black/45 dark:text-white/45 mt-0.5">Postingan yang dibuat via Unified Composer akan diurutkan secara otomatis berdasarkan performa di sini.</p>
+                        <p class="text-[13px] font-semibold text-black/70 dark:text-white/70">{{ __('social_media.no_content_history_title') }}</p>
+                        <p class="text-[11px] text-black/45 dark:text-white/45 mt-0.5">{{ __('social_media.no_content_history_desc') }}</p>
                     </div>
                 @endif
             </div>
@@ -545,15 +545,15 @@
                                 </div>
                                 <div>
                                     <h4 class="text-[13px] font-bold text-black dark:text-white">Facebook</h4>
-                                    <p class="text-[11px] text-black/50 dark:text-white/50 truncate max-w-[140px]">{{ $fb['connected'] ? ($fb['account']->account_name ?? 'Halaman Facebook') : 'Halaman Bisnis' }}</p>
+                                    <p class="text-[11px] text-black/50 dark:text-white/50 truncate max-w-[140px]">{{ $fb['connected'] ? ($fb['account']->account_name ?? 'Facebook Page') : __('social_media.channel_desc_fb') }}</p>
                                 </div>
                             </div>
                             @if($fb['connected'])
                                 <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Aktif
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> {{ __('social_media.status_active') }}
                                 </span>
                             @else
-                                <span class="text-[11px] font-semibold text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded-full">Belum</span>
+                                <span class="text-[11px] font-semibold text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded-full">{{ __('social_media.not_connected') }}</span>
                             @endif
                         </div>
 
@@ -589,15 +589,15 @@
                                 </div>
                                 <div>
                                     <h4 class="text-[13px] font-bold text-black dark:text-white">Instagram</h4>
-                                    <p class="text-[11px] text-black/50 dark:text-white/50 truncate max-w-[140px]">{{ $ig['connected'] ? ($ig['account']->username ?? $ig['account']->account_name ?? '@toko') : 'Akun Profesional' }}</p>
+                                    <p class="text-[11px] text-black/50 dark:text-white/50 truncate max-w-[140px]">{{ $ig['connected'] ? ($ig['account']->username ?? $ig['account']->account_name ?? '@toko') : __('social_media.channel_desc_ig') }}</p>
                                 </div>
                             </div>
                             @if($ig['connected'])
                                 <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Aktif
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> {{ __('social_media.status_active') }}
                                 </span>
                             @else
-                                <span class="text-[11px] font-semibold text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded-full">Belum</span>
+                                <span class="text-[11px] font-semibold text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded-full">{{ __('social_media.not_connected') }}</span>
                             @endif
                         </div>
 
@@ -633,15 +633,15 @@
                                 </div>
                                 <div>
                                     <h4 class="text-[13px] font-bold text-black dark:text-white">TikTok</h4>
-                                    <p class="text-[11px] text-black/50 dark:text-white/50 truncate max-w-[140px]">{{ $tt['connected'] ? ($tt['account']->username ?? $tt['account']->account_name ?? 'Akun TikTok') : 'Kreator Bisnis' }}</p>
+                                    <p class="text-[11px] text-black/50 dark:text-white/50 truncate max-w-[140px]">{{ $tt['connected'] ? ($tt['account']->username ?? $tt['account']->account_name ?? 'TikTok Account') : __('social_media.channel_desc_tt') }}</p>
                                 </div>
                             </div>
                             @if($tt['connected'])
                                 <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Aktif
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> {{ __('social_media.status_active') }}
                                 </span>
                             @else
-                                <span class="text-[11px] font-semibold text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded-full">Belum</span>
+                                <span class="text-[11px] font-semibold text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded-full">{{ __('social_media.not_connected') }}</span>
                             @endif
                         </div>
 
@@ -677,15 +677,15 @@
                                 </div>
                                 <div>
                                     <h4 class="text-[13px] font-bold text-black dark:text-white">LinkedIn</h4>
-                                    <p class="text-[11px] text-black/50 dark:text-white/50 truncate max-w-[140px]">{{ $li['connected'] ? ($li['account']->account_name ?? 'Halaman Perusahaan') : 'Company Page' }}</p>
+                                    <p class="text-[11px] text-black/50 dark:text-white/50 truncate max-w-[140px]">{{ $li['connected'] ? ($li['account']->account_name ?? 'LinkedIn Page') : __('social_media.channel_desc_li') }}</p>
                                 </div>
                             </div>
                             @if($li['connected'])
                                 <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Aktif
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> {{ __('social_media.status_active') }}
                                 </span>
                             @else
-                                <span class="text-[11px] font-semibold text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded-full">Belum</span>
+                                <span class="text-[11px] font-semibold text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded-full">{{ __('social_media.not_connected') }}</span>
                             @endif
                         </div>
 
@@ -727,7 +727,7 @@
                 <div class="flex items-center gap-2">
                     <div class="relative min-w-[200px]">
                         <i data-lucide="search" class="w-4 h-4 text-black/40 dark:text-white/40 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
-                        <input type="text" x-model="searchQuery" placeholder="Cari konten postingan..."
+                        <input type="text" x-model="searchQuery" placeholder="{{ __('social_media.search_posts_placeholder') }}"
                             class="w-full h-9 pl-9 pr-3 rounded-[10px] text-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/5 dark:border-white/10 text-black dark:text-white placeholder:text-black/40 focus:outline-none focus:ring-1 focus:ring-[#007AFF]">
                     </div>
                 </div>
@@ -884,19 +884,19 @@
 
                             <div class="grid grid-cols-4 gap-2 pt-2 border-t border-black/5 dark:border-white/5 text-center text-[10px]">
                                 <div>
-                                    <span class="text-black/45 dark:text-white/45 block">Reach</span>
+                                    <span class="text-black/45 dark:text-white/45 block">{{ __('social_media.kpi_reach') }}</span>
                                     <span class="font-bold text-black dark:text-white tabular-nums" id="mobile-metric-reach-{{ $post->id }}">{{ number_format($pReach) }}</span>
                                 </div>
                                 <div>
-                                    <span class="text-black/45 dark:text-white/45 block">Suka</span>
+                                    <span class="text-black/45 dark:text-white/45 block">{{ __('social_media.kpi_likes') }}</span>
                                     <span class="font-bold text-[#FF2D55] tabular-nums" id="mobile-metric-likes-{{ $post->id }}">{{ number_format($pLikes) }}</span>
                                 </div>
                                 <div>
-                                    <span class="text-black/45 dark:text-white/45 block">Komentar</span>
+                                    <span class="text-black/45 dark:text-white/45 block">{{ __('social_media.kpi_comments') }}</span>
                                     <span class="font-bold text-[#AF52DE] tabular-nums" id="mobile-metric-comments-{{ $post->id }}">{{ number_format($pComments) }}</span>
                                 </div>
                                 <div>
-                                    <span class="text-black/45 dark:text-white/45 block">Rate</span>
+                                    <span class="text-black/45 dark:text-white/45 block">{{ __('social_media.kpi_engagement_rate') }}</span>
                                     <span class="font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">{{ number_format($pRate, 1) }}%</span>
                                 </div>
                             </div>
@@ -957,7 +957,7 @@
                                 labels: this.trendData.labels,
                                 datasets: [
                                     {
-                                        label: 'Tayangan (Impressions)',
+                                        label: @js(__('social_media.chart_legend_impressions')),
                                         data: this.trendData.impressions,
                                         borderColor: '#007AFF',
                                         backgroundColor: isDark ? 'rgba(0, 122, 255, 0.12)' : 'rgba(0, 122, 255, 0.06)',
@@ -968,7 +968,7 @@
                                         pointHoverRadius: 6,
                                     },
                                     {
-                                        label: 'Jangkauan (Reach)',
+                                        label: @js(__('social_media.chart_legend_reach')),
                                         data: this.trendData.reach,
                                         borderColor: '#34C759',
                                         backgroundColor: 'transparent',
@@ -1019,7 +1019,7 @@
                                 labels: this.trendData.labels,
                                 datasets: [
                                     {
-                                        label: 'Total Interaksi',
+                                        label: @js(__('social_media.chart_legend_engagement')),
                                         data: this.trendData.engagement,
                                         backgroundColor: '#FF9500',
                                         borderRadius: 6,
@@ -1063,7 +1063,7 @@
                             data: {
                                 labels: this.trafficTimingData.hourly_labels,
                                 datasets: [{
-                                    label: 'Trafik Views (%)',
+                                    label: @js(__('social_media.chart_views_pct')),
                                     data: this.trafficTimingData.hourly_scores,
                                     backgroundColor: barColors,
                                     borderRadius: 4,
@@ -1076,7 +1076,7 @@
                                     legend: { display: false },
                                     tooltip: {
                                         callbacks: {
-                                            label: (ctx) => 'Aktivitas Trafik: ' + ctx.parsed.y + '%'
+                                            label: (ctx) => @js(__('social_media.chart_traffic_activity')) + ' ' + ctx.parsed.y + '%'
                                         }
                                     }
                                 },
@@ -1113,7 +1113,6 @@
                             if (window.AppAlert) {
                                 AppAlert.success(data.message || '{{ __("social_media.accounts_insights_refreshed") }}');
                             }
-                            setTimeout(() => window.location.reload(), 800);
                         } else {
                             if (window.AppAlert) {
                                 AppAlert.error(data.error || '{{ __("social_media.sync_accounts_metrics_failed") }}');
@@ -1144,7 +1143,6 @@
                         if (window.AppAlert) {
                             AppAlert.success('{{ __("social_media.insights_refreshed") }}');
                         }
-                        setTimeout(() => window.location.reload(), 600);
                     } catch (e) {
                         if (window.AppAlert) {
                             AppAlert.error('{{ __("social_media.sync_partial_failure") }}');

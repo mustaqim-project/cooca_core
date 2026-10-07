@@ -1188,24 +1188,24 @@ class SocialMediaWebController extends Controller implements HasMiddleware
 
         // Daily traffic distribution (Senin - Minggu)
         $dailyDistribution = [
-            1 => ['name' => 'Senin',  'short' => 'Sen', 'views_pct' => 68, 'eng_pct' => 64, 'is_best' => false, 'badge' => 'Normal', 'badge_class' => 'bg-neutral-100 text-neutral-700 dark:bg-white/10 dark:text-neutral-300'],
-            2 => ['name' => 'Selasa', 'short' => 'Sel', 'views_pct' => 74, 'eng_pct' => 72, 'is_best' => false, 'badge' => 'Ramai', 'badge_class' => 'bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300'],
-            3 => ['name' => 'Rabu',   'short' => 'Rab', 'views_pct' => 80, 'eng_pct' => 78, 'is_best' => false, 'badge' => 'Ramai', 'badge_class' => 'bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300'],
-            4 => ['name' => 'Kamis',  'short' => 'Kam', 'views_pct' => 95, 'eng_pct' => 96, 'is_best' => true,  'badge' => 'Puncak (Peak)', 'badge_class' => 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300'],
-            5 => ['name' => 'Jumat',  'short' => 'Jum', 'views_pct' => 89, 'eng_pct' => 88, 'is_best' => false, 'badge' => 'Sangat Ramai', 'badge_class' => 'bg-purple-50 text-purple-700 dark:bg-purple-500/15 dark:text-purple-300'],
-            6 => ['name' => 'Sabtu',  'short' => 'Sab', 'views_pct' => 100,'eng_pct' => 100,'is_best' => true,  'badge' => 'Puncak (Peak)', 'badge_class' => 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300'],
-            7 => ['name' => 'Minggu', 'short' => 'Min', 'views_pct' => 86, 'eng_pct' => 84, 'is_best' => false, 'badge' => 'Sangat Ramai', 'badge_class' => 'bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300'],
+            1 => ['name' => __('social_media.day_monday'),    'short' => __('social_media.day_short_mon'), 'views_pct' => 68, 'eng_pct' => 64, 'is_best' => false, 'badge' => __('social_media.badge_normal'), 'badge_class' => 'bg-neutral-100 text-neutral-700 dark:bg-white/10 dark:text-neutral-300'],
+            2 => ['name' => __('social_media.day_tuesday'),   'short' => __('social_media.day_short_tue'), 'views_pct' => 74, 'eng_pct' => 72, 'is_best' => false, 'badge' => __('social_media.badge_busy'), 'badge_class' => 'bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300'],
+            3 => ['name' => __('social_media.day_wednesday'), 'short' => __('social_media.day_short_wed'), 'views_pct' => 80, 'eng_pct' => 78, 'is_best' => false, 'badge' => __('social_media.badge_busy'), 'badge_class' => 'bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300'],
+            4 => ['name' => __('social_media.day_thursday'),  'short' => __('social_media.day_short_thu'), 'views_pct' => 95, 'eng_pct' => 96, 'is_best' => true,  'badge' => __('social_media.badge_peak'), 'badge_class' => 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300'],
+            5 => ['name' => __('social_media.day_friday'),    'short' => __('social_media.day_short_fri'), 'views_pct' => 89, 'eng_pct' => 88, 'is_best' => false, 'badge' => __('social_media.badge_very_busy'), 'badge_class' => 'bg-purple-50 text-purple-700 dark:bg-purple-500/15 dark:text-purple-300'],
+            6 => ['name' => __('social_media.day_saturday'),  'short' => __('social_media.day_short_sat'), 'views_pct' => 100,'eng_pct' => 100,'is_best' => true,  'badge' => __('social_media.badge_peak'), 'badge_class' => 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300'],
+            7 => ['name' => __('social_media.day_sunday'),    'short' => __('social_media.day_short_sun'), 'views_pct' => 86, 'eng_pct' => 84, 'is_best' => false, 'badge' => __('social_media.badge_very_busy'), 'badge_class' => 'bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300'],
         ];
 
         // 7-day x 6-timeblock Heatmap
         $heatmapMatrix = [
-            'Senin'  => [1, 2, 3, 3, 3, 4],
-            'Selasa' => [1, 2, 3, 4, 3, 4],
-            'Rabu'   => [1, 2, 3, 4, 3, 4],
-            'Kamis'  => [1, 2, 4, 4, 4, 4],
-            'Jumat'  => [1, 2, 3, 4, 4, 4],
-            'Sabtu'  => [1, 2, 4, 4, 4, 4],
-            'Minggu' => [1, 2, 3, 4, 4, 3],
+            __('social_media.day_monday')    => [1, 2, 3, 3, 3, 4],
+            __('social_media.day_tuesday')   => [1, 2, 3, 4, 3, 4],
+            __('social_media.day_wednesday') => [1, 2, 3, 4, 3, 4],
+            __('social_media.day_thursday')  => [1, 2, 4, 4, 4, 4],
+            __('social_media.day_friday')    => [1, 2, 3, 4, 4, 4],
+            __('social_media.day_saturday')  => [1, 2, 4, 4, 4, 4],
+            __('social_media.day_sunday')    => [1, 2, 3, 4, 4, 3],
         ];
 
         $trafficTimingData = [
@@ -1214,19 +1214,19 @@ class SocialMediaWebController extends Controller implements HasMiddleware
             'hourly_scores'   => $hourlyScores,
             'daily'           => $dailyDistribution,
             'heatmap'         => $heatmapMatrix,
-            'peak_hours_text' => '12.00 - 14.00 & 19.00 - 21.00 WIB',
-            'low_hours_text'  => '01.00 - 06.00 WIB (Dini Hari)',
-            'best_days_text'  => 'Kamis & Sabtu',
-            'best_format_text'=> 'Video Pendek (Reels / TikTok) & Carousel Foto Katalog',
-            'summary'         => 'Audiens media sosial Anda paling aktif saat jam istirahat siang dan malam hari santai. Memposting pada rentang waktu ini meningkatkan interaksi hingga 2.8x lipat.',
+            'peak_hours_text' => __('social_media.peak_hours_text_val'),
+            'low_hours_text'  => __('social_media.low_hours_text_val'),
+            'best_days_text'  => __('social_media.best_days_text_val'),
+            'best_format_text'=> __('social_media.best_format_text_val'),
+            'summary'         => __('social_media.timing_summary_val'),
         ];
 
         // 5. Content Format Matrix Breakdown
         $formatStats = [
-            'video'    => ['name' => 'Video / Reels / TikTok', 'count' => 0, 'reach' => 0, 'engagement' => 0, 'icon' => 'video', 'color' => '#AF52DE'],
-            'carousel' => ['name' => 'Carousel / Multi-Foto', 'count' => 0, 'reach' => 0, 'engagement' => 0, 'icon' => 'layers', 'color' => '#007AFF'],
-            'image'    => ['name' => 'Foto Tunggal',           'count' => 0, 'reach' => 0, 'engagement' => 0, 'icon' => 'image', 'color' => '#34C759'],
-            'text'     => ['name' => 'Teks & Link',            'count' => 0, 'reach' => 0, 'engagement' => 0, 'icon' => 'file-text', 'color' => '#FF9500'],
+            'video'    => ['name' => __('social_media.format_video'),    'count' => 0, 'reach' => 0, 'engagement' => 0, 'icon' => 'video', 'color' => '#AF52DE'],
+            'carousel' => ['name' => __('social_media.format_carousel'), 'count' => 0, 'reach' => 0, 'engagement' => 0, 'icon' => 'layers', 'color' => '#007AFF'],
+            'image'    => ['name' => __('social_media.format_image'),    'count' => 0, 'reach' => 0, 'engagement' => 0, 'icon' => 'image', 'color' => '#34C759'],
+            'text'     => ['name' => __('social_media.format_text'),     'count' => 0, 'reach' => 0, 'engagement' => 0, 'icon' => 'file-text', 'color' => '#FF9500'],
         ];
 
         foreach ($allPosts as $p) {
