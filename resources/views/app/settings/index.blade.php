@@ -3153,6 +3153,9 @@
                     this.$nextTick(() => {
                         setTimeout(() => {
                             this.initBranchCreateMap();
+                            if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                                window.lucide.createIcons();
+                            }
                         }, 250);
                     });
                 },
@@ -3205,6 +3208,9 @@
                     this.$nextTick(() => {
                         setTimeout(() => {
                             this.initBranchEditMap();
+                            if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                                window.lucide.createIcons();
+                            }
                         }, 250);
                     });
                 },
