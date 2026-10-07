@@ -383,6 +383,21 @@ class SubscriptionPayment extends Model
         return $this->payment_gateway;
     }
 
+    public function getCreatedAtWibAttribute(): ?\Illuminate\Support\Carbon
+    {
+        return $this->created_at?->copy()->timezone('Asia/Jakarta');
+    }
+
+    public function getApprovedAtWibAttribute(): ?\Illuminate\Support\Carbon
+    {
+        return $this->approved_at?->copy()->timezone('Asia/Jakarta');
+    }
+
+    public function getExpiresAtWibAttribute(): ?\Illuminate\Support\Carbon
+    {
+        return $this->getExpiresAt()?->copy()->timezone('Asia/Jakarta');
+    }
+
     public function getTripayChannelCode(): string
     {
         $m = strtolower((string) $this->payment_method);

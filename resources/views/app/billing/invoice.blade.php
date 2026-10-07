@@ -122,6 +122,11 @@
                 : '30 ' . (app()->getLocale() === 'id' ? 'Hari (1 Bulan)' : 'Days (1 Month)'));
         $methodDetails = $payment->getPaymentMethodDetails();
 
+        $createdAtWib = $payment->created_at?->copy()->timezone('Asia/Jakarta');
+        $approvedAtWib = $payment->approved_at?->copy()->timezone('Asia/Jakarta');
+        $dueDateWib = $createdAtWib?->copy()->addDay();
+        $proofUploadedAtWib = $payment->proof_uploaded_at?->copy()->timezone('Asia/Jakarta');
+
         $siteLogoSetting = \App\Models\SystemSetting::get('site_logo_light')
             ?? \App\Models\SystemSetting::get('site_logo_dark');
 
@@ -233,7 +238,7 @@
                     </div>
                     <div style="font-size: 11px; color: #475569; line-height: 1.45;">
                         <p style="margin: 0; font-weight: 500;">{{ __('billing.company_tagline') }}</p>
-                        <p style="margin: 2px 0 0 0;">Website: https://cooca.id | Email: billing@cooca.id | CS: +62 852-8786-4176</p>
+                        <p style="margin: 2px 0 0 0;">Email: billing@cooca.id | CS: +62 852-8786-4176</p>
                     </div>
                 </div>
 
@@ -270,21 +275,21 @@
                 <div style="width: 48%; text-align: right; line-height: 1.5;">
                     <div style="display: flex; justify-content: flex-end; gap: 8px;">
                         <span style="color: #64748b;">{{ __('billing.invoice_date') }}</span>
-                        <span style="font-family: monospace; font-weight: 700; color: #000000;">{{ $payment->created_at->translatedFormat('d F Y') }}</span>
+                        <span style="font-family: monospace; font-weight: 700; color: #000000;">{{ $createdAtWib?->translatedFormat('d F Y') }}</span>
                     </div>
                     <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 2px;">
                         <span style="color: #64748b;">{{ __('billing.due_date') }}</span>
-                        <span style="font-family: monospace; font-weight: 700; color: #000000;">{{ $payment->created_at->copy()->addDay()->translatedFormat('d F Y') }}</span>
+                        <span style="font-family: monospace; font-weight: 700; color: #000000;">{{ $dueDateWib?->translatedFormat('d F Y') }}</span>
                     </div>
                     <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 2px;">
                         <span style="color: #64748b;">{{ __('billing.payment_method_label') }}</span>
                         <span style="font-weight: 700; color: #1e293b;">{{ $methodDetails['name'] ?? strtoupper($payment->payment_method) }}</span>
                     </div>
-                    @if ($payment->approved_at)
+                    @if ($approvedAtWib)
                         <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 2px;">
                             <span style="color: #64748b;">{{ __('billing.payment_time') }}</span>
                             <span style="font-family: monospace; font-weight: 800; color: #16a34a;">
-                                {{ $payment->approved_at->translatedFormat('d F Y, H:i') }} WIB
+                                {{ $approvedAtWib->translatedFormat('d F Y, H:i') }} WIB
                             </span>
                         </div>
                     @endif
