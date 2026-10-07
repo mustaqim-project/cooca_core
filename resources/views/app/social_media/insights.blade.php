@@ -433,7 +433,7 @@
                         <p class="text-[12px] text-black/50 dark:text-white/50">{{ __('social_media.top_posts_subtitle') }}</p>
                     </div>
 
-                    <a href="{{ route('social-media.posts') }}" class="text-[12px] font-semibold text-[#007AFF] hover:underline flex items-center gap-1">
+                    <a href="{{ route('social-media.posts.index') }}" class="text-[12px] font-semibold text-[#007AFF] hover:underline flex items-center gap-1">
                         Lihat Semua Postingan <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
                     </a>
                 </div>
@@ -742,7 +742,7 @@
                         <p class="text-[12px] text-black/50 dark:text-white/50 leading-relaxed">{{ __('social_media.no_insights_desc') }}</p>
                     </div>
                     <div>
-                        <a href="{{ route('social-media.create') }}" class="inline-flex items-center gap-2 px-4 py-2 min-h-[44px] sm:min-h-0 sm:h-9 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all shadow-sm">
+                        <a href="{{ route('social-media.posts.index') }}" class="inline-flex items-center gap-2 px-4 py-2 min-h-[44px] sm:min-h-0 sm:h-9 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all shadow-sm">
                             <i data-lucide="plus" class="w-4 h-4"></i>
                             {{ __('social_media.write_post_now_btn') }}
                         </a>
