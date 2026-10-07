@@ -34,6 +34,58 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 - **Database Changes:** Tabel baru, migrasi skema, kolom tambahan, atau indexing.
 - **API / Route Changes:** Endpoint baru atau perubahan signature HTTP.
 
+### [WORK-2026-10-07-324] Perbaikan & Peningkatan Wawasan Media Sosial (Insights Hub, Connected Channel Metrics & Omnichannel Multi-Target Sync)
+
+- **Date:** 2026-10-07
+- **Status:** COMPLETED
+- **Module:** Marketing, Social Media Marketing, Omnichannel Analytics
+- **Feature:** Connected Channels Performance Bento Grid, Live Account Metrics Sync (Meta Facebook, Instagram, TikTok, LinkedIn), Multi-Target Post Metrics Aggregation, Responsive Apple HIG Visuals
+- **Work Type:** Bug Fix | Feature | Architecture | UI/UX
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Pedagang/merchant (seperti "Toko Baju Pak Ruslan") yang telah menghubungkan akun media sosial resmi mereka (Facebook Page, Instagram Bisnis, TikTok, dan LinkedIn) membuka halaman analitik `https://cooca.id/social-media/insights`, namun halaman tersebut sebelumnya tidak menampilkan data statistik atau wawasan akun (seluruh angka 0 dan tabel kosong).
+- **Masalah/Target:**
+  1. Sebelumnya controller `insights()` hanya mengagregasi data dari entitas `SocialMediaPost` yang dipublikasikan dari Cooca. Jika merchant baru menghubungkan akun dan belum membuat postingan di Cooca, seluruh KPI bernilai 0 dan tidak ada informasi performa akun/halaman yang muncul.
+  2. Ketiadaan modul/kartu metrik akun terhubung (*Connected Channels Analytics Hub*) yang merangkum pertumbuhan pengikut (*followers/fans*), interaksi mingguan (*talking about*), jumlah media, dan *engagement rate* dari API resmi Facebook, Instagram, TikTok, dan LinkedIn.
+  3. Method `syncPostMetrics` di `SocialMediaService` sebelumnya hanya mendukung platform Meta, sehingga postingan dengan target TikTok, LinkedIn, atau *multi-target* `SocialPostTarget` tidak tersinkronisasi dengan benar.
+  4. Tombol "Segarkan Data / Tarik Live" pada JavaScript `refreshAllInsights()` sebelumnya memiliki *selector* `button[id^="sync-btn-"]` yang tidak cocok dengan ID tombol pada Blade view sehingga gagal mengeksekusi sinkronisasi.
+
+#### 2. What Was Done
+
+1. **Domain Service Enhancement (`SocialMediaService` & `SocialMediaManager`):**
+   - Menambahkan method `syncAccountMetrics(Business $business, SocialMediaAccount $account): array` untuk mengambil metrik organik langsung dari API resmi:
+     - **Facebook Page**: Pengikut (*followers*), Suka Halaman (*fans*), Interaksi Mingguan (*talking about*), Kategori Halaman.
+     - **Instagram Bisnis**: Pengikut (*followers*), Mengikuti (*following*), Total Media, Total Interaksi (*likes + comments*), *Engagement Rate* (%), media terbaru.
+     - **TikTok**: Creator Profile, Nickname, Posting API Readiness, Privasi.
+     - **LinkedIn**: Profil Member Terverifikasi, Status Otorisasi Share API.
+   - Menambahkan method `syncAllAccountMetrics(Business $business): array` untuk sinkronisasi otomatis seluruh akun terhubung.
+   - Merefaktor `syncPostMetrics(Business $business, SocialMediaPost $post): array` agar mendukung arsitektur multi-saluran independen via `SocialPostTarget` dan `SocialMediaManager::getProviderForChannel()`.
+2. **Controller & Route Optimization (`SocialMediaWebController` & `routes/owner.php`):**
+   - Memperbarui `SocialMediaWebController::insights()` untuk memuat data akun aktif, menghitung **Total Audiens / Pengikut** lintas saluran, serta menyusun array performa per saluran `$channelInsights`.
+   - Menambahkan endpoint AJAX `POST /social-media/insights/accounts/sync` (`social-media.insights.accounts.sync`) terlindungi throttling dan otorisasi tenant.
+3. **Bento Apple HIG UI Redesign (`insights.blade.php`):**
+   - **Hero Bento KPI Grid**: Menambahkan kartu utama *"Total Audiens / Pengikut"* lengkap dengan badge jumlah akun aktif terhubung, di samping Tayangan, Jangkauan, Interaksi, Suka, dan Komentar.
+   - **Connected Channels Performance Bento Grid**: 4 kartu saluran visual premier (Facebook Page, Instagram Bisnis, TikTok, LinkedIn) dengan badge warna resmi, status *Aktif Terhubung* (*emerald dot*), ringkasan pengikut, total konten, dan tingkat interaksi.
+   - **Bento Empty State & Onboarding Guide**: Panduan visual ramah saat belum ada postingan diterbitkan, mengajak merchant menggunakan Unified Composer dengan tombol CTA *"Tulis Postingan Sekarang"*.
+   - **Interactive JavaScript Engine**: Menghubungkan fungsi `refreshAllInsights()` dan `syncAccountsMetrics()` dengan endpoint sinkronisasi akun dan per-postingan, lengkap dengan animasi spinner, toast alert `AppAlert`, dan update DOM reaktif.
+4. **Verifikasi & Test Suite Komprehensif:**
+   - Menambahkan feature test `test_insights_view_displays_connected_accounts_and_metrics()` dan `test_merchant_can_sync_all_accounts_insights()` di `tests/Feature/SocialMedia/SocialMediaFeatureTest.php`.
+   - Menjalankan seluruh test suite Social Media (33 test, 149 assertions) lolos 100%.
+
+#### 3. Technical Changes
+
+- **Files Affected:**
+  - `app/Domain/SocialMedia/SocialMediaService.php`
+  - `app/Http/Controllers/Web/SocialMedia/SocialMediaWebController.php`
+  - `routes/owner.php`
+  - `resources/views/app/social_media/insights.blade.php`
+  - `lang/id/social_media.php`
+  - `lang/en/social_media.php`
+  - `tests/Feature/SocialMedia/SocialMediaFeatureTest.php`
+
+---
+
 ### [WORK-2026-10-07-323] Penegakan Batas Waktu Pembayaran 15 Menit, Auto-Cancellation Tagihan Kadaluwarsa, Nonaktifkan QR & Link TriPay, dan Alur Pengajuan Ulang
 
 - **Date:** 2026-10-07
