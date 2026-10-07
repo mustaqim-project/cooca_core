@@ -32,6 +32,62 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 - **Files Affected:** Daftar berkas controller, service, model, blade, atau route yang dimodifikasi.
 - **Database Changes:** Tabel baru, migrasi skema, kolom tambahan, atau indexing.
+### [WORK-2026-10-07-330] Integrasi Kotak Masuk Terpadu Omnichannel (WhatsApp & Meta Business Suite) dengan Cooca AI Grounded Knowledge Assistant & Mini CRM Backoffice
+
+- **Date:** 2026-10-07
+- **Status:** COMPLETED
+- **Module:** Communication & Channels Marketing (`/social-media/inbox`, `/whatsapp/inbox`, `app/Domain/Ai/CustomerSupportAiService.php`)
+- **Feature:** Unified 3-Column Omnichannel Inbox (WhatsApp, Meta Messenger, Instagram Direct, Facebook Comments, Instagram Comments), Grounded Product Knowledge Cooca AI Smart Assistant, Customer CRM (Label Status, wa.me Link, Catatan CS Internal), Quick Replies & Katalog Produk Sisip Chat.
+- **Work Type:** Feature | Architecture | AI Grounding | UI/UX (Meta Business Suite + Apple HIG)
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Pedagang/UMKM pengguna Cooca memerlukan pengelolaan seluruh percakapan pelanggan lintas saluran (WhatsApp resmi Meta Cloud API, Facebook Messenger, Instagram Direct, serta komentar Facebook & Instagram) dalam satu dashboard terpadu tanpa harus berganti-ganti aplikasi atau membuka Meta Business Suite secara terpisah.
+- **Masalah:** Sebelumnya, pesan WhatsApp tersimpan di log gateway tersendiri, sementara komentar media sosial dikelola di tabel terpisah. Belum ada asisten AI yang dapat menyusun draf balasan percakapan secara cerdas dan akurat berdasarkan stok dan harga produk nyata, serta belum ada integrasi CRM (label pelanggan & catatan internal) yang melekat pada alur chat.
+- **Target:** Membangun layout Kotak Masuk 3 kolom ala Meta Business Suite yang dipadukan dengan Apple HIG:
+  1. Kolom 1 (Kiri): Tab filter saluran (WhatsApp, Messenger, Instagram, Komentar Facebook/IG), filter status (Belum Dibaca, Balasan Iklan, Tindak Lanjut), pencarian nama/pesan, tautan cepat wa.me dengan salin instan, dan daftar percakapan aktif.
+  2. Kolom 2 (Tengah): Ruang percakapan interaktif, riwayat chat, penugasan CS, Cooca AI Smart Assistant dengan tombol "Draft Balasan Cooca AI", modal pemilih produk real-time, template balasan cepat, lampiran file, dan tombol kirim pesan.
+  3. Kolom 3 (Kanan): Mini CRM Profil Pelanggan dengan info "Tentang" (no. HP, status prospek), "Label" (tagging pelanggan seperti 'Pelanggan Baru', 'Prospek Hangat'), dan "Catatan" riwayat interaksi internal staf.
+  4. Cooca AI Grounding: AI dilarang berhalusinasi atau mengarang produk/harga/stok yang tidak ada di database toko, ditenagai oleh `CustomerSupportAiService` yang membaca langsung koleksi `Product`, `stocks`, `selling_price`, `Voucher` aktif, dan profil bisnis.
+
+#### 2. What Was Done
+
+1. **Pembuatan Service Cooca AI Grounded (`app/Domain/Ai/CustomerSupportAiService.php`):**
+   - Mengambil data real tenant toko (`Product` aktif dengan relasi `stocks`, `Voucher` aktif, informasi profil bisnis).
+   - Membangun system prompt berkeamanan tinggi dengan aturan ketat: *Strict Anti-Hallucination Guardrail* (dilarang mengarang informasi, harga, atau stok yang tidak tercatat).
+   - Menyediakan mesin balasan fallback cerdas berbasis data katalog nyata jika API provider AI belum terkonfigurasi pada tenant.
+2. **Pengembangan Controller & Agregasi Data Omnichannel (`SocialMediaWebController.php`):**
+   - Method `inbox(Request $request)` diperluas untuk mengagregasi data percakapan WhatsApp (`WhatsAppMessageLog`) dan media sosial (`SocialMediaComment`).
+   - Implementasi helper `buildOmnichannelThreads()` untuk menyatukan struktur thread obrolan, status bintang, label, dan riwayat pesan ke format standar.
+   - Endpoint AJAX terproteksi dengan rate-limiter: `sendReply()`, `generateAiReply()`, `updateConversationStatus()`, `updateCustomerLabels()`, dan `addCustomerNote()`.
+3. **Penyatuan Navigasi & Integrasi Antar-Modul:**
+   - Menambahkan tab "Kotak Masuk Terpadu" pada registri navigasi modul `communication` (`NavigationRegistry.php`).
+   - Menambahkan rute pengarah `Route::get('/whatsapp/inbox', ...)` yang langsung membuka filter WhatsApp pada Kotak Masuk Terpadu.
+   - Menambahkan tombol aksi navigasi cepat "Kotak Masuk Terpadu" pada header dan kartu status WhatsApp (`whatsapp/index.blade.php`).
+4. **Desain Antarmuka 3 Kolom Responsif (`social_media/inbox.blade.php`):**
+   - Dirancang murni menggunakan Tailwind CSS dan Alpine.js dengan estetika Apple HIG & Meta Business Suite.
+   - Menyertakan modal pemilihan katalog produk untuk menyisipkan nama, harga, dan stok ke draf chat dalam 1 klik.
+   - Mengadopsi sistem notifikasi non-native browser (`window.AppAlert`) dan perlindungan DOM aman (`replaceChildren()`, `@js()`).
+5. **Verifikasi Kualitas & Keamanan (Test Suite):**
+   - Seluruh 75 pengujian fitur dan hardening media sosial (`tests/Feature/SocialMedia`) lulus (green).
+   - Seluruh 58 pengujian modul WhatsApp (`tests/Feature/WhatsApp`) lulus (green).
+   - Pengujian komponen navigasi bersama (`SharedNavigationComponentsTest`) lulus (green).
+
+#### 3. Technical Changes
+
+- **Files Affected:**
+  - `app/Domain/Ai/CustomerSupportAiService.php` (Service Baru)
+  - `app/Http/Controllers/Web/SocialMedia/SocialMediaWebController.php`
+  - `app/Support/Navigation/NavigationRegistry.php`
+  - `resources/views/app/social_media/inbox.blade.php`
+  - `resources/views/app/whatsapp/index.blade.php`
+  - `routes/owner.php`
+  - `lang/id/social_media.php` & `lang/en/social_media.php`
+- **Database / Models Used:**
+  - `SocialMediaComment`, `SocialMediaAccount`, `WhatsAppMessageLog`, `WhatsAppAccount`, `Customer`, `Product`, `Voucher`, `Business`, `User`.
+
+---
+
 ### [WORK-2026-10-07-329] Penyesuaian Proporsional Ukuran Card Live Preview dengan Dimensi Konten Format Media (Social Media Studio Composer)
 
 - **Date:** 2026-10-07
