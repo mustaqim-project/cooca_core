@@ -36,6 +36,74 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 #### 4. System Impacts
 
+### [WORK-2026-10-07-320] Implementasi Admin Billing Packages Control, Subscription Promo & Voucher Engine, serta Integrasi Pembayaran TriPay Terpadu
+
+- **Date:** 2026-10-07
+- **Status:** COMPLETED
+- **Module:** Billing, SaaS Subscription, Admin Panel, Finance & Accounting
+- **Feature:** Dynamic Admin Billing Package Pricing, Subscription Promo Code & Voucher Management, Checkout Real-time Discount Validator, Promo Usage Audit Tracking, TriPay Automatic Channels, dan Bento Apple HIG Views
+- **Work Type:** Feature | Architecture | Finance | Security | UI/UX | Bug Fix
+
+#### 1. Business Context & Objective
+- **Konteks:** Menanggapi kebutuhan manajemen paket SaaS dan strategi pemasaran langganan: superadmin platform membutuhkan kontrol penuh terhadap harga paket langganan dan kuota add-on langsung dari Admin Panel tanpa menyentuh kode. Selain itu, diperlukan sistem kode kupon/voucher promo langganan untuk kampanye diskon (persentase maupun nominal tetap), pembatasan kuota penggunaan global & per bisnis, validasi tier/siklus, serta pencatatan audit finansial yang akuntabel dan presisi.
+- **Masalah/Target:**
+  1. Kontrol harga paket langganan, masa aktif, kuota AI & storage dapat dikelola dinamis di admin panel (`/admin/billing-packages`).
+  2. Implementasi modul voucher promo langganan (`SubscriptionPromo` & `SubscriptionPromoUsage`) lengkap dengan validasi skema promo terbaik (WELCOME30, EARLYBIRD50, UMKMBERKAH, TAHUNANHEMAT, COOCASULTAN).
+  3. UI Checkout (`/billing/checkout`) dilengkapi kolom input promo interaktif dengan preview diskon real-time dan update total tagihan otomatis.
+  4. Bila diskon mencapai 100% (voucher gratis), pesanan langsung diaktifkan secara instan (`STATUS_APPROVED`) tanpa melempar ke payment gateway TriPay.
+  5. Pencatatan finansial presisi: merekam `original_amount`, `discount_amount`, dan `final_paid_amount` serta audit trail pemakaian promo per tenant.
+  6. Perbaikan kompatibilitas signature `validateFor()`, accessors `formatted_discount`, `original_amount`, `final_amount`, dan route form method toggle.
+
+#### 2. What Was Done
+1. **Model Basis Data & Migrasi Skema Promo**:
+   - Dibuat migrasi `2026_10_07_000002_create_subscription_promos_and_usages_tables.php`:
+     - Tabel `subscription_promos`: `id`, `code`, `name`, `description`, `discount_type`, `discount_value`, `max_discount_amount`, `min_order_amount`, `valid_from`, `valid_until`, `usage_limit`, `used_count`, `usage_per_business_limit`, `applicable_tiers`, `applicable_cycles`, `is_active`.
+     - Tabel `subscription_promo_usages`: `id`, `promo_id`, `business_id`, `user_id`, `subscription_payment_id`, `order_number`, `discount_amount`, `final_paid_amount`.
+     - Kolom tambahan pada `subscription_payments`: `promo_id`, `promo_code`, `discount_amount`.
+   - Model `App\Models\SubscriptionPromo` dengan helper `validateFor()`, `calculateDiscount()`, scope `active()`, dan accessor `formatted_discount`.
+   - Model `App\Models\SubscriptionPromoUsage` dengan relasi `promo`, `business`, `user`, `payment`, dan accessor `original_amount`, `final_amount`.
+2. **Admin Promo Management Hub (Bento Apple HIG v2.0)**:
+   - Controller `App\Http\Controllers\Admin\AdminPromoController`: CRUD lengkap, toggle keaktifan promo, hapus promo, dan sinkronisasi default seeders.
+   - View `resources/views/admin/promos/index.blade.php`: Tampilan Bento Apple HIG, kartu ringkasan KPI (total promo, promo aktif, total klaim, akumulasi diskon), tabel riwayat audit pemakaian, dan modal pembuatan/edit voucher promo.
+   - Pendaftaran rute di `routes/admin.php` di bawah prefix `promos`.
+   - Seeder `SubscriptionPromoSeeder` berisi 6 skema promo unggulan (WELCOME30, EARLYBIRD50, UMKMBERKAH, TAHUNANHEMAT, COOCASULTAN, FREEPROMO).
+3. **Checkout Experience & Entitlement Engine**:
+   - Endpoint `POST /billing/promo/validate` pada `SubscriptionCheckoutWebController` untuk validasi kupon instan via AJAX.
+   - Integrasi penghitungan diskon promo di `EntitlementService::createPaymentOrder()` dan `createPackageOrder()`.
+   - Update `resources/views/app/billing/checkout.blade.php`: Input kode promo dengan status validasi real-time, badge diskon, kalkulasi harga final dinamis, serta tombol aktivasi voucher 100%.
+   - Pemeliharaan kompatibilitas kanal QRIS TriPay dengan label standar Bank Indonesia dan dukungan perbankan nasional (BCA, Livin Mandiri, BRImo).
+4. **Automated Testing & Verifikasi Penuh**:
+   - Pembuatan feature test suite `tests/Feature/SubscriptionPromoSystemTest.php` (7 tests, 27 assertions, 100% PASS).
+   - Pengujian lulus pada `BillingPackageCatalogTest`, `BillingSubscriptionCheckoutActiveChannelsTest`, dan `FreePromoTrialPackageActivationTest`.
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `database/migrations/2026_10_07_000002_create_subscription_promos_and_usages_tables.php`
+  - `app/Models/SubscriptionPromo.php`
+  - `app/Models/SubscriptionPromoUsage.php`
+  - `app/Models/SubscriptionPayment.php`
+  - `app/Domain/Billing/EntitlementService.php`
+  - `app/Http/Controllers/Admin/AdminPromoController.php`
+  - `app/Http/Controllers/Admin/AdminBillingPackageController.php`
+  - `app/Http/Controllers/Admin/AdminSettingController.php`
+  - `app/Http/Controllers/Web/Billing/SubscriptionCheckoutWebController.php`
+  - `database/seeders/SubscriptionPromoSeeder.php`
+  - `resources/views/admin/promos/index.blade.php`
+  - `resources/views/admin/billing-packages/index.blade.php`
+  - `resources/views/app/billing/checkout.blade.php`
+  - `resources/views/app/billing/invoice.blade.php`
+  - `resources/views/app/billing/payment.blade.php`
+  - `resources/views/layouts/admin.blade.php`
+  - `routes/admin.php`
+  - `routes/owner.php`
+  - `tests/Feature/SubscriptionPromoSystemTest.php`
+  - `tests/Feature/BillingSubscriptionCheckoutActiveChannelsTest.php`
+
+#### 4. System Impacts
+- Superadmin kini memiliki kendali komprehensif terhadap paket harga langganan dan kampanye promo diskon.
+- Pemilik usaha UMKM dapat memanfaatkan voucher promosi secara transparan saat checkout langganan.
+- Seluruh riwayat diskon tercatat rapi di tabel audit pemakaian tanpa merusak integritas buku besar dan laporan keuangan SaaS.
+
 ### [WORK-2026-10-07-319] Implementasi Universal Multi-Tenant Model Context Protocol (MCP) Server & Multi-Provider AI Gateway (Claude, Cursor, ChatGPT Actions, Gemini, Ollama, LangChain, n8n)
 
 - **Date:** 2026-10-07

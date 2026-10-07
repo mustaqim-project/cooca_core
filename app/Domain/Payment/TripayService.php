@@ -111,7 +111,7 @@ final class TripayService
             [
                 'group' => 'E-Wallet / QRIS',
                 'code' => 'QRIS',
-                'name' => 'QRIS Dinamis (GoPay, OVO, ShopeePay, BCA, Livin, BRImo)',
+                'name' => 'QRIS Dinamis (GoPay, OVO, ShopeePay, BCA, Livin Mandiri, BRImo)',
                 'type' => 'qris',
                 'fee_merchant' => ['flat' => 750, 'percent' => 0.7],
                 'fee_customer' => ['flat' => 0, 'percent' => 0],

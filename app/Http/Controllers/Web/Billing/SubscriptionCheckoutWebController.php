@@ -80,7 +80,7 @@ final class SubscriptionCheckoutWebController extends Controller
 
             return (object) [
                 'bank_code' => $code,
-                'bank_name' => $method['name'] ?? ($isQris ? 'QRIS Dinamis (GoPay, OVO, ShopeePay, BCA, Livin, BRImo)' : strtoupper($code)),
+                'bank_name' => $isQris ? 'QRIS Dinamis (GoPay, OVO, ShopeePay, BCA, Livin Mandiri, BRImo)' : ($method['name'] ?? strtoupper($code)),
                 'type' => $isQris ? PaymentAccount::TYPE_QRIS : ($method['type'] ?? 'virtual_account'),
                 'account_number' => $isQris ? 'Scan QR Code Cooca Pay' : ($method['code'] ?? 'Nomor VA Otomatis'),
                 'account_name' => 'Cooca ID',

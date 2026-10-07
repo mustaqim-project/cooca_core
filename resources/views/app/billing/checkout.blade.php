@@ -802,10 +802,12 @@
                                             <span>{{ $account->bank_name }}</span>
                                             @if ($account->type === \App\Models\PaymentAccount::TYPE_QRIS || $account->bank_code === 'qris')
                                                 <span class="text-[11px] font-semibold text-[#34C759]">
+                                                    Standar Bank Indonesia
                                                 </span>
                                             @else
                                                 <span
                                                     class="text-[10px] font-medium text-blue-600 dark:text-blue-400 uppercase tracking-wider font-mono">
+                                                    {{ strtoupper($account->bank_code) }}
                                                 </span>
                                             @endif
                                         </div>

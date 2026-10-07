@@ -67,6 +67,20 @@ Command konsol `app:process-subscription-lifecycle` dijalankan terjadwal untuk m
   - Panel konfigurasi fallback bawaan platform (`subscription_price_monthly`, `subscription_price_annual`, `subscription_annual_discount_badge`, `storage_topup_price`, `storage_topup_gb`, `owner_storage_limit_gb`).
 * **Kepatuhan Desain Apple HIG v2.0:** Mengadopsi Bento Cards squircle `rounded-[22px]`, Apple Pill Segmented Control, modal edit inset dialog `rounded-[28px]`, input anti auto-zoom iOS `text-[16px] sm:text-[13px]`, tipografi angka murni `tabular-nums`, serta kepatuhan Anti-Pill-Abuse (maksimal 1 badge status resmi `Aktif`/`Nonaktif`, nol fake pulse dots) dan aturan Zero Unicode Emoji.
 
+### 3.6 Mesin Voucher Promo & Diskon Langganan (Subscription Promo Engine)
+* **Manajemen Promo Superadmin (`/admin/promos`):**
+  - Mendaftarkan dan mengelola kode promo / kupon diskon langganan (`SubscriptionPromo`).
+  - Tipe diskon: Persentase (`percentage`) dengan batas nominal maksimal (`max_discount_amount`), atau Potongan Tetap (`fixed`).
+  - Guardrails Validasi: Periode aktif (`valid_from` s/d `valid_until`), batas kuota global (`usage_limit`), batas kuota per bisnis (`usage_per_business_limit`), batas minimal transaksi (`min_order_amount`), serta pembatasan tier (`applicable_tiers`) dan siklus pembayaran (`applicable_cycles`).
+  - Skema promo bawaan (Seeder): `WELCOME30` (diskon 30% UMKM baru), `EARLYBIRD50` (diskon 50% early bird), `UMKMBERKAH` (potongan tetap Rp 50.000), `TAHUNANHEMAT` (ekstra diskon 20% paket tahunan), `COOCASULTAN` (diskon 25% tier Prestige).
+* **Integrasi Checkout Tenant (`/billing/checkout` & `POST /billing/promo/validate`):**
+  - Validasi kode kupon secara interaktif melalui AJAX sebelum pembayaran dilakukan.
+  - Menampilkan badge diskon, nominal hemat, dan rekalkulasi total tagihan secara transparan.
+  - **Aktivasi Otomatis Voucher 100%:** Jika kupon memberikan diskon 100% (total bayar Rp 0), pesanan langsung disetujui seketika (`STATUS_APPROVED`) tanpa melalui payment gateway TriPay.
+* **Audit Trail & Akuntansi Keuangan (`subscription_promo_usages`):**
+  - Setiap pemakaian promo tercatat atomik: merekam `promo_id`, `business_id`, `user_id`, `subscription_payment_id`, `discount_amount`, dan `final_paid_amount`.
+  - Transaksi `subscription_payments` mencatat `discount_amount`, `promo_code`, dan `promo_id` untuk rekonsiliasi keuangan platform.
+
 ---
 
 ## 4. Aturan Bisnis Billing (Business Rules)
@@ -75,3 +89,5 @@ Command konsol `app:process-subscription-lifecycle` dijalankan terjadwal untuk m
 * **RULE-BILL-002 (Package Snapshot on Payment):** Setiap transaksi pembayaran langganan wajib menyimpan snapshot spesifikasi paket saat pembayaran dilakukan (`billing_package_snapshot`) agar tidak terpengaruh jika harga paket platform diubah di kemudian hari.
 * **RULE-BILL-003 (Cashier Guarantee during Grace Period):** Selama 3 hari pertama masa tenggang (status `past_due`), transaksi kasir POS wajib diizinkan tetap beroperasi tanpa hambatan.
 * **RULE-BILL-004 (Strict Storefront Hosting & Canonical Direct Slug):** Seluruh etalase publik tenant wajib dilayani secara kanonikal di bawah `cooca.id/{slug-bisnis}` dengan rute alias `/b/{slug}` untuk backward compatibility. Bebas 100% dari dependensi custom domain.
+* **RULE-BILL-005 (Promo Usage Quota Atomicity):** Penambahan counter pemakaian promo (`used_count`) dan pencatatan audit `subscription_promo_usages` wajib dieksekusi secara atomik dalam satu transaksi database saat order dibuat.
+* **RULE-BILL-006 (Zero-Gateway for 100% Promo):** Tagihan dengan nilai akhir Rp 0 akibat voucher diskon 100% dilarang diteruskan ke payment gateway TriPay; sistem wajib memproses aktivasi instan dengan metode `free_promo`.

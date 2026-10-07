@@ -826,6 +826,9 @@ Dokumentasi Cooca saling terhubung secara dua arah untuk memudahkan penelusuran 
    └──► Hardening Gudang & Pemasok ──► docs/prd/PRD-32-WAREHOUSE-AND-SUPPLIERS-HARDENING-MULTI-INDUSTRY-I18N.md ──► resources/views/app/warehouse/ & suppliers/
                                                                                                                    └──► WORK-2026-10-04-289 / WORK-2026-10-04-290 / WORK-2026-10-04-291 / WORK-2026-10-05-307 (Route warehouse.edit & Bento Modal Sheet Navigation)
     │
-    └──► MCP Server & AI Gateway ───► docs/system/modules/mcp-server-and-ai-integrations.md ──► app/Domain/Mcp/ & resources/views/app/settings/integrations/mcp.blade.php
-                                                                                                    └──► WORK-2026-10-07-319 (Universal MCP Server, 10 Tools, Multi-Provider Support)
+    ├──► MCP Server & AI Gateway ───► docs/system/modules/mcp-server-and-ai-integrations.md ──► app/Domain/Mcp/ & resources/views/app/settings/integrations/mcp.blade.php
+    │                                                                                                   └──► WORK-2026-10-07-319 (Universal MCP Server, 10 Tools, Multi-Provider Support)
+    │
+    └──► Billing Packages & Promos ─► docs/system/modules/saas-billing.md ─────────────────────► AdminPromoController & SubscriptionCheckoutWebController
+                                                                                                        └──► WORK-2026-10-07-320 (Subscription Promo Codes, Checkout Voucher Validation, Audit Usages)
 ```
