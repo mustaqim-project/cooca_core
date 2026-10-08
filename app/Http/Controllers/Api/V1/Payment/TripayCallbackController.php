@@ -8,6 +8,7 @@ use App\Domain\Accounting\AutoJournalService;
 use App\Domain\Billing\EntitlementService;
 use App\Domain\Inventory\StockService;
 use App\Domain\Payment\TripayService;
+use App\Domain\Pos\PosOrderService;
 use App\Domain\WhatsApp\WhatsAppGatewayService;
 use App\Http\Controllers\Controller;
 use App\Models\CashAccount;
@@ -32,7 +33,8 @@ final class TripayCallbackController extends Controller
         private readonly StockService $stockService = new StockService(),
         private readonly WhatsAppGatewayService $waGateway = new WhatsAppGatewayService(),
         private readonly EntitlementService $entitlementService = new EntitlementService(),
-        private readonly AutoJournalService $journalService = new AutoJournalService()
+        private readonly AutoJournalService $journalService = new AutoJournalService(),
+        private readonly PosOrderService $orderService = new PosOrderService()
     ) {}
 
     /**
@@ -363,79 +365,12 @@ final class TripayCallbackController extends Controller
 
         try {
             if ($status === 'PAID') {
-                DB::transaction(function () use ($order, $tripayReference, $totalFee, $payload) {
-                    $paymentChannel = (string) ($payload['payment_method'] ?? ($order->payment_channel ?? 'QRIS'));
-                    $calculatedFee = strtoupper($paymentChannel) === 'QRIS'
-                        ? $this->tripayService->calculateQrisFee((float) $order->total_amount)
-                        : ($totalFee > 0 ? $totalFee : (float) ($order->gateway_fee ?? 0.0));
-
-                    $order->update([
-                        'status' => PosOrder::STATUS_CONFIRMED,
-                        'paid_amount' => $order->total_amount,
-                        'change_amount' => 0.0,
-                        'payment_gateway' => PosOrder::GATEWAY_TRIPAY,
-                        'payment_channel' => $paymentChannel,
-                        'gateway_reference' => $tripayReference ?: $order->gateway_reference,
-                        'gateway_fee' => $calculatedFee,
-                    ]);
-
-                    PosOrderPayment::firstOrCreate(
-                        [
-                            'pos_order_id' => $order->id,
-                            'reference_number' => $tripayReference,
-                        ],
-                        [
-                            'payment_method' => 'qris',
-                            'amount' => $order->total_amount,
-                            'fee_amount' => $calculatedFee,
-                            'net_amount' => max(0.0, $order->total_amount - $calculatedFee),
-                            'status' => 'paid',
-                            'notes' => "Lunas otomatis via TriPay {$paymentChannel} (Meja " . ($order->table_or_reference ?? '-') . ')',
-                        ]
-                    );
-
-                    // Commit recipe / BOM material stock for each item
-                    foreach ($order->items as $item) {
-                        if ($item->product_id) {
-                            $product = Product::find($item->product_id);
-                            if ($product && ! $product->isService()) {
-                                $this->stockService->deductForProductSale(
-                                    businessId: $order->business_id,
-                                    locationId: $order->location_id,
-                                    product: $product,
-                                    productQuantity: (float) $item->quantity,
-                                    unitCost: (float) ($product->base_cost ?? 0.0),
-                                    orderId: $order->id,
-                                    orderNumber: $order->order_number,
-                                    userId: $order->user_id,
-                                    movementType: \App\Models\StockMovement::TYPE_POS_SALE,
-                                    notes: "Penjualan QR Meja #{$order->order_number}"
-                                );
-                            }
-                        }
-                    }
-
-                    // Auto-post to Cash Ledger
-                    $this->recordStoreCashInflow(
-                        $order->business_id,
-                        max(0.0, (float) $order->total_amount - $calculatedFee),
-                        "Penjualan QR Meja #{$order->order_number} ({$paymentChannel})",
-                        $order->id
-                    );
-
-                    // Automatic Double-Entry Accounting Journal
-                    try {
-                        $this->journalService->recordPosSaleJournal($order->fresh(['business', 'payments', 'items']));
-                    } catch (Throwable $e) {
-                        Log::warning("[TripayCallback] Auto-journal POS order failed: " . $e->getMessage());
-                    }
-                });
-
+                $order = $this->orderService->confirmQrisPayment($order, $tripayReference, $totalFee, $payload);
                 $this->sendPosTablePaymentWhatsApp($order);
             } elseif (in_array($status, ['EXPIRED', 'FAILED'], true)) {
                 $order->update([
                     'status' => PosOrder::STATUS_VOIDED,
-                    'void_reason' => 'Pembayaran QRIS Meja kadaluarsa/gagal via gateway.',
+                    'void_reason' => 'Pembayaran QRIS kadaluarsa/gagal via gateway.',
                 ]);
             }
 

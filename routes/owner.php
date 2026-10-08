@@ -505,6 +505,9 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         Route::get('/pos/receipt/{order}', [PosTerminalWebController::class, 'printReceipt'])->name('pos.receipt');
         Route::post('/pos/receipt/{order}/reprint', [PosTerminalWebController::class, 'reprintReceipt'])->name('pos.receipt.reprint');
         Route::get('/pos/receipt/{order}/image', [PosTerminalWebController::class, 'receiptImage'])->name('pos.receipt.image');
+        Route::get('/pos/orders/{order}/status', [PosTerminalWebController::class, 'checkOrderStatus'])->middleware('require.permission:pos.terminal')->name('pos.orders.status');
+        Route::post('/pos/orders/{order}/cancel-qris', [PosTerminalWebController::class, 'cancelQrisOrder'])->middleware('require.permission:pos.terminal')->name('pos.orders.cancel-qris');
+        Route::post('/pos/orders/{order}/simulate-qris', [PosTerminalWebController::class, 'simulateSandboxPayment'])->middleware('require.permission:pos.terminal')->name('pos.orders.simulate-qris');
         Route::post('/pos/verify-pin', [PosTerminalWebController::class, 'verifySupervisorPin'])->middleware('throttle:5,1')->name('pos.verify-pin');
         Route::post('/pos/reservations/{reservation}/seat', [PosTerminalWebController::class, 'seatReservation'])->middleware('require.permission:pos.terminal')->name('pos.reservations.seat');
 

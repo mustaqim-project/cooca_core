@@ -2258,7 +2258,7 @@
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" /></svg>
                             <span>Tunai (Cash)</span>
                         </button>
-                        <button type="button" @click="selectedPayMethod = 'qris'"
+                        <button type="button" @click="selectedPayMethod = 'qris'; currentTenderAmount = grandTotal;"
                             :class="selectedPayMethod === 'qris' ? 'bg-[#007AFF] text-white ring-2 ring-[#007AFF]/30' : 'bg-black/[0.03] dark:bg-white/[0.05] text-black/80 dark:text-white/80 hover:bg-black/[0.06] dark:hover:bg-white/[0.08]'"
                             class="p-3 rounded-[14px] flex flex-col items-center justify-center gap-1.5 text-xs font-semibold transition active:scale-[0.97] border border-black/5 dark:border-white/5">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" /></svg>
@@ -2312,9 +2312,20 @@
 
                 <!-- Input Nominal Tender -->
                 <div>
-                    <label class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1.5">Nominal Uang Bayar (Rp)</label>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="block text-xs font-semibold text-black/70 dark:text-white/70">Nominal Uang Bayar (Rp)</label>
+                        <span x-show="selectedPayMethod === 'qris'" class="text-[10px] font-bold text-[#007AFF] bg-[#007AFF]/10 px-2 py-0.5 rounded-full border border-[#007AFF]/20">
+                            QRIS TriPay Otomatis Pas
+                        </span>
+                    </div>
                     <input type="number" x-model.number="currentTenderAmount"
                         class="w-full h-12 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[20px] font-extrabold tabular-nums text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+
+                    <!-- QRIS Dynamic Info Alert -->
+                    <div x-show="selectedPayMethod === 'qris'" class="mt-2 p-2.5 rounded-[10px] bg-[#007AFF]/8 border border-[#007AFF]/15 flex items-center gap-2 text-xs text-[#007AFF]">
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" /></svg>
+                        <span>Kode QRIS dinamis akan dibuat otomatis dari gateway TriPay sesuai total tagihan saat tombol ditekan.</span>
+                    </div>
 
                     <!-- Quick Cash Presets (only for Cash) -->
                     <div x-show="selectedPayMethod === 'cash'" class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2">
@@ -2462,7 +2473,7 @@
                     <button type="button" @click="submitCheckout()"
                         :disabled="isProcessing || (isSplitPayment ? splitRemainingAmount > 0 : currentTenderAmount < grandTotal)"
                         class="h-10 px-6 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] text-white font-bold text-xs shadow-sm disabled:opacity-35 transition flex items-center gap-2">
-                        <span x-show="!isProcessing" x-text="isSplitPayment ? (window.COOCA_I18N?.finish_split_payment || '{{ __('pos.finish_split_payment') }}') : (window.COOCA_I18N?.finish_transaction || '{{ __('pos.finish_transaction') }}')"></span>
+                        <span x-show="!isProcessing" x-text="isSplitPayment ? (window.COOCA_I18N?.finish_split_payment || '{{ __('pos.finish_split_payment') }}') : (selectedPayMethod === 'qris' ? 'Buat QRIS Dinamis (TriPay)' : (window.COOCA_I18N?.finish_transaction || '{{ __('pos.finish_transaction') }}'))"></span>
                         <span x-show="isProcessing" class="flex items-center gap-1.5">
                             <svg class="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -2472,6 +2483,114 @@
                         </span>
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================== -->
+    <!-- 4.1. MODAL: DYNAMIC QRIS COOCA PAY (TriPay Gateway)   -->
+    <!-- ===================================================== -->
+    <div x-show="showQrisModal" x-cloak
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-3 sm:p-4"
+        style="display: none;"
+        @keydown.escape.window="if(!isCancellingQris && showQrisModal) cancelQrisPayment()">
+        <div class="pos-modal-panel w-full max-w-sm sm:max-w-md bg-white dark:bg-[#1C1C1E] rounded-[26px] border border-black/10 dark:border-white/15 p-5 sm:p-6 flex flex-col space-y-4 shadow-[0_25px_60px_rgba(0,0,0,0.35)] text-black dark:text-white relative overflow-hidden transition-all"
+            @click.outside="/* Cashier must explicitly click cancel to avoid accidental dismissal */">
+
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between pb-3 border-b border-black/10 dark:border-white/10">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 rounded-[12px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
+                        </svg>
+                    </div>
+                    <div class="min-w-0">
+                        <h3 class="font-extrabold text-[15px] sm:text-base text-black dark:text-white tracking-tight leading-tight">QRIS Dinamis Kasir</h3>
+                        <p class="text-[11px] text-black/50 dark:text-white/50 truncate" x-text="activeQrisOrder ? ('Order #' + activeQrisOrder.order_number) : 'Memuat data order...'"></p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/20">
+                        TriPay QRIS
+                    </span>
+                    <button type="button" @click="cancelQrisPayment()" :disabled="isCancellingQris"
+                        title="Tutup / Batalkan QRIS"
+                        class="w-7 h-7 rounded-full flex items-center justify-center text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Amount Card -->
+            <div class="p-3.5 rounded-[16px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] uppercase font-bold text-black/40 dark:text-white/40 block">Total Tagihan</span>
+                    <span class="text-xs font-semibold text-black/70 dark:text-white/70">Scan lewat e-Wallet & m-Banking</span>
+                </div>
+                <span class="font-black text-[20px] sm:text-[22px] text-[#007AFF] tabular-nums"
+                    x-text="activeQrisOrder ? formatRupiah(activeQrisOrder.total_amount) : ''"></span>
+            </div>
+
+            <!-- QR Code Card -->
+            <div class="p-4 rounded-[20px] bg-white border border-black/10 shadow-inner flex flex-col items-center justify-center relative">
+                <template x-if="activeQrisPayment && activeQrisPayment.qr_url">
+                    <img :src="activeQrisPayment.qr_url" alt="QRIS Code" class="w-56 h-56 sm:w-60 sm:h-60 object-contain rounded-xl select-none">
+                </template>
+                <template x-if="!activeQrisPayment || !activeQrisPayment.qr_url">
+                    <div class="w-56 h-56 flex flex-col items-center justify-center text-gray-400 gap-2">
+                        <svg class="animate-spin h-7 w-7 text-[#007AFF]" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span class="text-xs font-medium text-gray-500">Menyiapkan QR Code...</span>
+                    </div>
+                </template>
+                <div class="mt-2.5 text-[10.5px] font-bold text-gray-600 uppercase tracking-wider flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-[#007AFF] animate-ping"></span>
+                    <span>Menunggu Pembayaran Pelanggan...</span>
+                </div>
+            </div>
+
+            <!-- Countdown Timer & Auto Polling Notice -->
+            <div class="space-y-1 text-center text-xs">
+                <div class="flex items-center justify-center gap-1.5 text-black/70 dark:text-white/70 font-semibold">
+                    <span>Masa Berlaku QR:</span>
+                    <span class="font-mono text-[#FF9500] font-extrabold tabular-nums text-sm" x-text="qrisCountdownFormatted">15:00</span>
+                </div>
+                <p class="text-[11px] text-black/45 dark:text-white/45">
+                    Sistem mendeteksi transaksi secara realtime (setiap 3 detik). Struk akan terbuka otomatis setelah dibayar.
+                </p>
+            </div>
+
+            <!-- Actions Grid -->
+            <div class="pt-2 space-y-2">
+                <div class="grid grid-cols-2 gap-2">
+                    <button type="button" @click="checkQrisStatusManual()" :disabled="isCheckingQrisStatus"
+                        class="h-10 px-3 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] text-white font-bold text-xs shadow-xs transition flex items-center justify-center gap-1.5 disabled:opacity-50">
+                        <svg x-show="!isCheckingQrisStatus" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
+                        <svg x-show="isCheckingQrisStatus" class="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        <span x-text="isCheckingQrisStatus ? 'Mengecek...' : 'Cek Status Sekarang'"></span>
+                    </button>
+                    <button type="button" @click="printQrisSlip()"
+                        class="h-10 px-3 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.98] text-black dark:text-white font-bold text-xs transition flex items-center justify-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24-1.076-.673-2.13-1.27-3.118m0 0A10.978 10.978 0 0112 7.5c2.47 0 4.757.818 6.55 2.211m-6.55 7.789a10.978 10.978 0 01-6.55-2.211M12 21a9 9 0 100-18 9 9 0 000 18z" /></svg>
+                        <span>Cetak Slip QR</span>
+                    </button>
+                </div>
+
+                @if(!config('tripay.is_production', false))
+                <button type="button" @click="simulateQrisPayment()" :disabled="isSimulatingQris"
+                    class="w-full h-9 rounded-[10px] bg-[#34C759]/10 hover:bg-[#34C759]/20 text-[#34C759] font-bold text-xs transition flex items-center justify-center gap-1.5 disabled:opacity-40 border border-[#34C759]/25">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <span x-text="isSimulatingQris ? 'Memproses Simulasi...' : '[Sandbox] Simulasi Pelanggan Bayar Berhasil'"></span>
+                </button>
+                @endif
+
+                <button type="button" @click="cancelQrisPayment()" :disabled="isCancellingQris"
+                    class="w-full h-9 rounded-[10px] text-xs font-semibold text-[#FF3B30] hover:bg-[#FF3B30]/10 transition disabled:opacity-40">
+                    <span x-text="isCancellingQris ? 'Membatalkan...' : 'Batalkan Sesi QRIS (Ganti Metode Bayar)'"></span>
+                </button>
             </div>
         </div>
     </div>
@@ -4615,6 +4734,18 @@
                 currentTenderAmount: 0,
                 isSplitPayment: false,
                 splitPaymentRows: [],
+
+                // Dynamic QRIS Cooca Pay (TriPay Gateway) state
+                showQrisModal: false,
+                activeQrisOrder: null,
+                activeQrisPayment: null,
+                qrisCountdown: 900,
+                qrisCountdownFormatted: '15:00',
+                qrisCountdownTimer: null,
+                qrisPollingTimer: null,
+                isCheckingQrisStatus: false,
+                isCancellingQris: false,
+                isSimulatingQris: false,
                 get totalSplitPaid() {
                     return this.splitPaymentRows.reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
                 },
@@ -5490,47 +5621,18 @@
 
                         const data = await res.json();
                         if (data.success) {
-                            this.lastCompletedOrder = data.order;
-                            this.lastReceiptUrl = data.receipt_url;
-                            this.lastReceiptImageUrl = data.receipt_image_url || ('/receipt/' + data.order.id +
-                                '/image');
-                            this.lastWhatsAppUrl = data.whatsapp_url;
-                            this.waBotSent = data.whatsapp_bot_sent || false;
-                            this.waBotFeedback = this.waBotSent ? 'Struk otomatis terkirim ke WhatsApp!' : '';
-                            this.waBotFeedbackSuccess = this.waBotSent;
-                            this.lastOrderSentToKds = !!data.sent_to_kds;
-                            this.showPaymentModal = false;
-                            this.showSuccessModal = true;
-                            this.cart = [];
-                            this.isSplitPayment = false;
-                            this.splitPaymentRows = [];
-                            this.selectedEdcTerminalId = '';
-                            this.paymentRefNumber = '';
-                            this.selectedTable = null;
-                            this.activeTableOrderId = null;
-                            this.activeTableOrderNumber = null;
-                            this.activeTableCustomerName = null;
-                            this.fetchTables();
-                            this.fetchIncomingOrders();
-                            this.voucherCode = '';
-                            this.voucherDiscount = 0;
-                            this.discountValue = 0;
-                            this.discountType = 'fixed';
-                            this.pointsDiscount = 0;
-                            this.redeemPoints = false;
-                            this.supervisorApprovedForOrder = false;
-                            // Reset industry vertical fields
-                            this.vehicleLicensePlate = '';
-                            this.vehicleModel = '';
-                            this.vehicleMileage = null;
-                            this.technicianId = '';
-                            this.serviceNotes = '';
-                            this.laundryWeightKg = null;
-                            this.rackLocation = '';
-                            this.estimatedCompletionAt = '';
-                            this.laundryStatus = 'received';
-                            this.salesChannel = 'dine_in';
-                            this.externalOrderRef = '';
+                            if (data.is_qris && data.payment && data.payment.qr_url) {
+                                this.activeQrisOrder = data.order;
+                                this.activeQrisPayment = data.payment;
+                                this.showPaymentModal = false;
+                                this.showQrisModal = true;
+                                const remainingSecs = data.payment.expired_time ? Math.max(60, data.payment.expired_time - Math.floor(Date.now() / 1000)) : 900;
+                                this.startQrisCountdown(remainingSecs);
+                                this.startQrisPolling(data.order.id);
+                                return;
+                            }
+
+                            this.handleOrderSuccess(data);
                         } else {
                             AppAlert.error('Gagal: ' + (data.message || 'Terjadi kesalahan.'));
                         }
@@ -5542,6 +5644,211 @@
                             if (typeof lucide !== 'undefined') lucide.createIcons();
                         });
                     }
+                },
+
+                formatQrisCountdown(seconds) {
+                    const mins = Math.floor(seconds / 60);
+                    const secs = seconds % 60;
+                    return (mins < 10 ? '0' : '') + mins + ':' + (secs < 10 ? '0' : '') + secs;
+                },
+
+                startQrisCountdown(duration = 900) {
+                    if (this.qrisCountdownTimer) clearInterval(this.qrisCountdownTimer);
+                    this.qrisCountdown = Math.max(0, duration);
+                    this.qrisCountdownFormatted = this.formatQrisCountdown(this.qrisCountdown);
+                    this.qrisCountdownTimer = setInterval(() => {
+                        if (this.qrisCountdown > 0) {
+                            this.qrisCountdown--;
+                            this.qrisCountdownFormatted = this.formatQrisCountdown(this.qrisCountdown);
+                        } else {
+                            clearInterval(this.qrisCountdownTimer);
+                            if (this.qrisPollingTimer) clearInterval(this.qrisPollingTimer);
+                            AppAlert.warning('Waktu pembayaran QRIS telah kedaluwarsa. Kasir dapat membatalkan atau membuat ulang transaksi.');
+                        }
+                    }, 1000);
+                },
+
+                startQrisPolling(orderId) {
+                    if (this.qrisPollingTimer) clearInterval(this.qrisPollingTimer);
+                    const statusUrl = "/pos/orders/" + orderId + "/status";
+
+                    this.qrisPollingTimer = setInterval(async () => {
+                        try {
+                            const resp = await fetch(statusUrl, {
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': this.csrfToken
+                                }
+                            });
+                            if (!resp.ok) return;
+                            const data = await resp.json();
+                            if (data.is_paid) {
+                                if (this.qrisPollingTimer) clearInterval(this.qrisPollingTimer);
+                                if (this.qrisCountdownTimer) clearInterval(this.qrisCountdownTimer);
+                                this.showQrisModal = false;
+                                this.handleOrderSuccess(data);
+                                AppAlert.success(data.message || 'Pembayaran QRIS berhasil dikonfirmasi!');
+                            }
+                        } catch (e) {
+                            // network retry silently
+                        }
+                    }, 3000);
+                },
+
+                async checkQrisStatusManual() {
+                    if (!this.activeQrisOrder || this.isCheckingQrisStatus) return;
+                    this.isCheckingQrisStatus = true;
+                    try {
+                        const statusUrl = "/pos/orders/" + this.activeQrisOrder.id + "/status";
+                        const resp = await fetch(statusUrl, {
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': this.csrfToken
+                            }
+                        });
+                        const data = await resp.json();
+                        if (data.is_paid) {
+                            if (this.qrisPollingTimer) clearInterval(this.qrisPollingTimer);
+                            if (this.qrisCountdownTimer) clearInterval(this.qrisCountdownTimer);
+                            this.showQrisModal = false;
+                            this.handleOrderSuccess(data);
+                            AppAlert.success(data.message || 'Pembayaran QRIS telah diverifikasi!');
+                        } else {
+                            AppAlert.info(data.message || 'Belum ada pembayaran masuk. Menunggu scan pelanggan...');
+                        }
+                    } catch (e) {
+                        AppAlert.error('Gagal mengecek status: ' + e.message);
+                    } finally {
+                        this.isCheckingQrisStatus = false;
+                    }
+                },
+
+                async cancelQrisPayment() {
+                    if (!this.activeQrisOrder || this.isCancellingQris) return;
+                    if (!confirm('Apakah kasir yakin ingin membatalkan sesi QRIS ini? Pesanan akan dibatalkan sehingga metode bayar lain dapat dipilih.')) {
+                        return;
+                    }
+
+                    this.isCancellingQris = true;
+                    try {
+                        const cancelUrl = "/pos/orders/" + this.activeQrisOrder.id + "/cancel-qris";
+                        const resp = await fetch(cancelUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': this.csrfToken
+                            },
+                            body: JSON.stringify({ reason: 'Dibatalkan oleh kasir di terminal POS.' })
+                        });
+                        const data = await resp.json();
+                        if (data.success) {
+                            if (this.qrisPollingTimer) clearInterval(this.qrisPollingTimer);
+                            if (this.qrisCountdownTimer) clearInterval(this.qrisCountdownTimer);
+                            this.showQrisModal = false;
+                            this.activeQrisOrder = null;
+                            this.activeQrisPayment = null;
+                            AppAlert.info('Sesi QRIS dibatalkan. Anda dapat memilih metode pembayaran lain.');
+                        } else {
+                            AppAlert.error(data.message || 'Gagal membatalkan sesi QRIS.');
+                        }
+                    } catch (e) {
+                        AppAlert.error('Terjadi kesalahan jaringan: ' + e.message);
+                    } finally {
+                        this.isCancellingQris = false;
+                    }
+                },
+
+                async simulateQrisPayment() {
+                    if (!this.activeQrisOrder || this.isSimulatingQris) return;
+                    this.isSimulatingQris = true;
+                    try {
+                        const simUrl = "/pos/orders/" + this.activeQrisOrder.id + "/simulate-qris";
+                        const resp = await fetch(simUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': this.csrfToken
+                            }
+                        });
+                        const data = await resp.json();
+                        if (data.success && data.is_paid) {
+                            if (this.qrisPollingTimer) clearInterval(this.qrisPollingTimer);
+                            if (this.qrisCountdownTimer) clearInterval(this.qrisCountdownTimer);
+                            this.showQrisModal = false;
+                            this.handleOrderSuccess(data);
+                            AppAlert.success('[Sandbox] Simulasi pembayaran QRIS sukses!');
+                        } else {
+                            AppAlert.error(data.message || 'Gagal simulasi pembayaran QRIS.');
+                        }
+                    } catch (e) {
+                        AppAlert.error('Gagal simulasi: ' + e.message);
+                    } finally {
+                        this.isSimulatingQris = false;
+                    }
+                },
+
+                printQrisSlip() {
+                    if (!this.activeQrisPayment?.qr_url) return;
+                    const orderNum = this.activeQrisOrder?.order_number || '';
+                    const totalFormatted = this.formatRupiah(this.activeQrisOrder?.total_amount || 0);
+                    const qrUrl = this.activeQrisPayment.qr_url;
+                    const win = window.open('', '_blank', 'width=460,height=620');
+                    if (!win) {
+                        AppAlert.warning('Izinkan popup browser untuk membuka slip QRIS.');
+                        return;
+                    }
+                    win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>QRIS TriPay - Order #${orderNum}</title><style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;text-align:center;padding:24px;color:#111;margin:0;background:#fff}.header{margin-bottom:12px}.brand{font-size:16px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px}.sub{font-size:12px;color:#666;margin-top:4px}.badge{display:inline-block;padding:4px 10px;border-radius:999px;background:#e8f4fd;color:#007aff;font-size:11px;font-weight:700;margin-top:8px}.amount-box{margin:16px auto;padding:12px;border-radius:12px;background:#f8f9fa;border:1px dashed #d1d5db;max-width:320px}.amount-label{font-size:11px;color:#6b7280;text-transform:uppercase;font-weight:700}.amount-val{font-size:24px;font-weight:900;color:#007aff;margin-top:2px}.qr-box{margin:12px auto;padding:12px;border-radius:16px;border:1px solid #e5e7eb;display:inline-block;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.05)}.qr-img{width:240px;height:240px;object-fit:contain;display:block}.footer{margin-top:14px;font-size:11.5px;color:#4b5563;line-height:1.5}.actions{margin-top:18px}.btn{padding:9px 20px;border-radius:10px;background:#007aff;color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer}@media print{.actions{display:none}body{padding:0}}</style></head><body><div class="header"><div class="brand">{{ $business->name ?? 'COOCA KASIR' }}</div><div class="sub">Pembayaran QRIS Dinamis • Pesanan #${orderNum}</div><span class="badge">NMID / Gateway TriPay QRIS</span></div><div class="amount-box"><div class="amount-label">Total Tagihan</div><div class="amount-val">${totalFormatted}</div></div><div class="qr-box"><img src="${qrUrl}" class="qr-img" alt="QRIS Code" /></div><div class="footer">Scan dengan GoPay, OVO, DANA, BCA, Livin, BRI, ShopeePay, atau m-Banking apa saja.</div><div class="actions"><button class="btn" onclick="window.print()">Cetak Slip QR</button></div></body></html>`);
+                    win.document.close();
+                },
+
+                handleOrderSuccess(data) {
+                    this.lastCompletedOrder = data.order;
+                    this.lastReceiptUrl = data.receipt_url;
+                    this.lastReceiptImageUrl = data.receipt_image_url || ('/receipt/' + data.order.id + '/image');
+                    this.lastWhatsAppUrl = data.whatsapp_url;
+                    this.waBotSent = data.whatsapp_bot_sent || false;
+                    this.waBotFeedback = this.waBotSent ? 'Struk otomatis terkirim ke WhatsApp!' : '';
+                    this.waBotFeedbackSuccess = this.waBotSent;
+                    this.lastOrderSentToKds = !!data.sent_to_kds;
+                    this.showPaymentModal = false;
+                    this.showSuccessModal = true;
+                    this.cart = [];
+                    this.isSplitPayment = false;
+                    this.splitPaymentRows = [];
+                    this.selectedEdcTerminalId = '';
+                    this.paymentRefNumber = '';
+                    this.selectedTable = null;
+                    this.activeTableOrderId = null;
+                    this.activeTableOrderNumber = null;
+                    this.activeTableCustomerName = null;
+                    this.fetchTables();
+                    this.fetchIncomingOrders();
+                    this.voucherCode = '';
+                    this.voucherDiscount = 0;
+                    this.discountValue = 0;
+                    this.discountType = 'fixed';
+                    this.pointsDiscount = 0;
+                    this.redeemPoints = false;
+                    this.supervisorApprovedForOrder = false;
+
+                    // Reset industry vertical fields
+                    this.vehicleLicensePlate = '';
+                    this.vehicleModel = '';
+                    this.vehicleMileage = null;
+                    this.technicianId = '';
+                    this.serviceNotes = '';
+                    this.laundryWeightKg = null;
+                    this.rackLocation = '';
+                    this.estimatedCompletionAt = '';
+                    this.laundryStatus = 'received';
+                    this.salesChannel = 'dine_in';
+                    this.externalOrderRef = '';
+
+                    this.$nextTick(() => {
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                    });
                 },
 
                 openItemDetailModal(idx) {

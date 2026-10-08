@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Web\Pos;
 
 use App\Domain\Crm\LoyaltyService;
+use App\Domain\Payment\TripayService;
 use App\Domain\Pos\PosOrderService;
 use App\Domain\Pos\PosShiftService;
 use App\Domain\System\AuditLogService;
@@ -22,6 +23,7 @@ use App\Models\ProductCategory;
 use App\Models\User;
 use App\Models\Voucher;
 use App\Support\Context;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -34,7 +36,8 @@ final class PosTerminalWebController extends Controller
     public function __construct(
         private readonly PosOrderService $orderService = new PosOrderService,
         private readonly PosShiftService $shiftService = new PosShiftService,
-        private readonly LoyaltyService $loyaltyService = new LoyaltyService
+        private readonly LoyaltyService $loyaltyService = new LoyaltyService,
+        private readonly TripayService $tripayService = new TripayService
     ) {}
 
     /**
@@ -322,6 +325,16 @@ final class PosTerminalWebController extends Controller
             $storeEdcTerminals = collect();
         }
 
+        try {
+            $qrisPaymentMethod = \App\Models\CommercePaymentMethod::where('business_id', $business->id)
+                ->where('type', \App\Models\CommercePaymentMethod::TYPE_QRIS)
+                ->where('is_active', true)
+                ->first();
+            $qrisStoreImageUrl = $qrisPaymentMethod?->qris_image_url;
+        } catch (\Throwable) {
+            $qrisStoreImageUrl = null;
+        }
+
         return view('app.pos.terminal', compact(
             'business',
             'user',
@@ -342,7 +355,8 @@ final class PosTerminalWebController extends Controller
             'hideCostFromCashier',
             'posShowProductImages',
             'technicians',
-            'storeEdcTerminals'
+            'storeEdcTerminals',
+            'qrisStoreImageUrl'
         ));
     }
 
@@ -610,6 +624,8 @@ final class PosTerminalWebController extends Controller
             }
         }
 
+        $isQrisCheckout = (count($validated['payments']) === 1 && ($validated['payments'][0]['payment_method'] ?? '') === 'qris');
+
         try {
             $order = $this->orderService->checkout(
                 business: $business,
@@ -617,6 +633,9 @@ final class PosTerminalWebController extends Controller
                 itemsData: $validated['items'],
                 paymentsData: $validated['payments'],
                 attributes: [
+                    'waiting_payment' => $isQrisCheckout,
+                    'payment_gateway' => $isQrisCheckout ? PosOrder::GATEWAY_TRIPAY : PosOrder::GATEWAY_MANUAL,
+                    'payment_channel' => $isQrisCheckout ? 'QRIS' : null,
                     'customer_id' => $validated['customer_id'] ?? null,
                     'customer_name_guest' => $validated['customer_name_guest'] ?? null,
                     'order_type' => $validated['order_type'] ?? 'takeaway',
@@ -645,6 +664,61 @@ final class PosTerminalWebController extends Controller
                 ],
                 shift: $activeShift
             );
+
+            if ($isQrisCheckout) {
+                $tripayRes = $this->tripayService->createPosOrderTransaction($order, 'QRIS');
+
+                if ($tripayRes['success'] ?? false) {
+                    $order->update([
+                        'status' => PosOrder::STATUS_WAITING_PAYMENT,
+                        'payment_gateway' => PosOrder::GATEWAY_TRIPAY,
+                        'payment_channel' => $tripayRes['payment_method'] ?? 'QRIS',
+                        'gateway_reference' => $tripayRes['reference'] ?? null,
+                        'gateway_pay_code' => $tripayRes['pay_code'] ?? null,
+                        'gateway_pay_url' => $tripayRes['checkout_url'] ?? null,
+                        'gateway_qr_url' => $tripayRes['qr_url'] ?? null,
+                        'gateway_qr_string' => $tripayRes['qr_string'] ?? null,
+                        'gateway_fee' => (float) ($tripayRes['fee'] ?? 0.0),
+                        'gateway_expired_at' => isset($tripayRes['expired_time']) ? Carbon::createFromTimestamp($tripayRes['expired_time']) : null,
+                    ]);
+
+                    return response()->json([
+                        'success' => true,
+                        'is_qris' => true,
+                        'message' => 'Silakan scan QRIS untuk menyelesaikan pembayaran.',
+                        'order' => [
+                            'id' => $order->id,
+                            'order_number' => $order->order_number,
+                            'total_amount' => (float) $order->total_amount,
+                            'status' => $order->status,
+                            'is_paid' => $order->isPaid(),
+                            'customer_name' => $order->customer_name_guest ?: ($order->customer?->name ?? 'Pelanggan Umum'),
+                            'table_number' => $order->posTable?->table_number ?? $order->table_or_reference,
+                            'created_at' => $order->created_at->format('H:i'),
+                        ],
+                        'payment' => [
+                            'gateway' => 'tripay',
+                            'channel' => $tripayRes['payment_method'] ?? 'QRIS',
+                            'reference' => $tripayRes['reference'] ?? null,
+                            'pay_code' => $tripayRes['pay_code'] ?? null,
+                            'qr_url' => $tripayRes['qr_url'] ?? null,
+                            'qr_string' => $tripayRes['qr_string'] ?? null,
+                            'checkout_url' => $tripayRes['checkout_url'] ?? null,
+                            'expired_time' => $tripayRes['expired_time'] ?? (time() + 900),
+                        ],
+                    ]);
+                }
+
+                $order->update([
+                    'status' => PosOrder::STATUS_VOIDED,
+                    'void_reason' => 'Gagal inisialisasi QRIS TriPay: ' . ($tripayRes['message'] ?? 'Unknown error'),
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal membuat QRIS TriPay: ' . ($tripayRes['message'] ?? 'Kendala gateway pembayaran'),
+                ], 422);
+            }
 
             // Handle points redemption if requested
             if (! empty($validated['points_to_redeem']) && $order->customer) {
@@ -1237,5 +1311,193 @@ final class PosTerminalWebController extends Controller
         } catch (Throwable $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
         }
+    }
+
+    /**
+     * Check POS order payment status (Polled by terminal during QRIS Cooca Pay session).
+     */
+    public function checkOrderStatus(Request $request, string $id): JsonResponse
+    {
+        $business = Context::requireBusiness();
+
+        $order = PosOrder::where('business_id', $business->id)->find($id);
+        if (! $order) {
+            return response()->json(['success' => false, 'message' => 'Pesanan tidak ditemukan.'], 404);
+        }
+
+        // Check if already paid
+        if ($order->isPaid() || in_array($order->status, [PosOrder::STATUS_CONFIRMED, PosOrder::STATUS_COMPLETED], true)) {
+            $whatsappUrl = $this->loyaltyService->generateWhatsAppReceiptUrl($order);
+
+            return response()->json([
+                'success' => true,
+                'is_paid' => true,
+                'status' => $order->status,
+                'message' => 'Pembayaran QRIS telah berhasil diverifikasi.',
+                'order' => [
+                    'id' => $order->id,
+                    'order_number' => $order->order_number,
+                    'total_amount' => $order->total_amount,
+                    'paid_amount' => $order->paid_amount,
+                    'change_amount' => $order->change_amount,
+                    'status' => $order->status,
+                ],
+                'whatsapp_url' => $whatsappUrl,
+                'receipt_url' => route('pos.receipt', $order->id),
+                'receipt_image_url' => route('public.receipt.image', $order->id),
+            ]);
+        }
+
+        // Active fail-safe fallback: If order is waiting payment and has tripay reference, query TriPay detail
+        if ($order->status === PosOrder::STATUS_WAITING_PAYMENT && $order->gateway_reference) {
+            try {
+                $detail = $this->tripayService->getTransactionDetail($order->gateway_reference);
+                $gwStatus = strtoupper((string) ($detail['status'] ?? ''));
+
+                if ($gwStatus === 'PAID') {
+                    $this->orderService->confirmQrisPayment(
+                        $order,
+                        $order->gateway_reference,
+                        (float) ($detail['total_fee'] ?? 0),
+                        $detail
+                    );
+                    $order->refresh();
+
+                    $whatsappUrl = $this->loyaltyService->generateWhatsAppReceiptUrl($order);
+
+                    return response()->json([
+                        'success' => true,
+                        'is_paid' => true,
+                        'status' => $order->status,
+                        'message' => 'Pembayaran QRIS berhasil dikonfirmasi dari TriPay.',
+                        'order' => [
+                            'id' => $order->id,
+                            'order_number' => $order->order_number,
+                            'total_amount' => $order->total_amount,
+                            'paid_amount' => $order->paid_amount,
+                            'change_amount' => $order->change_amount,
+                            'status' => $order->status,
+                        ],
+                        'whatsapp_url' => $whatsappUrl,
+                        'receipt_url' => route('pos.receipt', $order->id),
+                        'receipt_image_url' => route('public.receipt.image', $order->id),
+                    ]);
+                } elseif (in_array($gwStatus, ['EXPIRED', 'FAILED', 'REFUND'], true)) {
+                    $order->update([
+                        'status' => PosOrder::STATUS_VOIDED,
+                        'void_reason' => 'QRIS TriPay kedaluwarsa atau gagal (' . $gwStatus . ')',
+                    ]);
+
+                    return response()->json([
+                        'success' => false,
+                        'is_paid' => false,
+                        'status' => $order->status,
+                        'message' => 'Transaksi QRIS ' . strtolower($gwStatus) . '.',
+                    ]);
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('[POS Check QRIS TriPay] ' . $e->getMessage());
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'is_paid' => false,
+            'status' => $order->status,
+            'message' => 'Menunggu pembayaran QRIS...',
+        ]);
+    }
+
+    /**
+     * Cancel pending QRIS order from POS Cashier Terminal.
+     */
+    public function cancelQrisOrder(Request $request, string $id): JsonResponse
+    {
+        $business = Context::requireBusiness();
+
+        $order = PosOrder::where('business_id', $business->id)->find($id);
+        if (! $order) {
+            return response()->json(['success' => false, 'message' => 'Pesanan tidak ditemukan.'], 404);
+        }
+
+        if ($order->isPaid() || in_array($order->status, [PosOrder::STATUS_CONFIRMED, PosOrder::STATUS_COMPLETED], true)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pesanan sudah lunas, tidak dapat dibatalkan melalui aksi ini.',
+            ], 422);
+        }
+
+        $order->update([
+            'status' => PosOrder::STATUS_VOIDED,
+            'void_reason' => $request->input('reason', 'Dibatalkan oleh kasir sebelum pembayaran QRIS.'),
+        ]);
+
+        if ($order->pos_table_id) {
+            try {
+                $table = PosTable::find($order->pos_table_id);
+                if ($table && $table->status === 'occupied') {
+                    $hasOther = PosOrder::where('pos_table_id', $table->id)
+                        ->whereIn('status', [PosOrder::STATUS_CONFIRMED, PosOrder::STATUS_WAITING_PAYMENT])
+                        ->where('id', '!=', $order->id)
+                        ->exists();
+                    if (! $hasOther) {
+                        $table->update(['status' => 'available', 'current_order_id' => null]);
+                    }
+                }
+            } catch (\Throwable $e) {
+                // Ignore table release error
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Sesi QRIS berhasil dibatalkan. Keranjang dapat diproses kembali.',
+        ]);
+    }
+
+    /**
+     * Simulate successful sandbox payment for testing without waiting webhook.
+     */
+    public function simulateSandboxPayment(Request $request, string $id): JsonResponse
+    {
+        $business = Context::requireBusiness();
+
+        $order = PosOrder::where('business_id', $business->id)->find($id);
+        if (! $order) {
+            return response()->json(['success' => false, 'message' => 'Pesanan tidak ditemukan.'], 404);
+        }
+
+        if ($order->status !== PosOrder::STATUS_WAITING_PAYMENT) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pesanan bukan dalam status menunggu pembayaran.',
+            ], 422);
+        }
+
+        $ref = $order->gateway_reference ?: ('SIM-DEV-' . time());
+        $this->orderService->confirmQrisPayment($order, $ref, 0, [
+            'simulated' => true,
+            'simulated_by' => auth()->user()?->name ?? 'Kasir',
+        ]);
+        $order->refresh();
+
+        $whatsappUrl = $this->loyaltyService->generateWhatsAppReceiptUrl($order);
+
+        return response()->json([
+            'success' => true,
+            'is_paid' => true,
+            'message' => '[Sandbox] Simulasi pembayaran QRIS berhasil.',
+            'order' => [
+                'id' => $order->id,
+                'order_number' => $order->order_number,
+                'total_amount' => $order->total_amount,
+                'paid_amount' => $order->paid_amount,
+                'change_amount' => $order->change_amount,
+                'status' => $order->status,
+            ],
+            'whatsapp_url' => $whatsappUrl,
+            'receipt_url' => route('pos.receipt', $order->id),
+            'receipt_image_url' => route('public.receipt.image', $order->id),
+        ]);
     }
 }

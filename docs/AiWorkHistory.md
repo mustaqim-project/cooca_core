@@ -33,6 +33,42 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 - **Files Affected:** Daftar berkas controller, service, model, blade, atau route yang dimodifikasi.
 - **Database Changes:** Tabel baru, migrasi skema, kolom tambahan, atau indexing.
 
+### [WORK-2026-10-08-341] Implementasi Pembayaran Dinamis QRIS Cooca Pay (TriPay Gateway) pada Terminal Kasir POS
+
+- **Date:** 2026-10-08
+- **Status:** COMPLETED
+- **Module:** POS & Payment Gateway (TriPay QRIS Integration)
+- **Feature:** Dynamic QRIS Cashier Payment & Auto-Polling Verification
+- **Work Type:** Feature | Architecture | UI/UX
+
+#### 1. Business Context & Objective
+- **Konteks:** Pada operasional kasir COOCA POS, metode pembayaran "QRIS Cooca Pay" sebelumnya belum memunculkan kode QRIS pembayaran secara dinamis dari payment gateway TriPay, sehingga kasir tidak dapat menerima pembayaran QRIS realtime dengan pencocokan nominal otomatis dan verifikasi status instan seperti halnya alur pembayaran langsung pada menu QR Order (`resources/views/public/qr-order/menu.blade.php`).
+- **Masalah/Target:** Mengadopsi arsitektur dynamic QRIS, countdown timer, dan background auto-polling (interval 3 detik) ke dalam Terminal Kasir POS (`resources/views/app/pos/terminal.blade.php`), menghubungkan checkout ke TriPay API secara asynchronous, serta mengeksekusi konfirmasi pembayaran, pemotongan stok bahan/produk, dan pencatatan kas/jurnal secara otomatis saat pelanggan menyelesaikan transfer.
+
+#### 2. What Was Done
+1. **Domain PosOrderService:**
+   - Menambahkan dukungan `'waiting_payment' => true` pada `checkout()`, menghasilkan pesanan kasir berstatus `STATUS_WAITING_PAYMENT` dengan `paid_amount = 0` tanpa memotong stok dan jurnal sebelum pembayaran dikonfirmasi.
+   - Menambahkan method `confirmQrisPayment()` yang idempoten untuk memproses mutasi stok (produk & modifier), arus kas shift/laci kasir, double-entry auto-journaling, penambahan loyalty points, serta update sesi meja.
+2. **TripayCallbackController & PosTerminalWebController:**
+   - Menstandarkan callback webhook TriPay agar mendelegasikan ke `confirmQrisPayment()`.
+   - Mengintegrasikan `TripayService::createPosOrderTransaction()` pada checkout kasir ketika metode QRIS dipilih.
+   - Menambahkan endpoint `GET /pos/orders/{order}/status` dengan fail-safe direct inquiry ke API TriPay (`getTransactionDetail`) saat polling berlangsung, menjamin deteksi lunas seketika bahkan di lingkungan dev/tunnel local.
+   - Menambahkan endpoint `POST /pos/orders/{order}/cancel-qris` untuk membatalkan sesi QRIS kasir dan mengembalikan keranjang belanja.
+   - Menambahkan endpoint `POST /pos/orders/{order}/simulate-qris` untuk simulasi instan pada environment sandbox.
+3. **UI/UX Terminal Kasir POS (Bento Apple HIG Sheet):**
+   - Mengubah CTA pembayaran pada payment modal saat QRIS dipilih menjadi *"Buat QRIS Dinamis (TriPay)"*.
+   - Menambahkan modal Apple HIG Bento Sheet `showQrisModal` dengan preview QRIS resolusi tinggi, countdown timer (15 menit), indikator realtime pulsating radar ("Menunggu Pembayaran..."), tombol Cek Status Manual, Cetak Slip QR, dan Sandbox Simulation.
+   - Mengintegrasikan auto-transition ke modal sukses transaksi kasir (`showSuccessModal`) begitu QRIS terverifikasi lunas.
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `app/Domain/Pos/PosOrderService.php`
+  - `app/Http/Controllers/Api/V1/Payment/TripayCallbackController.php`
+  - `app/Http/Controllers/Web/Pos/PosTerminalWebController.php`
+  - `routes/owner.php`
+  - `resources/views/app/pos/terminal.blade.php`
+- **Database Changes:** Tidak ada perubahan tabel baru (memanfaatkan kolom `gateway_reference`, `gateway_qr_url`, `gateway_expired_at`, dan `STATUS_WAITING_PAYMENT` yang sudah ada pada `pos_orders`).
+
 ### [WORK-2026-10-08-340] Audit Komprehensif & Implementasi Production-Ready POS & KDS Mobile App (COOCA My Own) dengan Full Functional Parity Website
 
 - **Date:** 2026-10-08

@@ -255,16 +255,22 @@ final class PosOrderService
             $finalTotal = max(0.0, $roundedTotal);
 
             // 5. Total Paid & Change
+            $isWaitingPayment = (bool) ($attributes['waiting_payment'] ?? false);
+
             $totalPaid = 0.0;
-            foreach ($paymentsData as $p) {
-                $totalPaid += (float) ($p['amount'] ?? 0.0);
+            if (! $isWaitingPayment) {
+                foreach ($paymentsData as $p) {
+                    $totalPaid += (float) ($p['amount'] ?? 0.0);
+                }
             }
-            $changeAmount = max(0.0, $totalPaid - $finalTotal);
+            $changeAmount = $isWaitingPayment ? 0.0 : max(0.0, $totalPaid - $finalTotal);
 
             $shouldAutoSendKds = (bool) ($attributes['auto_send_kds'] ?? $business->autoSendToKds());
-            $targetCheckoutStatus = ($shouldAutoSendKds && ($business->hasDineInFeature() || $business->isFoodIndustry()))
-                ? PosOrder::STATUS_CONFIRMED
-                : PosOrder::STATUS_COMPLETED;
+            $targetCheckoutStatus = $isWaitingPayment
+                ? PosOrder::STATUS_WAITING_PAYMENT
+                : (($shouldAutoSendKds && ($business->hasDineInFeature() || $business->isFoodIndustry()))
+                    ? PosOrder::STATUS_CONFIRMED
+                    : PosOrder::STATUS_COMPLETED);
 
             // 6. Create or Update PosOrder (Settle Table Order)
             if ($existingOrder) {
@@ -285,6 +291,8 @@ final class PosOrderService
                     'order_type' => $attributes['order_type'] ?? ($existingOrder->order_type ?? 'dine_in'),
                     'sales_channel' => $attributes['sales_channel'] ?? ($existingOrder->sales_channel ?? 'dine_in'),
                     'external_order_ref' => $attributes['external_order_ref'] ?? ($existingOrder->external_order_ref ?? null),
+                    'payment_gateway' => $attributes['payment_gateway'] ?? ($isWaitingPayment ? PosOrder::GATEWAY_TRIPAY : ($existingOrder->payment_gateway ?? PosOrder::GATEWAY_MANUAL)),
+                    'payment_channel' => $attributes['payment_channel'] ?? ($isWaitingPayment ? 'QRIS' : $existingOrder->payment_channel),
                     'pos_table_id' => $attributes['pos_table_id'] ?? $existingOrder->pos_table_id,
                     'pos_table_session_id' => $attributes['pos_table_session_id'] ?? $existingOrder->pos_table_session_id,
                     'table_or_reference' => $attributes['table_or_reference'] ?? $existingOrder->table_or_reference,
@@ -333,6 +341,8 @@ final class PosOrderService
                     'order_type' => $attributes['order_type'] ?? 'takeaway',
                     'sales_channel' => $attributes['sales_channel'] ?? 'dine_in',
                     'external_order_ref' => $attributes['external_order_ref'] ?? null,
+                    'payment_gateway' => $attributes['payment_gateway'] ?? ($isWaitingPayment ? PosOrder::GATEWAY_TRIPAY : PosOrder::GATEWAY_MANUAL),
+                    'payment_channel' => $attributes['payment_channel'] ?? ($isWaitingPayment ? 'QRIS' : null),
                     'order_source' => $attributes['order_source'] ?? PosOrder::SOURCE_POS,
                     'pos_table_id' => $attributes['pos_table_id'] ?? null,
                     'pos_table_session_id' => $attributes['pos_table_session_id'] ?? null,
@@ -403,8 +413,8 @@ final class PosOrderService
                         'material_snapshot' => $modSnap['material_snapshot'],
                     ]);
 
-                    // Deduct stock for modifier materials
-                    if (! empty($modSnap['material_snapshot']) && $locationId) {
+                    // Deduct stock for modifier materials (only if immediately paid)
+                    if (! $isWaitingPayment && ! empty($modSnap['material_snapshot']) && $locationId) {
                         foreach ($modSnap['material_snapshot'] as $mat) {
                             $totalMatQty = ((float) $mat['quantity']) * $itemInfo['quantity'];
                             if ($totalMatQty > 0) {
@@ -426,8 +436,8 @@ final class PosOrderService
                     }
                 }
 
-                // Base Product stock reduction
-                if ($itemInfo['product_id'] && $locationId) {
+                // Base Product stock reduction (only if immediately paid)
+                if (! $isWaitingPayment && $itemInfo['product_id'] && $locationId) {
                     $itemProduct = $itemInfo['product'] ?? Product::find($itemInfo['product_id']);
                     if (! $itemProduct || $itemProduct->isGoods()) {
                         $this->stockService->deductForPosSale(
@@ -444,70 +454,215 @@ final class PosOrderService
                 }
             }
 
-            // 8. Save Payments & Inflow Tracking
-            $remainingChange = (float) $order->change_amount;
-            foreach ($paymentsData as $p) {
-                $payMethod = (string) ($p['payment_method'] ?? 'cash');
-                $payAmount = (float) ($p['amount'] ?? 0.0);
-                $edcTerminalId = ! empty($p['store_edc_terminal_id']) ? (string) $p['store_edc_terminal_id'] : null;
-                if ($payAmount <= 0) {
-                    continue;
-                }
-
-                $payment = PosOrderPayment::create([
-                    'pos_order_id' => $order->id,
-                    'payment_method' => $payMethod,
-                    'store_edc_terminal_id' => $edcTerminalId,
-                    'amount' => $payAmount,
-                    'reference_number' => $p['reference_number'] ?? null,
-                    'fee_amount' => 0.0,
-                    'net_amount' => $payAmount,
-                    'status' => 'paid',
-                ]);
-
-                // Handle Customer Store Credit (Piutang)
-                if ($payMethod === PosOrderPayment::METHOD_CUSTOMER_CREDIT && $customer) {
-                    $this->loyaltyService->recordCustomerCreditCharge($customer, $order, $payAmount, $cashier);
-                } elseif ($payMethod !== PosOrderPayment::METHOD_LOYALTY_POINTS) {
-                    $netCashIn = $payAmount;
-                    if ($payMethod === PosOrderPayment::METHOD_CASH && $remainingChange > 0) {
-                        $deduct = min($payAmount, $remainingChange);
-                        $netCashIn -= $deduct;
-                        $remainingChange -= $deduct;
+            // 8. Save Payments & Inflow Tracking (only if immediately paid)
+            if (! $isWaitingPayment) {
+                $remainingChange = (float) $order->change_amount;
+                foreach ($paymentsData as $p) {
+                    $payMethod = (string) ($p['payment_method'] ?? 'cash');
+                    $payAmount = (float) ($p['amount'] ?? 0.0);
+                    $edcTerminalId = ! empty($p['store_edc_terminal_id']) ? (string) $p['store_edc_terminal_id'] : null;
+                    if ($payAmount <= 0) {
+                        continue;
                     }
 
-                    if ($netCashIn > 0) {
-                        $methodLabel = match ($payMethod) {
-                            PosOrderPayment::METHOD_CASH => 'Tunai',
-                            PosOrderPayment::METHOD_QRIS => 'QRIS Cooca Pay',
-                            PosOrderPayment::METHOD_TRANSFER => 'Transfer Bank',
-                            PosOrderPayment::METHOD_EDC_DEBIT => 'EDC Debit',
-                            PosOrderPayment::METHOD_EDC_CREDIT => 'EDC Kredit',
-                            default => ucfirst(str_replace('_', ' ', $payMethod)),
-                        };
+                    $payment = PosOrderPayment::create([
+                        'pos_order_id' => $order->id,
+                        'payment_method' => $payMethod,
+                        'store_edc_terminal_id' => $edcTerminalId,
+                        'amount' => $payAmount,
+                        'reference_number' => $p['reference_number'] ?? null,
+                        'fee_amount' => 0.0,
+                        'net_amount' => $payAmount,
+                        'status' => 'paid',
+                    ]);
 
-                        $this->cashLedgerService->recordInflow(
-                            business: $business,
-                            amount: $netCashIn,
-                            referenceType: 'pos_order',
-                            referenceId: $payment->id,
-                            description: "Penerimaan POS #{$order->order_number} ({$methodLabel})",
-                            method: $payMethod,
-                            userId: $cashier->id
+                    // Handle Customer Store Credit (Piutang)
+                    if ($payMethod === PosOrderPayment::METHOD_CUSTOMER_CREDIT && $customer) {
+                        $this->loyaltyService->recordCustomerCreditCharge($customer, $order, $payAmount, $cashier);
+                    } elseif ($payMethod !== PosOrderPayment::METHOD_LOYALTY_POINTS) {
+                        $netCashIn = $payAmount;
+                        if ($payMethod === PosOrderPayment::METHOD_CASH && $remainingChange > 0) {
+                            $deduct = min($payAmount, $remainingChange);
+                            $netCashIn -= $deduct;
+                            $remainingChange -= $deduct;
+                        }
+
+                        if ($netCashIn > 0) {
+                            $methodLabel = match ($payMethod) {
+                                PosOrderPayment::METHOD_CASH => 'Tunai',
+                                PosOrderPayment::METHOD_QRIS => 'QRIS Cooca Pay',
+                                PosOrderPayment::METHOD_TRANSFER => 'Transfer Bank',
+                                PosOrderPayment::METHOD_EDC_DEBIT => 'EDC Debit',
+                                PosOrderPayment::METHOD_EDC_CREDIT => 'EDC Kredit',
+                                default => ucfirst(str_replace('_', ' ', $payMethod)),
+                            };
+
+                            $this->cashLedgerService->recordInflow(
+                                business: $business,
+                                amount: $netCashIn,
+                                referenceType: 'pos_order',
+                                referenceId: $payment->id,
+                                description: "Penerimaan POS #{$order->order_number} ({$methodLabel})",
+                                method: $payMethod,
+                                userId: $cashier->id
+                            );
+                        }
+                    }
+                }
+
+                // 9. Customer Loyalty Points
+                if ($customer) {
+                    $this->loyaltyService->awardPointsForOrder($customer, $order);
+                }
+
+                // 10. Automatic Accounting Journal
+                $this->journalService->recordPosSaleJournal($order);
+
+                // 11. Sync Table Status & Close Session if all orders completed
+                $session = $order->tableSession;
+                if ($session && $session->canBeClosed()) {
+                    $this->tableService->closeSession($session);
+                } elseif ($order->pos_table_id && $order->posTable) {
+                    $this->tableService->syncTableStatus($order->posTable);
+                }
+            }
+
+            return $order->load(['items.modifiers', 'payments.edcTerminal', 'customer', 'location', 'posTable']);
+        });
+    }
+
+    /**
+     * Confirm and finalize an asynchronous QRIS payment for a PosOrder (from TriPay Webhook or Polling Fallback).
+     * Deducts inventory, records cash ledger inflow, posts double-entry journal, awards loyalty points,
+     * and advances order status to confirmed/completed safely.
+     *
+     * @param array<string, mixed> $payload
+     */
+    public function confirmQrisPayment(
+        PosOrder $order,
+        string $tripayReference,
+        float $totalFee = 0.0,
+        array $payload = []
+    ): PosOrder {
+        if ($order->isPaid()) {
+            return $order;
+        }
+
+        return DB::transaction(function () use ($order, $tripayReference, $totalFee, $payload) {
+            $paymentChannel = (string) ($payload['payment_method'] ?? ($order->payment_channel ?? 'QRIS'));
+            $tripayService = new \App\Domain\Payment\TripayService();
+            $calculatedFee = strtoupper($paymentChannel) === 'QRIS'
+                ? $tripayService->calculateQrisFee((float) $order->total_amount)
+                : ($totalFee > 0 ? $totalFee : (float) ($order->gateway_fee ?? 0.0));
+
+            $business = $order->business;
+            $targetStatus = ($business?->autoSendToKds() && ($business?->hasDineInFeature() || $business?->isFoodIndustry()))
+                ? PosOrder::STATUS_CONFIRMED
+                : PosOrder::STATUS_COMPLETED;
+
+            $order->update([
+                'status' => $targetStatus,
+                'paid_amount' => $order->total_amount,
+                'change_amount' => 0.0,
+                'payment_gateway' => PosOrder::GATEWAY_TRIPAY,
+                'payment_channel' => $paymentChannel,
+                'gateway_reference' => $tripayReference ?: $order->gateway_reference,
+                'gateway_fee' => $calculatedFee,
+            ]);
+
+            $payment = PosOrderPayment::firstOrCreate(
+                [
+                    'pos_order_id' => $order->id,
+                    'reference_number' => $tripayReference,
+                ],
+                [
+                    'payment_method' => PosOrderPayment::METHOD_QRIS,
+                    'amount' => $order->total_amount,
+                    'fee_amount' => $calculatedFee,
+                    'net_amount' => max(0.0, (float) $order->total_amount - $calculatedFee),
+                    'status' => 'paid',
+                    'notes' => "Lunas otomatis via TriPay {$paymentChannel} (Ref: {$tripayReference})",
+                ]
+            );
+
+            $locationId = $order->location_id;
+            $cashierId = $order->user_id;
+
+            // Commit inventory deduction for items and modifiers
+            $order->loadMissing('items.modifiers');
+            foreach ($order->items as $item) {
+                // Deduct modifier materials
+                foreach ($item->modifiers as $mod) {
+                    if (! empty($mod->material_snapshot) && $locationId) {
+                        foreach ($mod->material_snapshot as $mat) {
+                            $totalMatQty = ((float) $mat['quantity']) * (float) $item->quantity;
+                            if ($totalMatQty > 0) {
+                                $this->stockService->recordMovement(
+                                    businessId: $order->business_id,
+                                    locationId: $locationId,
+                                    productId: null,
+                                    movementType: StockMovement::TYPE_POS_SALE,
+                                    quantityChange: -abs($totalMatQty),
+                                    unitCost: 0.0,
+                                    referenceId: $order->id,
+                                    referenceNumber: $order->order_number,
+                                    notes: "Modifier {$mod->modifier_option_name} untuk {$item->product_name} #{$order->order_number}",
+                                    userId: $cashierId,
+                                    materialId: $mat['material_id']
+                                );
+                            }
+                        }
+                    }
+                }
+
+                // Deduct base product stock
+                if ($item->product_id && $locationId) {
+                    $itemProduct = $item->product ?? Product::find($item->product_id);
+                    if (! $itemProduct || $itemProduct->isGoods()) {
+                        $this->stockService->deductForPosSale(
+                            businessId: $order->business_id,
+                            locationId: $locationId,
+                            productId: $item->product_id,
+                            quantity: (float) $item->quantity,
+                            unitCost: (float) $item->unit_cost_hpp,
+                            orderId: $order->id,
+                            orderNumber: $order->order_number,
+                            userId: $cashierId
                         );
                     }
                 }
             }
 
-            // 9. Customer Loyalty Points
-            if ($customer) {
-                $this->loyaltyService->awardPointsForOrder($customer, $order);
+            // Record cash ledger inflow
+            $netCashIn = max(0.0, (float) $order->total_amount - $calculatedFee);
+            if ($netCashIn > 0 && $business) {
+                $this->cashLedgerService->recordInflow(
+                    business: $business,
+                    amount: $netCashIn,
+                    referenceType: 'pos_order',
+                    referenceId: $payment->id,
+                    description: "Penerimaan POS QRIS Dinamis #{$order->order_number} (TriPay)",
+                    method: PosOrderPayment::METHOD_QRIS,
+                    userId: $cashierId
+                );
             }
 
-            // 10. Automatic Accounting Journal
-            $this->journalService->recordPosSaleJournal($order);
+            // Award customer loyalty points
+            if ($order->customer_id) {
+                $customer = Customer::find($order->customer_id);
+                if ($customer) {
+                    $this->loyaltyService->awardPointsForOrder($customer, $order);
+                }
+            }
 
-            // 11. Sync Table Status & Close Session if all orders completed
+            // Automatic Accounting Journal
+            try {
+                $this->journalService->recordPosSaleJournal($order->fresh(['business', 'payments', 'items']));
+            } catch (\Throwable $je) {
+                \Illuminate\Support\Facades\Log::warning('[PosOrderService] Auto-journal QRIS failed: ' . $je->getMessage());
+            }
+
+            // Sync Table Session if applicable
             $session = $order->tableSession;
             if ($session && $session->canBeClosed()) {
                 $this->tableService->closeSession($session);
@@ -515,7 +670,7 @@ final class PosOrderService
                 $this->tableService->syncTableStatus($order->posTable);
             }
 
-            return $order->load(['items.modifiers', 'payments.edcTerminal', 'customer', 'location', 'posTable']);
+            return $order->load(['items.modifiers', 'payments', 'customer', 'location', 'posTable']);
         });
     }
 
