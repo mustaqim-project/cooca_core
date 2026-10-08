@@ -32,6 +32,161 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 - **Files Affected:** Daftar berkas controller, service, model, blade, atau route yang dimodifikasi.
 - **Database Changes:** Tabel baru, migrasi skema, kolom tambahan, atau indexing.
+### [WORK-2026-10-08-339] Implementasi Flutter Cross-Platform Mobile Apps (COOCA My Own B2B & COOCA Customer Marketplace B2C) Sesuai Desain UI Lengkap
+
+- **Date:** 2026-10-08
+- **Status:** COMPLETED
+- **Module:** Mobile App (Flutter 3.47.2 / Dart 3.13.2) di `c:/laragon/www/mobile_app`
+- **Feature:**
+  1. Arsitektur Dual-Mode Ekosistem Mobile COOCA: Mode Merchant ("COOCA My Own" untuk Owner & Operasional Bisnis) dan Mode Customer ("COOCA Marketplace" untuk Pembeli) dengan interkoneksi State Management terpadu (`AppState`).
+  2. Implementasi Lengkap 11 Layar B2B "COOCA My Own":
+     - `MerchantSplashScreen`: Logo 3D isometrik heksagonal dengan wave geometry.
+     - `MerchantLoginScreen`: Auth form lengkap, password toggle, Social Google login, link reset password & register.
+     - `MerchantDashboardScreen`: Header outlet selector, KPI Cards Bento (Omzet hari ini, Transaksi, Pesanan Online, Stok Menipis), 6 Quick Actions Grid (POS, KDS, Absensi, HR, Laporan, Inventori), dan Aktivitas Terbaru.
+     - `PosScreen`: Katalog produk 2-kolom, filter kategori pill (Semua, Makanan, Minuman, Snack), pencarian instan, dan floating action bar ringkasan pesanan kasir (`3 Item | Rp 68.000`).
+     - `KdsScreen`: Kitchen Display System interaktif dengan status tabs (Baru, Dalam Proses, Siap), badge prioritas, elapsed timer, dan tombol aksi workflow dapur.
+     - `AttendanceScreen`: Verifikasi wajah kamera presensi dengan animated scanning viewfinder frame dan fallback PIN kasir 6-digit.
+     - `HrProfileScreen`: Profil karyawan (Kasir - Siti Nurhaliza), tab segmented Informasi & Riwayat, menu Data Pribadi, Informasi Kerja, BPJS, Kontak Darurat.
+     - `ReportsScreen`: Laporan penjualan interaktif dengan visualisasi kurva bezier `fl_chart`, KPI pertumbuhan penjualan, dan modal sheet pemilih periode.
+     - `InventoryScreen`: Manajemen stok multi-status (Aman/Rendah/Kritis), thumbnail produk, pencarian real-time, dan tab pergerakan stok.
+     - `MerchantNotificationScreen`: Notifikasi operasional harian (pesanan baru, stok kritis, jadwal shift, laporan harian, cuti).
+     - `MerchantProfileScreen`: Pengaturan owner, perangkat, outlet, dan opsi alih mode aplikasi.
+  3. Implementasi Lengkap 9 Layar B2C "COOCA Customer Marketplace":
+     - `CustomerSplashScreen`: Splash screen pembeli dengan branding "Belanja Mudah Hidup Lebih Baik".
+     - `CustomerOnboardingScreen`: Layar sambutan dengan CTA Lanjutkan, Masuk, dan Daftar.
+     - `CustomerHomeScreen`: Lokasi pengguna ("Jakarta Selatan"), bilah pencarian, hero promo banner ("Diskon Hingga 70%"), grid kategori produk, dan kartu toko pilihan.
+     - `CustomerSearchScreen`: Tab pencarian (Semua, Produk, Toko, Kategori), saran pencarian otomatis, dan history pencarian terakhir.
+     - `CustomerProductDetailScreen`: Galeri produk, badge diskon (-25%), rating ulasan, pemilih varian ukuran, quantity selector, dan dual CTA (+ Keranjang & Beli Sekarang).
+     - `CustomerCartScreen`: Keranjang belanja terkelompok per toko ("Toko Kopi Kita", "Roti Bakar 88"), seleksi checkbox, kontrol kuantitas, dan total checkout.
+     - `CustomerCheckoutScreen`: 3-Step Stepper (Alamat, Pengiriman, Pembayaran), pemilihan ekspedisi JNE, voucher promo, dan integrasi e-wallet GoPay.
+     - `CustomerOrderTrackingScreen`: Pelacakan pesanan real-time (#COD-001234) dengan stepper vertikal status pengiriman.
+     - `CustomerProfileScreen`: Profil pembeli (Andi Pratama), wishlist, pesanan, voucher, dan pengaturan akun.
+  4. Design System & Tokens:
+     - `AppColors`: Palet royal blue `#0066FF`, cyan accent `#00C6FF`, semantik Apple HIG Bento.
+     - `AppTheme`: Plus Jakarta Sans typography, soft rounded corners, elevation tokens.
+     - `CoocaLogo`: Precision CustomPainter yang menggambar logo heksagonal 3D kubus isometrik COOCA.
+- **Verification & Testing:**
+  - `flutter analyze`: 0 errors.
+  - `flutter test`: 100% Passed (`All tests passed!`).
+  - `flutter build web --release`: Berhasil kompilasi release bundle tanpa error (`√ Built build\web`).
+
+### [WORK-2026-10-08-338] Implementasi Fase 2 Mobile Ecosystem: PRD-33 & PRD-34, Push Notification FCM Engine, POS Offline Batch Sync (Idempotent), & Mobile Owner Pulse Dashboard
+
+- **Date:** 2026-10-08
+- **Status:** COMPLETED
+- **Module:** Mobile Devices, POS Sync & Owner Dashboard (`routes/api.php`, `app/Http/Controllers/Api/V1/Device/MobileDeviceTokenApiController.php`, `app/Http/Controllers/Api/V1/Pos/PosSyncApiController.php`, `app/Http/Controllers/Api/V1/Dashboard/MobileOwnerPulseApiController.php`, `app/Models/MobileDeviceToken.php`, `database/migrations/2026_10_08_091500_create_mobile_device_tokens_and_pos_sync_fields.php`)
+- **Feature:**
+  1. Promosi Master PRD Blueprints: `docs/prd/PRD-33-COOCA-MY-OWN-B2B-MOBILE-APP-MASTER-BLUEPRINT.md` (25 bab B2B OS) dan `docs/prd/PRD-34-COOCA-CUSTOMER-MARKETPLACE-MOBILE-APP-MASTER-BLUEPRINT.md` (34 bab B2C Marketplace).
+  2. Mobile FCM Device Token Engine: Tabel `mobile_device_tokens`, relasi multi-tenant B2B (`user_id`, `business_id`) dan B2C (`global_customer_id`), endpoint pendaftaran & penonaktifan token saat logout (`/devices/fcm-token` & `/customer/devices/fcm-token`).
+  3. POS Offline Batch Sync Engine: Endpoint `POST /api/v1/pos/sync/batch` dengan idempotency key berbasis `client_uuid` pada `pos_orders`. Transaksi offline dari smartphone/tablet kasir disinkronkan secara aman tanpa risiko double inventory deduction atau nota ganda saat internet pulih.
+  4. Mobile Owner Pulse Real-Time Dashboard: Endpoint `GET /api/v1/mobile/dashboard/pulse` bertema Apple HIG Bento yang menyajikan omzet gabungan POS & Online Store hari ini vs kemarin (pertumbuhan YoY/DoD), margin laba kotor, daftar shift kasir aktif, antrean KDS, pesanan online pending, top 5 peringatan stok kritis, dan sparkline penjualan per jam.
+  5. Unified Test Suites: Penambahan test suite `MobileDeviceAndSyncApiTest` (4 tests, 50 assertions) yang digabungkan dengan suite mobile sebelumnya menghasilkan total 17 tests, 104 assertions — 100% PASS.
+- **Work Type:** Feature | Architecture | Database Migration | Push Notifications | Offline Sync | Bento Mobile Analytics
+
+#### 1. Business Context & Objective
+- **Konteks:** Melengkapi kapabilitas mobile Cooca My Own dan Cooca Customer App dengan kemampuan push notification real-time (order alerts, KDS pings), keandalan operasional kasir saat offline tanpa koneksi internet (offline batch sync idempotent), serta kemudahan pemilik bisnis memantau denyut nadi usaha secara instan lewat widget Bento mobile.
+
+#### 2. What Was Done
+- Membuat migrasi `2026_10_08_091500_create_mobile_device_tokens_and_pos_sync_fields.php` dan mengeksekusinya via `php artisan migrate --force`.
+- Mengimplementasikan model Eloquent `App\Models\MobileDeviceToken` dan memperbarui `App\Models\PosOrder` dengan kolom `client_uuid`.
+- Membangun controller `MobileDeviceTokenApiController`, `PosSyncApiController`, dan `MobileOwnerPulseApiController`.
+- Mendaftarkan endpoint dengan middleware throttling dan role/permission guard di `routes/api.php`.
+- Memvalidasi end-to-end melalui automated test suite `tests/Feature/Api/MobileDeviceAndSyncApiTest.php`.
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `docs/prd/PRD-33-COOCA-MY-OWN-B2B-MOBILE-APP-MASTER-BLUEPRINT.md` [NEW]
+  - `docs/prd/PRD-34-COOCA-CUSTOMER-MARKETPLACE-MOBILE-APP-MASTER-BLUEPRINT.md` [NEW]
+  - `database/migrations/2026_10_08_091500_create_mobile_device_tokens_and_pos_sync_fields.php` [NEW]
+  - `app/Models/MobileDeviceToken.php` [NEW]
+  - `app/Models/PosOrder.php` [MODIFIED]
+  - `app/Http/Controllers/Api/V1/Device/MobileDeviceTokenApiController.php` [NEW]
+  - `app/Http/Controllers/Api/V1/Pos/PosSyncApiController.php` [NEW]
+  - `app/Http/Controllers/Api/V1/Dashboard/MobileOwnerPulseApiController.php` [NEW]
+  - `routes/api.php` [MODIFIED]
+  - `tests/Feature/Api/MobileDeviceAndSyncApiTest.php` [NEW]
+- **Database Changes:**
+  - Tabel baru `mobile_device_tokens` (`id`, `user_id`, `global_customer_id`, `business_id`, `token`, `platform`, `device_model`, `app_type`, `app_version`, `last_seen_at`, `is_active`).
+  - Kolom baru `client_uuid` (string 64, nullable, index) pada tabel `pos_orders`.
+- **Automated Test Results:**
+  - `MobilePosKitchenApiTest` (4 passed, 10 assertions)
+  - `MobileMerchantOrderApiTest` (5 passed, 14 assertions)
+  - `CustomerMarketplaceFlowApiTest` (4 passed, 30 assertions)
+  - `MobileDeviceAndSyncApiTest` (4 passed, 50 assertions)
+  - **Total:** 17 tests passed, 104 assertions, 0 errors, 0 failures.
+
+### [WORK-2026-10-08-337] Arsitektur Komprehensif & Implementasi Backend REST API Gateway untuk COOCA MY OWN (B2B Companion) & COOCA CUSTOMER MARKETPLACE (B2C)
+
+- **Date:** 2026-10-08
+- **Status:** COMPLETED
+- **Module:** Mobile Operating System & Marketplace REST API (`routes/api.php`, `app/Http/Controllers/Api/V1/Pos/PosKitchenApiController.php`, `app/Http/Controllers/Api/V1/Commerce/MerchantOrderApiController.php`, `app/Http/Controllers/Api/V1/Customer/*`, `app/Models/GlobalCustomer.php`, `app/Models/CustomerWishlist.php`)
+- **Feature:**
+  1. Pemisahan Model Identitas Zero-Trust: Model `App\Models\User` (Sanctum `auth:sanctum`) untuk multi-tenant B2B Cooca My Own, dan model `App\Models\GlobalCustomer` (Sanctum `HasApiTokens`) untuk pembeli universal Cooca Customer Marketplace.
+  2. KDS Kitchen Display System Mobile API: Endpoint antrean dapur aktif (`confirmed`, `preparing`, `ready`), pembaruan status memasak live, dan lembar persiapan resep BOM harian (`prep-sheet`).
+  3. Merchant Online Order Fulfillment API: Pengelolaan pesanan toko online native COOCA (`commerce_orders`), verifikasi & penolakan bukti bayar manual transfer, pemicu pickup kurir Biteship & resi AWB otomatis, update resi manual, dan data label thermal bluetooth (format 100x150mm & 58/80mm).
+  4. Marketplace Discovery & Catalog API: Feed beranda cerdas (banner promo, merchant terdekat, produk populer), taksonomi kategori, pencarian multi-filter cerdas, detail produk WebP + modifier/varian + profil toko.
+  5. Customer Authentication & Profile API: Registrasi pembeli, login email/telepon, Google SSO, WhatsApp OTP, profil aktif, dan logout token revoke.
+  6. Customer Address Book API: Buku alamat tersimpan pembeli lengkap dengan geolokasi GPS, Biteship Area ID, dan penanda alamat default.
+  7. Multi-Merchant Grouped Cart API: Keranjang belanja terisolasi per `(global_customer_id, business_id)` yang secara otomatis terkelompok rapi per toko mitra.
+  8. Atomic Checkout & Order Lifecycle API: Kalkulasi tarif ongkir Biteship real-time (JNE, SiCepat, J&T, GoSend), submit checkout atomik anti-race-condition, pelacakan pesanan, upload bukti bayar, konfirmasi selesai, dan ulasan terverifikasi (rating bintang 1-5).
+  9. Customer Wishlist API: Manajemen produk favorit pembeli secara idempotent dengan relasi produk dan merchant.
+  10. Automated Test Suites & Security Guardrail: 3 Feature Test Suites (`MobilePosKitchenApiTest`, `MobileMerchantOrderApiTest`, `CustomerMarketplaceFlowApiTest`) dengan 100% kelulusan (13 tests, 54 assertions), memvalidasi isolasi multi-tenant, sanitasi input, dan proteksi Anti-IDOR.
+- **Work Type:** Architecture | Feature | Security | REST API Gateway | Database Migration | Automated Testing
+
+#### 1. Business Context & Objective
+- **Konteks:** Ekosistem COOCA membutuhkan dua aplikasi mobile resmi yang terpisah secara tegas peruntukannya:
+  1. **COOCA MY OWN:** Aplikasi mobile business companion untuk Pemilik Usaha, Manajer, Kasir, Koki (KDS), Staf Gudang, dan Karyawan (Presensi GPS/Wajah).
+  2. **COOCA (CUSTOMER APP):** Aplikasi mobile marketplace konsumen untuk berbelanja produk dari merchant UMKM mitra COOCA.
+- **Batasan Mutlak (Strict Non-Goals):** Tidak ada modul atau endpoint eksternal untuk Shopee, TikTok Shop, atau Tokopedia di kedua aplikasi mobile. Seluruh pesanan marketplace adalah **Native COOCA Marketplace Orders** (`commerce_orders`).
+
+#### 2. What Was Done
+1. **Model & Database Layer:**
+   - Menambahkan trait `Laravel\Sanctum\HasApiTokens` dan relasi `wishlists()` pada `GlobalCustomer`.
+   - Membuat migrasi dan tabel `customer_wishlists` (`id`, `global_customer_id`, `product_id`, composite unique index).
+   - Membuat model Eloquent `CustomerWishlist`.
+   - Menambahkan relasi `cashier()` pada `PosOrder` dan `paymentMethod()` pada `CommerceOrder`.
+2. **KDS & Merchant Controller Layer:**
+   - Mengimplementasikan `PosKitchenApiController` (KDS display, status update, prep-sheet BOM).
+   - Mengimplementasikan `MerchantOrderApiController` (order list, detail, verify payment, request pickup Biteship, update waybill, bluetooth thermal label).
+3. **Customer Marketplace Controller Layer:**
+   - Mengimplementasikan `CustomerAuthApiController` (register, login, googleLogin, sendOtp, verifyOtp, me, logout).
+   - Mengimplementasikan `CustomerAddressApiController` (index, store, update, destroy, setDefault).
+   - Mengimplementasikan `MarketplaceCatalogApiController` (homeFeed, categories, searchProducts, productDetail, storeProfile).
+   - Mengimplementasikan `CustomerCartApiController` (multi-merchant grouped cart, addItem, updateItem, removeItem).
+   - Mengimplementasikan `CustomerCheckoutApiController` (rates Biteship, submit checkout, order history & detail, upload proof, cancel, complete, verified reviews).
+   - Mengimplementasikan `CustomerWishlistApiController` (index, toggle wishlist).
+4. **Routing Gateway Layer:**
+   - Mendaftarkan rute KDS `/api/v1/pos/kitchen/*` di bawah middleware `business.active` dan permission `pos.terminal`.
+   - Mendaftarkan rute Merchant Orders `/api/v1/commerce/orders/*` di bawah middleware `business.active` dan permission `sales.view`.
+   - Mendaftarkan rute publik Marketplace `/api/v1/marketplace/*` dengan throttle 120 req/min.
+   - Mendaftarkan rute otentikasi pembeli `/api/v1/customer/auth/*` dengan throttle 60 req/min.
+   - Mendaftarkan rute portal pembeli `/api/v1/customer/*` dengan middleware `auth:sanctum` dan throttle 180 req/min.
+5. **Quality Assurance & Verification:**
+   - Menulis 3 test suite feature (`MobilePosKitchenApiTest`, `MobileMerchantOrderApiTest`, `CustomerMarketplaceFlowApiTest`).
+   - Eksekusi pengujian PHPUnit SQLite in-memory: 13 tests, 54 assertions, 100% PASS, 0 failures, 0 errors.
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `routes/api.php`
+  - `app/Models/GlobalCustomer.php`
+  - `app/Models/CustomerWishlist.php`
+  - `app/Models/PosOrder.php`
+  - `app/Models/CommerceOrder.php`
+  - `app/Http/Controllers/Api/V1/Pos/PosKitchenApiController.php`
+  - `app/Http/Controllers/Api/V1/Commerce/MerchantOrderApiController.php`
+  - `app/Http/Controllers/Api/V1/Customer/CustomerAuthApiController.php`
+  - `app/Http/Controllers/Api/V1/Customer/CustomerAddressApiController.php`
+  - `app/Http/Controllers/Api/V1/Customer/MarketplaceCatalogApiController.php`
+  - `app/Http/Controllers/Api/V1/Customer/CustomerCartApiController.php`
+  - `app/Http/Controllers/Api/V1/Customer/CustomerCheckoutApiController.php`
+  - `app/Http/Controllers/Api/V1/Customer/CustomerWishlistApiController.php`
+  - `tests/Feature/Api/MobilePosKitchenApiTest.php`
+  - `tests/Feature/Api/MobileMerchantOrderApiTest.php`
+  - `tests/Feature/Api/CustomerMarketplaceFlowApiTest.php`
+  - `docs/SYSTEM_GUIDE.md`
+  - `docs/AiWorkHistory.md`
+- **Database Changes:**
+  - Tabel baru: `customer_wishlists` (UUID PK, FK `global_customer_id`, FK `product_id`, unique composite key).
 
 ### [WORK-2026-10-08-336] Rekonsiliasi Agregasi Percakapan Meta Inbox, Penarikan Pesan Dua Arah (Incoming & Outgoing), Dukungan Multi-Channel Direct Messaging & Komentar, serta Panduan Konfigurasi API Meta Lengkap
 

@@ -69,6 +69,7 @@ class PosOrder extends Model
         'user_id',
         'customer_id',
         'order_number',
+        'client_uuid',
         'order_date',
         'status',
         'payment_gateway',
@@ -241,6 +242,15 @@ class PosOrder extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function cashier(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
 
     /**
      * @return BelongsTo<User, $this>

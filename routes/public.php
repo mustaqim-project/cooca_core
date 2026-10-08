@@ -224,6 +224,7 @@ Route::get('/t/{qrToken}/order/{order}/status', [PublicQrOrderWebController::cla
 
 // 10. Sitemap XML & HTML (SEO & Web Crawlers)
 Route::get('/sitemap.xml', [SitemapController::class, 'xml'])->name('sitemap.xml');
+Route::get('/sitemap_blog.xml', [SitemapController::class, 'blogXml'])->name('sitemap_blog.xml');
 Route::get('/sitemap', [SitemapController::class, 'html'])->name('sitemap.html');
 
 // 11. Public Customer Receipt & Receipt Image View

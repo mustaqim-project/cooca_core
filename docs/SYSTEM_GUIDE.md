@@ -53,6 +53,8 @@
    - [4.23 Arsitektur Hardening Modul Gudang & Pemasok (Bento Apple HIG, IDOR Precedence Shield, N-Tier Cycle Traversal, & 100% i18n Parity - PRD-32)](#423-arsitektur-hardening-modul-gudang--pemasok-bento-apple-hig-idor-precedence-shield-n-tier-cycle-traversal--100-i18n-parity---prd-32)
    - [4.24 Arsitektur COOCA Online Store & Marketplace Production-Grade (Shopee-Standard Workflow, TriPay Auto-Journaling, AWB Tracking & Verified Reviews)](#424-arsitektur-cooca-online-store--marketplace-production-grade-shopee-standard-workflow-tripay-auto-journaling-awb-tracking--verified-reviews)
    - [4.25 Arsitektur Universal Multi-Tenant Model Context Protocol (MCP) Server & Multi-Provider AI Adapter Hub](#425-arsitektur-universal-multi-tenant-model-context-protocol-mcp-server--multi-provider-ai-adapter-hub)
+   - [4.26 Arsitektur Mobile REST API Gateway (COOCA MY OWN & COOCA Customer Marketplace)](#426-arsitektur-mobile-rest-api-gateway-cooca-my-own--cooca-customer-marketplace)
+   - [4.27 Implementasi Frontend Mobile App Flutter (mobile_app)](#427-implementasi-frontend-mobile-app-flutter-mobile_app)
 
 ---
 
@@ -832,3 +834,79 @@ Dokumentasi Cooca saling terhubung secara dua arah untuk memudahkan penelusuran 
     └──► Billing Packages & Promos ─► docs/system/modules/saas-billing.md ─────────────────────► AdminPromoController & SubscriptionCheckoutWebController
                                                                                                         └──► WORK-2026-10-07-320 (Subscription Promo Codes, Checkout Voucher Validation, Audit Usages)
 ```
+
+
+---
+
+### 4.26 Arsitektur Mobile REST API Gateway (COOCA MY OWN & COOCA Customer Marketplace)
+
+COOCA mengoperasikan dua aplikasi mobile resmi yang terpisah secara tegas peruntukannya:
+
+#### 1. COOCA MY OWN (B2B Business OS Companion)
+- **Target Pengguna:** Pemilik Usaha (Owner), Manajer, Kasir, Koki (KDS), Staf Gudang, dan Karyawan (Presensi GPS/Wajah).
+- **Model Identitas & Auth:** `App\Models\User` dengan otentikasi Bearer Token Sanctum (`auth:sanctum`).
+- **Scope Konteks:** Wajib memiliki konteks bisnis aktif (`business.active` middleware) via header `X-Business-Id` atau sesi aktif pengguna.
+- **Endpoints Inti:**
+  - **KDS Kitchen Display:** `GET /api/v1/pos/kitchen/orders` (antrean aktif), `POST /api/v1/pos/kitchen/orders/{order}/status` (status memasak), `GET /api/v1/pos/kitchen/prep-sheet` (resep BOM harian).
+  - **Order Fulfillment:** `GET /api/v1/commerce/orders`, `GET /api/v1/commerce/orders/{order}`, `POST /api/v1/commerce/orders/{order}/verify-payment` (approval bukti transfer), `POST /api/v1/commerce/orders/{order}/request-pickup` (Biteship dispatcher), `POST /api/v1/commerce/orders/{order}/waybill`, `GET /api/v1/commerce/orders/{order}/shipping-label-data` (Bluetooth thermal label format 100x150mm & 58/80mm).
+  - **Presensi & Biometrik Wajah:** `/api/v1/attendance/*` (GPS geofencing radius, verifikasi wajah AI, pengajuan koreksi absen).
+  - **POS Terminal, Shift & Drawer:** `/api/v1/pos/*` (buka/tutup shift, cash movement, checkout keranjang, supervisor PIN).
+
+#### 2. COOCA (Customer Marketplace App)
+- **Target Pengguna:** Konsumen dan Pembeli Publik.
+- **Model Identitas & Auth:** `App\Models\GlobalCustomer` dengan otentikasi Bearer Token Sanctum (`HasApiTokens`).
+- **Scope Konteks:** Bersifat global lintas toko mitra UMKM, dengan keranjang belanja (`CustomerCart`) terisolasi rapi per toko mitra.
+- **Endpoints Inti:**
+  - **Discovery Publik:** `GET /api/v1/marketplace/home`, `GET /api/v1/marketplace/categories`, `GET /api/v1/marketplace/products` (multi-filter), `GET /api/v1/marketplace/products/{slug}`, `GET /api/v1/marketplace/stores/{slug}`.
+  - **Otentikasi Pembeli:** `POST /api/v1/customer/auth/register`, `login`, `google` (SSO), `send-otp`, `verify-otp`.
+  - **Portal Pembeli:** `GET /api/v1/customer/me`, `POST /api/v1/customer/logout`.
+  - **Buku Alamat:** `/api/v1/customer/addresses` (CRUD alamat lengkap koordinat GPS & Biteship area ID).
+  - **Multi-Merchant Cart:** `/api/v1/customer/cart` (Grouped per toko mitra, add item, update qty, remove).
+  - **Checkout & Pesanan:** `/api/v1/customer/checkout/rates` (kalkulasi ongkir Biteship real-time), `submitCheckout` (order atomik), `/api/v1/customer/orders` (riwayat, timeline resi AWB, upload bukti bayar, konfirmasi terima, ulasan terverifikasi).
+  - **Wishlist:** `/api/v1/customer/wishlist` (daftar produk favorit, toggle idempotent).
+
+#### 3. Push Notifications & Offline Engine (Fase 2)
+- **FCM Device Token Hub (`POST|DELETE /api/v1/devices/fcm-token` & `/api/v1/customer/devices/fcm-token`):**
+  - Mengelola token push notification Android & iOS untuk staf bisnis B2B dan pembeli marketplace B2C.
+  - Mendukung token lifecycle: auto-register saat aplikasi dibuka, refresh token, dan penonaktifan instan saat logout.
+- **POS Offline Batch Sync Engine (`POST /api/v1/pos/sync/batch`):**
+  - Menggunakan kunci idempotensi `client_uuid` pada setiap transaksi offline yang tersimpan di SQLite lokal perangkat kasir.
+  - Saat koneksi internet tersambung kembali, batch transaksi offline disinkronkan secara atomik tanpa risiko duplikasi nota atau pengurangan stok ganda.
+- **Mobile Owner Pulse Dashboard (`GET /api/v1/mobile/dashboard/pulse`):**
+  - Real-time heartbeat dashboard bertema Apple HIG Bento untuk pemilik bisnis: perbandingan omzet hari ini vs kemarin (pertumbuhan DoD/YoY), estimasi laba kotor & margin %, status kasir aktif, antrean KDS aktif, pesanan online pending, top 5 peringatan stok kritis, dan sparkline grafik penjualan per jam.
+
+#### 4. Strict Non-Goals & Keamanan Anti-IDOR
+- **Ketiadaan Integrasi Eksternal:** Sesuai batasan non-goals di PRD, tidak ada modul atau endpoint pihak ketiga Shopee, TikTok Shop, atau Tokopedia di kedua aplikasi mobile. Seluruh pesanan marketplace adalah **Native COOCA Marketplace Orders** (`commerce_orders`). Integrasi pihak ketiga tetap 100% berada di COOCA Web Omnichannel Hub.
+- **Isolasi Anti-IDOR:** Seluruh query controller customer discoping mutlak dengan `where('global_customer_id', $customer->id)`. Upaya pembeli mengakses pesanan atau alamat milik akun lain secara langsung diblokir dengan respon `403 Forbidden` atau `404 Not Found`.
+- **Master PRD References:** Rujukan lengkap arsitektur dan spesifikasi UI/UX tersimpan di [`docs/prd/PRD-33-COOCA-MY-OWN-B2B-MOBILE-APP-MASTER-BLUEPRINT.md`](file:///c:/laragon/www/cooca_core/docs/prd/PRD-33-COOCA-MY-OWN-B2B-MOBILE-APP-MASTER-BLUEPRINT.md) dan [`docs/prd/PRD-34-COOCA-CUSTOMER-MARKETPLACE-MOBILE-APP-MASTER-BLUEPRINT.md`](file:///c:/laragon/www/cooca_core/docs/prd/PRD-34-COOCA-CUSTOMER-MARKETPLACE-MOBILE-APP-MASTER-BLUEPRINT.md).
+
+---
+
+### 4.27 Implementasi Frontend Mobile App Flutter (`mobile_app`)
+
+Repositori Flutter berada di `c:\laragon\www\mobile_app` dengan dukungan multi-platform (Android, iOS, Web).
+
+1. **Struktur Modul & Direktori:**
+   - `lib/core/constants/app_colors.dart`: Palet warna primer royal blue `#0066FF`, gradien hero `#0072FF` ke `#00C6FF`, semantik Apple HIG Bento.
+   - `lib/core/theme/app_theme.dart`: Konfigurasi tema Material 3 terpadu dengan tipografi Plus Jakarta Sans (`GoogleFonts`).
+   - `lib/core/widgets/cooca_logo.dart`: CustomPainter logo 3D isometrik heksagonal kubus presisi COOCA.
+   - `lib/core/widgets/mode_switch_banner.dart`: Bilah switcher interaktif antar mode Merchant & Customer.
+   - `lib/state/app_state.dart`: Pengelola status global reaktif untuk cart kasir POS, keranjang customer marketplace, KDS live orders, notifikasi, dan peredam duplikasi data.
+2. **Layar B2B "COOCA My Own":**
+   - `MerchantSplashScreen`, `MerchantLoginScreen`, `MerchantDashboardScreen` (Bento metrics, 6 shortcut tools, aktivitas terbaru).
+   - `PosScreen` (katalog produk 2-kolom, filter pill, cart float pill `Rp 68.000`).
+   - `KdsScreen` (pesanan dapur live, tab Baru/Proses/Siap, badge prioritas, timer).
+   - `AttendanceScreen` (viewfinder kamera deteksi wajah + fallback PIN).
+   - `HrProfileScreen` (profil karyawan Kasir - Siti Nurhaliza, informasi & riwayat).
+   - `ReportsScreen` (analitik omzet, transaksi, grafik tren `fl_chart`).
+   - `InventoryScreen` (manajemen stok, indikator status Aman/Rendah/Kritis).
+   - `MerchantNotificationScreen` & `MerchantProfileScreen`.
+3. **Layar B2C "COOCA Marketplace":**
+   - `CustomerSplashScreen`, `CustomerOnboardingScreen`.
+   - `CustomerHomeScreen` (banner diskon 70%, toko pilihan, kategori, produk terpopuler).
+   - `CustomerSearchScreen` (pencarian instan, filter tab, recent search).
+   - `CustomerProductDetailScreen` (galeri gambar kopi latte, varian, diskon -25%, quantity, buy now).
+   - `CustomerCartScreen` (pemisahan pesanan per outlet/merchant, checkbox selector).
+   - `CustomerCheckoutScreen` (stepper 3-tahap, ekspedisi JNE, voucher, GoPay).
+   - `CustomerOrderTrackingScreen` (stepper pelacakan pesanan #COD-001234).
+   - `CustomerProfileScreen` (akun pembeli, pesanan saya, voucher, alamat).

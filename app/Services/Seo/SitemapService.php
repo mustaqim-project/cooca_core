@@ -262,18 +262,83 @@ final class SitemapService
     }
 
     /**
-     * Generate standard XML sitemap content.
+     * Compile all public blog URLs (blog hub index + every published post).
+     *
+     * @return array<int, array{
+     *     loc: string,
+     *     lastmod: string,
+     *     changefreq: string,
+     *     priority: string,
+     *     title: string
+     * }>
      */
-    public function generateXml(): string
+    public function getBlogUrls(): array
     {
-        $urls = $this->getPublicUrls();
+        $baseUrl = $this->getBaseUrl();
+        $nowDate = Carbon::now()->toIso8601String();
+        $urls = [];
 
+        // 1. Blog hub index
+        $urls[] = [
+            'loc' => $baseUrl . '/blog',
+            'lastmod' => $nowDate,
+            'changefreq' => 'daily',
+            'priority' => '0.9',
+            'title' => 'Blog & Edukasi Bisnis UMKM Cooca',
+        ];
+
+        // 2. Published blog posts
+        try {
+            $posts = Post::published()->orderByDesc('published_at')->get();
+            foreach ($posts as $post) {
+                $postDate = ($post->updated_at ?? $post->published_at ?? Carbon::now())->toIso8601String();
+                $urls[] = [
+                    'loc' => $baseUrl . '/blog/' . $post->slug,
+                    'lastmod' => $postDate,
+                    'changefreq' => 'weekly',
+                    'priority' => '0.8',
+                    'title' => (string) $post->title,
+                ];
+            }
+        } catch (\Throwable) {
+            // Graceful fallback if database unavailable during static boot
+        }
+
+        return $urls;
+    }
+
+    /**
+     * Generate the dedicated blog XML sitemap (sitemap_blog.xml).
+     */
+    public function generateBlogXml(): string
+    {
+        return $this->renderUrlset($this->getBlogUrls());
+    }
+
+    /**
+     * Save the blog sitemap XML to the public folder.
+     */
+    public function saveBlogToPublic(?string $path = null): string
+    {
+        $targetPath = $path ?? public_path('sitemap_blog.xml');
+        file_put_contents($targetPath, $this->generateBlogXml());
+
+        return $targetPath;
+    }
+
+    /**
+     * Render a standard XML <urlset> wrapper for the given URL items.
+     *
+     * @param array<int, array{loc: string, lastmod: string, changefreq: string, priority: string}> $items
+     */
+    private function renderUrlset(array $items): string
+    {
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"' . "\n";
         $xml .= '        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"' . "\n";
         $xml .= '        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">' . "\n";
 
-        foreach ($urls as $item) {
+        foreach ($items as $item) {
             $loc = htmlspecialchars($item['loc'], ENT_XML1, 'UTF-8');
             $lastmod = htmlspecialchars($item['lastmod'], ENT_XML1, 'UTF-8');
             $changefreq = htmlspecialchars($item['changefreq'], ENT_XML1, 'UTF-8');
@@ -290,6 +355,14 @@ final class SitemapService
         $xml .= '</urlset>';
 
         return $xml;
+    }
+
+    /**
+     * Generate standard XML sitemap content.
+     */
+    public function generateXml(): string
+    {
+        return $this->renderUrlset($this->getPublicUrls());
     }
 
     /**

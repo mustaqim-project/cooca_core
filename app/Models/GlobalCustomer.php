@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 /**
  * Global customer identity -- one account, many stores.
@@ -19,7 +20,7 @@ use Illuminate\Notifications\Notifiable;
  */
 class GlobalCustomer extends Authenticatable
 {
-    use HasFactory, HasUuids, Notifiable, SoftDeletes;
+    use HasApiTokens, HasFactory, HasUuids, Notifiable, SoftDeletes;
 
     protected $fillable = [
         'google_id',
@@ -64,6 +65,11 @@ class GlobalCustomer extends Authenticatable
     public function addresses(): HasMany
     {
         return $this->hasMany(GlobalCustomerAddress::class, 'global_customer_id')->orderBy('is_default', 'desc')->orderBy('created_at', 'desc');
+    }
+
+    public function wishlists(): HasMany
+    {
+        return $this->hasMany(CustomerWishlist::class, 'global_customer_id');
     }
 
     /**

@@ -18,6 +18,7 @@ Allow: /kontak
 Allow: /b/
 Allow: /sitemap
 Allow: /sitemap.xml
+Allow: /sitemap_blog.xml
 
 # 2. Private App, Internal POS, & Tenant Operating System (NOINDEX & NOFOLLOW)
 Disallow: /admin
@@ -68,3 +69,4 @@ Disallow: /broadcasting/
 
 # 5. Dynamic XML Sitemap Reference
 Sitemap: https://cooca.id/sitemap.xml
+Sitemap: https://cooca.id/sitemap_blog.xml

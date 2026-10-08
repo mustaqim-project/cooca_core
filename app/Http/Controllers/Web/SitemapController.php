@@ -30,6 +30,20 @@ final class SitemapController extends Controller
     }
 
     /**
+     * Render the dedicated blog XML sitemap (sitemap_blog.xml) for crawlers.
+     */
+    public function blogXml(): Response
+    {
+        $xml = $this->sitemapService->generateBlogXml();
+
+        return response($xml, 200, [
+            'Content-Type' => 'application/xml; charset=UTF-8',
+            'X-Robots-Tag' => 'noindex, follow',
+            'Cache-Control' => 'public, max-age=3600',
+        ]);
+    }
+
+    /**
      * Render the human-friendly HTML sitemap page.
      */
     public function html(): View

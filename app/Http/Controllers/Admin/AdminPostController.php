@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Post;
 use App\Models\PostCategory;
 use App\Models\PostCluster;
+use App\Services\Seo\SitemapService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -163,6 +164,8 @@ final class AdminPostController extends Controller
 
         Post::create($validated);
 
+        $this->regenerateBlogSitemap();
+
         return redirect()->route('admin.posts.index')->with('success', 'Artikel berhasil diterbitkan.');
     }
 
@@ -247,6 +250,8 @@ final class AdminPostController extends Controller
 
         $post->update($validated);
 
+        $this->regenerateBlogSitemap();
+
         return redirect()->route('admin.posts.index')->with('success', 'Artikel berhasil diperbarui.');
     }
 
@@ -256,6 +261,8 @@ final class AdminPostController extends Controller
     public function destroy(Post $post): RedirectResponse
     {
         $post->delete();
+
+        $this->regenerateBlogSitemap();
 
         return redirect()->route('admin.posts.index')->with('success', 'Artikel telah dihapus.');
     }
@@ -271,7 +278,22 @@ final class AdminPostController extends Controller
             'published_at' => $newStatus ? ($post->published_at ?? now()) : null,
         ]);
 
+        $this->regenerateBlogSitemap();
+
         return back()->with('success', 'Status artikel berhasil diubah.');
+    }
+
+    /**
+     * Regenerate the static blog sitemap (sitemap_blog.xml) so search
+     * engines always get fresh article URLs after admin changes.
+     */
+    private function regenerateBlogSitemap(): void
+    {
+        try {
+            app(SitemapService::class)->saveBlogToPublic();
+        } catch (\Throwable) {
+            // Sitemap regeneration must never break the admin authoring flow.
+        }
     }
 
     /**

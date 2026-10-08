@@ -145,6 +145,67 @@ Route::prefix('v1')->group(function (): void {
     // Currency Conversion Live
     Route::post('/exchange-rates/convert', [ExchangeRateController::class, 'convert']);
 
+    // ──────────────────────────────────────────────────────────────────
+    // CUSTOMER MARKETPLACE API – Public Discovery & Catalog
+    // ──────────────────────────────────────────────────────────────────
+    Route::prefix('marketplace')->middleware('throttle:120,1')->group(function (): void {
+        Route::get('/home', [\App\Http\Controllers\Api\V1\Customer\MarketplaceCatalogApiController::class, 'homeFeed']);
+        Route::get('/categories', [\App\Http\Controllers\Api\V1\Customer\MarketplaceCatalogApiController::class, 'categories']);
+        Route::get('/products', [\App\Http\Controllers\Api\V1\Customer\MarketplaceCatalogApiController::class, 'searchProducts']);
+        Route::get('/products/{slug}', [\App\Http\Controllers\Api\V1\Customer\MarketplaceCatalogApiController::class, 'productDetail']);
+        Route::get('/stores/{slug}', [\App\Http\Controllers\Api\V1\Customer\MarketplaceCatalogApiController::class, 'storeProfile']);
+    });
+
+    // ──────────────────────────────────────────────────────────────────
+    // CUSTOMER MARKETPLACE API – Customer Authentication
+    // ──────────────────────────────────────────────────────────────────
+    Route::prefix('customer/auth')->middleware('throttle:60,1')->group(function (): void {
+        Route::post('/register', [\App\Http\Controllers\Api\V1\Customer\CustomerAuthApiController::class, 'register']);
+        Route::post('/login', [\App\Http\Controllers\Api\V1\Customer\CustomerAuthApiController::class, 'login']);
+        Route::post('/google', [\App\Http\Controllers\Api\V1\Customer\CustomerAuthApiController::class, 'googleLogin']);
+        Route::post('/send-otp', [\App\Http\Controllers\Api\V1\Customer\CustomerAuthApiController::class, 'sendOtp']);
+        Route::post('/verify-otp', [\App\Http\Controllers\Api\V1\Customer\CustomerAuthApiController::class, 'verifyOtp']);
+    });
+
+    // ──────────────────────────────────────────────────────────────────
+    // CUSTOMER MARKETPLACE API – Authenticated Customer Portal
+    // ──────────────────────────────────────────────────────────────────
+    Route::prefix('customer')->middleware(['auth:sanctum', 'throttle:180,1'])->group(function (): void {
+        Route::get('/me', [\App\Http\Controllers\Api\V1\Customer\CustomerAuthApiController::class, 'me']);
+        Route::post('/logout', [\App\Http\Controllers\Api\V1\Customer\CustomerAuthApiController::class, 'logout']);
+
+        // Address Book
+        Route::get('/addresses', [\App\Http\Controllers\Api\V1\Customer\CustomerAddressApiController::class, 'index']);
+        Route::post('/addresses', [\App\Http\Controllers\Api\V1\Customer\CustomerAddressApiController::class, 'store']);
+        Route::put('/addresses/{id}', [\App\Http\Controllers\Api\V1\Customer\CustomerAddressApiController::class, 'update']);
+        Route::delete('/addresses/{id}', [\App\Http\Controllers\Api\V1\Customer\CustomerAddressApiController::class, 'destroy']);
+        Route::post('/addresses/{id}/set-default', [\App\Http\Controllers\Api\V1\Customer\CustomerAddressApiController::class, 'setDefault']);
+
+        // Multi-Merchant Cart
+        Route::get('/cart', [\App\Http\Controllers\Api\V1\Customer\CustomerCartApiController::class, 'index']);
+        Route::post('/cart/{slug}', [\App\Http\Controllers\Api\V1\Customer\CustomerCartApiController::class, 'addItem']);
+        Route::put('/cart/{slug}/{itemId}', [\App\Http\Controllers\Api\V1\Customer\CustomerCartApiController::class, 'updateItem']);
+        Route::delete('/cart/{slug}/{itemId}', [\App\Http\Controllers\Api\V1\Customer\CustomerCartApiController::class, 'removeItem']);
+
+        // Checkout & Orders
+        Route::post('/checkout/rates', [\App\Http\Controllers\Api\V1\Customer\CustomerCheckoutApiController::class, 'calculateRates']);
+        Route::post('/checkout', [\App\Http\Controllers\Api\V1\Customer\CustomerCheckoutApiController::class, 'submitCheckout']);
+        Route::get('/orders', [\App\Http\Controllers\Api\V1\Customer\CustomerCheckoutApiController::class, 'orders']);
+        Route::get('/orders/{id}', [\App\Http\Controllers\Api\V1\Customer\CustomerCheckoutApiController::class, 'orderDetail']);
+        Route::post('/orders/{id}/upload-proof', [\App\Http\Controllers\Api\V1\Customer\CustomerCheckoutApiController::class, 'uploadProof']);
+        Route::post('/orders/{id}/cancel', [\App\Http\Controllers\Api\V1\Customer\CustomerCheckoutApiController::class, 'cancelOrder']);
+        Route::post('/orders/{id}/complete', [\App\Http\Controllers\Api\V1\Customer\CustomerCheckoutApiController::class, 'completeOrder']);
+        Route::post('/orders/{id}/review', [\App\Http\Controllers\Api\V1\Customer\CustomerCheckoutApiController::class, 'storeReview']);
+
+        // Wishlists
+        Route::get('/wishlist', [\App\Http\Controllers\Api\V1\Customer\CustomerWishlistApiController::class, 'index']);
+        Route::post('/wishlist/toggle', [\App\Http\Controllers\Api\V1\Customer\CustomerWishlistApiController::class, 'toggle']);
+
+        // Mobile Device Tokens (FCM Push Notifications for Customer)
+        Route::post('/devices/fcm-token', [\App\Http\Controllers\Api\V1\Device\MobileDeviceTokenApiController::class, 'registerCustomerToken']);
+        Route::delete('/devices/fcm-token', [\App\Http\Controllers\Api\V1\Device\MobileDeviceTokenApiController::class, 'unregisterCustomerToken']);
+    });
+
     // Authentication (Public with 60 req/min rate limit)
     Route::middleware('throttle:60,1')->prefix('auth')->group(function (): void {
         Route::post('/register', [AuthController::class, 'register']);
@@ -157,6 +218,10 @@ Route::prefix('v1')->group(function (): void {
             Route::get('/me', [AuthController::class, 'me']);
             Route::post('/logout', [AuthController::class, 'logout']);
         });
+
+        // Mobile Device Tokens (FCM Push Notifications for B2B Staff)
+        Route::post('/devices/fcm-token', [\App\Http\Controllers\Api\V1\Device\MobileDeviceTokenApiController::class, 'registerB2bToken']);
+        Route::delete('/devices/fcm-token', [\App\Http\Controllers\Api\V1\Device\MobileDeviceTokenApiController::class, 'unregisterB2bToken']);
 
         // User & Business Management
         Route::get('/me/businesses', [BusinessController::class, 'index']);
@@ -429,6 +494,9 @@ Route::prefix('v1')->group(function (): void {
                 Route::post('/orders/{posOrder}/hold', [PosTerminalController::class, 'holdOrder'])->middleware('require.permission:pos.terminal');
                 Route::post('/orders/{posOrder}/resume', [PosTerminalController::class, 'resumeOrder'])->middleware('require.permission:pos.terminal');
 
+                // Offline Batch Synchronization (Idempotent sync by client_uuid)
+                Route::post('/sync/batch', [\App\Http\Controllers\Api\V1\Pos\PosSyncApiController::class, 'batchSync'])->middleware('require.permission:pos.terminal');
+
                 // Supervisor Authorization (mirror of web /pos/verify-pin)
                 Route::post('/verify-pin', [PosTerminalController::class, 'verifySupervisorPin'])->middleware('throttle:5,1');
 
@@ -634,6 +702,35 @@ Route::prefix('v1')->group(function (): void {
                 Route::get('/exceptions', [\App\Http\Controllers\Api\V1\Hrm\AttendanceApiController::class, 'listExceptions']);
                 Route::post('/exceptions', [\App\Http\Controllers\Api\V1\Hrm\AttendanceApiController::class, 'storeException']);
             });
+
+            // ──────────────────────────────────────────────────────────────────
+            // MOBILE APP API – KDS (Kitchen Display System)
+            // ──────────────────────────────────────────────────────────────────
+            Route::prefix('pos/kitchen')->middleware('require.permission:pos.terminal')->group(function (): void {
+                Route::get('/orders', [\App\Http\Controllers\Api\V1\Pos\PosKitchenApiController::class, 'index']);
+                Route::get('/prep-sheet', [\App\Http\Controllers\Api\V1\Pos\PosKitchenApiController::class, 'prepSheet']);
+                Route::post('/orders/{order}/status', [\App\Http\Controllers\Api\V1\Pos\PosKitchenApiController::class, 'updateStatus']);
+            });
+
+            // ──────────────────────────────────────────────────────────────────
+            // MOBILE APP API – Merchant Commerce Orders (Native COOCA Fulfillment)
+            // ──────────────────────────────────────────────────────────────────
+            Route::prefix('commerce/orders')->middleware('require.permission:sales.view')->group(function (): void {
+                Route::get('/', [\App\Http\Controllers\Api\V1\Commerce\MerchantOrderApiController::class, 'index']);
+                Route::get('/{order}', [\App\Http\Controllers\Api\V1\Commerce\MerchantOrderApiController::class, 'show']);
+                Route::post('/{order}/verify-payment', [\App\Http\Controllers\Api\V1\Commerce\MerchantOrderApiController::class, 'verifyPayment'])->middleware('require.permission:sales.pipeline');
+                Route::post('/{order}/request-pickup', [\App\Http\Controllers\Api\V1\Commerce\MerchantOrderApiController::class, 'requestPickup'])->middleware('require.permission:sales.pipeline');
+                Route::post('/{order}/waybill', [\App\Http\Controllers\Api\V1\Commerce\MerchantOrderApiController::class, 'updateWaybill'])->middleware('require.permission:sales.pipeline');
+                Route::get('/{order}/shipping-label-data', [\App\Http\Controllers\Api\V1\Commerce\MerchantOrderApiController::class, 'shippingLabelData']);
+            });
+
+            // ──────────────────────────────────────────────────────────────────
+            // MOBILE APP API – Owner Pulse Dashboard (Apple HIG Bento)
+            // ──────────────────────────────────────────────────────────────────
+            Route::prefix('mobile/dashboard')->group(function (): void {
+                Route::get('/pulse', [\App\Http\Controllers\Api\V1\Dashboard\MobileOwnerPulseApiController::class, 'pulse'])->middleware('require.permission:dashboard.view');
+            });
         });
     });
 });
+

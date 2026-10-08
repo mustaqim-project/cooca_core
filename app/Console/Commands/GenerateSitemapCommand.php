@@ -28,22 +28,29 @@ final class GenerateSitemapCommand extends Command
      */
     public function handle(SitemapService $sitemapService): int
     {
-        $this->info('Memulai pembuatan sitemap.xml untuk COOCA...');
+        $this->info('Memulai pembuatan sitemap XML untuk COOCA...');
 
+        // 1. Main sitemap.xml (seluruh halaman publik)
         $customPath = $this->option('path');
         $targetFile = is_string($customPath) && $customPath !== ''
             ? $customPath
             : public_path('sitemap.xml');
 
-        $savedPath = $sitemapService->saveToPublic($targetFile);
+        $savedMain = $sitemapService->saveToPublic($targetFile);
         $totalUrls = count($sitemapService->getPublicUrls());
 
-        $this->info("✓ Berhasil membuat sitemap XML!");
+        // 2. Sitemap khusus blog: sitemap_blog.xml (hub + semua artikel terbit)
+        $savedBlog = $sitemapService->saveBlogToPublic();
+        $totalBlogUrls = count($sitemapService->getBlogUrls());
+
+        $this->info('✓ Berhasil membuat sitemap XML!');
         $this->table(
             ['Parameter', 'Nilai'],
             [
-                ['Target File', $savedPath],
-                ['Total URL Terindeks', (string) $totalUrls],
+                ['Target File (Umum)', $savedMain],
+                ['Total URL Terindeks (Umum)', (string) $totalUrls],
+                ['Target File (Blog)', $savedBlog],
+                ['Total URL Terindeks (Blog)', (string) $totalBlogUrls],
                 ['Skema Indeks', 'INDEX, FOLLOW (Public Pages Only)'],
                 ['Timestamp', now()->toDateTimeString()],
             ]
