@@ -497,6 +497,8 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         Route::get('/pos/search-products', [PosTerminalWebController::class, 'searchProducts'])->middleware('require.permission:pos.terminal')->name('pos.search-products');
         Route::post('/pos/validate-voucher', [PosTerminalWebController::class, 'validateVoucher'])->middleware('require.permission:pos.terminal')->name('pos.validate-voucher');
         Route::post('/pos/checkout', [PosTerminalWebController::class, 'checkout'])->middleware(['require.permission:pos.terminal', 'entitlement:pos'])->name('pos.checkout');
+        Route::post('/pos/send-to-kitchen', [PosTerminalWebController::class, 'sendToKitchen'])->middleware('require.permission:pos.terminal')->name('pos.send-to-kitchen');
+        Route::post('/pos/toggle-auto-kds', [PosTerminalWebController::class, 'toggleAutoKds'])->middleware('require.permission:pos.terminal')->name('pos.toggle-auto-kds');
         Route::post('/pos/hold', [PosTerminalWebController::class, 'holdOrder'])->middleware('require.permission:pos.terminal')->name('pos.hold');
         Route::get('/pos/held-orders', [PosTerminalWebController::class, 'getHeldOrders'])->name('pos.held-orders');
         Route::post('/pos/resume/{order}', [PosTerminalWebController::class, 'resumeOrder'])->name('pos.resume');

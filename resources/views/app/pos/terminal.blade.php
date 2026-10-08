@@ -604,6 +604,21 @@
                     @endif
                     @endif
 
+                    @if ($business && ($business->isFoodIndustry() || $business->hasDineInFeature()))
+                        <!-- Auto KDS (Paperless Kitchen) Toggle Button -->
+                        <button type="button" @click="toggleAutoKds()"
+                            :class="posAutoSendKds ? 'bg-[#34C759]/20 border-[#34C759]/40 text-[#30D158]' : 'bg-white/10 hover:bg-white/15 text-white/60 border-white/10'"
+                            class="h-8.5 sm:h-9 px-2.5 sm:px-3 rounded-[10px] active:scale-[0.97] text-[12px] font-medium transition flex items-center gap-1.5 border"
+                            :title="posAutoSendKds ? 'Auto KDS Aktif: Order kasir otomatis masuk ke layar dapur tanpa perlu print struk kertas' : 'Auto KDS Nonaktif: Order kasir tidak otomatis diteruskan ke KDS'">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23.693l-1.57-.393m15.6 0l1.4 3.5a2.25 2.25 0 01-2.09 3.085H5.89a2.25 2.25 0 01-2.09-3.085l1.4-3.5" />
+                            </svg>
+                            <span class="hidden md:inline font-semibold">KDS</span>
+                            <span class="w-2 h-2 rounded-full" :class="posAutoSendKds ? 'bg-[#34C759] animate-pulse' : 'bg-white/40'"></span>
+                            <span class="text-[10px] uppercase font-bold tracking-wider" :class="posAutoSendKds ? 'text-[#34C759]' : 'text-white/40'" x-text="posAutoSendKds ? 'ON' : 'OFF'"></span>
+                        </button>
+                    @endif
+
                     <!-- Antrean Hold Button -->
                     <button @click="showHeldOrdersModal = true"
                         class="h-8.5 sm:h-9 px-2.5 sm:px-3 rounded-[10px] bg-white/10 hover:bg-white/15 active:scale-[0.97] text-white text-[12px] font-medium transition flex items-center gap-1.5 border border-white/10"
@@ -821,6 +836,30 @@
                     <!-- 3. Operational Navigation Menu Items -->
                     <div class="space-y-1.5">
                         <span class="text-[11px] font-semibold uppercase tracking-wider text-white/50 px-1 block">Fitur Kasir</span>
+
+                        @if ($business && ($business->isFoodIndustry() || $business->hasDineInFeature()))
+                        <!-- Auto Kirim KDS Quick Toggle (Paperless) -->
+                        <button type="button" @click="toggleAutoKds()"
+                            class="w-full p-3 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] active:scale-[0.98] border border-white/10 text-left transition flex items-center justify-between group">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0"
+                                    :class="posAutoSendKds ? 'bg-[#34C759]/20 text-[#34C759]' : 'bg-white/10 text-white/50'">
+                                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23.693l-1.57-.393m15.6 0l1.4 3.5a2.25 2.25 0 01-2.09 3.085H5.89a2.25 2.25 0 01-2.09-3.085l1.4-3.5" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-[13px] text-white">Auto Kirim ke Dapur (KDS)</div>
+                                    <div class="text-[11px] text-white/50" x-text="posAutoSendKds ? 'Paperless: Order otomatis ke layar dapur' : 'Manual / Tidak otomatis ke KDS'"></div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 rounded-full font-bold text-[10px]"
+                                    :class="posAutoSendKds ? 'bg-[#34C759]/20 text-[#34C759]' : 'bg-white/10 text-white/50'"
+                                    x-text="posAutoSendKds ? 'AKTIF' : 'NONAKTIF'"></span>
+                            </div>
+                        </button>
+                        @endif
 
                         @if ($business && $business->hasDineInFeature())
                         <!-- Pesanan Meja QR -->
@@ -2013,6 +2052,28 @@
                             x-text="formatRupiah(grandTotal)"></div>
                     </div>
 
+                    @if ($business && ($business->isFoodIndustry() || $business->hasDineInFeature()))
+                    <!-- Kirim ke Dapur (KDS Paperless Button) -->
+                    <div class="pt-2">
+                        <button type="button" @click="sendCartToKitchen()" :disabled="cart.length === 0 || isSendingToKitchen"
+                            class="w-full h-10 rounded-[12px] bg-[#34C759]/15 hover:bg-[#34C759]/25 active:scale-[0.98] text-[#248A3D] dark:text-[#30D158] font-bold text-[12.5px] border border-[#34C759]/30 flex items-center justify-center gap-2 transition disabled:opacity-35 disabled:cursor-not-allowed shadow-xs"
+                            title="Kirim pesanan ke antrean layar dapur (KDS) tanpa perlu cetak struk kertas">
+                            <template x-if="!isSendingToKitchen">
+                                <svg class="w-4 h-4 shrink-0 text-[#34C759]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23.693l-1.57-.393m15.6 0l1.4 3.5a2.25 2.25 0 01-2.09 3.085H5.89a2.25 2.25 0 01-2.09-3.085l1.4-3.5" />
+                                </svg>
+                            </template>
+                            <template x-if="isSendingToKitchen">
+                                <svg class="w-4 h-4 shrink-0 animate-spin text-[#34C759]" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                </svg>
+                            </template>
+                            <span>Kirim ke Dapur (KDS &bull; Tanpa Cetak)</span>
+                        </button>
+                    </div>
+                    @endif
+
                     <!-- Action Buttons: Hold & Bayar (Exact to screenshot) -->
                     <div class="grid grid-cols-3 gap-2 pt-1.5">
                         <button @click="promptHoldCart()" :disabled="cart.length === 0"
@@ -2483,6 +2544,18 @@
                 </div>
             </div>
 
+            <!-- Paperless Auto KDS Confirmation Badge -->
+            <div x-show="lastOrderSentToKds" x-cloak
+                class="py-2.5 px-3.5 rounded-xl bg-[#34C759]/12 border border-[#34C759]/30 text-[#248A3D] dark:text-[#30D158] text-xs font-semibold flex items-center justify-between shadow-xs">
+                <div class="flex items-center gap-2 min-w-0">
+                    <svg class="w-4 h-4 shrink-0 text-[#34C759]" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span class="truncate">Pesanan Otomatis Masuk ke Layar Dapur (KDS) &bull; Paperless</span>
+                </div>
+                <span class="text-[10px] uppercase font-extrabold tracking-wider px-2 py-0.5 rounded-full bg-[#34C759]/20 text-[#248A3D] dark:text-[#30D158] shrink-0 ml-2">KDS Live</span>
+            </div>
+
             <!-- WhatsApp Feedback Toast (If Triggered) -->
             <div x-show="waBotFeedback" x-cloak
                 class="text-xs font-semibold py-2 px-3 rounded-xl border flex items-center justify-between gap-2"
@@ -2780,6 +2853,37 @@
                                 <span class="group-hover:translate-x-0.5 transition">↗</span>
                             </div>
                         </a>
+                    @endif
+
+                    <!-- 3.1 Mode Paperless Auto KDS -->
+                    @if ($business && ($business->isFoodIndustry() || $business->hasDineInFeature()))
+                        <div class="p-4 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between mb-2.5">
+                                    <div class="w-9 h-9 rounded-xl bg-[#34C759]/10 text-[#34C759] flex items-center justify-center">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23.693l-1.57-.393m15.6 0l1.4 3.5a2.25 2.25 0 01-2.09 3.085H5.89a2.25 2.25 0 01-2.09-3.085l1.4-3.5" />
+                                        </svg>
+                                    </div>
+                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide"
+                                        :class="posAutoSendKds ? 'bg-[#34C759]/20 text-[#248A3D] dark:text-[#30D158]' : 'bg-black/10 dark:bg-white/10 text-black/50 dark:text-white/50'"
+                                        x-text="posAutoSendKds ? 'Aktif' : 'Nonaktif'"></span>
+                                </div>
+                                <h4 class="font-semibold text-sm text-black dark:text-white">Auto Kirim ke Dapur (KDS)</h4>
+                                <p class="text-xs text-black/60 dark:text-white/60 mt-1 leading-relaxed">
+                                    Kirim pesanan kasir langsung ke antrean layar dapur secara otomatis tanpa harus cetak kertas struk.
+                                </p>
+                            </div>
+                            <div class="mt-3 pt-2.5 border-t border-black/5 dark:border-white/5 flex items-center justify-between">
+                                <span class="text-xs font-medium text-black/70 dark:text-white/70" x-text="posAutoSendKds ? 'Fitur Paperless Aktif' : 'Fitur Nonaktif'"></span>
+                                <button type="button" @click="toggleAutoKds()"
+                                    class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
+                                    :class="posAutoSendKds ? 'bg-[#34C759]' : 'bg-black/20 dark:bg-white/20'">
+                                    <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                                        :class="posAutoSendKds ? 'translate-x-5' : 'translate-x-0'"></span>
+                                </button>
+                            </div>
+                        </div>
                     @endif
 
                     <!-- 4. Rekap Shift Kasir -->
@@ -4565,6 +4669,9 @@
                 isProcessing: false,
                 directPrinting: false,
                 kitchenPrinting: false,
+                posAutoSendKds: {{ (isset($business) && $business->autoSendToKds()) ? 'true' : 'false' }},
+                isSendingToKitchen: false,
+                lastOrderSentToKds: false,
                 drawerPopping: false,
                 lastCompletedOrder: null,
                 lastReceiptUrl: '#',
@@ -5391,6 +5498,7 @@
                             this.waBotSent = data.whatsapp_bot_sent || false;
                             this.waBotFeedback = this.waBotSent ? 'Struk otomatis terkirim ke WhatsApp!' : '';
                             this.waBotFeedbackSuccess = this.waBotSent;
+                            this.lastOrderSentToKds = !!data.sent_to_kds;
                             this.showPaymentModal = false;
                             this.showSuccessModal = true;
                             this.cart = [];
@@ -5462,6 +5570,7 @@
                     this.lastCompletedOrder = null;
                     this.waBotSent = false;
                     this.waBotFeedback = '';
+                    this.lastOrderSentToKds = false;
                 },
 
                 sendWhatsAppBotReceipt() {
@@ -5568,6 +5677,106 @@
                         AppAlert.error('Terjadi gangguan komunikasi dengan printer dapur.');
                     } finally {
                         this.kitchenPrinting = false;
+                    }
+                },
+
+                async toggleAutoKds() {
+                    const newStatus = !this.posAutoSendKds;
+                    try {
+                        const res = await fetch("{{ route('pos.toggle-auto-kds') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': this.csrfToken
+                            },
+                            body: JSON.stringify({
+                                pos_auto_send_kds: newStatus
+                            })
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            this.posAutoSendKds = data.pos_auto_send_kds;
+                            if (typeof AppAlert !== 'undefined') {
+                                AppAlert.success(data.message);
+                            }
+                        } else {
+                            if (typeof AppAlert !== 'undefined') {
+                                AppAlert.error(data.message || 'Gagal mengubah pengaturan Auto KDS.');
+                            }
+                        }
+                    } catch (e) {
+                        if (typeof AppAlert !== 'undefined') {
+                            AppAlert.error('Terjadi gangguan jaringan saat mengubah pengaturan KDS.');
+                        }
+                    }
+                },
+
+                async sendCartToKitchen() {
+                    if (this.cart.length === 0 || this.isSendingToKitchen) return;
+
+                    const confirmed = await AppAlert.confirm({
+                        title: 'Kirim Pesanan ke Dapur (KDS)?',
+                        message: 'Pesanan akan langsung muncul di antrean Layar Dapur/Bar secara real-time tanpa perlu cetak struk fisik.',
+                        confirmText: 'Kirim ke Dapur',
+                        cancelText: 'Batal',
+                        type: 'info'
+                    });
+                    if (!confirmed) return;
+
+                    this.isSendingToKitchen = true;
+                    try {
+                        const payload = {
+                            items: this.cart.map(i => ({
+                                product_id: i.product_id,
+                                product_name: i.product_name,
+                                unit_price: i.unit_price,
+                                quantity: i.quantity,
+                                discount_amount: i.discount_amount || 0,
+                                notes: i.notes || null,
+                                batch_number: i.batch_number || null,
+                                expired_date: i.expired_date || null,
+                                dosage_instructions: i.dosage_instructions || null,
+                                selected_modifiers: i.selected_modifiers || []
+                            })),
+                            customer_id: this.selectedCustomerId || null,
+                            customer_name_guest: this.activeTableCustomerName || null,
+                            order_type: this.orderType,
+                            sales_channel: this.salesChannel || 'dine_in',
+                            pos_table_id: this.selectedTable?.id || null,
+                            pos_table_session_id: this.selectedTable?.active_session?.id || null,
+                            location_id: this.selectedLocationId,
+                            notes: this.serviceNotes ? this.serviceNotes.trim() : null
+                        };
+
+                        const res = await fetch("{{ route('pos.send-to-kitchen') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': this.csrfToken
+                            },
+                            body: JSON.stringify(payload)
+                        });
+
+                        const data = await res.json();
+                        if (data.success) {
+                            AppAlert.success(data.message || 'Pesanan berhasil dikirim ke antrean Layar Dapur (KDS).');
+                            if (data.order && this.selectedTable) {
+                                this.activeTableOrderId = data.order.id;
+                                this.activeTableOrderNumber = data.order.order_number;
+                            }
+                            this.cart = [];
+                            if (typeof this.fetchTables === 'function') {
+                                this.fetchTables();
+                            }
+                        } else {
+                            AppAlert.error(data.message || 'Gagal mengirim pesanan ke dapur.');
+                        }
+                    } catch (e) {
+                        AppAlert.error('Terjadi gangguan jaringan saat mengirim pesanan ke KDS.');
+                    } finally {
+                        this.isSendingToKitchen = false;
                     }
                 },
 

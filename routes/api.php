@@ -469,6 +469,8 @@ Route::prefix('v1')->group(function (): void {
             // MOBILE APP API – Dashboard
             // ──────────────────────────────────────────────────────────────────
             Route::get('/dashboard', [DashboardController::class, 'summary'])->middleware('require.permission:dashboard.view');
+            Route::get('/dashboard/analytics', [\App\Http\Controllers\Api\V1\Dashboard\MobileOwnerPulseApiController::class, 'analytics'])->middleware('require.permission:dashboard.view');
+            Route::get('/reports/cockpit', [\App\Http\Controllers\Api\V1\Dashboard\MobileOwnerPulseApiController::class, 'analytics'])->middleware('require.permission:dashboard.view');
 
             // ──────────────────────────────────────────────────────────────────
             // MOBILE APP API – Profile & Business Profile
@@ -753,6 +755,7 @@ Route::prefix('v1')->group(function (): void {
             // ──────────────────────────────────────────────────────────────────
             Route::prefix('mobile/dashboard')->group(function (): void {
                 Route::get('/pulse', [\App\Http\Controllers\Api\V1\Dashboard\MobileOwnerPulseApiController::class, 'pulse'])->middleware('require.permission:dashboard.view');
+                Route::get('/analytics', [\App\Http\Controllers\Api\V1\Dashboard\MobileOwnerPulseApiController::class, 'analytics'])->middleware('require.permission:dashboard.view');
             });
         });
     });

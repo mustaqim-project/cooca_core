@@ -66,6 +66,7 @@ class Business extends Model
         'pos_receipt_footer_note',
         'pos_receipt_wa_template',
         'pos_show_product_images',
+        'pos_auto_send_kds',
         'pos_enable_tax',
         'pos_tax_percent',
         'pos_enable_service_charge',
@@ -112,6 +113,7 @@ class Business extends Model
             'pos_require_pin_for_refund' => 'boolean',
             'pos_enable_tax' => 'boolean',
             'pos_show_product_images' => 'boolean',
+            'pos_auto_send_kds' => 'boolean',
             'pos_tax_percent' => 'float',
             'pos_enable_service_charge' => 'boolean',
             'pos_service_charge_percent' => 'float',
@@ -584,6 +586,14 @@ class Business extends Model
         }
 
         return \Illuminate\Support\Facades\Hash::check($pin, (string) $this->pos_supervisor_pin);
+    }
+
+    /**
+     * Check if terminal orders should automatically route to KDS without paper printing.
+     */
+    public function autoSendToKds(): bool
+    {
+        return (bool) ($this->pos_auto_send_kds ?? false);
     }
 
     public function aiProviderConfigs(): \Illuminate\Database\Eloquent\Relations\HasMany

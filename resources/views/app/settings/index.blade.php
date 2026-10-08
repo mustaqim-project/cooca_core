@@ -502,8 +502,8 @@
                             </div>
                         </div>
 
-                        <!-- Toggles for Void & Refund -->
-                        <div class="pt-2 border-t border-black/5 dark:border-white/5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Toggles for Void, Refund & Auto-KDS Routing -->
+                        <div class="pt-2 border-t border-black/5 dark:border-white/5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             <label
                                 class="flex items-start gap-3 p-3.5 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 cursor-pointer hover:bg-black/[0.04] dark:hover:bg-white/[0.05] transition min-h-[48px]">
                                 <input type="checkbox" name="pos_require_pin_for_void" value="1"
@@ -523,6 +523,20 @@
                                 <div class="text-[13px]">
                                     <span class="font-medium text-black dark:text-white block">{{ __('settings.pos_require_pin_refund') }}</span>
                                     <span class="text-[11px] text-black/50 dark:text-white/50 block mt-0.5">{{ __('settings.pos_require_pin_refund_desc') }}</span>
+                                </div>
+                            </label>
+
+                            <label
+                                class="flex items-start gap-3 p-3.5 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 cursor-pointer hover:bg-black/[0.04] dark:hover:bg-white/[0.05] transition min-h-[48px]">
+                                <input type="checkbox" name="pos_auto_send_kds" value="1"
+                                    {{ old('pos_auto_send_kds', $business->pos_auto_send_kds) ? 'checked' : '' }}
+                                    class="mt-0.5 rounded-[4px] border-black/20 text-[#34C759] focus:ring-[#34C759]">
+                                <div class="text-[13px]">
+                                    <span class="font-medium text-black dark:text-white flex items-center gap-1.5">
+                                        <span>Otomatis Kirim ke KDS</span>
+                                        <span class="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-[#34C759]/20 text-[#248A3D] dark:text-[#30D158] uppercase">Paperless</span>
+                                    </span>
+                                    <span class="text-[11px] text-black/50 dark:text-white/50 block mt-0.5">Order dari terminal langsung diteruskan ke Layar Dapur &amp; Bar (KDS) tanpa perlu print struk kertas.</span>
                                 </div>
                             </label>
                         </div>

@@ -679,7 +679,10 @@ final class PosTerminalWebController extends Controller
                     'points_earned' => $order->points_earned,
                     'sales_channel' => $order->sales_channel,
                     'external_order_ref' => $order->external_order_ref,
+                    'sent_to_kds' => $order->status === PosOrder::STATUS_CONFIRMED,
+                    'status' => $order->status,
                 ],
+                'sent_to_kds' => $order->status === PosOrder::STATUS_CONFIRMED,
                 'whatsapp_url' => $whatsappUrl,
                 'whatsapp_bot_sent' => $botSent,
                 'receipt_url' => route('pos.receipt', $order->id),
@@ -691,6 +694,78 @@ final class PosTerminalWebController extends Controller
                 'message' => 'Gagal memproses checkout: ' . $e->getMessage(),
             ], 422);
         }
+    }
+
+    /**
+     * Send active cart directly to Kitchen Display System (KDS) from POS Cashier Terminal
+     * without printing receipt/KOT (Paperless kitchen routing).
+     */
+    public function sendToKitchen(Request $request): JsonResponse
+    {
+        $business = Context::requireBusiness();
+        $user = auth()->user();
+
+        $validated = $request->validate([
+            'items' => ['required', 'array', 'min:1'],
+            'location_id' => ['nullable', 'string'],
+            'pos_table_id' => ['nullable', 'string'],
+            'customer_id' => ['nullable', 'string'],
+            'customer_name_guest' => ['nullable', 'string', 'max:100'],
+            'order_type' => ['nullable', 'string'],
+            'notes' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $activeShift = $this->shiftService->getActiveShift($business, $user, $validated['location_id'] ?? null);
+
+        if ($activeShift === null) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Shift kasir belum dibuka. Buka shift terlebih dahulu sebelum mengirim pesanan ke dapur.',
+            ], 403);
+        }
+
+        try {
+            $order = $this->orderService->sendToKitchen(
+                business: $business,
+                cashier: $user,
+                itemsData: $validated['items'],
+                attributes: [
+                    'location_id' => $validated['location_id'] ?? $activeShift->location_id,
+                    'pos_table_id' => $validated['pos_table_id'] ?? null,
+                    'customer_id' => $validated['customer_id'] ?? null,
+                    'customer_name_guest' => $validated['customer_name_guest'] ?? null,
+                    'order_type' => $validated['order_type'] ?? 'dine_in',
+                    'notes' => $validated['notes'] ?? null,
+                ],
+                shift: $activeShift
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => "Pesanan #{$order->order_number} berhasil dikirim ke Layar Dapur (KDS) tanpa cetak struk.",
+                'order' => $order,
+            ]);
+        } catch (Throwable $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+        }
+    }
+
+    /**
+     * Quick-toggle Auto-Send to KDS feature directly from POS Terminal.
+     */
+    public function toggleAutoKds(Request $request): JsonResponse
+    {
+        $business = Context::requireBusiness();
+        $newState = ! (bool) ($business->pos_auto_send_kds ?? false);
+        $business->update(['pos_auto_send_kds' => $newState]);
+
+        return response()->json([
+            'success' => true,
+            'pos_auto_send_kds' => $newState,
+            'message' => $newState
+                ? 'Fitur Otomatis Kirim ke KDS DIAKTIFKAN. Setiap transaksi kasir diteruskan ke Layar Dapur tanpa cetak struk.'
+                : 'Fitur Otomatis Kirim ke KDS DINONAKTIFKAN. Transaksi kasir diselesaikan tanpa masuk ke Layar Dapur.',
+        ]);
     }
 
     /**

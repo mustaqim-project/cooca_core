@@ -91,6 +91,7 @@ final class SettingWebController extends Controller
             'pos_max_cashier_discount_percent' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'pos_require_pin_for_void' => ['nullable', 'boolean'],
             'pos_require_pin_for_refund' => ['nullable', 'boolean'],
+            'pos_auto_send_kds' => ['nullable', 'boolean'],
             'bank_name' => ['nullable', 'string', 'max:100'],
             'bank_account_number' => ['nullable', 'string', 'max:100'],
             'bank_account_holder' => ['nullable', 'string', 'max:150'],
@@ -125,6 +126,9 @@ final class SettingWebController extends Controller
         }
         if ($request->has('pos_show_product_images')) {
             $updateData['pos_show_product_images'] = $request->boolean('pos_show_product_images');
+        }
+        if ($request->has('pos_auto_send_kds') || $request->input('_tab') === 'general') {
+            $updateData['pos_auto_send_kds'] = $request->boolean('pos_auto_send_kds');
         }
         if (array_key_exists('pos_tax_percent', $validated)) {
             $updateData['pos_tax_percent'] = (float) ($validated['pos_tax_percent'] ?? 0);
@@ -237,6 +241,7 @@ final class SettingWebController extends Controller
                 'pos_max_cashier_discount_percent',
                 'pos_require_pin_for_void',
                 'pos_require_pin_for_refund',
+                'pos_auto_send_kds',
                 'rounding_strategy',
                 'timezone',
             ];

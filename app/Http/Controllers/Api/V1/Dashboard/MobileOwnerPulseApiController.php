@@ -173,4 +173,28 @@ final class MobileOwnerPulseApiController extends Controller
             ],
         ], Response::HTTP_OK);
     }
+
+    /**
+     * Complete Production Analytics Cockpit for Mobile App with full parity to Web Dashboard.
+     * GET /api/v1/mobile/dashboard/analytics
+     */
+    public function analytics(Request $request): JsonResponse
+    {
+        $business = Context::requireBusiness();
+        $period = (string) $request->query('period', 'month');
+        $from = (string) $request->query('from', '');
+        $to = (string) $request->query('to', '');
+        $locationId = (string) ($request->query('location_id') ?? $request->header('X-Outlet-Id') ?? '');
+
+        $service = app(\App\Domain\Report\DashboardAnalyticsService::class);
+        $analytics = $service->getAnalyticsData($business, $period, $from, $to, $locationId ?: null);
+        $overview = $service->getOverviewData($business, $locationId ?: null);
+
+        return response()->json([
+            'success' => true,
+            'analytics' => $analytics,
+            'stats' => $overview['stats'] ?? [],
+            'seven_days_trend' => $overview['sevenDaysTrend'] ?? [],
+        ], Response::HTTP_OK);
+    }
 }

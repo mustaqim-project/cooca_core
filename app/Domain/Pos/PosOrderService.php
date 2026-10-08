@@ -261,6 +261,11 @@ final class PosOrderService
             }
             $changeAmount = max(0.0, $totalPaid - $finalTotal);
 
+            $shouldAutoSendKds = (bool) ($attributes['auto_send_kds'] ?? $business->autoSendToKds());
+            $targetCheckoutStatus = ($shouldAutoSendKds && ($business->hasDineInFeature() || $business->isFoodIndustry()))
+                ? PosOrder::STATUS_CONFIRMED
+                : PosOrder::STATUS_COMPLETED;
+
             // 6. Create or Update PosOrder (Settle Table Order)
             if ($existingOrder) {
                 // Delete previous unpaid items and their modifiers before saving finalized items
@@ -276,7 +281,7 @@ final class PosOrderService
                     'user_id' => $cashier->id,
                     'customer_id' => $customer?->id,
                     'order_date' => Carbon::today()->toDateString(),
-                    'status' => PosOrder::STATUS_COMPLETED,
+                    'status' => $targetCheckoutStatus,
                     'order_type' => $attributes['order_type'] ?? ($existingOrder->order_type ?? 'dine_in'),
                     'sales_channel' => $attributes['sales_channel'] ?? ($existingOrder->sales_channel ?? 'dine_in'),
                     'external_order_ref' => $attributes['external_order_ref'] ?? ($existingOrder->external_order_ref ?? null),
@@ -324,7 +329,7 @@ final class PosOrderService
                     'customer_id' => $customer?->id,
                     'order_number' => $orderNumber,
                     'order_date' => Carbon::today()->toDateString(),
-                    'status' => PosOrder::STATUS_COMPLETED,
+                    'status' => $targetCheckoutStatus,
                     'order_type' => $attributes['order_type'] ?? 'takeaway',
                     'sales_channel' => $attributes['sales_channel'] ?? 'dine_in',
                     'external_order_ref' => $attributes['external_order_ref'] ?? null,
@@ -1047,6 +1052,167 @@ final class PosOrderService
             }
 
             return $order;
+        });
+    }
+
+    /**
+     * Send active cart items directly to KDS from Terminal Kasir without printing receipt/KOT.
+     * Order is created in STATUS_CONFIRMED (Open Bill / Bayar Nanti or Antre Dapur).
+     *
+     * @param array<int, array{
+     *     product_id: string,
+     *     product_name?: string,
+     *     quantity: float|int,
+     *     unit_price?: float,
+     *     selected_modifiers?: array<int, string>,
+     *     notes?: string|null
+     * }> $itemsData
+     * @param array<string, mixed> $attributes
+     */
+    public function sendToKitchen(
+        Business $business,
+        User $cashier,
+        array $itemsData,
+        array $attributes,
+        ?PosShift $shift = null
+    ): PosOrder {
+        if (empty($itemsData)) {
+            throw new DomainException('Keranjang pesanan masih kosong.');
+        }
+
+        $locationId = $attributes['location_id'] ?? $shift?->location_id
+            ?? Location::where('business_id', $business->id)->where('is_primary', true)->value('id');
+
+        return DB::transaction(function () use ($business, $cashier, $itemsData, $attributes, $locationId, $shift) {
+            $orderNumber = $this->generateOrderNumber($business);
+            $subtotal = 0.0;
+            $totalHpp = 0.0;
+            $processedItems = [];
+
+            foreach ($itemsData as $row) {
+                $qty = (float) ($row['quantity'] ?? 1);
+                if ($qty <= 0) {
+                    continue;
+                }
+
+                $productId = (string) ($row['product_id'] ?? '');
+                $product = Product::where('business_id', $business->id)->find($productId);
+                if (! $product) {
+                    continue;
+                }
+
+                $baseUnitPrice = (float) ($row['unit_price'] ?? $product->price);
+                $selectedModifiers = (array) ($row['selected_modifiers'] ?? []);
+                $modResult = $this->modifierService->validateAndResolveModifiers($product, $selectedModifiers, $locationId);
+
+                $unitPrice = $baseUnitPrice + $modResult['total_price_delta'];
+                $lineSubtotal = $qty * $unitPrice;
+                $unitHpp = $product->isBundle() ? $product->getBundleHpp() : (float) $product->base_cost;
+                $lineHpp = $qty * $unitHpp;
+
+                $subtotal += $lineSubtotal;
+                $totalHpp += $lineHpp;
+
+                $processedItems[] = [
+                    'product_id' => $product->id,
+                    'product_name' => $product->name,
+                    'product_code' => $product->code,
+                    'unit_price' => $unitPrice,
+                    'unit_cost_hpp' => $unitHpp,
+                    'quantity' => $qty,
+                    'subtotal' => $lineSubtotal,
+                    'total_price' => $lineSubtotal,
+                    'total_hpp' => $lineHpp,
+                    'notes' => $row['notes'] ?? null,
+                    'modifiers' => $modResult['snapshots'],
+                ];
+            }
+
+            if (empty($processedItems)) {
+                throw new DomainException('Tidak ada item yang valid untuk dikirim ke dapur.');
+            }
+
+            $taxPercent = $business->pos_enable_tax ? (float) $business->pos_tax_percent : 0.0;
+            $servicePercent = $business->pos_enable_service_charge ? (float) $business->pos_service_charge_percent : 0.0;
+            $taxAmount = ($subtotal * $taxPercent) / 100.0;
+            $serviceChargeAmount = ($subtotal * $servicePercent) / 100.0;
+            $finalTotal = round($subtotal + $taxAmount + $serviceChargeAmount, $business->currency_precision ?? 0);
+
+            $table = null;
+            $session = null;
+            if (! empty($attributes['pos_table_id'])) {
+                $table = PosTable::where('business_id', $business->id)->find($attributes['pos_table_id']);
+                if ($table) {
+                    $customerName = (string) ($attributes['customer_name_guest'] ?? 'Tamu Meja ' . $table->table_number);
+                    $session = $this->tableService->getOrCreateActiveSession($table, $customerName, '');
+                }
+            }
+
+            $order = PosOrder::create([
+                'business_id' => $business->id,
+                'location_id' => $locationId,
+                'user_id' => $cashier->id,
+                'pos_shift_id' => $shift?->id,
+                'customer_id' => $attributes['customer_id'] ?? null,
+                'order_number' => $orderNumber,
+                'order_date' => Carbon::today()->toDateString(),
+                'status' => PosOrder::STATUS_CONFIRMED,
+                'order_type' => $attributes['order_type'] ?? ($table ? 'dine_in' : 'takeaway'),
+                'order_source' => PosOrder::SOURCE_POS,
+                'pos_table_id' => $table?->id,
+                'pos_table_session_id' => $session?->id,
+                'table_or_reference' => $table?->table_number ?? ($attributes['table_or_reference'] ?? null),
+                'customer_name_guest' => $attributes['customer_name_guest'] ?? ($table ? 'Meja ' . $table->table_number : 'Pelanggan Kasir'),
+                'customer_phone_guest' => $attributes['customer_phone_guest'] ?? null,
+                'subtotal' => $subtotal,
+                'tax_percentage' => $taxPercent,
+                'tax_amount' => $taxAmount,
+                'service_charge_percentage' => $servicePercent,
+                'service_charge_amount' => $serviceChargeAmount,
+                'total_amount' => $finalTotal,
+                'paid_amount' => 0.0,
+                'change_amount' => 0.0,
+                'total_hpp_cost' => $totalHpp,
+                'total_gross_profit' => max(0.0, $subtotal - $totalHpp),
+                'notes' => $attributes['notes'] ?? null,
+            ]);
+
+            foreach ($processedItems as $itemInfo) {
+                $orderItem = PosOrderItem::create([
+                    'pos_order_id' => $order->id,
+                    'product_id' => $itemInfo['product_id'],
+                    'product_name' => $itemInfo['product_name'],
+                    'product_code' => $itemInfo['product_code'],
+                    'unit_price' => $itemInfo['unit_price'],
+                    'unit_cost_hpp' => $itemInfo['unit_cost_hpp'],
+                    'quantity' => $itemInfo['quantity'],
+                    'subtotal' => $itemInfo['subtotal'],
+                    'discount_amount' => 0.0,
+                    'total_price' => $itemInfo['total_price'],
+                    'total_hpp' => $itemInfo['total_hpp'],
+                    'notes' => $itemInfo['notes'],
+                ]);
+
+                foreach ($itemInfo['modifiers'] as $modSnap) {
+                    PosOrderItemModifier::create([
+                        'pos_order_item_id' => $orderItem->id,
+                        'modifier_group_id' => $modSnap['modifier_group_id'],
+                        'modifier_option_id' => $modSnap['modifier_option_id'],
+                        'modifier_group_name' => $modSnap['modifier_group_name'],
+                        'modifier_option_name' => $modSnap['modifier_option_name'],
+                        'unit_price' => $modSnap['unit_price'],
+                        'quantity' => $modSnap['quantity'],
+                        'subtotal' => $modSnap['subtotal'],
+                        'material_snapshot' => $modSnap['material_snapshot'],
+                    ]);
+                }
+            }
+
+            if ($table) {
+                $table->update(['status' => PosTable::STATUS_OCCUPIED]);
+            }
+
+            return $order->load(['items.modifiers', 'posTable', 'tableSession']);
         });
     }
 
