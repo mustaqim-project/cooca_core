@@ -2492,10 +2492,9 @@
     <!-- ===================================================== -->
     <div x-show="showQrisModal" x-cloak
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-3 sm:p-4"
-        style="display: none;"
-        @keydown.escape.window="if(!isCancellingQris && showQrisModal) cancelQrisPayment()">
+        style="display: none;">
         <div class="pos-modal-panel w-full max-w-sm sm:max-w-md bg-white dark:bg-[#1C1C1E] rounded-[26px] border border-black/10 dark:border-white/15 p-5 sm:p-6 flex flex-col space-y-4 shadow-[0_25px_60px_rgba(0,0,0,0.35)] text-black dark:text-white relative overflow-hidden transition-all"
-            @click.outside="/* Cashier must explicitly click cancel to avoid accidental dismissal */">
+            @click.outside="/* Terkunci: modal tidak dapat ditutup dengan klik luar hingga lunas atau klik Ganti Metode Bayar */">
 
             <!-- Modal Header -->
             <div class="flex items-center justify-between pb-3 border-b border-black/10 dark:border-white/10">
@@ -2511,14 +2510,13 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-1.5">
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/20 flex items-center gap-1">
+                        <svg class="w-3 h-3 text-[#007AFF]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+                        <span>Terkunci</span>
+                    </span>
                     <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/20">
                         TriPay QRIS
                     </span>
-                    <button type="button" @click="cancelQrisPayment()" :disabled="isCancellingQris"
-                        title="Tutup / Batalkan QRIS"
-                        class="w-7 h-7 rounded-full flex items-center justify-center text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                    </button>
                 </div>
             </div>
 
@@ -2588,8 +2586,9 @@
                 @endif
 
                 <button type="button" @click="cancelQrisPayment()" :disabled="isCancellingQris"
-                    class="w-full h-9 rounded-[10px] text-xs font-semibold text-[#FF3B30] hover:bg-[#FF3B30]/10 transition disabled:opacity-40">
-                    <span x-text="isCancellingQris ? 'Membatalkan...' : 'Batalkan Sesi QRIS (Ganti Metode Bayar)'"></span>
+                    class="w-full h-10 rounded-[12px] text-xs font-bold text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/15 active:scale-[0.98] transition disabled:opacity-40 flex items-center justify-center gap-1.5 border border-[#FF3B30]/20">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>
+                    <span x-text="isCancellingQris ? 'Membatalkan sesi QRIS...' : 'Ganti Metode Bayar'"></span>
                 </button>
             </div>
         </div>
@@ -5725,7 +5724,7 @@
 
                 async cancelQrisPayment() {
                     if (!this.activeQrisOrder || this.isCancellingQris) return;
-                    if (!confirm('Apakah kasir yakin ingin membatalkan sesi QRIS ini? Pesanan akan dibatalkan sehingga metode bayar lain dapat dipilih.')) {
+                    if (!confirm('Ganti metode pembayaran? Sesi QRIS ini akan dibatalkan di server sehingga kasir dapat memilih metode pembayaran lain.')) {
                         return;
                     }
 
@@ -5739,7 +5738,7 @@
                                 'Accept': 'application/json',
                                 'X-CSRF-TOKEN': this.csrfToken
                             },
-                            body: JSON.stringify({ reason: 'Dibatalkan oleh kasir di terminal POS.' })
+                            body: JSON.stringify({ reason: 'Kasir mengganti metode pembayaran.' })
                         });
                         const data = await resp.json();
                         if (data.success) {
@@ -5748,7 +5747,8 @@
                             this.showQrisModal = false;
                             this.activeQrisOrder = null;
                             this.activeQrisPayment = null;
-                            AppAlert.info('Sesi QRIS dibatalkan. Anda dapat memilih metode pembayaran lain.');
+                            this.showPaymentModal = true;
+                            AppAlert.info('Sesi QRIS dibatalkan. Silakan pilih metode pembayaran lain.');
                         } else {
                             AppAlert.error(data.message || 'Gagal membatalkan sesi QRIS.');
                         }

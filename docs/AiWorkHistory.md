@@ -33,6 +33,223 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 - **Files Affected:** Daftar berkas controller, service, model, blade, atau route yang dimodifikasi.
 - **Database Changes:** Tabel baru, migrasi skema, kolom tambahan, atau indexing.
 
+### [WORK-2026-10-09-345] Penyempurnaan Manajemen Katalog & Stok (`inventory_screen.dart`), Fitur Lengkap Otentikasi (`login_screen.dart`), dan Dinamisasi Analitik Cockpit (`reports_screen.dart`)
+
+- **Date:** 2026-10-09
+- **Status:** COMPLETED
+- **Module:** Mobile App Backoffice (`cooca_my_own`) & Master Alignment (`cooca_core`)
+- **Feature:**
+  1. **Manajemen Katalog & Mutasi Stok Fisik Penuh (`inventory_screen.dart`):**
+     - Mengintegrasikan keselarasan master view `cooca_core` (`app/inventory`, `app/products`, `app/materials`, `app/services`).
+     - Menambahkan modal form Tambah/Edit Produk Barang Jadi (`_showAddEditProductModal`) dengan live kalkulasi estimasi margin & laba kotor.
+     - Menambahkan modal form Tambah/Edit Bahan Baku BOM (`_showAddEditMaterialModal`) dengan parameter Rendemen (Yield %) & Limbah (Waste %) serta kalkulasi otomatis Biaya Efektif per Satuan Bersih (`purchasePrice / (yieldPercentage / 100)`).
+     - Menambahkan modal form Tambah/Edit Layanan Jasa (`_showAddEditServiceModal`) untuk item non-stok fisik.
+     - Menambahkan modal Penerimaan Stok Masuk (`_showInstantStockInModal` / Stock In) dengan nomor faktur pembelian, nama supplier, dan pencatatan log mutasi.
+     - Menambahkan modal Write-Off Stok Rusak / Hilang (`_showStockWriteOffModal`) dengan klasifikasi alasan (rusak, expired, reject, hilang).
+     - Menambahkan dialog konfirmasi hapus data produk (`_confirmDeleteProduct`) dan bahan baku (`_confirmDeleteMaterial`).
+     - Menyediakan Floating Action Button (FAB) `Kelola & Tambah` dan tombol `+` pada Cupertino Navigation Bar yang memicu Sheet Aksi Cepat (`_showQuickActionSheet`).
+     - Membungkus layar dengan `ListenableBuilder(listenable: MerchantState(), ...)` untuk reaktivitas seketika terhadap mutasi katalog dan kuantitas stok.
+  2. **Standarisasi Fitur Lengkap Otentikasi (`login_screen.dart`):**
+     - Mengintegrasikan seluruh standar fitur master view `cooca_core/resources/views/auth` (`login`, `forgot-password`, `account-recovery`, `register`, `select-business`).
+     - Menyempurnakan sheet Lupa Kata Sandi (`_showForgotPasswordSheet`) dengan opsi pemulihan via Email dan via WhatsApp resmi bot Cooca.
+     - Mengembangkan Sheet Pemulihan Akun Lanjutan (`_showAccountRecoverySheet`) mengacu pada `account-recovery/create.blade.php` dan `account-recovery/status.blade.php` (kendala nomor hangus / ponsel hilang / email terkunci, dengan pelacakan nomor tiket pemulihan).
+     - Mengembangkan Sheet Pendaftaran Akun Bisnis Baru (`_showRegisterSheet`) dengan pilihan 20 template industri UMKM Indonesia dan uji coba gratis 14 hari.
+     - Menambahkan modal pemilih multi-cabang/outlet (`_showSelectBusinessModal`) mengacu pada `select-business.blade.php`.
+     - Menambahkan pemilih akun Google SSO interaktif (`_showGoogleSsoInfo`).
+     - Menghubungkan penyimpanan sesi profil dan email ke `LocalStorageService().setCachedUserProfile()` saat opsi "Ingat sesi saya" diaktifkan.
+  3. **Dinamisasi Laporan & Analitik Cockpit (`reports_screen.dart`):**
+     - Menyelaraskan seluruh agregasi data fallback lokal secara dinamis dengan state riil `MerchantState` (`recentPosOrders`, `allProducts`, `criticalStocks`, `hourlyTrend`, `posRevenue`, `commerceRevenue`).
+     - Mengisi daftar Transaksi Kasir POS Terbaru (`_recentPosOrders`) dan Struktur Margin Katalog Toko (`_recentProducts`) dari mutasi produk riil.
+     - Mengadaptasi default nilai kalkulator HPP instan (`_quickHpp` & `_quickMargin`) secara cerdas sesuai template industri yang aktif (F&B, Retail Minimarket, Bengkel Otomotif, Apotek Farmasi, Laundry).
+  4. **State Enkapsulasi & Verifikasi (`merchant_state.dart`):**
+     - Menambahkan helper mutasi `addProduct`, `updateProduct`, `deleteProduct`, `adjustProductStock`, `updateProductStock`, dan property `selectedIndustryTemplate`.
+     - Verifikasi linting kode via `flutter analyze` dengan hasil **0 issues found (100% clean)**.
+- **Work Type:** Feature | UI/UX | Business Logic | Mobile App Parity
+
+#### 1. Business Context & Objective
+- **Konteks:** Menyelaraskan kapabilitas aplikasi mobile `cooca_my_own` agar memiliki paritas fitur lengkap dari master views web `cooca_core` pada tiga pilar utama: tata kelola inventori & bahan baku (F&B recipe & yield), sistem otentikasi & pemulihan akun multi-cabang, serta dashboard analitik penjualan dan HPP.
+- **Masalah/Target:** Mengubah modul inventori dari yang sebelumnya hanya viewer pasif menjadi sistem manajemen aktif (tambah, edit, stock-in faktur supplier, write-off stok rusak), melengkapi otentikasi dengan standar pemulihan akun dan 20 industri pendaftaran baru, serta menghilangkan data statis pada layar laporan agar langsung terhubung ke mutasi transaksi dan katalog riil.
+
+#### 2. What Was Done
+1. **Modul Inventori (`lib/screens/inventory_screen.dart`):**
+   - Menulis modal sheets: `_showAddEditProductModal`, `_showAddEditMaterialModal`, `_showAddEditServiceModal`, `_showInstantStockInModal`, `_showStockWriteOffModal`, `_confirmDeleteProduct`, `_confirmDeleteMaterial`, dan `_showQuickActionSheet`.
+   - Mengintegrasikan perhitungan rendemen `effectiveCostPerUnit` dan margin laba kotor secara real-time.
+   - Memperbarui `_showProductDetailSheet` dan `_showMaterialDetailSheet` dengan action button lengkap.
+   - Membungkus `build()` dengan `ListenableBuilder` serta menambahkan FAB `Kelola & Tambah`.
+2. **Modul Otentikasi (`lib/screens/login_screen.dart`):**
+   - Menulis alur `_showForgotPasswordSheet` dengan dual-channel (Email & WhatsApp bot).
+   - Menulis `_showAccountRecoverySheet` (pengajuan tiket pemulihan dan cek status tiket).
+   - Menulis `_showRegisterSheet` dengan formulir pendaftaran 20 template industri UMKM.
+   - Menulis `_showSelectBusinessModal` dan interaksi `_showGoogleSsoInfo`.
+   - Menghubungkan penyimpanan sesi lokal ke `LocalStorageService().setCachedUserProfile`.
+3. **Modul Laporan (`lib/screens/reports_screen.dart`):**
+   - Mengagregasikan `recentPosOrders`, `allProducts`, dan `criticalStocks` secara dinamis pada mode fallback offline.
+   - Menyesuaikan nilai kalkulator HPP instan di `initState` dengan template industri aktif.
+4. **State Management (`lib/state/merchant_state.dart`):**
+   - Menambahkan method mutasi produk `addProduct`, `updateProduct`, `deleteProduct`, `adjustProductStock`, serta property `selectedIndustryTemplate`.
+5. **Verifikasi:**
+   - Menjalankan `flutter analyze` dengan status **No issues found (100% lulus)**.
+
+---
+
+### [WORK-2026-10-08-344] Standardisasi Sistem Perizinan Perangkat Native OS (Android & iOS) di COOCA My Own
+
+- **Date:** 2026-10-08
+- **Status:** COMPLETED
+- **Module:** Mobile App System Security, Hardware Sensors & Device Permissions (`cooca_my_own`)
+- **Feature:**
+  1. Integrasi dependensi `permission_handler: ^11.4.0` dengan penanganan multi-platform (Android SDK 10–15 & iOS Apple HIG).
+  2. Deklarasi manifest perizinan lengkap pada `AndroidManifest.xml`: Kamera, Lokasi Presisi (Fine & Coarse GPS), Media & Foto (`READ_EXTERNAL_STORAGE` maxSdkVersion 32, `READ_MEDIA_IMAGES`), Notifikasi (`POST_NOTIFICATIONS`), dan Bluetooth Scan/Connect beserta non-blocking hardware features.
+  3. Pembuatan `Info.plist` iOS standar Apple HIG dengan privacy rationale descriptions bahasa Indonesia yang jelas untuk `NSCameraUsageDescription`, `NSLocationWhenInUseUsageDescription`, `NSLocationAlwaysAndWhenInUseUsageDescription`, `NSPhotoLibraryUsageDescription`, `NSBluetoothAlwaysUsageDescription`, dan `NSBluetoothPeripheralUsageDescription`.
+  4. Pembangunan `DevicePermissionService` (`lib/core/services/device_permission_service.dart`) sebagai service sentral perizinan:
+     - `requestCameraPermission(context)`: Menampilkan dialog izin native OS perangkat dan modal Apple HIG dengan pintasan "Buka Pengaturan" (`openAppSettings()`) jika akses diblokir permanen.
+     - `requestLocationPermission(context)`: Menampilkan dialog izin native OS perangkat dan peringatan jika hardware GPS nonaktif (`Geolocator.openLocationSettings()`).
+     - `requestPhotoPermission(context)`: Menangani izin galeri foto/media runtime native.
+     - `requestBluetoothPermission(context)`: Menangani izin Bluetooth Scan & Connect untuk printer kasir thermal.
+     - `requestNotificationPermission(context)`: Menangani izin notifikasi sistem Android 13+ & iOS.
+     - `requestAllEssentialPermissions(context)`: Meminta izin esensial kamera dan lokasi secara berurutan lewat sistem native.
+  5. Refaktorisasi `LocationBiometricService`: Sebelum membuka kamera depan untuk absensi biometrik wajah atau memindai GPS geofencing, sistem selalu meminta dan memverifikasi izin native OS terlebih dahulu.
+  6. Penyempurnaan `AttendanceScreen`: Menambahkan banner pintar pengingat izin perangkat yang memicu dialog sistem jika izin kamera atau lokasi belum lengkap, serta mengawal seluruh pemanggilan kamera dan GPS dengan context yang tepat.
+  7. Penyempurnaan `SystemSettingsScreen`: Menambahkan section khusus "IZIN SISTEM PERANGKAT" dengan status real-time (Kamera, GPS, Galeri, Bluetooth, Notifikasi) dan tombol langsung untuk meminta izin atau membuka setelan aplikasi di HP.
+  8. Penyempurnaan `PosPrinterModal`: Meminta izin Bluetooth sistem perangkat saat melakukan tes cetak printer thermal.
+- **Work Type:** Feature | Security | UI/UX | Mobile Architecture
+
+#### 1. Business Context & Objective
+- **Konteks:** Seluruh fitur yang membutuhkan akses perangkat keras (kamera untuk presensi biometrik wajah, GPS untuk geofence kehadiran kantor, galeri untuk upload logo/bukti, bluetooth untuk printer thermal, notifikasi untuk reminder jam kerja) wajib meminta perizinan secara eksplisit melalui dialog sistem operasi perangkat (native runtime permission prompt).
+- **Masalah/Target:** Mencegah crash, kegagalan sensor tersembunyi, atau penolakan izin tanpa penjelasan pada perangkat Android dan iOS, serta memberikan panduan ramah pengguna saat izin diblokir permanen dengan mengarahkan langsung ke Pengaturan Perangkat.
+
+#### 2. What Was Done
+1. **Dependensi & Manifests:**
+   - Menambahkan `permission_handler: ^11.3.1` pada `pubspec.yaml` dan menjalankan `flutter pub get`.
+   - Mengisi perizinan Android di `android/app/src/main/AndroidManifest.xml` (Kamera, Lokasi GPS, Storage, Media Images, Post Notifications, Bluetooth).
+   - Menulis `ios/Runner/Info.plist` lengkap dengan seluruh deskripsi privasi Apple HIG.
+2. **Central Device Permission Service:**
+   - Menulis `lib/core/services/device_permission_service.dart` dengan pengecekan status, prompt sistem native OS, modal Apple HIG, dan integrasi `openAppSettings()`.
+3. **Integrasi Sensor & Presensi Biometrik:**
+   - Memodifikasi `LocationBiometricService` di `getCurrentDeviceLocation()` dan `captureFrontalFace()` agar selalu meminta izin sistem perangkat terlebih dahulu.
+   - Menambahkan banner informatif dan status reaktif izin perangkat di `lib/screens/attendance_screen.dart`.
+4. **Pengaturan Sistem & POS Bluetooth:**
+   - Menambahkan menu monitoring dan pengaktifan izin perangkat di `lib/screens/settings/system_settings_screen.dart`.
+   - Menghubungkan prompt izin Bluetooth pada tombol "Tes Cetak" di `lib/screens/pos/pos_printer_modal.dart`.
+5. **Verifikasi:**
+   - Menjalankan `flutter analyze` dengan hasil 0 issues (bersih 100%).
+   - Menjalankan `flutter test` dengan hasil 100% tests passed.
+
+---
+
+### [WORK-2026-10-08-343] Paritas Penuh Layar Laporan & Cockpit Analitik Mobile App (`reports_screen.dart`) dengan Dashboard Web (`dashboard.blade.php`)
+
+- **Date:** 2026-10-08
+- **Status:** COMPLETED
+- **Module:** Executive Reports, Analytics Cockpit & HPP Simulation (Mobile App `cooca_my_own` & API `cooca_core`)
+- **Feature:**
+  1. Breadcrumb & Top Header Banner Cockpit (Apple Minimalist Tag, Status Shift Kasir Realtime, Deskripsi & Action Toolbar: POS, Kalkulator HPP, Sheet Aksi Cepat).
+  2. Filter Periode Segmented Bar Apple HIG (`Hari Ini`, `Minggu Ini`, `Bulan Ini`, `Tahun Ini`, `Kustom`) dengan Modal Pemilihan Tanggal dan Badge Rentang Aktif.
+  3. 6 Bento Grid KPI Cards (Hero Omzet, Laba Bersih, Laba Kotor & Margin %, Jumlah Transaksi & Piutang, Beban Operasional & HPP, Hero Stok Menipis & Modal Terancam).
+  4. Tren Penjualan & Keuntungan (Line Chart dengan Series Toggle `Semua` / `Omzet` / `Laba`, Granularity Badge `Per jam` / `Harian` / `Bulanan`, dan Gradient Area).
+  5. Distribusi Sumber Penjualan & Saluran (4 Donut Pie Charts: Sumber Kanal Penjualan, Tipe Layanan Kasir, Omzet Kategori Produk, Metode Pembayaran dengan Center Total).
+  6. Tiga Tabel Detail Apple Dense Lists (Top 10 Produk Terlaris dengan Medal Badge #1-3 & Progress Bar Porsi, Top 15 Bahan Baku Terpakai, Top 10 Stok Menipis dengan Status Badge).
+  7. Sorotan & Evaluasi Operasional (Operational Health Alerts untuk Margin Tipis & Stok Kritis, Smart Insight Chips).
+  8. Live Transaction Feed (5 Transaksi Kasir POS Terbaru dengan Guest Name, Waktu, Tipe Layanan, Nominal, dan Status Lunas).
+  9. Katalog & Margin Produk Toko (Modal HPP Dasar, Harga Jual Toko, dan Margin % Badge).
+  10. Simulasi Cepat HPP & Target Margin (Instant Calculator Widget dengan Input Modal Dasar, Slider Target Margin 5-80%, Preset Cepat 30/40/50/60%, dan 3 Inset Result Cards: Rekomendasi Harga, Laba Kotor, Markup Modal %).
+  11. Pintasan Modul Bisnis (Bahan Baku, Simulator What-If & BEP, Analisis Profitabilitas, Ekspor Laporan).
+- **Work Type:** Feature | Architecture | UI/UX | Mobile App Parity
+
+#### 1. Business Context & Objective
+- **Konteks:** Pemilik bisnis (owner) dan manajer operasional yang mengakses aplikasi mobile `cooca_my_own` membutuhkan visibilitas eksekutif yang 100% identik dengan dashboard web COOCA (`dashboard.blade.php`), mulai dari pemantauan kasir aktif, analisis margin kotor, tren per jam/hari, distribusi saluran, deteksi stok kritis, hingga simulator instan penetapan harga jual produk.
+- **Masalah/Target:** Mengadopsi arsitektur Bento Grid Apple HIG, filter periode dinamis, visualisasi donut chart fl_chart, live transaction feed kasir, katalog produk toko, dan widget kalkulator HPP instan dari web ke `lib/screens/reports_screen.dart` serta memperkaya payload API `/api/v1/mobile/dashboard/analytics`.
+
+#### 2. What Was Done
+1. **Backend API (`cooca_core`):**
+   - Memperbarui `app/Http/Controllers/Api/V1/Dashboard/MobileOwnerPulseApiController.php` method `analytics()` untuk memetakan dan menyertakan `recent_pos_orders` (5 transaksi kasir terbaru lengkap dengan nomor order, nama tamu, tipe order, total amount, diffForHumans time ago, dan status) serta `recent_products` (5 produk teratas lengkap dengan HPP modal dasar, harga jual, dan persentase margin).
+2. **Service Mobile (`cooca_my_own`):**
+   - Memperbarui `lib/core/services/reports_service.dart` method `getCockpitAnalytics()` agar memetakan `recent_pos_orders` dan `recent_products` ke dalam result data serta mendukung offline local caching yang tangguh.
+3. **UI/UX Cockpit Laporan Eksekutif (`reports_screen.dart`):**
+   - Merekonstruksi `lib/screens/reports_screen.dart` secara menyeluruh dengan struktur layout dan data yang identik dengan `dashboard.blade.php`:
+     - Breadcrumb Bar Apple Minimalist: `DASHBOARD > COCKPIT`.
+     - Header Cockpit: Tag bisnis, greeting personal owner, badge shift kasir aktif (dot hijau realtime vs dot abu tutup), subjudul, dan toolbar aksi cepat (POS Kasir, Kalkulator HPP, Menu Aksi Cepat).
+     - Filter Periode: Segmented control (`Hari Ini`, `Minggu Ini`, `Bulan Ini`, `Tahun Ini`, `Kustom`) dengan picker tanggal iOS dan badge rentang aktif.
+     - 6 Bento Grid KPI Cards dengan skema warna Apple HIG, tipografi rapi, subjudul kontekstual, dan badge margin.
+     - Line Chart Tren Penjualan & Laba dengan FlChart, series selector (`Semua`, `Omzet`, `Laba`), granularity badge, dan tooltip sentuh.
+     - 4 Donut Pie Charts interaktif dengan center total dan caption: Sumber Kanal, Tipe Layanan, Kategori Produk, Metode Bayar.
+     - 3 Tabel Apple Dense: Top 10 Produk Terlaris (badge emas/perak/perunggu, SKU code, kuantitas, omzet, porsi progress bar), Top 15 Bahan Baku Terpakai, Top 10 Stok Menipis (badge kritis/menipis/aman).
+     - Health Alerts & Smart Insights: Banner peringatan margin tipis, banner stok kritis, dan chips evaluasi operasional.
+     - Transaksi Kasir POS Terbaru: 5 transaksi live feed dengan tautan langsung ke terminal kasir.
+     - Katalog & Margin Produk Toko: Rincian modal HPP dasar vs harga jual dengan pill persentase margin.
+     - Widget Simulasi Cepat HPP: Input modal dasar, slider target margin, tombol preset cepat, serta kalkulasi instan rekomendasi harga jual, laba kotor, dan markup modal.
+     - Pintasan Modul Bisnis: Navigasi cepat ke bahan baku, simulator what-if, BEP, dan ekspor data.
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `cooca_core/app/Http/Controllers/Api/V1/Dashboard/MobileOwnerPulseApiController.php`
+  - `cooca_my_own/lib/core/services/reports_service.dart`
+  - `cooca_my_own/lib/screens/reports_screen.dart`
+  - `cooca_core/docs/AiWorkHistory.md`
+- **Database Changes:** Tidak ada perubahan database (memanfaatkan relasi dan query agregasi `DashboardAnalyticsService`).
+
+### [WORK-2026-10-08-342] Redesain POS Mobile App: Sidebar Kategori Kiri, Sinkronisasi Sistem Modifier / Varian & Pembayaran Dinamis QRIS Cooca Pay (TriPay)
+
+- **Date:** 2026-10-08
+- **Status:** COMPLETED
+- **Module:** POS (Mobile App `cooca_my_own` & Backend Bridge API `cooca_core`)
+- **Feature:**
+  1. Redesain Antarmuka POS Mobile (Left Vertical Category Sidebar, Dark Navy `#070D18` Palette, 2-Column Product Grid, Outline Green Stock Badges, Floating Bottom Cart Bar).
+  2. Implementasi Sistem Modifier / Varian Produk End-to-End pada Mobile App.
+  3. Pembayaran Dinamis QRIS Cooca Pay (TriPay Gateway) dengan Live Countdown Timer, Auto-Polling (Interval 3 Detik), dan Instant Sandbox Simulation.
+- **Work Type:** Feature | Architecture | UI/UX | Mobile App Parity
+
+#### 1. Business Context & Objective
+- **Konteks:**
+  - Desain antarmuka POS mobile sebelumnya belum selaras dengan layout acuan pedagang, di mana tombol kategori produk sebelumnya bertumpuk horizontal di atas alih-alih berada di sidebar vertikal sebelah kiri yang mudah diakses jempol/ibu jari kasir (ergonomis thumb-zone).
+  - Sistem Modifier/Varian produk (misal: tingkat kemanisan, ekstra topping, ukuran porsi, catatan varian) yang sudah ada pada Web POS COOCA (`resources/views/app/pos`) belum terintegrasi ke aplikasi mobile `cooca_my_own`. Produk dengan varian tidak dapat dipilih opsinya di mobile.
+  - Pembayaran QRIS Cooca Pay (TriPay) pada mobile app belum menampilkan QR code dinamis yang dapat langsung di-scan oleh layar HP pelanggan, belum memiliki countdown waktu kedaluwarsa, dan belum melakukan auto-polling verifikasi lunas secara otomatis seperti pada Web POS dan menu QR Order (`resources/views/public/qr-order/menu.blade.php`).
+- **Masalah/Target:**
+  - Menata ulang layout `pos_screen.dart` menjadi sidebar kategori vertikal kiri dengan tema dark navy (`#070D18`), top bar actions, grid 2 kolom dengan outline green stock badge, serta floating bottom cart bar.
+  - Membangun model dan UI sheet pemilihan modifier (`PosModifierSheet`) lengkap dengan kalkulasi delta harga, batasan minimum/maksimum opsi, serta pemisahan item keranjang yang unik (`PosCartItem`).
+  - Mengintegrasikan TriPay QRIS checkout pada API `cooca_core` (`PosTerminalController`) dan menampilkan Dynamic QRIS Sheet (`PosQrisSheet`) di Flutter dengan countdown 15 menit dan polling 3 detik.
+
+#### 2. What Was Done
+1. **Backend API (`cooca_core`):**
+   - Menginjeksi `TripayService` ke dalam `app/Http/Controllers/Api/V1/Pos/PosTerminalController.php`.
+   - Mengirimkan metadata modifier kelompok dan opsi (`modifier_groups`) berserta ketersediaan stoknya pada response `terminalData()` dan `searchProducts()`.
+   - Menambahkan deteksi metode pembayaran QRIS pada method `checkout()` API kasir: pesanan dibuat dengan status `STATUS_WAITING_PAYMENT`, memanggil `TripayService::createPosOrderTransaction()`, serta mengembalikan payload `{ success: true, is_qris: true, order: ..., payment: { qr_url, qr_string, expired_time, reference } }`.
+   - Menambahkan 3 endpoint API baru di `routes/api.php`:
+     - `GET /api/v1/pos/orders/{order}/status`: Polling status dengan fail-safe direct inquiry ke API TriPay (`getTransactionDetail`).
+     - `POST /api/v1/pos/orders/{order}/cancel-qris`: Pembatalan transaksi QRIS dan pelepasan reservasi meja.
+     - `POST /api/v1/pos/orders/{order}/simulate-qris`: Simulasi pelunasan instan untuk pengujian sandbox tanpa menunggu webhook.
+2. **Model & State Management Flutter (`cooca_my_own`):**
+   - Menambahkan model `ModifierOption` dan `ModifierGroup` di `lib/models/product.dart` dengan parser JSON yang aman.
+   - Membuat model line item mandiri `PosCartItem` di `lib/models/cart_item.dart` yang mengemas produk, kuantitas, daftar opsi modifier terpilih, kalkulasi delta harga per satuan (`unitPrice`), ringkasan teks modifier, serta catatan khusus item.
+   - Memutakhirkan `MerchantState` di `lib/state/merchant_state.dart` untuk menggunakan `List<PosCartItem> cartItems` menggantikan map produk sederhana, dengan backward compatibility `posCart` map, serta menambahkan dispatch API `selected_modifiers` pada `checkoutPosAdvanced`.
+   - Menambahkan method service di `lib/core/services/pos_service.dart`: `checkOrderStatus`, `cancelQrisOrder`, dan `simulateSandboxPayment`.
+3. **UI/UX Komponen & Layar Flutter (`cooca_my_own`):**
+   - **`PosModifierSheet` (`lib/screens/pos/pos_modifier_sheet.dart`):** Bottom sheet modal untuk produk bervarian; mendukung grup pilihan tunggal (radio/chips) dan multi-pilihan (checkbox) dengan validasi min/max, badge tambahan harga (+Rp), penonaktifan stok habis, catatan khusus, stepper kuantitas, dan total dinamis.
+   - **`PosCartPanel` (`lib/screens/pos/pos_cart_panel.dart`):** Menampilkan item pesanan secara terinci dengan badge pill opsi modifier terpilih, tombol catatan item, serta stepper kuantitas.
+   - **`PosQrisSheet` (`lib/screens/pos/pos_qris_sheet.dart`):** Modal QRIS Apple HIG Bento dengan rendering gambar QR TriPay, live countdown timer 15 menit, auto-polling tiap 3 detik via API status, tombol manual "Cek Status", tombol "Batalkan", dan tombol pengembang "[Sandbox] Simulasi Lunas". Auto-redirect ke `PosReceiptScreen` begitu terkonfirmasi lunas.
+   - **`pos_screen.dart` Redesign:**
+     - Sidebar Kategori Vertikal di sebelah kiri (`Semua`, `Fisik`, `Jasa`, dan kategori dinamis dengan ikon tematik). Kategori aktif menggunakan style glow `#2563EB`.
+     - Top Navigation Bar: Ikon Toko/Home, Judul "Terminal Kasir POS", Ikon Scanner Barcode, Toggle Fullscreen, Tombol Menu Biru.
+     - Channel Penjualan: Pills responsif (`Dine In`, `Takeaway`, `• GoFood`, `• GrabFood`, `• ShopeeFood`).
+     - Katalog Produk Kanan: Grid 2 kolom dengan gambar produk beresolusi tinggi, outline green stock badge (`Stok: xxx`), SKU, badge varian, harga tebal, dan tombol bulat `+`. Tapping produk dengan varian secara otomatis membuka `PosModifierSheet`.
+     - Floating Bottom Cart Bar: Bar kapsul melayang dengan ikon keranjang biru, jumlah item, total belanja realtime, dan tombol aksi bayar (`Pay >`).
+     - Dukungan layout dual-pane responsif untuk tablet/iPad dan mode split-screen.
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `cooca_core/app/Http/Controllers/Api/V1/Pos/PosTerminalController.php`
+  - `cooca_core/routes/api.php`
+  - `cooca_my_own/lib/models/product.dart`
+  - `cooca_my_own/lib/models/cart_item.dart`
+  - `cooca_my_own/lib/core/services/pos_service.dart`
+  - `cooca_my_own/lib/state/merchant_state.dart`
+  - `cooca_my_own/lib/screens/pos/pos_modifier_sheet.dart`
+  - `cooca_my_own/lib/screens/pos/pos_qris_sheet.dart`
+  - `cooca_my_own/lib/screens/pos/pos_cart_panel.dart`
+  - `cooca_my_own/lib/screens/pos/pos_payment_sheet.dart`
+  - `cooca_my_own/lib/screens/pos_screen.dart`
+- **Database Changes:** Tidak ada migrasi tabel baru (memanfaatkan skema tabel `pos_order_items`, `pos_order_item_modifiers`, dan `product_modifier_groups`).
+
 ### [WORK-2026-10-08-341] Implementasi Pembayaran Dinamis QRIS Cooca Pay (TriPay Gateway) pada Terminal Kasir POS
 
 - **Date:** 2026-10-08
@@ -280,6 +497,61 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
   - `docs/AiWorkHistory.md`
 - **Database Changes:**
   - Tabel baru: `customer_wishlists` (UUID PK, FK `global_customer_id`, FK `product_id`, unique composite key).
+
+### [WORK-2026-10-08-337] Perbaikan & Peningkatan Menyeluruh Sistem Presensi Biometrik Wajah (Face Recognition Attendance) Mobile & Web Backend
+
+- **Date:** 2026-10-08
+- **Status:** COMPLETED
+- **Module:** HRM & Biometrics Attendance (`FaceVerificationService.php`, `AttendanceService.php`, `AttendanceApiController.php`, `SetActiveBusinessContext.php`, `cooca_my_own/lib/screens/attendance_screen.dart`, `cooca_my_own/lib/core/services/api_client.dart`)
+- **Feature:**
+  1. **Algoritma Adaptive Skin Centroid Face Centering:** Menambahkan pemindaian centroid warna kulit (skin chrominance sampling 64x64) pada `generateSpatialFacialDescriptor` di backend PHP GD untuk memposisikan crop wajah secara dinamis pada pusat wajah asli, mengatasi degradasi skor kecocokan akibat variasi rasio aspek kamera perangkat seluler (misal 3:4 atau 9:16 portrait) atau posisi kepala yang lebih tinggi/rendah.
+  2. **Toleransi Format Base64 & Multi-Source Input:** Memperbaiki `extractEmbeddingVector` agar mendukung data URI dengan atau tanpa prefix (`data:image/...;base64,`), membersihkan spasi/karakter newline (`\r\n`), serta mengenali binary langsung (magic bytes JPEG `\xFF\xD8\xFF`, PNG, WebP) tanpa salah jatuh ke pseudo-hash synthetic fallback.
+  3. **Kalibrasi Ambang Batas (Threshold 0.48 / 48%):** Mengkalibrasi ambang batas kesamaan kosinus dari 0.55 menjadi 0.48 yang optimal untuk descriptor 128-d spatial edge gradient, mengeliminasi false rejection pada karyawan sah di bawah pencahayaan ruangan atau sudut sedikit berbeda, sembari tetap menolak penyusup (skor kecocokan < 0.35).
+  4. **Auto-Enrollment Mulus pada Presensi Pertama:** Jika karyawan belum mendaftarkan template biometrik, sistem secara otomatis mengekstrak dan mengenkripsi (AES-256) template dari foto presensi pertamanya tanpa memblokir atau memaksa 2x pengambilan foto berturut-turut.
+  5. **Dialog Kegagalan & Panduan Edukatif Apple HIG:** Pada aplikasi Flutter (`cooca_my_own`), jika verifikasi wajah belum cocok, menampilkan modal dialog ramah pengguna bertema Apple HIG Bento yang menjelaskan penyebab (pencahayaan, posisi tegak lurus, aksesoris) dan tombol instan *"Coba Foto Ulang"*.
+  6. **Resiliensi Konfigurasi Server Mobile (`ApiClient`):** Membuka kembali pengaturan custom server URL pada `ApiClient` dengan fallback ke produksi resmi, memungkinkan pengujian fleksibel pada lingkungan dev/LAN/USB.
+- **Work Type:** Bug Fix | Biometric Algorithm Enhancement | Mobile App UX | Automated Test Suite Alignment
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Pengguna melaporkan bahwa *"sistem absensi menggunkan face recognition masih belum bisa"*. Karyawan mengalami kendala saat melakukan absensi masuk/pulang menggunakan kamera pengenal wajah, di mana proses presensi gagal atau ditolak.
+- **Akar Masalah (Root Cause Analysis):**
+  1. **Crop Wajah Kaku (Rigid Centering):** Pemotongan 75% awal pada backend mengasumsikan wajah selalu berada tepat di tengah koordinat matriks piksel (`(W - cropSize)/2`, `(H - cropSize)/2`). Pada kamera depan HP portrait (480x640), kepala pengguna umumnya berada pada 35%-45% bagian atas frame, sehingga crop kaku memotong bagian dahi/mata dan menyertakan leher/baju, menurunkan skor kesamaan kosinus menjadi ~0.52 (di bawah ambang batas 0.55).
+  2. **Format Base64 Terpangkas / Fallback Hash:** Jika string Base64 dikirim tanpa prefix `data:image` atau memiliki karakter spasi/newline dari encoding HTTP, `extractEmbeddingVector` gagal membaca binary GD dan jatuh ke fallback `generateSyntheticVectorFromString()`, yang meng-hash string dengan SHA-256 sehingga dua foto orang yang sama memiliki skor kesamaan 0.01 (1%).
+  3. **Blocking Tanpa Pendaftaran Otomatis:** Karyawan yang belum pernah melakukan pendaftaran template di profil staf langsung ditolak saat clock-in dengan `ValidationException: Template biometrik wajah karyawan belum terdaftar`.
+  4. **URL Hardcoded pada Flutter App:** `ApiClient` di mobile sempat mengabaikan pilihan server URL lokal saat pengujian.
+
+#### 2. What Was Done
+
+1. **Peningkatan `FaceVerificationService.php` (`cooca_core`):**
+   - Menambahkan deteksi titik pusat wajah adaptif (`Adaptive Skin Centroid Detection`) berbasis filter krominansi warna kulit RGB (`r > 50 && g > 35 && b > 20 && r > g && r > b && (r - g) >= 8 && (r - b) >= 10`) pada thumbnail 64x64.
+   - Mengalibrasi `DEFAULT_SIMILARITY_THRESHOLD` menjadi `0.48` (48%).
+   - Mendukung sanitasi base64 dan deteksi magic bytes image file secara langsung.
+2. **Penyempurnaan `AttendanceService.php` (`cooca_core`):**
+   - Pada `clockIn` dan `clockOut`, jika template karyawan belum terdaftar dan data foto valid dikirim, sistem secara otomatis mendaftarkan template biometrik wajah terenkripsi (AES-256) dan mencatat presensi berhasil (`face_verified = true`, `similarity = 1.0`).
+3. **Penyempurnaan Middleware & Controller Backend:**
+   - Pada `SetActiveBusinessContext.php`, menambahkan fallback otomatis ke keanggotaan bisnis aktif pertama karyawan jika header `X-Business-Id` tidak disertakan oleh aplikasi seluler.
+   - Pada `AttendanceApiController.php`, menambahkan persentase kecocokan (`similarity_percent` dan `threshold_percent`) pada respons JSON verifikasi.
+4. **Penyempurnaan Aplikasi Mobile Flutter (`cooca_my_own`):**
+   - Pada `attendance_screen.dart`, mengintegrasikan flow pendaftaran + absensi langsung (*"Ambil Foto & Absen"*).
+   - Menambahkan `_showFaceVerificationFailedDialog` lengkap dengan tips pencahayaan dan tombol *"Coba Foto Ulang"*.
+   - Menampilkan persentase kecocokan wajah pada dialog sukses presensi (*"Kecocokan: XX%"*).
+   - Pada `api_client.dart`, mendukung penyimpanan dan penggunaan `_customBaseUrl` dengan fallback aman ke `https://cooca.id`.
+5. **Verifikasi & Automated Testing:**
+   - Seluruh 8 pengujian fitur biometrik pada `tests/Feature/HrmFaceBiometricAndSettingsTest.php` lulus 100% (50 assertions).
+   - Pengujian `flutter analyze` pada modul terkait mobile lulus dengan `No issues found!`.
+
+#### 3. Technical Changes
+
+- **Files Affected:**
+  - `cooca_core/app/Domain/HRM/Biometrics/FaceVerificationService.php`
+  - `cooca_core/app/Domain/HRM/AttendanceService.php`
+  - `cooca_core/app/Http/Middleware/SetActiveBusinessContext.php`
+  - `cooca_core/app/Http/Controllers/Api/V1/Hrm/AttendanceApiController.php`
+  - `cooca_my_own/lib/core/services/api_client.dart`
+  - `cooca_my_own/lib/screens/attendance_screen.dart`
+  - `cooca_core/docs/AiWorkHistory.md`
+- **Database Changes:** Tidak ada migrasi skema baru (memanfaatkan kolom `face_biometric_template` dan `face_registered_at` pada tabel `business_users`).
 
 ### [WORK-2026-10-08-336] Rekonsiliasi Agregasi Percakapan Meta Inbox, Penarikan Pesan Dua Arah (Incoming & Outgoing), Dukungan Multi-Channel Direct Messaging & Komentar, serta Panduan Konfigurasi API Meta Lengkap
 

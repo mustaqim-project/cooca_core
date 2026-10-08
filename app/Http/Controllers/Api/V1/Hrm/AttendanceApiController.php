@@ -978,6 +978,8 @@ final class AttendanceApiController extends Controller
             'data' => [
                 'verified' => $result['verified'],
                 'similarity' => $result['similarity'],
+                'similarity_percent' => round($result['similarity'] * 100, 1),
+                'threshold_percent' => round(($request->input('threshold') ?? FaceVerificationService::DEFAULT_SIMILARITY_THRESHOLD) * 100),
                 'error' => $result['error'] ?? null,
             ],
         ], $statusCode);

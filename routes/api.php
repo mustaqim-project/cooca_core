@@ -501,6 +501,9 @@ Route::prefix('v1')->group(function (): void {
                 Route::post('/orders/{posOrder}/resume', [PosTerminalController::class, 'resumeOrder'])->middleware('require.permission:pos.terminal');
                 Route::get('/orders/{posOrder}/receipt', [PosTerminalController::class, 'receipt'])->middleware('require.permission:pos.terminal');
                 Route::post('/reservations/{reservation}/seat', [PosTerminalController::class, 'seatReservation'])->middleware('require.permission:pos.terminal');
+                Route::get('/orders/{order}/status', [PosTerminalController::class, 'checkOrderStatus'])->middleware('require.permission:pos.terminal');
+                Route::post('/orders/{order}/cancel-qris', [PosTerminalController::class, 'cancelQrisOrder'])->middleware('require.permission:pos.terminal');
+                Route::post('/orders/{order}/simulate-qris', [PosTerminalController::class, 'simulateSandboxPayment'])->middleware('require.permission:pos.terminal');
 
                 // Offline Batch Synchronization (Idempotent sync by client_uuid)
                 Route::post('/sync/batch', [\App\Http\Controllers\Api\V1\Pos\PosSyncApiController::class, 'batchSync'])->middleware('require.permission:pos.terminal');

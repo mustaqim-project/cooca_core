@@ -41,6 +41,17 @@ final class SetActiveBusinessContext
                     }
                 }
             }
+
+            // Fallback: Bind first active business membership if context is still unbound
+            if (! Context::hasBusiness()) {
+                $fallbackMembership = BusinessMembership::where('user_id', $user->id)->first();
+                if ($fallbackMembership !== null) {
+                    $fallbackBusiness = Business::find($fallbackMembership->business_id);
+                    if ($fallbackBusiness !== null) {
+                        Context::setBusiness($fallbackBusiness, $fallbackMembership);
+                    }
+                }
+            }
         }
 
         return $next($request);

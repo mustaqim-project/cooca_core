@@ -946,7 +946,7 @@ document.addEventListener('alpine:init', () => {
                                 <span>Verifikasi Server Terdaftar</span>
                             </div>
                             <pre class="p-2.5 rounded-[8px] bg-neutral-100 dark:bg-neutral-900 font-mono text-[11px] text-neutral-800 dark:text-neutral-200">claude mcp list</pre>
-                            <p class="text-[11px] text-neutral-500">Akan menampilkan <code class="font-mono">cooca-erp: Connected (10 tools)</code>.</p>
+                            <p class="text-[11px] text-neutral-500">Akan menampilkan <code class="font-mono">cooca-erp: Connected ({{ count($tools) }} tools)</code>.</p>
                         </div>
 
                         <div class="p-4 rounded-[16px] border border-neutral-200/80 dark:border-neutral-800 space-y-2">
@@ -1049,7 +1049,7 @@ document.addEventListener('alpine:init', () => {
                         <div class="p-4 rounded-[16px] bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200/80 dark:border-neutral-800 space-y-2">
                             <h4 class="text-xs font-semibold text-neutral-900 dark:text-white">Langkah 2: Impor Skema OpenAPI 3.1 dari URL</h4>
                             <p class="text-[11px] text-neutral-500 dark:text-neutral-400">
-                                Pada kolom Schema, klik <strong>Import from URL</strong>, tempelkan URL endpoint di bawah, lalu klik <strong>Import</strong>. Seluruh 10 tool COOCA akan otomatis terkonversi menjadi Actions ChatGPT:
+                                Pada kolom Schema, klik <strong>Import from URL</strong>, tempelkan URL endpoint di bawah, lalu klik <strong>Import</strong>. Seluruh {{ count($tools) }} tool COOCA akan otomatis terkonversi menjadi Actions ChatGPT:
                             </p>
                             <div class="flex items-center gap-2">
                                 <input
@@ -1118,7 +1118,7 @@ document.addEventListener('alpine:init', () => {
                         <div class="p-4 rounded-[16px] bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200/80 dark:border-neutral-800 space-y-2">
                             <h4 class="text-xs font-semibold text-neutral-900 dark:text-white">Cara Kerja REST Direct Bridge COOCA:</h4>
                             <p class="text-[11px] text-neutral-500 dark:text-neutral-400 leading-relaxed">
-                                Google Gemini dapat memanggil 10 tools COOCA secara instan melalui endpoint REST Bridge:
+                                Google Gemini dapat memanggil {{ count($tools) }} tools COOCA secara instan melalui endpoint REST Bridge:
                                 <code class="font-mono text-neutral-800 dark:text-neutral-200 bg-neutral-200 dark:bg-neutral-800 px-1 py-0.5 rounded">POST {{ $apiBaseUrl }}/tools/{nama_tool}/execute</code> dengan header otentikasi Bearer Token.
                             </p>
                         </div>
@@ -1279,7 +1279,7 @@ document.addEventListener('alpine:init', () => {
                     </p>
                 </div>
                 <span class="px-3 py-1 rounded-full text-xs font-mono font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300">
-                    10 Tools Terverifikasi
+                    {{ count($tools) }} Tools Terverifikasi
                 </span>
             </div>
 
@@ -1498,6 +1498,204 @@ document.addEventListener('alpine:init', () => {
                         <button
                             type="button"
                             @click="copyText('Bagaimana statistik performa postingan media sosial toko kita minggu ini?', 'Prompt tersalin!')"
+                            class="px-2.5 py-1 rounded-[8px] bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-[11px] font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 transition-colors shrink-0">
+                            Salin
+                        </button>
+                    </div>
+                </div>
+
+                {{-- Tool 11: Modifier Manage --}}
+                <div class="p-4 rounded-[16px] bg-neutral-50/70 dark:bg-neutral-900/50 border border-neutral-200/80 dark:border-neutral-800 flex flex-col justify-between space-y-3">
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <span class="font-mono text-xs font-semibold text-purple-600 dark:text-purple-400">modifier_manage</span>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-500/10 text-purple-600 dark:text-purple-400">mcp:products:manage</span>
+                        </div>
+                        <p class="text-xs text-neutral-700 dark:text-neutral-300 mt-1.5 leading-relaxed">
+                            Kelola modifier grup & opsi tambahan (topping, varian rasa, tingkat kepedasan, size), perubahan harga jual, serta tautkan ke produk.
+                        </p>
+                    </div>
+                    <div class="pt-2 border-t border-neutral-200/60 dark:border-neutral-800 flex items-center justify-between gap-2">
+                        <span class="text-[11px] text-neutral-500 truncate italic">"Buat grup modifier 'Topping' (Boba Rp 3.000, Jelly Rp 2.000) dan tautkan ke Kopi Susu"</span>
+                        <button
+                            type="button"
+                            @click="copyText('Buat modifier group bernama Topping dengan opsi Boba (+3000) dan Jelly (+2000), lalu hubungkan ke produk Kopi Susu', 'Prompt tersalin!')"
+                            class="px-2.5 py-1 rounded-[8px] bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-[11px] font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 transition-colors shrink-0">
+                            Salin
+                        </button>
+                    </div>
+                </div>
+
+                {{-- Tool 12: Material Manage --}}
+                <div class="p-4 rounded-[16px] bg-neutral-50/70 dark:bg-neutral-900/50 border border-neutral-200/80 dark:border-neutral-800 flex flex-col justify-between space-y-3">
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <span class="font-mono text-xs font-semibold text-amber-600 dark:text-amber-400">inventory_manage_material</span>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400">mcp:inventory:manage</span>
+                        </div>
+                        <p class="text-xs text-neutral-700 dark:text-neutral-300 mt-1.5 leading-relaxed">
+                            Master data bahan baku mentah: catat bahan baru, tentukan satuan standar (kg, gr, ml, pcs), kelola harga beli acuan, dan update histori biaya modal.
+                        </p>
+                    </div>
+                    <div class="pt-2 border-t border-neutral-200/60 dark:border-neutral-800 flex items-center justify-between gap-2">
+                        <span class="text-[11px] text-neutral-500 truncate italic">"Daftarkan bahan baku 'Biji Kopi Arabika' satuan kg dengan harga Rp 120.000"</span>
+                        <button
+                            type="button"
+                            @click="copyText('Daftarkan bahan baku baru Biji Kopi Arabika dengan satuan kg dan harga beli standar Rp 120.000', 'Prompt tersalin!')"
+                            class="px-2.5 py-1 rounded-[8px] bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-[11px] font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 transition-colors shrink-0">
+                            Salin
+                        </button>
+                    </div>
+                </div>
+
+                {{-- Tool 13: BOM / Recipe Manage --}}
+                <div class="p-4 rounded-[16px] bg-neutral-50/70 dark:bg-neutral-900/50 border border-neutral-200/80 dark:border-neutral-800 flex flex-col justify-between space-y-3">
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <span class="font-mono text-xs font-semibold text-indigo-600 dark:text-indigo-400">inventory_manage_bom</span>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">mcp:products:manage</span>
+                        </div>
+                        <p class="text-xs text-neutral-700 dark:text-neutral-300 mt-1.5 leading-relaxed">
+                            Kelola Resep & Bill of Materials (BOM): formulasikan takaran bahan baku per porsi menu, hitung total HPP kalkulasi, dan perbarui modal produk otomatis.
+                        </p>
+                    </div>
+                    <div class="pt-2 border-t border-neutral-200/60 dark:border-neutral-800 flex items-center justify-between gap-2">
+                        <span class="text-[11px] text-neutral-500 truncate italic">"Atur resep Latte: 18g Biji Kopi dan 200ml Susu UHT, lalu update HPP produk"</span>
+                        <button
+                            type="button"
+                            @click="copyText('Atur resep untuk produk Latte: 18 gram Biji Kopi dan 200 ml Susu UHT, dan perbarui harga modal base_cost produk otomatis', 'Prompt tersalin!')"
+                            class="px-2.5 py-1 rounded-[8px] bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-[11px] font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 transition-colors shrink-0">
+                            Salin
+                        </button>
+                    </div>
+                </div>
+
+                {{-- Tool 14: Stock Opname & Stock Transfer --}}
+                <div class="p-4 rounded-[16px] bg-neutral-50/70 dark:bg-neutral-900/50 border border-neutral-200/80 dark:border-neutral-800 flex flex-col justify-between space-y-3">
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <span class="font-mono text-xs font-semibold text-cyan-600 dark:text-cyan-400">inventory_stock_opname</span>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-600 dark:text-cyan-400">mcp:inventory:manage</span>
+                        </div>
+                        <p class="text-xs text-neutral-700 dark:text-neutral-300 mt-1.5 leading-relaxed">
+                            Stock Opname fisik & mutasi stok: sesuaikan selisih fisik barang (variance, rusak, expired) dan lakukan transfer stok antar lokasi gudang/outlet.
+                        </p>
+                    </div>
+                    <div class="pt-2 border-t border-neutral-200/60 dark:border-neutral-800 flex items-center justify-between gap-2">
+                        <span class="text-[11px] text-neutral-500 truncate italic">"Sesuaikan stok opname Gula Pasir di Gudang Utama berkurang 2 kg karena susut"</span>
+                        <button
+                            type="button"
+                            @click="copyText('Catat penyesuaian stok opname: Gula Pasir di Gudang Utama ada selisih berkurang 2 kg dengan alasan opname_variance', 'Prompt tersalin!')"
+                            class="px-2.5 py-1 rounded-[8px] bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-[11px] font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 transition-colors shrink-0">
+                            Salin
+                        </button>
+                    </div>
+                </div>
+
+                {{-- Tool 15: Purchasing Manage Supplier --}}
+                <div class="p-4 rounded-[16px] bg-neutral-50/70 dark:bg-neutral-900/50 border border-neutral-200/80 dark:border-neutral-800 flex flex-col justify-between space-y-3">
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <span class="font-mono text-xs font-semibold text-sky-600 dark:text-sky-400">purchasing_manage_supplier</span>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-500/10 text-sky-600 dark:text-sky-400">mcp:purchasing:manage</span>
+                        </div>
+                        <p class="text-xs text-neutral-700 dark:text-neutral-300 mt-1.5 leading-relaxed">
+                            Kelola relasi vendor/pemasok: cari kontak supplier terdaftar, nomor WhatsApp & email sales, serta daftarkan supplier rekanan baru.
+                        </p>
+                    </div>
+                    <div class="pt-2 border-t border-neutral-200/60 dark:border-neutral-800 flex items-center justify-between gap-2">
+                        <span class="text-[11px] text-neutral-500 truncate italic">"Tampilkan daftar supplier kopi aktif atau daftarkan CV Sumber Makmur"</span>
+                        <button
+                            type="button"
+                            @click="copyText('Tampilkan daftar supplier aktif di sistem COOCA', 'Prompt tersalin!')"
+                            class="px-2.5 py-1 rounded-[8px] bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-[11px] font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 transition-colors shrink-0">
+                            Salin
+                        </button>
+                    </div>
+                </div>
+
+                {{-- Tool 16: Purchasing Manage Order (PO) --}}
+                <div class="p-4 rounded-[16px] bg-neutral-50/70 dark:bg-neutral-900/50 border border-neutral-200/80 dark:border-neutral-800 flex flex-col justify-between space-y-3">
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <span class="font-mono text-xs font-semibold text-blue-600 dark:text-blue-400">purchasing_manage_order</span>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400">mcp:purchasing:manage</span>
+                        </div>
+                        <p class="text-xs text-neutral-700 dark:text-neutral-300 mt-1.5 leading-relaxed">
+                            Kelola Purchase Order (PO) & Penerimaan: buat PO pengadaan ke vendor, konfirmasi pesanan, dan catat penerimaan fisik barang (Goods Receipt) ke gudang.
+                        </p>
+                    </div>
+                    <div class="pt-2 border-t border-neutral-200/60 dark:border-neutral-800 flex items-center justify-between gap-2">
+                        <span class="text-[11px] text-neutral-500 truncate italic">"Buat Purchase Order 50 kg Biji Kopi ke supplier dan terima barang ke Gudang"</span>
+                        <button
+                            type="button"
+                            @click="copyText('Buat PO pembelian 50 kg Biji Kopi ke supplier rekanan dan catat penerimaan barang masuk ke gudang', 'Prompt tersalin!')"
+                            class="px-2.5 py-1 rounded-[8px] bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-[11px] font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 transition-colors shrink-0">
+                            Salin
+                        </button>
+                    </div>
+                </div>
+
+                {{-- Tool 17: Sales Manage Quotation --}}
+                <div class="p-4 rounded-[16px] bg-neutral-50/70 dark:bg-neutral-900/50 border border-neutral-200/80 dark:border-neutral-800 flex flex-col justify-between space-y-3">
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <span class="font-mono text-xs font-semibold text-violet-600 dark:text-violet-400">sales_manage_quotation</span>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-violet-500/10 text-violet-600 dark:text-violet-400">mcp:sales:manage</span>
+                        </div>
+                        <p class="text-xs text-neutral-700 dark:text-neutral-300 mt-1.5 leading-relaxed">
+                            Kelola Surat Penawaran Harga (Quotation) B2B: susun penawaran harga dengan item & diskon, pantau masa berlaku, dan 1-klik konversi ke Sales Order resmi.
+                        </p>
+                    </div>
+                    <div class="pt-2 border-t border-neutral-200/60 dark:border-neutral-800 flex items-center justify-between gap-2">
+                        <span class="text-[11px] text-neutral-500 truncate italic">"Buat penawaran harga 100 cup Kopi Susu untuk PT Mahakarya dan konversi ke Sales Order"</span>
+                        <button
+                            type="button"
+                            @click="copyText('Buat surat penawaran harga 100 cup Kopi Susu seharga Rp 18.000 per cup dengan diskon Rp 100.000 untuk klien', 'Prompt tersalin!')"
+                            class="px-2.5 py-1 rounded-[8px] bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-[11px] font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 transition-colors shrink-0">
+                            Salin
+                        </button>
+                    </div>
+                </div>
+
+                {{-- Tool 18: Sales Manage Order --}}
+                <div class="p-4 rounded-[16px] bg-neutral-50/70 dark:bg-neutral-900/50 border border-neutral-200/80 dark:border-neutral-800 flex flex-col justify-between space-y-3">
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <span class="font-mono text-xs font-semibold text-emerald-600 dark:text-emerald-400">sales_manage_order</span>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">mcp:sales:manage</span>
+                        </div>
+                        <p class="text-xs text-neutral-700 dark:text-neutral-300 mt-1.5 leading-relaxed">
+                            Kelola Pesanan Penjualan (Sales Order / SO): buat order masuk, update status proses/pengiriman, dan 1-klik terbitkan Faktur Tagihan resmi (Invoice).
+                        </p>
+                    </div>
+                    <div class="pt-2 border-t border-neutral-200/60 dark:border-neutral-800 flex items-center justify-between gap-2">
+                        <span class="text-[11px] text-neutral-500 truncate italic">"Terbitkan faktur tagihan resmi (Invoice) dari Sales Order SO-202610-0001"</span>
+                        <button
+                            type="button"
+                            @click="copyText('Tampilkan daftar Sales Order berstatus confirmed dan terbitkan invoice dari pesanan tersebut', 'Prompt tersalin!')"
+                            class="px-2.5 py-1 rounded-[8px] bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-[11px] font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 transition-colors shrink-0">
+                            Salin
+                        </button>
+                    </div>
+                </div>
+
+                {{-- Tool 19: Finance Manage Invoice --}}
+                <div class="p-4 rounded-[16px] bg-neutral-50/70 dark:bg-neutral-900/50 border border-neutral-200/80 dark:border-neutral-800 flex flex-col justify-between space-y-3">
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <span class="font-mono text-xs font-semibold text-teal-600 dark:text-teal-400">finance_manage_invoice</span>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-teal-500/10 text-teal-600 dark:text-teal-400">mcp:finance:manage</span>
+                        </div>
+                        <p class="text-xs text-neutral-700 dark:text-neutral-300 mt-1.5 leading-relaxed">
+                            Kelola Faktur Tagihan (Commercial Invoice): buat faktur baru, rilis & potong stok fisik, serta catat pembayaran masuk dengan pencatatan kas & jurnal otomatis.
+                        </p>
+                    </div>
+                    <div class="pt-2 border-t border-neutral-200/60 dark:border-neutral-800 flex items-center justify-between gap-2">
+                        <span class="text-[11px] text-neutral-500 truncate italic">"Catat pembayaran masuk transfer bank Rp 1.500.000 untuk tagihan INV-202610-0001"</span>
+                        <button
+                            type="button"
+                            @click="copyText('Catat pembayaran transfer bank sebesar Rp 1.500.000 untuk melunasi tagihan INV-202610-0001', 'Prompt tersalin!')"
                             class="px-2.5 py-1 rounded-[8px] bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-[11px] font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 transition-colors shrink-0">
                             Salin
                         </button>
@@ -1755,12 +1953,28 @@ document.addEventListener('alpine:init', () => {
                             <span>{{ __('mcp.perm_finance_read') }}</span>
                         </label>
                         <label class="flex items-center gap-2.5 text-xs text-neutral-700 dark:text-neutral-300 cursor-pointer">
+                            <input type="checkbox" name="abilities[]" value="mcp:finance:manage" checked class="rounded border-neutral-300 text-neutral-900 dark:bg-neutral-800" />
+                            <span>{{ __('mcp.perm_finance_manage') }}</span>
+                        </label>
+                        <label class="flex items-center gap-2.5 text-xs text-neutral-700 dark:text-neutral-300 cursor-pointer">
                             <input type="checkbox" name="abilities[]" value="mcp:products:manage" checked class="rounded border-neutral-300 text-neutral-900 dark:bg-neutral-800" />
                             <span>{{ __('mcp.perm_products_manage') }}</span>
                         </label>
                         <label class="flex items-center gap-2.5 text-xs text-neutral-700 dark:text-neutral-300 cursor-pointer">
                             <input type="checkbox" name="abilities[]" value="mcp:products:read" checked class="rounded border-neutral-300 text-neutral-900 dark:bg-neutral-800" />
                             <span>{{ __('mcp.perm_products_read') }}</span>
+                        </label>
+                        <label class="flex items-center gap-2.5 text-xs text-neutral-700 dark:text-neutral-300 cursor-pointer">
+                            <input type="checkbox" name="abilities[]" value="mcp:inventory:manage" checked class="rounded border-neutral-300 text-neutral-900 dark:bg-neutral-800" />
+                            <span>{{ __('mcp.perm_inventory_manage') }}</span>
+                        </label>
+                        <label class="flex items-center gap-2.5 text-xs text-neutral-700 dark:text-neutral-300 cursor-pointer">
+                            <input type="checkbox" name="abilities[]" value="mcp:purchasing:manage" checked class="rounded border-neutral-300 text-neutral-900 dark:bg-neutral-800" />
+                            <span>{{ __('mcp.perm_purchasing_manage') }}</span>
+                        </label>
+                        <label class="flex items-center gap-2.5 text-xs text-neutral-700 dark:text-neutral-300 cursor-pointer">
+                            <input type="checkbox" name="abilities[]" value="mcp:sales:manage" checked class="rounded border-neutral-300 text-neutral-900 dark:bg-neutral-800" />
+                            <span>{{ __('mcp.perm_sales_manage') }}</span>
                         </label>
                         <label class="flex items-center gap-2.5 text-xs text-neutral-700 dark:text-neutral-300 cursor-pointer">
                             <input type="checkbox" name="abilities[]" value="mcp:social:manage" checked class="rounded border-neutral-300 text-neutral-900 dark:bg-neutral-800" />

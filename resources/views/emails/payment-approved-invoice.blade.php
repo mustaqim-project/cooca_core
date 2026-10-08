@@ -214,6 +214,19 @@
                 </table>
             </div>
 
+            <!-- PDF Attachment Callout -->
+            <div style="background-color: rgba(56, 189, 248, 0.08); border: 1px dashed rgba(56, 189, 248, 0.4); border-radius: 12px; padding: 14px 18px; margin-bottom: 24px; text-align: left;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 20px;">📄</span>
+                    <div>
+                        <div style="color: #38bdf8; font-weight: 700; font-size: 13px;">File Faktur & Kwitansi PDF Terlampir</div>
+                        <div style="color: #94a3b8; font-size: 12px; margin-top: 2px; line-height: 1.4;">
+                            Dokumen resmi <strong>Invoice-Cooca-{{ $invoiceNo ?? ('INV-' . strtoupper(substr($payment->id, 0, 8))) }}.pdf</strong> telah disertakan sebagai lampiran email ini untuk keperluan arsip perpajakan & pembukuan Anda.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <a href="{{ route('dashboard') }}" class="btn">
                 Masuk ke Workspace Bisnis Anda
             </a>

@@ -18,8 +18,17 @@ final class McpToolRegistry
     {
         $this->register(new FinanceRecordExpenseTool());
         $this->register(new FinanceGetCashAndBankBalancesTool());
+        $this->register(new FinanceManageInvoiceTool());
         $this->register(new InventoryCreateProductTool());
         $this->register(new InventoryCheckStockTool());
+        $this->register(new ModifierManageTool());
+        $this->register(new InventoryManageMaterialTool());
+        $this->register(new InventoryManageBomTool());
+        $this->register(new InventoryStockOpnameTool());
+        $this->register(new PurchasingManageSupplierTool());
+        $this->register(new PurchasingManageOrderTool());
+        $this->register(new SalesManageQuotationTool());
+        $this->register(new SalesManageOrderTool());
         $this->register(new SocialSchedulePostTool());
         $this->register(new SocialGetInsightsTool());
         $this->register(new ReportGetProfitLossTool());

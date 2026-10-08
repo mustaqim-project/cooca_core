@@ -123,13 +123,22 @@ final class McpProtocolTest extends TestCase
         $response->assertStatus(200);
         $tools = $response->json('result.tools');
         $this->assertIsArray($tools);
-        $this->assertCount(10, $tools);
+        $this->assertCount(19, $tools);
 
         $toolNames = array_column($tools, 'name');
         $this->assertContains('finance_record_expense', $toolNames);
         $this->assertContains('inventory_create_product', $toolNames);
         $this->assertContains('report_get_profit_loss', $toolNames);
         $this->assertContains('whatsapp_send_notification', $toolNames);
+        $this->assertContains('modifier_manage', $toolNames);
+        $this->assertContains('inventory_manage_material', $toolNames);
+        $this->assertContains('inventory_manage_bom', $toolNames);
+        $this->assertContains('inventory_stock_opname', $toolNames);
+        $this->assertContains('purchasing_manage_supplier', $toolNames);
+        $this->assertContains('purchasing_manage_order', $toolNames);
+        $this->assertContains('sales_manage_quotation', $toolNames);
+        $this->assertContains('sales_manage_order', $toolNames);
+        $this->assertContains('finance_manage_invoice', $toolNames);
     }
 
     public function test_finance_record_expense_creates_expense_and_activity_log(): void

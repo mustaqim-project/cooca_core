@@ -190,11 +190,44 @@ final class MobileOwnerPulseApiController extends Controller
         $analytics = $service->getAnalyticsData($business, $period, $from, $to, $locationId ?: null);
         $overview = $service->getOverviewData($business, $locationId ?: null);
 
+        $recentPosOrders = collect($overview['recentPosOrders'] ?? [])->map(function ($o) {
+            return [
+                'id' => (string) $o->id,
+                'order_number' => (string) $o->order_number,
+                'customer_name_guest' => (string) ($o->customer_name_guest ?? 'Pelanggan Umum'),
+                'order_type' => (string) ($o->order_type ?? 'dine_in'),
+                'total_amount' => (float) $o->total_amount,
+                'status' => (string) $o->status,
+                'created_at' => $o->created_at?->toIso8601String(),
+                'time_ago' => $o->created_at?->diffForHumans() ?? 'Baru saja',
+            ];
+        })->values()->all();
+
+        $recentProducts = collect($overview['recentProducts'] ?? [])->map(function ($p) {
+            $baseCost = (float) ($p->base_cost ?? 0);
+            $sellingPrice = (float) ($p->selling_price ?? 0);
+            $marginPct = ($sellingPrice > 0 && $baseCost > 0)
+                ? round((($sellingPrice - $baseCost) / $sellingPrice) * 100, 1)
+                : null;
+
+            return [
+                'id' => (string) $p->id,
+                'name' => (string) $p->name,
+                'code' => (string) ($p->code ?? ''),
+                'category' => (string) ($p->category?->name ?? 'Item'),
+                'base_cost' => $baseCost,
+                'selling_price' => $sellingPrice,
+                'margin_pct' => $marginPct,
+            ];
+        })->values()->all();
+
         return response()->json([
             'success' => true,
             'analytics' => $analytics,
             'stats' => $overview['stats'] ?? [],
             'seven_days_trend' => $overview['sevenDaysTrend'] ?? [],
+            'recent_pos_orders' => $recentPosOrders,
+            'recent_products' => $recentProducts,
         ], Response::HTTP_OK);
     }
 }

@@ -303,12 +303,26 @@ final class TripayService
             ];
         }
 
-        // If no items extracted, fallback to single order item
-        if (empty($orderItems)) {
+        // Reconcile items to guarantee sum(order_items.price * quantity) === amount (TriPay strict requirement)
+        $itemsSum = 0;
+        foreach ($orderItems as $oi) {
+            $itemsSum += ($oi['price'] * $oi['quantity']);
+        }
+
+        if ($itemsSum < $amount) {
+            $diff = $amount - $itemsSum;
             $orderItems[] = [
-                'name' => "Pesanan #{$order->order_number}",
-                'price' => $amount,
+                'name' => 'Biaya Layanan & Pajak',
+                'price' => $diff,
                 'quantity' => 1,
+            ];
+        } elseif ($itemsSum > $amount || empty($orderItems)) {
+            $orderItems = [
+                [
+                    'name' => "Pesanan #{$order->order_number}",
+                    'price' => $amount,
+                    'quantity' => 1,
+                ],
             ];
         }
 
@@ -412,19 +426,68 @@ final class TripayService
         $signature = $this->generateSignature($merchantRef, $amount);
 
         $orderItems = [];
+        $itemsSum = 0;
         foreach ($order->items as $item) {
-            $orderItems[] = [
-                'name' => mb_substr((string) $item->product_name, 0, 100),
-                'price' => (int) round((float) $item->unit_price),
-                'quantity' => (int) max(1, round((float) $item->quantity)),
-            ];
+            $price = (int) round((float) $item->unit_price);
+            $qty = (int) max(1, round((float) $item->quantity));
+            if ($price > 0 && $qty > 0) {
+                $orderItems[] = [
+                    'name' => mb_substr((string) $item->product_name, 0, 100),
+                    'price' => $price,
+                    'quantity' => $qty,
+                ];
+                $itemsSum += ($price * $qty);
+            }
         }
 
-        if (empty($orderItems)) {
+        $tax = (int) round((float) $order->tax_amount);
+        if ($tax > 0) {
             $orderItems[] = [
-                'name' => "Pesanan Meja #{$order->order_number}",
-                'price' => $amount,
+                'name' => 'Pajak (PB1/PPN)',
+                'price' => $tax,
                 'quantity' => 1,
+            ];
+            $itemsSum += $tax;
+        }
+
+        $service = (int) round((float) $order->service_charge_amount);
+        if ($service > 0) {
+            $orderItems[] = [
+                'name' => 'Biaya Layanan (Service Charge)',
+                'price' => $service,
+                'quantity' => 1,
+            ];
+            $itemsSum += $service;
+        }
+
+        $rounding = (int) round((float) $order->rounding_amount);
+        if ($rounding > 0) {
+            $orderItems[] = [
+                'name' => 'Pembulatan',
+                'price' => $rounding,
+                'quantity' => 1,
+            ];
+            $itemsSum += $rounding;
+        }
+
+        // TriPay API strictly enforces sum(order_items.price * quantity) === amount.
+        // If discrepancy remains due to custom fees or roundings:
+        if ($itemsSum < $amount) {
+            $diff = $amount - $itemsSum;
+            $orderItems[] = [
+                'name' => 'Biaya Penyesuaian',
+                'price' => $diff,
+                'quantity' => 1,
+            ];
+        } elseif ($itemsSum > $amount || empty($orderItems)) {
+            // Discounts/vouchers make item sum exceed payable amount; TriPay rejects negative line items.
+            // Consolidate into a single clean line item matching total_amount.
+            $orderItems = [
+                [
+                    'name' => "Pesanan POS #{$order->order_number}",
+                    'price' => $amount,
+                    'quantity' => 1,
+                ],
             ];
         }
 

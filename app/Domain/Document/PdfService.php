@@ -53,4 +53,14 @@ class PdfService
             'items' => $quotation->items,
         ]);
     }
+
+    /**
+     * Render Subscription Payment Invoice as printable DomPDF binary string.
+     */
+    public function renderSubscriptionInvoicePdf(\App\Models\SubscriptionPayment $payment): string
+    {
+        $mailable = new \App\Mail\PaymentApprovedInvoiceMail($payment);
+        $invoiceNo = 'INV-' . strtoupper(substr($payment->id, 0, 8));
+        return $mailable->generatePdfContent($invoiceNo);
+    }
 }

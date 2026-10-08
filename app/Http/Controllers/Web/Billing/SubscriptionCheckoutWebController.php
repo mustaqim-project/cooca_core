@@ -475,10 +475,21 @@ final class SubscriptionCheckoutWebController extends Controller
     /**
      * View and download official subscription payment invoice / receipt.
      */
-    public function invoice(SubscriptionPayment $payment): View
+    public function invoice(Request $request, SubscriptionPayment $payment): \Illuminate\Http\Response|View
     {
         $business = Context::requireBusiness();
         abort_unless($payment->business_id === $business->id, 403);
+
+        if ($request->query('download') === 'pdf' || $request->query('export') === 'pdf') {
+            $mailable = new \App\Mail\PaymentApprovedInvoiceMail($payment);
+            $invoiceNo = 'INV-' . strtoupper(substr($payment->id, 0, 8));
+            $pdfContent = $mailable->generatePdfContent($invoiceNo);
+
+            return response($pdfContent, 200, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="Invoice-Cooca-' . $invoiceNo . '.pdf"',
+            ]);
+        }
 
         $methodDetails = $payment->getPaymentMethodDetails();
 

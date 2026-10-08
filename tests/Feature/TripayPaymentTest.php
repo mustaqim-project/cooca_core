@@ -487,4 +487,121 @@ final class TripayPaymentTest extends TestCase
         $this->assertSame('DEV-T3817100099', $createdOrder->gateway_reference);
         $this->assertSame('https://tripay.co.id/qr/sample-qris.png', $createdOrder->gateway_qr_url);
     }
+
+    public function test_create_pos_order_transaction_reconciles_tax_service_charge_and_discounts(): void
+    {
+        $tripayService = app(\App\Domain\Payment\TripayService::class);
+
+        // 1. Order with Subtotal 35.000, Tax 3.500, Service Charge 1.750 -> Total 40.250
+        $order = \App\Models\PosOrder::create([
+            'business_id' => $this->business->id,
+            'location_id' => $this->location->id,
+            'user_id' => $this->merchantUser->id,
+            'order_number' => 'POS-TAX-001',
+            'order_date' => now()->toDateString(),
+            'order_type' => 'dine_in',
+            'status' => \App\Models\PosOrder::STATUS_WAITING_PAYMENT,
+            'subtotal' => 35000,
+            'tax_amount' => 3500,
+            'service_charge_amount' => 1750,
+            'total_amount' => 40250,
+        ]);
+
+        \App\Models\PosOrderItem::create([
+            'pos_order_id' => $order->id,
+            'product_id' => $this->product->id,
+            'product_name' => 'Akses Komunitas Coffee Shop',
+            'unit_price' => 35000,
+            'quantity' => 1,
+            'subtotal' => 35000,
+            'total_price' => 35000,
+        ]);
+
+        $order->load('items');
+
+        $recordedPayload = null;
+        Http::fake([
+            '*transaction/create*' => function (\Illuminate\Http\Client\Request $request) use (&$recordedPayload) {
+                $recordedPayload = $request->data();
+                return Http::response([
+                    'success' => true,
+                    'message' => 'Transaction created',
+                    'data' => [
+                        'reference' => 'DEV-POS-001',
+                        'merchant_ref' => 'POS-TAX-001',
+                        'payment_method' => 'QRIS',
+                        'qr_url' => 'https://tripay.co.id/qr/sample-pos.png',
+                    ],
+                ], 200);
+            },
+        ]);
+
+        $res = $tripayService->createPosOrderTransaction($order, 'QRIS');
+
+        $this->assertTrue($res['success']);
+        $this->assertNotNull($recordedPayload);
+        $this->assertSame(40250, $recordedPayload['amount']);
+
+        // TriPay strict invariant: sum(order_items.price * quantity) === amount
+        $itemsSum = 0;
+        foreach ($recordedPayload['order_items'] as $item) {
+            $this->assertGreaterThan(0, $item['price'], 'TriPay requires all line item prices to be positive');
+            $itemsSum += ($item['price'] * $item['quantity']);
+        }
+        $this->assertSame(40250, $itemsSum, 'Order items sum must strictly equal amount to prevent TriPay 422 error');
+
+        // 2. Order with Discount: Subtotal 50.000, Discount 15.000 -> Total 35.000
+        $discountedOrder = \App\Models\PosOrder::create([
+            'business_id' => $this->business->id,
+            'location_id' => $this->location->id,
+            'user_id' => $this->merchantUser->id,
+            'order_number' => 'POS-DISC-001',
+            'order_date' => now()->toDateString(),
+            'order_type' => 'takeaway',
+            'status' => \App\Models\PosOrder::STATUS_WAITING_PAYMENT,
+            'subtotal' => 50000,
+            'discount_amount' => 15000,
+            'total_amount' => 35000,
+        ]);
+
+        \App\Models\PosOrderItem::create([
+            'pos_order_id' => $discountedOrder->id,
+            'product_id' => $this->product->id,
+            'product_name' => 'Paket Diskon Spesial',
+            'unit_price' => 50000,
+            'quantity' => 1,
+            'subtotal' => 50000,
+            'total_price' => 50000,
+        ]);
+
+        $discountedOrder->load('items');
+
+        $recordedDiscPayload = null;
+        Http::fake([
+            '*transaction/create*' => function (\Illuminate\Http\Client\Request $request) use (&$recordedDiscPayload) {
+                $recordedDiscPayload = $request->data();
+                return Http::response([
+                    'success' => true,
+                    'message' => 'Transaction created',
+                    'data' => [
+                        'reference' => 'DEV-POS-002',
+                        'merchant_ref' => 'POS-DISC-001',
+                        'payment_method' => 'QRIS',
+                        'qr_url' => 'https://tripay.co.id/qr/sample-pos-disc.png',
+                    ],
+                ], 200);
+            },
+        ]);
+
+        $discRes = $tripayService->createPosOrderTransaction($discountedOrder, 'QRIS');
+        $this->assertTrue($discRes['success']);
+        $this->assertSame(35000, $recordedDiscPayload['amount']);
+
+        $discItemsSum = 0;
+        foreach ($recordedDiscPayload['order_items'] as $item) {
+            $this->assertGreaterThan(0, $item['price'], 'TriPay requires all line item prices to be positive');
+            $discItemsSum += ($item['price'] * $item['quantity']);
+        }
+        $this->assertSame(35000, $discItemsSum, 'Discounted order items sum must strictly equal amount');
+    }
 }

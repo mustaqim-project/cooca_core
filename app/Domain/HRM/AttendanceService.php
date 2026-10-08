@@ -77,17 +77,32 @@ final class AttendanceService
         $faceData = $data['face_data'] ?? $data['face_embedding'] ?? $data['photo'] ?? null;
 
         if (! empty($faceData)) {
-            $threshold = (float) ($data['face_threshold'] ?? FaceVerificationService::DEFAULT_SIMILARITY_THRESHOLD);
-            $verificationResult = $this->faceService->verifyFace($business, $user, $faceData, $threshold);
+            $membershipForFace = BusinessMembership::where('business_id', $business->id)
+                ->where('user_id', $user->id)
+                ->first();
 
-            if (! $verificationResult['verified']) {
-                throw ValidationException::withMessages([
-                    'face' => $verificationResult['message'],
-                ]);
+            // Auto-enroll initial face template on first clock-in if employee hasn't registered yet
+            if ($membershipForFace && empty($membershipForFace->face_biometric_template)) {
+                try {
+                    $this->faceService->registerFaceTemplate($business, $user, $faceData);
+                    $faceVerified = true;
+                    $faceScore = 1.0;
+                } catch (\Throwable $e) {
+                    Log::warning("Auto-enrollment face on clockIn failed for user {$user->id}: " . $e->getMessage());
+                }
+            } else {
+                $threshold = (float) ($data['face_threshold'] ?? FaceVerificationService::DEFAULT_SIMILARITY_THRESHOLD);
+                $verificationResult = $this->faceService->verifyFace($business, $user, $faceData, $threshold);
+
+                if (! $verificationResult['verified']) {
+                    throw ValidationException::withMessages([
+                        'face' => $verificationResult['message'],
+                    ]);
+                }
+
+                $faceVerified = true;
+                $faceScore = $verificationResult['similarity'];
             }
-
-            $faceVerified = true;
-            $faceScore = $verificationResult['similarity'];
         }
 
         // 3. Resolve Location Policy & Exception Engine
@@ -388,16 +403,30 @@ final class AttendanceService
             $faceData = $data['face_data'] ?? $data['face_embedding'] ?? $data['photo'] ?? null;
 
             if (! empty($faceData)) {
-                $threshold = (float) ($data['face_threshold'] ?? FaceVerificationService::DEFAULT_SIMILARITY_THRESHOLD);
-                $verificationResult = $this->faceService->verifyFace($business, $user, $faceData, $threshold);
+                $membershipForFace = BusinessMembership::where('business_id', $business->id)
+                    ->where('user_id', $user->id)
+                    ->first();
 
-                if (! $verificationResult['verified']) {
-                    throw ValidationException::withMessages([
-                        'face' => $verificationResult['message'],
-                    ]);
+                if ($membershipForFace && empty($membershipForFace->face_biometric_template)) {
+                    try {
+                        $this->faceService->registerFaceTemplate($business, $user, $faceData);
+                        $faceVerified = true;
+                        $faceScore = 1.0;
+                    } catch (\Throwable $e) {
+                        Log::warning("Auto-enrollment face on clockOut failed for user {$user->id}: " . $e->getMessage());
+                    }
+                } else {
+                    $threshold = (float) ($data['face_threshold'] ?? FaceVerificationService::DEFAULT_SIMILARITY_THRESHOLD);
+                    $verificationResult = $this->faceService->verifyFace($business, $user, $faceData, $threshold);
+
+                    if (! $verificationResult['verified']) {
+                        throw ValidationException::withMessages([
+                            'face' => $verificationResult['message'],
+                        ]);
+                    }
+                    $faceVerified = true;
+                    $faceScore = $verificationResult['similarity'];
                 }
-                $faceVerified = true;
-                $faceScore = $verificationResult['similarity'];
             }
 
             $membership = BusinessMembership::where('business_id', $business->id)
