@@ -153,7 +153,7 @@ final class TemplatesAndFinalHardeningTest extends TestCase
     public function test_api_documentation_endpoint(): void
     {
         $response = $this->getJson('/api/v1/docs')->assertOk();
-        $this->assertEquals('Universal HPP Calculator Engine API', $response->json('api_name'));
+        $this->assertEquals('Cooca Engine API', $response->json('api_name'));
         $this->assertNotEmpty($response->json('modules'));
     }
 }

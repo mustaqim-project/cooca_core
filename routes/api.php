@@ -109,7 +109,7 @@ Route::prefix('v1')->group(function (): void {
     Route::get('/health', function (): JsonResponse {
         return response()->json([
             'status' => 'ok',
-            'service' => 'Universal HPP Calculator Engine',
+            'service' => 'Cooca Engine',
             'timestamp' => now()->toIso8601String(),
             'version' => '1.0.0',
         ]);

@@ -48,7 +48,7 @@ final class ReportController extends Controller
     public function docs(): JsonResponse
     {
         return response()->json([
-            'api_name' => 'Universal HPP Calculator Engine API',
+            'api_name' => 'Cooca Engine API',
             'version' => 'v1',
             'documentation_url' => 'https://github.com/universal-hpp/calculator-hpp',
             'modules' => [

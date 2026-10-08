@@ -15,7 +15,7 @@ final class HealthCheckTest extends TestCase
         $response->assertOk()
             ->assertJson([
                 'status' => 'ok',
-                'service' => 'Universal HPP Calculator Engine',
+                'service' => 'Cooca Engine',
                 'version' => '1.0.0',
             ])
             ->assertJsonStructure([
