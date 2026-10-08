@@ -493,6 +493,8 @@ Route::prefix('v1')->group(function (): void {
                 Route::get('/terminal/bootstrap', [PosTerminalController::class, 'terminalData'])->middleware('require.permission:pos.terminal');
                 Route::get('/terminal/search-products', [PosTerminalController::class, 'searchProducts'])->middleware('require.permission:pos.terminal');
                 Route::post('/terminal/checkout', [PosTerminalController::class, 'checkout'])->middleware('require.permission:pos.terminal');
+                Route::post('/terminal/send-to-kitchen', [PosTerminalController::class, 'sendToKitchen'])->middleware('require.permission:pos.terminal');
+                Route::post('/terminal/toggle-auto-kds', [PosTerminalController::class, 'toggleAutoKds'])->middleware('require.permission:pos.terminal');
                 Route::post('/terminal/hold', [PosTerminalController::class, 'holdOrder'])->middleware('require.permission:pos.terminal');
                 Route::get('/terminal/held-orders', [PosTerminalController::class, 'getHeldOrders'])->middleware('require.permission:pos.terminal');
                 Route::post('/orders/{posOrder}/hold', [PosTerminalController::class, 'holdOrder'])->middleware('require.permission:pos.terminal');

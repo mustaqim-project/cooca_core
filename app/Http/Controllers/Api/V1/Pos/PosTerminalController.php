@@ -204,6 +204,11 @@ final class PosTerminalController extends Controller
                 'pos_enable_service_charge' => (bool) $business->pos_enable_service_charge,
                 'pos_service_charge_percent' => (float) $business->pos_service_charge_percent,
                 'pos_receipt_footer_note' => $business->pos_receipt_footer_note,
+                'pos_auto_send_kds' => (bool) ($business->pos_auto_send_kds ?? false),
+                'qris_image_url' => \App\Models\CommercePaymentMethod::where('business_id', $business->id)
+                    ->where('type', \App\Models\CommercePaymentMethod::TYPE_QRIS)
+                    ->where('is_active', true)
+                    ->first()?->qris_image_url,
             ],
             'user' => [
                 'id' => $user?->id,
@@ -323,6 +328,7 @@ final class PosTerminalController extends Controller
             'location_id' => ['nullable', 'string'],
             'pos_register_id' => ['nullable', 'string'],
             // Multi-Industry fields
+            'client_uuid' => ['nullable', 'string', 'max:64'],
             'vehicle_license_plate' => ['nullable', 'string', 'max:30'],
             'vehicle_model' => ['nullable', 'string', 'max:100'],
             'vehicle_mileage' => ['nullable', 'numeric', 'min:0'],
@@ -333,6 +339,35 @@ final class PosTerminalController extends Controller
             'estimated_completion_at' => ['nullable', 'string'],
             'laundry_status' => ['nullable', 'string', 'max:50'],
         ]);
+
+        // Idempotency Gate: if client retries after network timeout, return existing order
+        if (! empty($validated['client_uuid'])) {
+            $existingOrder = PosOrder::where('business_id', $business->id)
+                ->where('client_uuid', $validated['client_uuid'])
+                ->first();
+
+            if ($existingOrder !== null) {
+                $whatsappUrl = $this->loyaltyService->generateWhatsAppReceiptUrl($existingOrder);
+                return response()->json([
+                    'message' => 'Transaksi kasir sudah pernah diproses sebelumnya (idempotent).',
+                    'order' => [
+                        'id' => $existingOrder->id,
+                        'order_number' => $existingOrder->order_number,
+                        'order_date' => $existingOrder->order_date,
+                        'total_amount' => (float) $existingOrder->total_amount,
+                        'paid_amount' => (float) $existingOrder->paid_amount,
+                        'change_amount' => (float) $existingOrder->change_amount,
+                        'discount_amount' => (float) $existingOrder->discount_amount,
+                        'total_hpp_cost' => (float) $existingOrder->total_hpp_cost,
+                        'total_gross_profit' => (float) $existingOrder->total_gross_profit,
+                        'points_earned' => (int) $existingOrder->points_earned,
+                        'status' => $existingOrder->status,
+                    ],
+                    'whatsapp_url' => $whatsappUrl,
+                    'duplicate_skipped' => true,
+                ], Response::HTTP_OK);
+            }
+        }
 
         $activeShift = $this->shiftService->getActiveShift($business, $user, $validated['location_id'] ?? null);
 
@@ -369,6 +404,11 @@ final class PosTerminalController extends Controller
                 ],
                 shift: $activeShift
             );
+
+            if (! empty($validated['client_uuid'])) {
+                $order->client_uuid = $validated['client_uuid'];
+                $order->save();
+            }
 
             if (! empty($validated['points_to_redeem']) && $order->customer) {
                 $this->loyaltyService->redeemPointsForOrder($order->customer, $order, (int) $validated['points_to_redeem']);
@@ -669,6 +709,81 @@ final class PosTerminalController extends Controller
                 'message' => 'Gagal menempatkan reservasi: ' . $e->getMessage(),
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
+    }
+
+    /**
+     * Send active cart directly to Kitchen Display System (KDS) from Mobile POS Terminal
+     * without printing receipt/KOT (Paperless kitchen routing).
+     */
+    public function sendToKitchen(Request $request): JsonResponse
+    {
+        $business = Context::requireBusiness();
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'items' => ['required', 'array', 'min:1'],
+            'location_id' => ['nullable', 'string'],
+            'pos_table_id' => ['nullable', 'string'],
+            'customer_id' => ['nullable', 'string'],
+            'customer_name_guest' => ['nullable', 'string', 'max:100'],
+            'order_type' => ['nullable', 'string'],
+            'notes' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $activeShift = $this->shiftService->getActiveShift($business, $user, $validated['location_id'] ?? null);
+
+        if ($activeShift === null) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Shift kasir belum dibuka. Buka shift terlebih dahulu sebelum mengirim pesanan ke dapur.',
+            ], Response::HTTP_FORBIDDEN);
+        }
+
+        try {
+            $order = $this->orderService->sendToKitchen(
+                business: $business,
+                cashier: $user,
+                itemsData: $validated['items'],
+                attributes: [
+                    'location_id' => $validated['location_id'] ?? $activeShift->location_id,
+                    'pos_table_id' => $validated['pos_table_id'] ?? null,
+                    'customer_id' => $validated['customer_id'] ?? null,
+                    'customer_name_guest' => $validated['customer_name_guest'] ?? null,
+                    'order_type' => $validated['order_type'] ?? 'dine_in',
+                    'notes' => $validated['notes'] ?? null,
+                ],
+                shift: $activeShift
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => "Pesanan #{$order->order_number} berhasil dikirim ke Layar Dapur (KDS) tanpa cetak struk.",
+                'order' => $order,
+            ], Response::HTTP_OK);
+        } catch (Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+    }
+
+    /**
+     * Quick-toggle Auto-Send to KDS feature directly from POS Terminal.
+     */
+    public function toggleAutoKds(Request $request): JsonResponse
+    {
+        $business = Context::requireBusiness();
+        $newState = ! (bool) ($business->pos_auto_send_kds ?? false);
+        $business->update(['pos_auto_send_kds' => $newState]);
+
+        return response()->json([
+            'success' => true,
+            'pos_auto_send_kds' => $newState,
+            'message' => $newState
+                ? 'Fitur Otomatis Kirim ke KDS DIAKTIFKAN. Setiap transaksi kasir diteruskan ke Layar Dapur tanpa cetak struk.'
+                : 'Fitur Otomatis Kirim ke KDS DINONAKTIFKAN. Transaksi kasir diselesaikan tanpa masuk ke Layar Dapur.',
+        ], Response::HTTP_OK);
     }
 }
 
