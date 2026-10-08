@@ -24,7 +24,7 @@ final class MarketplaceCatalogApiController extends Controller
     {
         // 1. Categories
         $categories = ProductCategory::select('id', 'name', 'slug', 'description')
-            ->whereHas('products', fn($q) => $q->where('is_active', true)->where('is_marketplace_enabled', true))
+            ->whereHas('products', fn($q) => $q->where('is_active', true))
             ->limit(10)
             ->get();
 
@@ -35,13 +35,13 @@ final class MarketplaceCatalogApiController extends Controller
         // 2. Featured Stores
         $featuredStores = Business::where('is_active', true)
             ->whereHas('products', fn($q) => $q->where('is_active', true))
-            ->select('id', 'name', 'slug', 'logo_url', 'phone', 'address')
+            ->select('id', 'name', 'slug', 'logo_path', 'phone', 'address')
             ->limit(6)
             ->get();
 
         // 3. Recommended / Popular Products
         $products = Product::where('is_active', true)
-            ->with(['business:id,name,slug,logo_url', 'category:id,name,slug'])
+            ->with(['business:id,name,slug,logo_path', 'category:id,name,slug'])
             ->latest()
             ->limit(16)
             ->get()
@@ -118,7 +118,7 @@ final class MarketplaceCatalogApiController extends Controller
         $perPage = (int) $request->query('per_page', 20);
 
         $builder = Product::where('is_active', true)
-            ->with(['business:id,name,slug,logo_url', 'category:id,name,slug']);
+            ->with(['business:id,name,slug,logo_path', 'category:id,name,slug']);
 
         if ($query !== '') {
             $builder->where(function ($q) use ($query): void {
@@ -176,7 +176,7 @@ final class MarketplaceCatalogApiController extends Controller
             ->orWhere('id', $slug)
             ->where('is_active', true)
             ->with([
-                'business:id,name,slug,logo_url,phone,address',
+                'business:id,name,slug,logo_path,phone,address',
                 'category:id,name,slug',
                 'images',
                 'bundleItems.bundledProduct',
@@ -203,7 +203,7 @@ final class MarketplaceCatalogApiController extends Controller
             ->where('id', '!=', $product->id)
             ->where('is_active', true)
             ->limit(6)
-            ->get(['id', 'name', 'slug', 'selling_price', 'image_url']);
+            ->get(['id', 'name', 'slug', 'selling_price', 'image_path']);
 
         return response()->json([
             'success' => true,

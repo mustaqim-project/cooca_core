@@ -491,11 +491,19 @@ Route::prefix('v1')->group(function (): void {
                 Route::get('/terminal/bootstrap', [PosTerminalController::class, 'terminalData'])->middleware('require.permission:pos.terminal');
                 Route::get('/terminal/search-products', [PosTerminalController::class, 'searchProducts'])->middleware('require.permission:pos.terminal');
                 Route::post('/terminal/checkout', [PosTerminalController::class, 'checkout'])->middleware('require.permission:pos.terminal');
+                Route::post('/terminal/hold', [PosTerminalController::class, 'holdOrder'])->middleware('require.permission:pos.terminal');
+                Route::get('/terminal/held-orders', [PosTerminalController::class, 'getHeldOrders'])->middleware('require.permission:pos.terminal');
                 Route::post('/orders/{posOrder}/hold', [PosTerminalController::class, 'holdOrder'])->middleware('require.permission:pos.terminal');
                 Route::post('/orders/{posOrder}/resume', [PosTerminalController::class, 'resumeOrder'])->middleware('require.permission:pos.terminal');
+                Route::get('/orders/{posOrder}/receipt', [PosTerminalController::class, 'receipt'])->middleware('require.permission:pos.terminal');
+                Route::post('/reservations/{reservation}/seat', [PosTerminalController::class, 'seatReservation'])->middleware('require.permission:pos.terminal');
 
                 // Offline Batch Synchronization (Idempotent sync by client_uuid)
                 Route::post('/sync/batch', [\App\Http\Controllers\Api\V1\Pos\PosSyncApiController::class, 'batchSync'])->middleware('require.permission:pos.terminal');
+
+                // Kitchen & Bar Display (KDS)
+                Route::get('/kitchen/orders', [\App\Http\Controllers\Api\V1\Pos\PosKitchenApiController::class, 'index'])->middleware('require.permission:pos.kitchen');
+                Route::post('/kitchen/orders/{order}/status', [\App\Http\Controllers\Api\V1\Pos\PosKitchenApiController::class, 'updateStatus'])->middleware('require.permission:pos.kitchen');
 
                 // Supervisor Authorization (mirror of web /pos/verify-pin)
                 Route::post('/verify-pin', [PosTerminalController::class, 'verifySupervisorPin'])->middleware('throttle:5,1');
@@ -683,6 +691,9 @@ Route::prefix('v1')->group(function (): void {
                 Route::post('/check-out', [\App\Http\Controllers\Api\V1\Hrm\AttendanceApiController::class, 'checkOut']);
                 Route::post('/clock-out', [\App\Http\Controllers\Api\V1\Hrm\AttendanceApiController::class, 'checkOut']);
                 Route::get('/today', [\App\Http\Controllers\Api\V1\Hrm\AttendanceApiController::class, 'today']);
+                Route::get('/portal', [\App\Http\Controllers\Api\V1\Hrm\AttendanceApiController::class, 'portal']);
+                Route::get('/payslips', [\App\Http\Controllers\Api\V1\Hrm\AttendanceApiController::class, 'payslips']);
+                Route::get('/payslips/{item}', [\App\Http\Controllers\Api\V1\Hrm\AttendanceApiController::class, 'showPayslip']);
                 Route::get('/history', [\App\Http\Controllers\Api\V1\Hrm\AttendanceApiController::class, 'history']);
                 Route::get('/summary', [\App\Http\Controllers\Api\V1\Hrm\AttendanceApiController::class, 'summary']);
 
@@ -701,6 +712,19 @@ Route::prefix('v1')->group(function (): void {
                 // Attendance Exception Policies (WFH, WFA, Field Work, Business Trip)
                 Route::get('/exceptions', [\App\Http\Controllers\Api\V1\Hrm\AttendanceApiController::class, 'listExceptions']);
                 Route::post('/exceptions', [\App\Http\Controllers\Api\V1\Hrm\AttendanceApiController::class, 'storeException']);
+            });
+
+            // ──────────────────────────────────────────────────────────────────
+            // MOBILE APP & BACKOFFICE API – HRM Hub (Staff, Shifts, Payroll, Loans)
+            // ──────────────────────────────────────────────────────────────────
+            Route::prefix('hrm')->group(function (): void {
+                Route::get('/hub', [\App\Http\Controllers\Api\V1\Hrm\HrmApiController::class, 'hub']);
+                Route::post('/employees', [\App\Http\Controllers\Api\V1\Hrm\HrmApiController::class, 'storeEmployee']);
+                Route::put('/employees/{membership}', [\App\Http\Controllers\Api\V1\Hrm\HrmApiController::class, 'updateEmployee']);
+                Route::post('/shifts', [\App\Http\Controllers\Api\V1\Hrm\HrmApiController::class, 'storeShift']);
+                Route::post('/loans', [\App\Http\Controllers\Api\V1\Hrm\HrmApiController::class, 'storeLoan']);
+                Route::post('/corrections/{correction}/approve', [\App\Http\Controllers\Api\V1\Hrm\HrmApiController::class, 'approveCorrection']);
+                Route::post('/corrections/{correction}/reject', [\App\Http\Controllers\Api\V1\Hrm\HrmApiController::class, 'rejectCorrection']);
             });
 
             // ──────────────────────────────────────────────────────────────────

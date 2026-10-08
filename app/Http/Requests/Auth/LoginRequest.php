@@ -13,6 +13,13 @@ final class LoginRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if (! $this->has('email') && $this->has('username')) {
+            $this->merge(['email' => $this->input('username')]);
+        }
+    }
+
     /**
      * @return array<string, array<int, string>>
      */

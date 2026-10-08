@@ -7,13 +7,19 @@ namespace App\Http\Controllers\Api\V1\Hrm;
 use App\Domain\HRM\AttendanceExceptionService;
 use App\Domain\HRM\AttendanceService;
 use App\Domain\HRM\Biometrics\FaceVerificationService;
+use App\Domain\HRM\WorkScheduleService;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\AttendanceCorrection;
 use App\Models\AttendanceException;
 use App\Models\BusinessMembership;
+use App\Models\EmployeeCommission;
+use App\Models\EmployeeLoan;
+use App\Models\Location;
+use App\Models\PayrollItem;
 use App\Models\User;
 use App\Support\Context;
+use App\Support\TimezoneHelper;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -132,14 +138,27 @@ final class AttendanceApiController extends Controller
     }
 
     /**
-     * Get current user's attendance status today.
+     * Get current user's attendance status today, enriched with location & shift context.
      * GET /api/v1/attendance/today
      */
     public function today(): JsonResponse
     {
         $business = Context::requireBusiness();
         $user = auth()->user();
-        $today = now()->toDateString();
+
+        $membership = BusinessMembership::where('business_id', $business->id)
+            ->where('user_id', $user->id)
+            ->with(['roleModel', 'location'])
+            ->first();
+
+        $location = $membership?->location
+            ?? Location::where('business_id', $business->id)->where('is_primary', true)->first()
+            ?? Location::where('business_id', $business->id)->first();
+
+        $timezone = TimezoneHelper::resolve($business, $location);
+        $tzAbbr = TimezoneHelper::abbreviation($timezone);
+        $localNow = TimezoneHelper::now($business, $location);
+        $today = $localNow->toDateString();
 
         $attendance = Attendance::where('business_id', $business->id)
             ->where('user_id', $user->id)
@@ -147,24 +166,57 @@ final class AttendanceApiController extends Controller
             ->with(['location', 'exceptionPolicy', 'correction'])
             ->first();
 
-        $membership = BusinessMembership::where('business_id', $business->id)
-            ->where('user_id', $user->id)
-            ->first();
+        $activeException = $this->exceptionService->getActiveException($business, $user, $localNow);
 
-        $activeException = $this->exceptionService->getActiveException($business, $user, now());
+        $workScheduleService = app(WorkScheduleService::class);
+        $activeShift = $workScheduleService->resolveActiveShift($business, $user, $location, $localNow);
+
+        // 7 days performance metrics
+        $sevenDaysAgo = $localNow->copy()->subDays(6)->toDateString();
+        $recentAttendances = Attendance::where('business_id', $business->id)
+            ->where('user_id', $user->id)
+            ->whereDate('date', '>=', $sevenDaysAgo)
+            ->get();
+        $presentDaysCount = $recentAttendances->whereNotNull('clock_in_at')->count();
+        $onTimeDaysCount = $recentAttendances->where('clock_in_status', Attendance::CLOCK_IN_ON_TIME)->count();
+        $lateDaysCount = $recentAttendances->filter(fn(Attendance $a) => $a->clock_in_status === Attendance::CLOCK_IN_LATE || $a->status === Attendance::STATUS_LATE)->count();
+        $totalWorkMinutes = (int) $recentAttendances->sum('work_duration_minutes');
+        $totalWorkHours = round($totalWorkMinutes / 60, 1);
 
         return response()->json([
             'success' => true,
             'data' => [
-                'server_time' => now()->toIso8601String(),
+                'server_time' => $localNow->toIso8601String(),
                 'date' => $today,
+                'timezone' => $timezone,
+                'tz_abbr' => $tzAbbr,
                 'employee' => [
                     'id' => $user->id,
                     'name' => $user->name,
+                    'email' => $user->email,
+                    'phone' => $user->phone ?? $membership?->whatsapp_number,
+                    'role' => $membership?->roleModel?->name ?? ($membership?->role ?? 'staff'),
                     'job_title' => $membership?->job_title,
                     'attendance_mode' => $membership?->attendance_mode ?? 'geofenced',
                     'face_registered' => ! empty($membership?->face_biometric_template),
                     'face_registered_at' => $membership?->face_registered_at?->toIso8601String(),
+                ],
+                'location' => [
+                    'id' => $location?->id,
+                    'name' => $location?->name ?? 'Kantor Utama',
+                    'city' => $location?->city ?? $business->city ?? 'Jakarta',
+                    'latitude' => $location?->latitude ? (float) $location->latitude : -6.2088,
+                    'longitude' => $location?->longitude ? (float) $location->longitude : 106.8456,
+                    'geofence_radius_meters' => (int) ($location?->geofence_radius_meters ?: 50),
+                ],
+                'active_shift' => [
+                    'shift_name' => $activeShift['shift_name'] ?? 'Bebas Jadwal',
+                    'scheduled_start' => $activeShift['scheduled_start'] ?? null,
+                    'scheduled_end' => $activeShift['scheduled_end'] ?? null,
+                    'is_off_day' => (bool) ($activeShift['is_off_day'] ?? false),
+                    'has_schedule' => (bool) ($activeShift['has_schedule'] ?? false),
+                    'grace_period_minutes' => (int) ($activeShift['grace_period_minutes'] ?? 0),
+                    'is_overnight' => (bool) ($activeShift['is_overnight'] ?? false),
                 ],
                 'attendance' => $attendance ? [
                     'id' => $attendance->id,
@@ -190,6 +242,359 @@ final class AttendanceApiController extends Controller
                     'radius_meters' => $activeException->radius_meters,
                     'effective_until' => $activeException->effective_until?->toDateString(),
                 ] : null,
+                'stats_7days' => [
+                    'present_days' => $presentDaysCount,
+                    'on_time_days' => $onTimeDaysCount,
+                    'late_days' => $lateDaysCount,
+                    'total_work_hours' => $totalWorkHours,
+                ],
+            ],
+        ], 200);
+    }
+
+    /**
+     * Complete Unified Portal Hub payload matching app/portal web interface.
+     * GET /api/v1/attendance/portal
+     */
+    public function portal(): JsonResponse
+    {
+        $business = Context::requireBusiness();
+        $user = auth()->user();
+
+        $membership = BusinessMembership::where('business_id', $business->id)
+            ->where('user_id', $user->id)
+            ->with(['roleModel', 'location'])
+            ->first();
+
+        $location = $membership?->location
+            ?? Location::where('business_id', $business->id)->where('is_primary', true)->first()
+            ?? Location::where('business_id', $business->id)->first();
+
+        $timezone = TimezoneHelper::resolve($business, $location);
+        $tzAbbr = TimezoneHelper::abbreviation($timezone);
+        $localNow = TimezoneHelper::now($business, $location);
+        $today = $localNow->toDateString();
+        $currentYear = $localNow->year;
+
+        // Shift resolution
+        $workScheduleService = app(WorkScheduleService::class);
+        $activeShift = $workScheduleService->resolveActiveShift($business, $user, $location, $localNow);
+
+        // Tenure calculation
+        $joinDate = $membership?->join_date ?? $membership?->created_at ?? $user->created_at;
+        $tenureYears = (int) $joinDate->diffInYears(now());
+        $tenureMonths = (int) ($joinDate->diffInMonths(now()) % 12);
+        $tenureText = $tenureYears > 0 ? "{$tenureYears} Tahun {$tenureMonths} Bulan" : "{$tenureMonths} Bulan";
+
+        // Leave quota
+        $leaveAllowance = 12;
+        $leaveUsed = Attendance::where('business_id', $business->id)
+            ->where('user_id', $user->id)
+            ->whereIn('status', [Attendance::STATUS_LEAVE])
+            ->whereYear('date', $currentYear)
+            ->count();
+        $leaveRemaining = max(0, $leaveAllowance - $leaveUsed);
+
+        // Loans / Kasbon
+        $loans = EmployeeLoan::where('business_id', $business->id)
+            ->where('user_id', $user->id)
+            ->orderByDesc('created_at')
+            ->get();
+        $activeLoan = $loans->firstWhere('status', EmployeeLoan::STATUS_ACTIVE);
+
+        // Commissions
+        $commissions = EmployeeCommission::where('business_id', $business->id)
+            ->where('user_id', $user->id)
+            ->where('status', EmployeeCommission::STATUS_APPROVED)
+            ->sum('earned_amount');
+
+        // Today Attendance
+        $todayAttendance = Attendance::where('business_id', $business->id)
+            ->where('user_id', $user->id)
+            ->whereDate('date', $today)
+            ->first();
+
+        // Active Exception
+        $activeException = $this->exceptionService->getActiveException($business, $user, $localNow);
+
+        // Past 7 Days metrics
+        $sevenDaysAgo = $localNow->copy()->subDays(6)->toDateString();
+        $recentAttendances = Attendance::where('business_id', $business->id)
+            ->where('user_id', $user->id)
+            ->whereDate('date', '>=', $sevenDaysAgo)
+            ->orderByDesc('date')
+            ->get();
+
+        $presentDaysCount = $recentAttendances->whereNotNull('clock_in_at')->count();
+        $onTimeDaysCount = $recentAttendances->where('clock_in_status', Attendance::CLOCK_IN_ON_TIME)->count();
+        $lateDaysCount = $recentAttendances->filter(fn(Attendance $a) => $a->clock_in_status === Attendance::CLOCK_IN_LATE || $a->status === Attendance::STATUS_LATE)->count();
+        $totalWorkMinutes = (int) $recentAttendances->sum('work_duration_minutes');
+        $totalWorkHours = round($totalWorkMinutes / 60, 1);
+
+        // Monthly stats
+        $monthlyAttendances = Attendance::where('business_id', $business->id)
+            ->where('user_id', $user->id)
+            ->whereMonth('date', $localNow->month)
+            ->whereYear('date', $localNow->year)
+            ->orderByDesc('date')
+            ->get();
+
+        $monthlyStats = [
+            'present' => $monthlyAttendances->whereIn('status', [Attendance::STATUS_PRESENT, Attendance::STATUS_LATE])->count(),
+            'late' => $monthlyAttendances->where('status', Attendance::STATUS_LATE)->count(),
+            'overtime_minutes' => (int) $monthlyAttendances->sum('overtime_minutes'),
+            'leave' => $monthlyAttendances->where('status', Attendance::STATUS_LEAVE)->count(),
+            'sick' => $monthlyAttendances->where('status', Attendance::STATUS_SICK)->count(),
+            'total_hours' => round(((int) $monthlyAttendances->sum('work_duration_minutes')) / 60, 1),
+        ];
+
+        // Recent Corrections
+        $recentCorrections = AttendanceCorrection::where('business_id', $business->id)
+            ->where('user_id', $user->id)
+            ->orderByDesc('created_at')
+            ->take(5)
+            ->get();
+
+        // Recent Payslips
+        $recentPayslips = PayrollItem::where('business_id', $business->id)
+            ->where('user_id', $user->id)
+            ->with('payroll')
+            ->orderByDesc('created_at')
+            ->take(6)
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'server_time' => $localNow->toIso8601String(),
+                'date' => $today,
+                'timezone' => $timezone,
+                'tz_abbr' => $tzAbbr,
+                'business' => [
+                    'id' => $business->id,
+                    'name' => $business->name,
+                    'slug' => $business->slug,
+                    'city' => $business->city ?? 'Jakarta',
+                ],
+                'employee' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'phone' => $user->phone ?? $membership?->whatsapp_number,
+                    'role' => $membership?->roleModel?->name ?? ($membership?->role ?? 'staff'),
+                    'job_title' => $membership?->job_title ?? 'Karyawan',
+                    'tenure_text' => $tenureText,
+                    'attendance_mode' => $membership?->attendance_mode ?? 'geofenced',
+                    'face_registered' => ! empty($membership?->face_biometric_template),
+                    'face_registered_at' => $membership?->face_registered_at?->toIso8601String(),
+                    'leave_allowance' => $leaveAllowance,
+                    'leave_used' => $leaveUsed,
+                    'leave_remaining' => $leaveRemaining,
+                    'active_loan' => $activeLoan ? [
+                        'loan_number' => $activeLoan->loan_number,
+                        'amount' => (float) $activeLoan->amount,
+                        'remaining_balance' => (float) $activeLoan->remaining_balance,
+                        'monthly_installment' => (float) $activeLoan->monthly_installment,
+                        'status' => $activeLoan->status,
+                    ] : null,
+                    'total_commissions' => (float) $commissions,
+                    'bank' => [
+                        'name' => $membership?->bank_name ?? 'Belum diatur',
+                        'account_number' => $membership?->bank_account_number ?? '-',
+                        'account_holder' => $membership?->bank_account_holder ?? $user->name,
+                    ],
+                    'compensation' => [
+                        'base_salary' => (float) ($membership?->base_salary ?? 0),
+                        'fixed_allowances' => (float) ($membership?->fixed_allowances ?? 0),
+                    ],
+                    'tax' => [
+                        'nik_ktp' => $membership?->nik_ktp ?? '-',
+                        'npwp' => $membership?->npwp ?? '-',
+                        'tax_ptkp_status' => $membership?->tax_ptkp_status ?? 'TK/0',
+                    ],
+                ],
+                'location' => [
+                    'id' => $location?->id,
+                    'name' => $location?->name ?? 'Kantor Utama',
+                    'city' => $location?->city ?? $business->city ?? 'Jakarta',
+                    'latitude' => $location?->latitude ? (float) $location->latitude : -6.2088,
+                    'longitude' => $location?->longitude ? (float) $location->longitude : 106.8456,
+                    'geofence_radius_meters' => (int) ($location?->geofence_radius_meters ?: 50),
+                ],
+                'active_shift' => [
+                    'shift_name' => $activeShift['shift_name'] ?? 'Bebas Jadwal',
+                    'scheduled_start' => $activeShift['scheduled_start'] ?? null,
+                    'scheduled_end' => $activeShift['scheduled_end'] ?? null,
+                    'is_off_day' => (bool) ($activeShift['is_off_day'] ?? false),
+                    'has_schedule' => (bool) ($activeShift['has_schedule'] ?? false),
+                    'grace_period_minutes' => (int) ($activeShift['grace_period_minutes'] ?? 0),
+                    'is_overnight' => (bool) ($activeShift['is_overnight'] ?? false),
+                ],
+                'today_attendance' => $todayAttendance ? [
+                    'id' => $todayAttendance->id,
+                    'clock_in_at' => $todayAttendance->clock_in_at?->toIso8601String(),
+                    'clock_out_at' => $todayAttendance->clock_out_at?->toIso8601String(),
+                    'clock_in_status' => $todayAttendance->clock_in_status,
+                    'status' => $todayAttendance->status,
+                    'work_duration_minutes' => $todayAttendance->work_duration_minutes,
+                    'formatted_duration' => $todayAttendance->formatted_work_duration,
+                    'late_minutes' => $todayAttendance->late_minutes,
+                    'overtime_minutes' => $todayAttendance->overtime_minutes,
+                    'early_leave_minutes' => $todayAttendance->early_leave_minutes,
+                    'face_verified' => $todayAttendance->face_verified,
+                    'face_similarity_score' => $todayAttendance->face_similarity_score,
+                ] : null,
+                'active_exception' => $activeException ? [
+                    'id' => $activeException->id,
+                    'policy_type' => $activeException->policy_type,
+                    'name' => $activeException->name,
+                    'reason' => $activeException->reason,
+                    'radius_meters' => $activeException->radius_meters,
+                    'effective_until' => $activeException->effective_until?->toDateString(),
+                ] : null,
+                'stats_7days' => [
+                    'present_days' => $presentDaysCount,
+                    'on_time_days' => $onTimeDaysCount,
+                    'late_days' => $lateDaysCount,
+                    'total_work_hours' => $totalWorkHours,
+                ],
+                'monthly_stats' => $monthlyStats,
+                'recent_attendances' => collect($recentAttendances)->map(function (Attendance $att) {
+                    return [
+                        'id' => $att->id,
+                        'date' => $att->date?->toDateString(),
+                        'clock_in_at' => $att->clock_in_at?->toIso8601String(),
+                        'clock_out_at' => $att->clock_out_at?->toIso8601String(),
+                        'clock_in_status' => $att->clock_in_status,
+                        'status' => $att->status,
+                        'work_duration_minutes' => $att->work_duration_minutes,
+                        'formatted_duration' => $att->formatted_work_duration,
+                        'late_minutes' => $att->late_minutes,
+                        'face_verified' => $att->face_verified,
+                    ];
+                }),
+                'recent_corrections' => collect($recentCorrections)->map(function (AttendanceCorrection $c) {
+                    return [
+                        'id' => $c->id,
+                        'correction_number' => $c->correction_number,
+                        'target_date' => $c->target_date?->toDateString(),
+                        'correction_type' => $c->correction_type,
+                        'status' => $c->status,
+                        'reason' => $c->reason,
+                        'created_at' => $c->created_at?->toIso8601String(),
+                    ];
+                }),
+                'recent_payslips' => collect($recentPayslips)->map(function (PayrollItem $p) {
+                    return [
+                        'id' => $p->id,
+                        'period' => $p->payroll?->title ?? ($p->payroll ? "{$p->payroll->period_month}/{$p->payroll->period_year}" : $p->created_at->format('F Y')),
+                        'gross_pay' => (float) $p->gross_pay,
+                        'total_deductions' => (float) $p->total_deductions,
+                        'take_home_pay' => (float) $p->take_home_pay,
+                        'status' => $p->status,
+                        'created_at' => $p->created_at?->toIso8601String(),
+                    ];
+                }),
+            ],
+        ], 200);
+    }
+
+    /**
+     * Get paginated payslips for the authenticated employee.
+     * GET /api/v1/attendance/payslips
+     */
+    public function payslips(Request $request): JsonResponse
+    {
+        $business = Context::requireBusiness();
+        $user = auth()->user();
+
+        $items = PayrollItem::where('business_id', $business->id)
+            ->where('user_id', $user->id)
+            ->with('payroll')
+            ->orderByDesc('created_at')
+            ->paginate((int) $request->query('per_page', 20));
+
+        return response()->json([
+            'success' => true,
+            'data' => collect($items->items())->map(function (PayrollItem $item) {
+                return [
+                    'id' => $item->id,
+                    'period' => $item->payroll?->title ?? ($item->payroll ? "{$item->payroll->period_month}/{$item->payroll->period_year}" : $item->created_at->format('F Y')),
+                    'employee_name' => $item->employee_name,
+                    'job_title' => $item->job_title,
+                    'base_salary' => (float) $item->base_salary,
+                    'fixed_allowances' => (float) $item->fixed_allowances,
+                    'variable_allowances' => (float) $item->variable_allowances,
+                    'overtime_pay' => (float) $item->overtime_pay,
+                    'commissions' => (float) $item->commissions,
+                    'gross_pay' => (float) $item->gross_pay,
+                    'bpjs_tk_employee' => (float) $item->bpjs_tk_employee,
+                    'bpjs_kes_employee' => (float) $item->bpjs_kes_employee,
+                    'pph21_amount' => (float) $item->pph21_amount,
+                    'loan_deduction' => (float) $item->loan_deduction,
+                    'other_deductions' => (float) $item->other_deductions,
+                    'total_deductions' => (float) $item->total_deductions,
+                    'take_home_pay' => (float) $item->take_home_pay,
+                    'bank_name' => $item->bank_name,
+                    'bank_account_number' => $item->bank_account_number,
+                    'bank_account_holder' => $item->bank_account_holder,
+                    'status' => $item->status,
+                    'created_at' => $item->created_at?->toIso8601String(),
+                ];
+            }),
+            'meta' => [
+                'current_page' => $items->currentPage(),
+                'last_page' => $items->lastPage(),
+                'total' => $items->total(),
+            ],
+        ], 200);
+    }
+
+    /**
+     * Show single payslip details.
+     * GET /api/v1/attendance/payslips/{item}
+     */
+    public function showPayslip(PayrollItem $item): JsonResponse
+    {
+        $business = Context::requireBusiness();
+        $user = auth()->user();
+
+        if ($item->business_id !== $business->id) {
+            return response()->json(['success' => false, 'message' => 'Slip gaji tidak ditemukan.'], 404);
+        }
+
+        if ($item->user_id !== $user->id && ! Context::hasPermission('users.view')) {
+            return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id' => $item->id,
+                'period' => $item->payroll?->title ?? ($item->payroll ? "{$item->payroll->period_month}/{$item->payroll->period_year}" : $item->created_at->format('F Y')),
+                'employee_name' => $item->employee_name,
+                'job_title' => $item->job_title,
+                'join_date' => $item->join_date?->toDateString(),
+                'tenure_months' => $item->tenure_months,
+                'days_worked' => $item->days_worked,
+                'base_salary' => (float) $item->base_salary,
+                'fixed_allowances' => (float) $item->fixed_allowances,
+                'variable_allowances' => (float) $item->variable_allowances,
+                'overtime_pay' => (float) $item->overtime_pay,
+                'commissions' => (float) $item->commissions,
+                'gross_pay' => (float) $item->gross_pay,
+                'bpjs_tk_employee' => (float) $item->bpjs_tk_employee,
+                'bpjs_kes_employee' => (float) $item->bpjs_kes_employee,
+                'pph21_amount' => (float) $item->pph21_amount,
+                'loan_deduction' => (float) $item->loan_deduction,
+                'other_deductions' => (float) $item->other_deductions,
+                'total_deductions' => (float) $item->total_deductions,
+                'take_home_pay' => (float) $item->take_home_pay,
+                'bank_name' => $item->bank_name,
+                'bank_account_number' => $item->bank_account_number,
+                'bank_account_holder' => $item->bank_account_holder,
+                'status' => $item->status,
+                'created_at' => $item->created_at?->toIso8601String(),
             ],
         ], 200);
     }
