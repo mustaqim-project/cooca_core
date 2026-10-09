@@ -1,6 +1,6 @@
 # HIG Audit Checklist for Flutter
 
-Contents: 1 Layout · 2 Typography · 3 Color · 4 Navigation · 5 Components · 6 Motion & feedback · 7 Accessibility · 8 Final gate · 9 Responsive (phone + tablet)
+Contents: 1 Layout · 2 Typography · 3 Color · 4 Navigation · 5 Components · 6 Motion & feedback · 7 Accessibility · 8 Final gate · 9 Responsive (phone + tablet) · 10 Android with iOS look · 11 Simplicity and component states
 
 Values are standard iOS metrics in points (pt = Flutter logical pixels). Treat them as defaults, not laws; deviate only with a reason.
 
@@ -35,7 +35,7 @@ iOS text styles (default size, pt) — use these, not arbitrary sizes:
 - [ ] Hierarchy by size/weight, not by many colors
 - [ ] No text below 11 pt; essential info ≥ 13 pt
 - [ ] Text scales with Dynamic Type; no fixed-height text boxes
-- [ ] System font on iOS (SF Pro auto-applied by Cupertino theme); no bundled SF on Android
+- [ ] System font (SF Pro) on Apple platforms via the Cupertino theme; bundled Inter on Android; SF files never bundled
 
 ## 3. Color & materials
 - [ ] Semantic colors only (label, secondaryLabel, systemBackground, systemGroupedBackground, separator, system tints)
@@ -100,7 +100,9 @@ Key system colors (light / dark):
 6. One clear primary action per screen
 7. Code compiles conceptually: imports present, no undefined tokens, no deprecated APIs knowingly used
 8. Responsive section (9) passes at compact, regular, and wide
-9. Reported honestly what was and wasn't verified (device test, screen reader, contrast measured, sizes tested)
+9. Android section (10) passes if the app ships on Android
+10. Simplicity section (11) passes: control counts before/after reported, nothing removed, only demoted
+11. Reported honestly what was and wasn't verified (device test, screen reader, contrast measured, sizes tested)
 
 ## 9. Responsive (phone + tablet)
 Details and code in `adaptive-layout.md`.
@@ -116,3 +118,35 @@ Details and code in `adaptive-layout.md`.
 - [ ] Tablet input: hover states, keyboard shortcuts for primary actions, focus traversal, context menus
 - [ ] All orientations supported on iPad; Android activity resizable; no global orientation lock
 - [ ] No overflow at 393×852, 744×1133, 820×1180, 1180×820, and a ≈ 320 pt narrow split; 200% text scale still scrolls
+
+## 10. Android with iOS look
+Details and code in `android-ios-look.md`. Look follows iOS; platform contracts follow Android.
+- [ ] Inter (or another bundled SF-like font) declared in pubspec and used on non-Apple platforms; SF files not bundled; font bundled, not fetched at runtime
+- [ ] Every `CupertinoTextThemeData` slot set (nav title, large title, tab label, picker, actions), not just `textStyle`
+- [ ] `IOSScrollBehavior` applied; pull-to-refresh actually triggers on Android
+- [ ] System back works from every screen type (pushed route, tab root, sheet, dialog); `PopScope` on tab shells; visible back button on pushed screens (swipe-back is not relied on)
+- [ ] `android:enableOnBackInvokedCallback="true"` set, back tested on Android 14/15
+- [ ] Edge-to-edge enabled; status/nav bar icons contrast in light and dark; content clears 3-button nav bar and gesture handle
+- [ ] No Material ripple, FAB, snackbar, or elevation shadows leaking into iOS-styled screens
+- [ ] App shell chosen correctly (`IOSApp` vs `IOSHybridApp`); no "No Material widget found" errors
+- [ ] Localization delegates and `supportedLocales` set (e.g., `id`, `en`); dates/currency formatted with locale
+- [ ] TalkBack labels on icon-only controls; reflows at 200% font scale + large display size
+- [ ] Tappable areas ≥ 48 dp on Android (visual size unchanged)
+- [ ] System UI stays native: permissions, share sheet, notifications, biometrics, keyboard
+- [ ] Tested on 3-button and gesture navigation, a small (360 dp) phone, a tablet/foldable, Android 13–15
+
+## 11. Simplicity and component states
+Details and examples in `simplicity-and-component-styling.md`.
+- [ ] Exactly one filled (primary) button per screen/pane; ≤ 2 tinted, ≤ 3 plain; no two buttons competing
+- [ ] Buttons come from the 3 kinds x 2 sizes system (`IOSButton`): no outlined, gradient, shadowed, or badge variants
+- [ ] Labels are verb or verb + object, 1–2 words, consistent for the same action; no "OK"/"Submit"
+- [ ] Nav bar has ≤ 2 trailing icons or 1 text action; sheets use Cancel left / Save right with no extra bottom button
+- [ ] Secondary and rare actions sit in an overflow menu, sheet, swipe action, or detail screen (named location for each)
+- [ ] Every original action is still reachable; mapping table supplied; nothing deleted
+- [ ] Forms: one input per row, grouped sections, inline validation after blur/submit, progressive disclosure for optional fields, ≤ 5–6 fields per step
+- [ ] Cards: 1 title + 1 subtitle + 1 meta + ≤ 1 action; no nested cards; no per-row button clusters
+- [ ] Each interactive component has all states styled: default, pressed, disabled, loading (stable width), selected, error, focus
+- [ ] Controls grow with large text (min height, not fixed height); verified at 200%
+- [ ] Hit areas ≥ 44 pt iOS / 48 dp Android; icon-only buttons carry semantic labels
+- [ ] Destructive actions are not large red buttons next to the primary; confirmed via alert
+- [ ] Chips ≤ 6 visible; one control type per job (not chips + tabs + segments for the same filter)

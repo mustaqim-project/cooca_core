@@ -4,6 +4,8 @@ Contents: App shell · Lists & forms · Buttons · Inputs · Overlays · Feedbac
 
 Verify API availability against the user's Flutter version (`flutter --version`); a few newer widgets (e.g. `showCupertinoSheet`, `CupertinoSheetRoute`) require recent stable releases. When unsure, say so and offer a fallback.
 
+> **Android note:** Cupertino widgets render fine on Android, but a few need setup there: Material ancestor for some widgets (use `IOSHybridApp`), bouncing scroll physics for `CupertinoSliverRefreshControl`, localization delegates for pickers, and an explicit font (Inter) for every text slot. See `android-ios-look.md`.
+
 ## App shell
 | Material | iOS replacement |
 |---|---|
@@ -27,14 +29,18 @@ Verify API availability against the user's Flutter version (`flutter --version`)
 | `DropdownButton` | `CupertinoContextMenu`/popup menu, `CupertinoPicker` in `showCupertinoModalPopup` |
 
 ## Buttons
+Use the skill's `IOSButton` family (see `simplicity-and-component-styling.md`); it wraps `CupertinoButton` and styles every state.
 | Material | iOS replacement |
 |---|---|
-| `ElevatedButton` | `CupertinoButton.filled` |
-| `TextButton` | `CupertinoButton` (plain, tint text) |
-| `OutlinedButton` | `CupertinoButton.tinted` (or gray fill) |
-| `IconButton` | `CupertinoButton(padding: EdgeInsets.zero, minimumSize: Size(44,44))` |
+| `ElevatedButton` / `FilledButton` | `IOSButton(label, kind: IOSButtonKind.filled)`: one per screen |
+| `FilledButton.tonal` | `IOSButton(label, kind: IOSButtonKind.tinted)` |
+| `TextButton` | `IOSButton(label, kind: IOSButtonKind.plain)` |
+| `OutlinedButton` | Not an iOS pattern: use tinted or plain |
+| `IconButton` | `IOSIconButton(icon, semanticLabel: …)`: 44 pt / 48 dp hit area |
+| `Chip` / `FilterChip` | `IOSChip(label, selected: …)` (≤ 6 visible) |
+| `PopupMenuButton` | `showIOSActionMenu` (action sheet; popover on tablets) |
 
-Note: `CupertinoButton`'s sizing parameter has changed across versions (`minSize` → `minimumSize`). Check the project's Flutter version.
+Note: `CupertinoButton`'s sizing parameter has changed across versions (`minSize` → `minimumSize`); `IOSButton` avoids it by using constraints.
 
 ## Inputs
 | Material | iOS replacement |
@@ -76,10 +82,18 @@ Note: `CupertinoButton`'s sizing parameter has changed across versions (`minSize
 
 ## Snippets
 
-### App shell with tabs
+### App shell with tabs (iOS and Android)
 ```dart
-CupertinoApp(
-  theme: buildIOSTheme(),
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await IOSSystemUi.init();           // edge-to-edge
+  runApp(const MyApp());
+}
+
+// IOSApp = CupertinoApp + IOSScrollBehavior + system-bar contrast. Use IOSHybridApp if Material widgets are needed.
+IOSApp(
+  localizationsDelegates: const [GlobalCupertinoLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalMaterialLocalizations.delegate],
+  supportedLocales: const [Locale('id'), Locale('en')],
   home: CupertinoTabScaffold(
     tabBar: CupertinoTabBar(items: const [
       BottomNavigationBarItem(icon: Icon(CupertinoIcons.house), activeIcon: Icon(CupertinoIcons.house_fill), label: 'Home'),
@@ -90,12 +104,11 @@ CupertinoApp(
   ),
 );
 ```
-`CupertinoTabView` gives each tab its own navigator so state and back stack persist.
+`CupertinoTabView` gives each tab its own navigator so state and back stack persist. On Android, add `PopScope` around the shell so system back returns to the first tab before exiting.
 
 ### Adaptive app shell (tab bar on phone, sidebar on tablet)
 ```dart
-CupertinoApp(
-  theme: buildIOSTheme(),
+IOSApp(
   home: IOSAdaptiveScaffold(destinations: [
     IOSDestination(label: 'Home', icon: CupertinoIcons.house, selectedIcon: CupertinoIcons.house_fill, builder: (_) => const HomePage()),
     IOSDestination(label: 'Orders', icon: CupertinoIcons.doc_text, selectedIcon: CupertinoIcons.doc_text_fill, builder: (_) => const OrdersPage()),
@@ -171,6 +184,7 @@ CupertinoButton(
 Prefer wrapping custom cards in `CupertinoButton` (with `pressedOpacity: 0.6`) rather than `InkWell`, so the press state matches iOS.
 
 ## Useful packages (verify current maintenance before recommending)
+- `flutter_localizations` — required for non-English Cupertino pickers/toolbars (Indonesian, etc.)
 - `cupertino_icons` — iOS-style icon set (SF-like)
 - `flutter_slidable` — swipe actions on rows
 - `sf_symbols`-style packages — exist but check license/maintenance; SF Symbols are Apple-platform-only

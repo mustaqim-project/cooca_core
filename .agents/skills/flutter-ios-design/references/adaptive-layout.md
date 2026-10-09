@@ -21,6 +21,8 @@ Design for the **width actually available to the app window**, not for a device 
 | iPad Pro 11" | 834 × 1194 |
 | iPad Pro 13" | 1032 × 1376 |
 
+Android (dp = Flutter logical px): small phone 360×640, common 393×852 / 412×915, large 432×960; tablets ≈ 800×1280 (portrait) and 1280×800 (landscape); foldables ≈ 360–400 wide folded, ≈ 670–840 wide unfolded. Android's own window size classes (Compact < 600, Medium 600–839, Expanded ≥ 840) line up with the classes below; keep one set of thresholds for both platforms.
+
 Landscape swaps width/height (iPad landscape ≈ 1024–1376 wide). Split View can leave the app anywhere from roughly 320 pt to most of the screen. Treat these as test targets, not constants in code.
 
 ## 3. Size classes (use these everywhere)
@@ -73,6 +75,13 @@ CallbackShortcuts(
 )
 ```
 
+## 6b. Android specifics for adaptive layout
+- **Foldables**: read `MediaQuery.displayFeaturesOf(context)` and wrap hinge-aware screens in `DisplayFeatureSubScreen` so panes never straddle a hinge; keep state when the device folds/unfolds (the width change is just another resize).
+- **Multi-window / freeform / desktop mode**: Android windows resize freely, so width-based layout is mandatory; never assume a fixed tablet size.
+- **Navigation modes**: bottom inset differs between 3-button and gesture navigation; the sidebar and tab bar must clear it.
+- **Back**: in split view, system back first clears the detail selection on `regular`/`wide` if the detail was opened inline, then pops; implement with `PopScope`.
+- **Input**: tablets and Chromebooks bring mouse, trackpad, and keyboard; the hover/shortcut/focus guidance applies equally.
+
 ## 7. Orientation & multitasking
 - iPad apps should support **all four orientations**; locking to portrait disables multitasking participation. Only lock orientation for truly orientation-specific screens (camera, video).
 - iOS: ensure `UISupportedInterfaceOrientations~ipad` in `ios/Runner/Info.plist` lists all orientations and do not set `UIRequiresFullScreen` unless required.
@@ -80,7 +89,7 @@ CallbackShortcuts(
 - Phones in landscape are `compact` height; keep content scrollable rather than designing a bespoke landscape layout, unless the app is landscape-first (e.g., POS on a tablet).
 
 ## 8. Testing (do this before calling the redesign done)
-Test at least: **393×852** (phone), **744×1133** and **820×1180** (iPad portrait), **1180×820** (iPad landscape), **320×568-ish** narrow split. Verify no `RenderFlex overflow`, selection survives resize, and text at 200% scale still scrolls rather than clips.
+Test at least: **393×852** and **360×640** (phones), **412×915** (Android phone), **744×1133** and **820×1180** (iPad portrait), **1180×820** (iPad landscape), **320×568-ish** narrow split. Verify no `RenderFlex overflow`, selection survives resize, and text at 200% scale still scrolls rather than clips.
 
 ```dart
 testWidgets('layout adapts without overflow', (tester) async {
