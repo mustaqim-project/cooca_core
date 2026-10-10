@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api\V1\Inventory;
 use App\Domain\Inventory\StockService;
 use App\Http\Controllers\Controller;
 use App\Models\InventoryStock;
+use App\Models\Location;
 use App\Models\StockMovement;
 use App\Support\Context;
 use Illuminate\Http\JsonResponse;
@@ -26,11 +27,16 @@ final class InventoryController extends Controller
     {
         $business = Context::requireBusiness();
 
-        $query = InventoryStock::where('business_id', $business->id)
+        $locations = Location::where('business_id', $business->id)
+            ->where('is_active', true)
+            ->get(['id', 'name', 'type', 'is_primary']);
+
+        $query = InventoryStock::where('inventory_stocks.business_id', $business->id)
+            ->whereHas('product', fn ($q) => $q->goods())
             ->with(['product.outputUnit', 'product.category', 'location']);
 
         if ($request->filled('location_id')) {
-            $query->where('location_id', $request->get('location_id'));
+            $query->where('inventory_stocks.location_id', $request->get('location_id'));
         }
 
         if ($request->boolean('low_stock_only')) {
@@ -47,24 +53,66 @@ final class InventoryController extends Controller
             });
         }
 
-        $stocks = $query->paginate(25);
+        $perPage = (int) $request->get('per_page', 25);
+        $stocks = $query->paginate($perPage);
 
-        // Low stock count & total valuation
+        // Low stock count & total valuation (SSOT matching web)
         $lowStockCount = InventoryStock::where('business_id', $business->id)
             ->whereHas('product', function ($q) {
                 $q->whereRaw('inventory_stocks.quantity <= products.min_stock');
             })
             ->count();
 
-        $totalValuation = (float) (InventoryStock::where('business_id', $business->id)
-            ->selectRaw('SUM(quantity * last_cost) as total_val')
+        $totalValuation = (float) (InventoryStock::where('inventory_stocks.business_id', $business->id)
+            ->leftJoin('products', 'products.id', '=', 'inventory_stocks.product_id')
+            ->selectRaw('SUM(inventory_stocks.quantity * COALESCE(NULLIF(inventory_stocks.last_cost, 0), products.base_cost, 0)) as total_val')
             ->value('total_val') ?? 0.0);
 
+        // Map stock items with computed valuation & status
+        $stockItems = collect($stocks->items())->map(function (InventoryStock $st) {
+            $unitCost = (float) ($st->last_cost > 0 ? $st->last_cost : ($st->product->base_cost ?? 0));
+            $qty = (float) $st->quantity;
+            $minStock = (float) ($st->product->min_stock ?? 0);
+
+            return [
+                'id' => $st->id,
+                'product_id' => $st->product_id,
+                'location_id' => $st->location_id,
+                'quantity' => $qty,
+                'last_cost' => (float) $st->last_cost,
+                'unit_cost' => $unitCost,
+                'total_valuation' => $qty * $unitCost,
+                'is_low_stock' => $qty <= $minStock,
+                'is_out_of_stock' => $qty <= 0,
+                'product' => $st->product ? [
+                    'id' => $st->product->id,
+                    'name' => $st->product->name,
+                    'code' => $st->product->code,
+                    'selling_price' => (float) $st->product->selling_price,
+                    'base_cost' => (float) $st->product->base_cost,
+                    'min_stock' => $minStock,
+                    'category_name' => $st->product->category?->name ?? 'Umum',
+                    'unit_code' => $st->product->outputUnit?->code ?? 'pcs',
+                    'image_url' => $st->product->image_url,
+                ] : null,
+                'location' => $st->location ? [
+                    'id' => $st->location->id,
+                    'name' => $st->location->name,
+                    'type' => $st->location->type ?? 'Outlet',
+                    'is_primary' => (bool) $st->location->is_primary,
+                ] : null,
+            ];
+        });
+
         return response()->json([
-            'stocks' => $stocks->items(),
+            'success' => true,
+            'data' => $stockItems,
+            'stocks' => $stockItems,
+            'locations' => $locations,
             'meta' => [
                 'low_stock_count' => $lowStockCount,
                 'total_valuation' => $totalValuation,
+                'locations_count' => $locations->count(),
             ],
             'pagination' => [
                 'current_page' => $stocks->currentPage(),
@@ -83,11 +131,27 @@ final class InventoryController extends Controller
         $business = Context::requireBusiness();
         $user = $request->user();
 
+        // Graceful location resolution if client sends dummy or empty location ID
+        $locInput = $request->input('location_id');
+        if (empty($locInput) || $locInput === 'main_warehouse' || $locInput === 'default') {
+            $defaultLocId = Location::where('business_id', $business->id)->where('is_primary', true)->value('id')
+                ?? Location::where('business_id', $business->id)->value('id');
+            if ($defaultLocId) {
+                $request->merge(['location_id' => $defaultLocId]);
+            }
+        }
+
+        // Support actual_quantity as an alias for new_quantity
+        if ($request->filled('actual_quantity') && ! $request->filled('new_quantity')) {
+            $request->merge(['new_quantity' => $request->input('actual_quantity')]);
+        }
+
         $validated = $request->validate([
             'location_id' => ['required', 'string', 'exists:locations,id'],
             'product_id' => ['nullable', 'string', 'exists:products,id', 'required_without:material_id'],
             'material_id' => ['nullable', 'string', 'exists:materials,id', 'required_without:product_id'],
             'new_quantity' => ['nullable', 'numeric', 'min:0'],
+            'actual_quantity' => ['nullable', 'numeric', 'min:0'],
             'type' => ['nullable', 'string', 'in:in,out,set'],
             'quantity' => ['nullable', 'numeric', 'min:0'],
             'unit_cost' => ['nullable', 'numeric', 'min:0'],
@@ -131,6 +195,7 @@ final class InventoryController extends Controller
         $stock->refresh()->load(['product.outputUnit', 'location']);
 
         return response()->json([
+            'success' => true,
             'message' => 'Stok produk berhasil disesuaikan.',
             'stock' => $stock,
             'new_quantity' => (float) $stock->quantity,
@@ -160,10 +225,28 @@ final class InventoryController extends Controller
             $query->where('movement_type', $request->get('movement_type'));
         }
 
-        $movements = $query->paginate(30);
+        $movements = $query->paginate((int) $request->get('per_page', 30));
+
+        $items = collect($movements->items())->map(function (StockMovement $m) {
+            return [
+                'id' => $m->id,
+                'movement_type' => $m->movement_type,
+                'quantity_change' => (float) $m->quantity_change,
+                'unit_cost' => (float) $m->unit_cost,
+                'notes' => $m->notes ?? '-',
+                'created_at' => $m->created_at?->toIso8601String(),
+                'product_name' => $m->product?->name ?? 'Produk',
+                'product_code' => $m->product?->code ?? '-',
+                'unit_code' => $m->product?->outputUnit?->code ?? 'pcs',
+                'location_name' => $m->location?->name ?? 'Outlet',
+                'creator_name' => $m->creator?->name ?? 'Sistem',
+            ];
+        });
 
         return response()->json([
-            'movements' => $movements->items(),
+            'success' => true,
+            'data' => $items,
+            'movements' => $items,
             'pagination' => [
                 'current_page' => $movements->currentPage(),
                 'last_page' => $movements->lastPage(),

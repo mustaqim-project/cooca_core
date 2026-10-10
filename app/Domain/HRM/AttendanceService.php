@@ -71,39 +71,39 @@ final class AttendanceService
             ]);
         }
 
-        // 2. Biometric Face Verification (if provided or enforced)
+        // 2. Biometric Face Verification (Wajib Terdaftar & Wajib Cocok)
         $faceVerified = false;
         $faceScore = null;
         $faceData = $data['face_data'] ?? $data['face_embedding'] ?? $data['photo'] ?? null;
 
-        if (! empty($faceData)) {
-            $membershipForFace = BusinessMembership::where('business_id', $business->id)
-                ->where('user_id', $user->id)
-                ->first();
+        $membershipForFace = BusinessMembership::where('business_id', $business->id)
+            ->where('user_id', $user->id)
+            ->first();
 
-            // Auto-enroll initial face template on first clock-in if employee hasn't registered yet
-            if ($membershipForFace && empty($membershipForFace->face_biometric_template)) {
-                try {
-                    $this->faceService->registerFaceTemplate($business, $user, $faceData);
-                    $faceVerified = true;
-                    $faceScore = 1.0;
-                } catch (\Throwable $e) {
-                    Log::warning("Auto-enrollment face on clockIn failed for user {$user->id}: " . $e->getMessage());
-                }
-            } else {
-                $threshold = (float) ($data['face_threshold'] ?? FaceVerificationService::DEFAULT_SIMILARITY_THRESHOLD);
-                $verificationResult = $this->faceService->verifyFace($business, $user, $faceData, $threshold);
-
-                if (! $verificationResult['verified']) {
-                    throw ValidationException::withMessages([
-                        'face' => $verificationResult['message'],
-                    ]);
-                }
-
-                $faceVerified = true;
-                $faceScore = $verificationResult['similarity'];
-            }
+        // Validasi: Wajib mendaftarkan wajah terlebih dahulu sebelum presensi
+        if (! $membershipForFace || ! $membershipForFace->hasFaceRegistered()) {
+            throw ValidationException::withMessages([
+                'face' => 'Template biometrik wajah karyawan belum terdaftar. Anda wajib mendaftarkan wajah terlebih dahulu sebelum dapat melakukan presensi.',
+            ]);
         }
+
+        if (empty($faceData)) {
+            throw ValidationException::withMessages([
+                'face' => 'Data tangkapan kamera wajah wajib disertakan untuk verifikasi pencocokan absensi.',
+            ]);
+        }
+
+        $threshold = (float) ($data['face_threshold'] ?? FaceVerificationService::DEFAULT_SIMILARITY_THRESHOLD);
+        $verificationResult = $this->faceService->verifyFace($business, $user, $faceData, $threshold);
+
+        if (! $verificationResult['verified']) {
+            throw ValidationException::withMessages([
+                'face' => $verificationResult['message'],
+            ]);
+        }
+
+        $faceVerified = true;
+        $faceScore = $verificationResult['similarity'];
 
         // 3. Resolve Location Policy & Exception Engine
         $membership = BusinessMembership::where('business_id', $business->id)
@@ -397,37 +397,39 @@ final class AttendanceService
                 ]);
             }
 
-            // Biometric Face Verification on clock-out (if provided)
+            // 2. Biometric Face Verification on clock-out (Wajib Terdaftar & Wajib Cocok)
             $faceVerified = $attendance->face_verified;
             $faceScore = $attendance->face_similarity_score;
             $faceData = $data['face_data'] ?? $data['face_embedding'] ?? $data['photo'] ?? null;
 
-            if (! empty($faceData)) {
-                $membershipForFace = BusinessMembership::where('business_id', $business->id)
-                    ->where('user_id', $user->id)
-                    ->first();
+            $membershipForFace = BusinessMembership::where('business_id', $business->id)
+                ->where('user_id', $user->id)
+                ->first();
 
-                if ($membershipForFace && empty($membershipForFace->face_biometric_template)) {
-                    try {
-                        $this->faceService->registerFaceTemplate($business, $user, $faceData);
-                        $faceVerified = true;
-                        $faceScore = 1.0;
-                    } catch (\Throwable $e) {
-                        Log::warning("Auto-enrollment face on clockOut failed for user {$user->id}: " . $e->getMessage());
-                    }
-                } else {
-                    $threshold = (float) ($data['face_threshold'] ?? FaceVerificationService::DEFAULT_SIMILARITY_THRESHOLD);
-                    $verificationResult = $this->faceService->verifyFace($business, $user, $faceData, $threshold);
-
-                    if (! $verificationResult['verified']) {
-                        throw ValidationException::withMessages([
-                            'face' => $verificationResult['message'],
-                        ]);
-                    }
-                    $faceVerified = true;
-                    $faceScore = $verificationResult['similarity'];
-                }
+            // Validasi: Wajib mendaftarkan wajah terlebih dahulu sebelum presensi
+            if (! $membershipForFace || ! $membershipForFace->hasFaceRegistered()) {
+                throw ValidationException::withMessages([
+                    'face' => 'Template biometrik wajah karyawan belum terdaftar. Anda wajib mendaftarkan wajah terlebih dahulu sebelum dapat melakukan presensi.',
+                ]);
             }
+
+            if (empty($faceData)) {
+                throw ValidationException::withMessages([
+                    'face' => 'Data tangkapan kamera wajah wajib disertakan untuk verifikasi presensi pulang.',
+                ]);
+            }
+
+            $threshold = (float) ($data['face_threshold'] ?? FaceVerificationService::DEFAULT_SIMILARITY_THRESHOLD);
+            $verificationResult = $this->faceService->verifyFace($business, $user, $faceData, $threshold);
+
+            if (! $verificationResult['verified']) {
+                throw ValidationException::withMessages([
+                    'face' => $verificationResult['message'],
+                ]);
+            }
+
+            $faceVerified = true;
+            $faceScore = $verificationResult['similarity'];
 
             $membership = BusinessMembership::where('business_id', $business->id)
                 ->where('user_id', $user->id)

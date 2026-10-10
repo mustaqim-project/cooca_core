@@ -237,9 +237,14 @@ final class PosTerminalController extends Controller
             'locations' => $locations,
             'active_shift' => $activeShift ? [
                 'id' => $activeShift->id,
+                'cashier_name' => $activeShift->user?->name ?? $user?->name ?? 'Kasir',
+                'location_name' => $activeShift->location?->name ?? 'Utama',
                 'opened_at' => $activeShift->opened_at,
                 'opening_cash' => (float) $activeShift->opening_cash,
                 'status' => $activeShift->status,
+                'total_cash_sales' => (float) $activeShift->total_cash_sales,
+                'total_non_cash_sales' => (float) $activeShift->total_non_cash_sales,
+                'expected_cash' => (float) ($activeShift->opening_cash + $activeShift->total_cash_sales),
             ] : null,
             'categories' => $categories,
             'products' => $products,
@@ -385,6 +390,8 @@ final class PosTerminalController extends Controller
 
         $activeShift = $this->shiftService->getActiveShift($business, $user, $validated['location_id'] ?? null);
 
+        $isQrisCheckout = (count($validated['payments']) === 1 && strtolower((string) ($validated['payments'][0]['payment_method'] ?? '')) === 'qris');
+
         try {
             $order = $this->orderService->checkout(
                 business: $business,
@@ -392,6 +399,9 @@ final class PosTerminalController extends Controller
                 itemsData: $validated['items'],
                 paymentsData: $validated['payments'],
                 attributes: [
+                    'waiting_payment' => $isQrisCheckout,
+                    'payment_gateway' => $isQrisCheckout ? PosOrder::GATEWAY_TRIPAY : PosOrder::GATEWAY_MANUAL,
+                    'payment_channel' => $isQrisCheckout ? 'QRIS' : null,
                     'customer_id' => $validated['customer_id'] ?? null,
                     'customer_name_guest' => $validated['customer_name_guest'] ?? null,
                     'customer_phone_guest' => $validated['customer_phone_guest'] ?? null,
@@ -423,10 +433,6 @@ final class PosTerminalController extends Controller
                 $order->client_uuid = $validated['client_uuid'];
                 $order->save();
             }
-
-            $isQrisCheckout = collect($validated['payments'])->contains(function ($payment) {
-                return strtolower((string) ($payment['payment_method'] ?? '')) === 'qris';
-            });
 
             if ($isQrisCheckout) {
                 $tripayRes = $this->tripayService->createPosOrderTransaction($order, 'QRIS');

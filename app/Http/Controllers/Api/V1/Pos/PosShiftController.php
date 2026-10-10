@@ -72,15 +72,32 @@ final class PosShiftController extends Controller
 
         if (! $activeShift) {
             return response()->json([
+                'success' => true,
                 'active_shift' => null,
+                'shift' => null,
+                'data' => null,
                 'message' => 'Tidak ada shift kasir yang aktif saat ini.',
             ], Response::HTTP_OK);
         }
 
         $summary = $this->shiftService->getShiftSummary($activeShift);
+        $loadedShift = $activeShift->load(['user:id,name', 'location:id,name', 'register:id,name']);
 
         return response()->json([
-            'active_shift' => $activeShift->load(['user:id,name', 'location:id,name', 'register:id,name']),
+            'success' => true,
+            'active_shift' => $loadedShift,
+            'shift' => $loadedShift,
+            'data' => [
+                'id' => $loadedShift->id,
+                'cashier_name' => $loadedShift->user?->name ?? $user?->name ?? 'Kasir',
+                'location_name' => $loadedShift->location?->name ?? 'Utama',
+                'opening_cash' => (float) $loadedShift->opening_cash,
+                'status' => $loadedShift->status,
+                'opened_at' => $loadedShift->opened_at,
+                'total_cash_sales' => (float) $loadedShift->total_cash_sales,
+                'total_non_cash_sales' => (float) $loadedShift->total_non_cash_sales,
+                'expected_cash' => (float) ($loadedShift->opening_cash + $loadedShift->total_cash_sales),
+            ],
             'summary' => $summary,
         ], Response::HTTP_OK);
     }
@@ -104,19 +121,39 @@ final class PosShiftController extends Controller
         $openingCash = (float) ($validated['opening_cash'] ?? 0.0);
         $openingDenominations = (array) ($validated['opening_denominations'] ?? []);
 
+        $locationId = $validated['location_id'] ?? null;
+        if (! $locationId) {
+            $locationId = Location::where('business_id', $business->id)->where('is_primary', true)->value('id')
+                ?? Location::where('business_id', $business->id)->value('id');
+        }
+
         $shift = $this->shiftService->openShift(
             business: $business,
             user: $user,
             openingCash: $openingCash,
             posRegisterId: $validated['pos_register_id'] ?? null,
-            locationId: $validated['location_id'] ?? null,
+            locationId: $locationId,
             notes: $validated['notes'] ?? null,
             openingDenominations: $openingDenominations
         );
 
+        $loadedShift = $shift->load(['user:id,name', 'location:id,name', 'register:id,name']);
+
         return response()->json([
+            'success' => true,
             'message' => 'Shift kasir berhasil dibuka dengan modal awal Rp ' . number_format((float) $shift->opening_cash, 0, ',', '.'),
-            'shift' => $shift->load(['user:id,name', 'location:id,name', 'register:id,name']),
+            'shift' => $loadedShift,
+            'data' => [
+                'id' => $loadedShift->id,
+                'cashier_name' => $loadedShift->user?->name ?? $user->name,
+                'location_name' => $loadedShift->location?->name ?? 'Utama',
+                'opening_cash' => (float) $loadedShift->opening_cash,
+                'status' => $loadedShift->status,
+                'opened_at' => $loadedShift->opened_at,
+                'total_cash_sales' => (float) $loadedShift->total_cash_sales,
+                'total_non_cash_sales' => (float) $loadedShift->total_non_cash_sales,
+                'expected_cash' => (float) ($loadedShift->opening_cash + $loadedShift->total_cash_sales),
+            ],
         ], Response::HTTP_CREATED);
     }
 
@@ -127,13 +164,16 @@ final class PosShiftController extends Controller
     {
         $business = Context::requireBusiness();
         if ($posShift->business_id !== $business->id) {
-            return response()->json(['message' => 'Shift tidak ditemukan.'], Response::HTTP_NOT_FOUND);
+            return response()->json(['success' => false, 'message' => 'Shift tidak ditemukan.'], Response::HTTP_NOT_FOUND);
         }
 
         $summary = $this->shiftService->getShiftSummary($posShift);
+        $loadedShift = $posShift->load(['user:id,name', 'location:id,name', 'register:id,name']);
 
         return response()->json([
-            'shift' => $posShift->load(['user:id,name', 'location:id,name', 'register:id,name']),
+            'success' => true,
+            'shift' => $loadedShift,
+            'data' => $loadedShift,
             'summary' => $summary,
         ], Response::HTTP_OK);
     }
@@ -145,7 +185,7 @@ final class PosShiftController extends Controller
     {
         $business = Context::requireBusiness();
         if ($posShift->business_id !== $business->id) {
-            return response()->json(['message' => 'Shift tidak ditemukan.'], Response::HTTP_NOT_FOUND);
+            return response()->json(['success' => false, 'message' => 'Shift tidak ditemukan.'], Response::HTTP_NOT_FOUND);
         }
 
         $validated = $request->validate([
@@ -166,9 +206,23 @@ final class PosShiftController extends Controller
             cashierNotes: $validated['cashier_notes'] ?? null
         );
 
+        $loadedClosed = $closed->load(['user:id,name', 'location:id,name', 'register:id,name']);
+
         return response()->json([
+            'success' => true,
             'message' => 'Shift kasir berhasil ditutup dan direkonsiliasi.',
-            'shift' => $closed->load(['user:id,name', 'location:id,name', 'register:id,name']),
+            'shift' => $loadedClosed,
+            'data' => [
+                'id' => $loadedClosed->id,
+                'cashier_name' => $loadedClosed->user?->name ?? 'Kasir',
+                'location_name' => $loadedClosed->location?->name ?? 'Utama',
+                'opening_cash' => (float) $loadedClosed->opening_cash,
+                'status' => $loadedClosed->status,
+                'closed_at' => $loadedClosed->closed_at,
+                'closing_cash_actual' => (float) $loadedClosed->closing_cash_actual,
+                'closing_cash_expected' => (float) $loadedClosed->closing_cash_expected,
+                'cash_difference' => (float) $loadedClosed->cash_difference,
+            ],
         ], Response::HTTP_OK);
     }
 
@@ -179,7 +233,7 @@ final class PosShiftController extends Controller
     {
         $business = Context::requireBusiness();
         if ($posShift->business_id !== $business->id) {
-            return response()->json(['message' => 'Shift tidak ditemukan.'], Response::HTTP_NOT_FOUND);
+            return response()->json(['success' => false, 'message' => 'Shift tidak ditemukan.'], Response::HTTP_NOT_FOUND);
         }
 
         $user = $request->user();
@@ -203,6 +257,7 @@ final class PosShiftController extends Controller
         $label = $validated['type'] === 'cash_in' ? 'Kas Masuk' : 'Kas Keluar';
 
         return response()->json([
+            'success' => true,
             'message' => "{$label} sebesar Rp " . number_format((float) $movement->amount, 0, ',', '.') . ' berhasil dicatat.',
             'movement' => $movement,
         ], Response::HTTP_CREATED);

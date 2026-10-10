@@ -528,14 +528,14 @@ Route::prefix('v1')->group(function (): void {
                 Route::post('/verify-pin', [PosTerminalController::class, 'verifySupervisorPin'])->middleware('throttle:5,1');
 
                 // Shift Management
-                Route::get('/shifts', [PosShiftController::class, 'index'])->middleware('require.permission:pos.orders');
-                Route::post('/shifts/open', [PosShiftController::class, 'open'])->middleware('require.permission:pos.orders');
-                Route::post('/shifts/{posShift}/close', [PosShiftController::class, 'close'])->middleware('require.permission:pos.orders');
-                Route::get('/shifts/{posShift}/summary', [PosShiftController::class, 'summary'])->middleware('require.permission:pos.orders');
-                Route::post('/shifts/{posShift}/cash-movement', [PosShiftController::class, 'recordCashMovement'])->middleware('require.permission:pos.orders');
-                Route::get('/shifts/active', [PosShiftController::class, 'current'])->middleware('require.permission:pos.orders');
-                Route::get('/shifts/current', [PosShiftController::class, 'current'])->middleware('require.permission:pos.orders');
-                Route::post('/shifts/{posShift}/print', [PosShiftController::class, 'printSummary'])->middleware('require.permission:pos.orders');
+                Route::get('/shifts', [PosShiftController::class, 'index'])->middleware('require.permission:pos.terminal,pos.orders');
+                Route::post('/shifts/open', [PosShiftController::class, 'open'])->middleware('require.permission:pos.terminal,pos.orders');
+                Route::post('/shifts/{posShift}/close', [PosShiftController::class, 'close'])->middleware('require.permission:pos.terminal,pos.orders');
+                Route::get('/shifts/{posShift}/summary', [PosShiftController::class, 'summary'])->middleware('require.permission:pos.terminal,pos.orders');
+                Route::post('/shifts/{posShift}/cash-movement', [PosShiftController::class, 'recordCashMovement'])->middleware('require.permission:pos.terminal,pos.orders');
+                Route::get('/shifts/active', [PosShiftController::class, 'current'])->middleware('require.permission:pos.terminal,pos.orders');
+                Route::get('/shifts/current', [PosShiftController::class, 'current'])->middleware('require.permission:pos.terminal,pos.orders');
+                Route::post('/shifts/{posShift}/print', [PosShiftController::class, 'printSummary'])->middleware('require.permission:pos.terminal,pos.orders');
 
                 // Orders
                 Route::get('/orders', [PosOrderController::class, 'index'])->middleware('require.permission:pos.orders');
@@ -566,6 +566,7 @@ Route::prefix('v1')->group(function (): void {
             Route::prefix('inventory')->group(function (): void {
                 Route::get('/stocks', [InventoryController::class, 'stocks'])->middleware('require.permission:inventory.view');
                 Route::get('/stocks/{product}/movements', [InventoryController::class, 'movements'])->middleware('require.permission:inventory.view');
+                Route::get('/movements', [InventoryController::class, 'movements'])->middleware('require.permission:inventory.view');
                 Route::post('/adjustments', [InventoryController::class, 'adjust'])->middleware('require.permission:inventory.manage');
 
                 // Stock Opname (Physical Count)

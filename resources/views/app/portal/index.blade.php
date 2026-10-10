@@ -343,6 +343,20 @@
                             <span>{{ __('portal.duty_duration') }}: <strong class="font-mono tabular-nums" x-text="liveDurationText">00:00:00</strong></span>
                         </div>
                     </template>
+
+                    {{-- Warning Banner if Face Not Registered Yet --}}
+                    <template x-if="!hasFaceRegistered">
+                        <div class="p-3.5 rounded-[16px] bg-[#FF9500]/10 border border-[#FF9500]/25 flex items-start gap-2.5 text-xs text-[#FF9500]">
+                            <i data-lucide="alert-triangle" class="w-4 h-4 shrink-0 mt-0.5"></i>
+                            <div class="flex-1 space-y-1">
+                                <span class="font-bold block text-black dark:text-white">Biometrik Wajah Belum Terdaftar</span>
+                                <p class="text-[11.5px] text-black/70 dark:text-white/70">Presensi wajib dicocokkan dengan biometrik wajah. Harap daftarkan wajah Anda terlebih dahulu.</p>
+                                <button type="button" @click="openFaceRegisterModal()" class="mt-1 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-[#FF9500] text-white font-bold text-xs shadow-xs hover:bg-[#E08500] transition active:scale-95 cursor-pointer">
+                                    <i data-lucide="scan-face" class="w-3.5 h-3.5"></i> Daftarkan Wajah Sekarang
+                                </button>
+                            </div>
+                        </div>
+                    </template>
                 </div>
 
                 {{-- Action Buttons: 1-Direction Frontal Face Biometric + Geofence Live Map --}}
@@ -1966,6 +1980,12 @@ function portalAttendance(config) {
 
         // --- 1-DIRECTION FRONTAL FACE ATTENDANCE & INTERACTIVE LIVE MAP ENGINE ---
         startFaceAttendance(type = 'in') {
+            if (!this.hasFaceRegistered) {
+                this.showToast('error', 'Wajah belum terdaftar! Anda wajib mendaftarkan template biometrik wajah terlebih dahulu sebelum dapat melakukan presensi.');
+                this.openFaceRegisterModal();
+                return;
+            }
+
             this.attendanceActionType = type;
             this.attendanceStep = 'camera';
             this.faceVerifiedSuccess = false;

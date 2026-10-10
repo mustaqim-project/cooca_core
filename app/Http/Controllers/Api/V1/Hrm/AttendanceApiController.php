@@ -385,7 +385,7 @@ final class AttendanceApiController extends Controller
                     'job_title' => $membership?->job_title ?? 'Karyawan',
                     'tenure_text' => $tenureText,
                     'attendance_mode' => $membership?->attendance_mode ?? 'geofenced',
-                    'face_registered' => ! empty($membership?->face_biometric_template),
+                    'face_registered' => (bool) ($membership?->hasFaceRegistered()),
                     'face_registered_at' => $membership?->face_registered_at?->toIso8601String(),
                     'leave_allowance' => $leaveAllowance,
                     'leave_used' => $leaveUsed,

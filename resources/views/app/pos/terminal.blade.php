@@ -2370,6 +2370,18 @@
                     </div>
                 </div>
 
+                {{-- Quick Bagi Rata (Split Evenly) Presets --}}
+                <div class="flex items-center gap-2 overflow-x-auto pb-1">
+                    <span class="text-[11px] font-bold text-black/50 dark:text-white/50 shrink-0 flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-8-6h16" /></svg>
+                        <span>Bagi Rata:</span>
+                    </span>
+                    <button type="button" @click="splitEvenly(2)" class="px-2.5 py-1 rounded-[8px] bg-black/5 dark:bg-white/10 hover:bg-[#007AFF] hover:text-white text-xs font-semibold text-black dark:text-white transition">2 Orang</button>
+                    <button type="button" @click="splitEvenly(3)" class="px-2.5 py-1 rounded-[8px] bg-black/5 dark:bg-white/10 hover:bg-[#007AFF] hover:text-white text-xs font-semibold text-black dark:text-white transition">3 Orang</button>
+                    <button type="button" @click="splitEvenly(4)" class="px-2.5 py-1 rounded-[8px] bg-black/5 dark:bg-white/10 hover:bg-[#007AFF] hover:text-white text-xs font-semibold text-black dark:text-white transition">4 Orang</button>
+                    <button type="button" @click="splitEvenly(5)" class="px-2.5 py-1 rounded-[8px] bg-black/5 dark:bg-white/10 hover:bg-[#007AFF] hover:text-white text-xs font-semibold text-black dark:text-white transition">5 Orang</button>
+                </div>
+
                 {{-- Dynamic Split Rows Container --}}
                 <div class="space-y-2.5 max-h-[42vh] overflow-y-auto pr-1">
                     <template x-for="(row, idx) in splitPaymentRows" :key="idx">
@@ -4757,15 +4769,34 @@
                 initSplitPayment() {
                     this.isSplitPayment = true;
                     if (this.splitPaymentRows.length === 0) {
-                        this.splitPaymentRows = [
-                            { payment_method: 'cash', amount: this.grandTotal, store_edc_terminal_id: '', reference_number: '' }
-                        ];
+                        this.splitEvenly(2);
+                    }
+                },
+                splitEvenly(n) {
+                    if (n < 2) return;
+                    const total = Math.round(this.grandTotal);
+                    const base = Math.floor(total / n);
+                    const remainder = total - (base * n);
+                    const methods = ['cash', 'qris', 'transfer', 'edc_debit', 'edc_credit'];
+                    this.splitPaymentRows = [];
+                    for (let i = 0; i < n; i++) {
+                        this.splitPaymentRows.push({
+                            payment_method: methods[i % methods.length] || 'cash',
+                            amount: i === 0 ? (base + remainder) : base,
+                            store_edc_terminal_id: '',
+                            reference_number: ''
+                        });
                     }
                 },
                 sanitizeSplitAmount(idx) {
                     if (this.splitPaymentRows[idx]) {
                         const val = Number(this.splitPaymentRows[idx].amount) || 0;
                         this.splitPaymentRows[idx].amount = Math.max(0, val);
+                        if (this.splitPaymentRows.length === 2) {
+                            const otherIdx = idx === 0 ? 1 : 0;
+                            const remaining = Math.max(0, Math.round(this.grandTotal) - this.splitPaymentRows[idx].amount);
+                            this.splitPaymentRows[otherIdx].amount = remaining;
+                        }
                     }
                 },
                 addSplitRow() {

@@ -74,9 +74,10 @@ final class InventoryWebController extends Controller
             })
             ->count();
 
-        $totalValuation = InventoryStock::where('business_id', $business->id)
-            ->selectRaw('SUM(quantity * last_cost) as total_val')
-            ->value('total_val') ?? 0.0;
+        $totalValuation = (float) (InventoryStock::where('inventory_stocks.business_id', $business->id)
+            ->leftJoin('products', 'products.id', '=', 'inventory_stocks.product_id')
+            ->selectRaw('SUM(inventory_stocks.quantity * COALESCE(NULLIF(inventory_stocks.last_cost, 0), products.base_cost, 0)) as total_val')
+            ->value('total_val') ?? 0.0);
 
         return view('app.inventory.stocks', compact('business', 'stocks', 'locations', 'products', 'lowStockCount', 'totalValuation'));
     }
