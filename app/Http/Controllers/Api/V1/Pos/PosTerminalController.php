@@ -61,27 +61,70 @@ final class PosTerminalController extends Controller
         // 3. Product Categories
         $categories = ProductCategory::where('business_id', $business->id)->get();
 
-        // 4. Products with active location stocks
+        // 4. Products with Selling Price and Effective Stock (SSOT matching Web Terminal)
+        $branchPrices = [];
+        $disabledProductIds = [];
+        if ($selectedLocationId) {
+            try {
+                $branchPrices = \App\Models\BranchProductPrice::where('business_id', $business->id)
+                    ->where('location_id', $selectedLocationId)
+                    ->where('is_available', true)
+                    ->whereNotNull('price')
+                    ->pluck('price', 'product_id')
+                    ->toArray();
+
+                $disabledProductIds = \App\Models\BranchProductPrice::where('business_id', $business->id)
+                    ->where('location_id', $selectedLocationId)
+                    ->where('is_available', false)
+                    ->pluck('product_id')
+                    ->toArray();
+            } catch (\Throwable) {
+                $branchPrices = [];
+                $disabledProductIds = [];
+            }
+        }
+
         $products = Product::where('business_id', $business->id)
-            ->where('is_active', true)
-            ->with(['category', 'outputUnit', 'channelPrices', 'stocks' => function ($q) use ($selectedLocationId) {
-                if ($selectedLocationId) {
-                    $q->where('location_id', $selectedLocationId);
-                }
-            }])
+            ->forPos()
+            ->when(!empty($disabledProductIds), function ($query) use ($disabledProductIds) {
+                $query->whereNotIn('id', $disabledProductIds);
+            })
+            ->with(['category', 'outputUnit', 'channelPrices'])
             ->get()
-            ->map(function (Product $p) use ($selectedLocationId) {
+            ->map(function (Product $p) use ($selectedLocationId, $branchPrices, $business) {
                 $isService = $p->isService();
-                $locStock = $p->stocks->first();
-                $channelPricesMap = [
-                    'dine_in' => (float) $p->selling_price,
-                    'takeaway' => (float) $p->selling_price,
-                ];
+                $sellingPrice = isset($branchPrices[$p->id]) ? (float) $branchPrices[$p->id] : (float) $p->selling_price;
+
+                try {
+                    $effectiveStock = $isService ? null : $p->calculateEffectiveStock($selectedLocationId);
+                } catch (\Throwable) {
+                    $effectiveStock = null;
+                }
+
+                $channelPricesMap = $business->isFoodIndustry()
+                    ? [
+                        'dine_in' => $sellingPrice,
+                        'takeaway' => $sellingPrice,
+                        'gofood' => $sellingPrice,
+                        'grabfood' => $sellingPrice,
+                        'shopeefood' => $sellingPrice,
+                    ]
+                    : [
+                        'standard' => $sellingPrice,
+                        'dine_in' => $sellingPrice,
+                        'takeaway' => $sellingPrice,
+                    ];
                 if ($p->relationLoaded('channelPrices')) {
                     foreach ($p->channelPrices as $cp) {
-                        $channelPricesMap[$cp->channel] = (float) $cp->price;
+                        $channelPricesMap[$cp->channel] = max((float) $cp->price, $sellingPrice);
                     }
                 }
+
+                $imgUrl = $p->image_url;
+                if ($imgUrl && !str_starts_with($imgUrl, 'http://') && !str_starts_with($imgUrl, 'https://')) {
+                    $imgUrl = url($imgUrl);
+                }
+
                 return [
                     'id' => $p->id,
                     'name' => $p->name,
@@ -94,12 +137,13 @@ final class PosTerminalController extends Controller
                     'category_name' => $p->category?->name,
                     'unit_id' => $p->output_unit_id,
                     'unit_code' => $p->outputUnit?->code ?? ($isService ? 'jasa' : 'satuan'),
-                    'selling_price' => (float) $p->selling_price,
+                    'selling_price' => $sellingPrice,
                     'channel_prices' => $channelPricesMap,
                     'base_cost' => (float) $p->base_cost,
-                    'stock' => $isService ? null : ($locStock ? (float) $locStock->quantity : 0.0),
+                    'stock' => $effectiveStock,
+                    'current_stock' => $effectiveStock,
                     'min_stock' => (float) $p->min_stock,
-                    'image_url' => $p->image_url,
+                    'image_url' => $imgUrl,
                     'modifier_groups' => $p->getAvailableModifierGroupsWithStock($selectedLocationId),
                 ];
             });

@@ -93,7 +93,9 @@ final class InventoryController extends Controller
                     'min_stock' => $minStock,
                     'category_name' => $st->product->category?->name ?? 'Umum',
                     'unit_code' => $st->product->outputUnit?->code ?? 'pcs',
-                    'image_url' => $st->product->image_url,
+                    'image_url' => ($st->product->image_url && !str_starts_with($st->product->image_url, 'http://') && !str_starts_with($st->product->image_url, 'https://'))
+                        ? url($st->product->image_url)
+                        : $st->product->image_url,
                 ] : null,
                 'location' => $st->location ? [
                     'id' => $st->location->id,
