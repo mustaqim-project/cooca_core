@@ -210,6 +210,7 @@ Route::prefix('v1')->group(function (): void {
     Route::middleware('throttle:60,1')->prefix('auth')->group(function (): void {
         Route::post('/register', [AuthController::class, 'register']);
         Route::post('/login', [AuthController::class, 'login']);
+        Route::post('/google', [AuthController::class, 'googleLogin']);
     });
 
     // Authenticated User Routes (with 300 req/min rate limit)
@@ -502,6 +503,7 @@ Route::prefix('v1')->group(function (): void {
                 Route::get('/orders/{posOrder}/receipt', [PosTerminalController::class, 'receipt'])->middleware('require.permission:pos.terminal');
                 Route::post('/reservations/{reservation}/seat', [PosTerminalController::class, 'seatReservation'])->middleware('require.permission:pos.terminal');
                 Route::get('/orders/{order}/status', [PosTerminalController::class, 'checkOrderStatus'])->middleware('require.permission:pos.terminal');
+                Route::get('/orders/{order}/qr-image', [PosTerminalController::class, 'getQrisImage'])->middleware('require.permission:pos.terminal');
                 Route::post('/orders/{order}/cancel-qris', [PosTerminalController::class, 'cancelQrisOrder'])->middleware('require.permission:pos.terminal');
                 Route::post('/orders/{order}/simulate-qris', [PosTerminalController::class, 'simulateSandboxPayment'])->middleware('require.permission:pos.terminal');
 
@@ -511,6 +513,16 @@ Route::prefix('v1')->group(function (): void {
                 // Kitchen & Bar Display (KDS)
                 Route::get('/kitchen/orders', [\App\Http\Controllers\Api\V1\Pos\PosKitchenApiController::class, 'index'])->middleware('require.permission:pos.kitchen');
                 Route::post('/kitchen/orders/{order}/status', [\App\Http\Controllers\Api\V1\Pos\PosKitchenApiController::class, 'updateStatus'])->middleware('require.permission:pos.kitchen');
+                Route::get('/kitchen/prep-sheet', [\App\Http\Controllers\Api\V1\Pos\PosKitchenApiController::class, 'prepSheet'])->middleware('require.permission:pos.kitchen');
+
+                // Table Management & Self-Order QR Cards
+                Route::get('/tables', [\App\Http\Controllers\Api\V1\Pos\PosTableApiController::class, 'index'])->middleware('require.permission:pos.tables');
+                Route::post('/tables', [\App\Http\Controllers\Api\V1\Pos\PosTableApiController::class, 'store'])->middleware('require.permission:pos.tables');
+                Route::put('/tables/{table}', [\App\Http\Controllers\Api\V1\Pos\PosTableApiController::class, 'update'])->middleware('require.permission:pos.tables');
+                Route::delete('/tables/{table}', [\App\Http\Controllers\Api\V1\Pos\PosTableApiController::class, 'destroy'])->middleware('require.permission:pos.tables');
+                Route::post('/tables/{table}/regenerate-qr', [\App\Http\Controllers\Api\V1\Pos\PosTableApiController::class, 'regenerateQr'])->middleware('require.permission:pos.tables');
+                Route::get('/tables/{table}/qr-card', [\App\Http\Controllers\Api\V1\Pos\PosTableApiController::class, 'qrCardData'])->middleware('require.permission:pos.tables');
+                Route::post('/tables/{table}/close-session', [\App\Http\Controllers\Api\V1\Pos\PosTableApiController::class, 'closeSession'])->middleware('require.permission:pos.tables');
 
                 // Supervisor Authorization (mirror of web /pos/verify-pin)
                 Route::post('/verify-pin', [PosTerminalController::class, 'verifySupervisorPin'])->middleware('throttle:5,1');

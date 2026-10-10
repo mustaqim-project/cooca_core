@@ -70,6 +70,50 @@ final class AuthController extends Controller
     }
 
     /**
+     * Handle Google SSO login / token exchange for Owner & Staff.
+     */
+    public function googleLogin(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'google_id' => ['required', 'string'],
+            'email' => ['required', 'email', 'max:150'],
+            'name' => ['nullable', 'string', 'max:150'],
+            'avatar_url' => ['nullable', 'string'],
+        ]);
+
+        /** @var User|null $user */
+        $user = User::where('google_id', $validated['google_id'])
+            ->orWhere('email', $validated['email'])
+            ->first();
+
+        if ($user !== null) {
+            $user->update([
+                'google_id' => $validated['google_id'],
+                'avatar' => $validated['avatar_url'] ?? $user->avatar,
+                'email_verified_at' => $user->email_verified_at ?? now(),
+            ]);
+        } else {
+            $user = User::create([
+                'name' => $validated['name'] ?? explode('@', $validated['email'])[0],
+                'email' => $validated['email'],
+                'google_id' => $validated['google_id'],
+                'avatar' => $validated['avatar_url'] ?? null,
+                'password' => Hash::make(\Illuminate\Support\Str::random(32)),
+                'email_verified_at' => now(),
+            ]);
+        }
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Login Google berhasil.',
+            'user' => new UserResource($user),
+            'token' => $token,
+        ], Response::HTTP_OK);
+    }
+
+    /**
      * Get authenticated user profile.
      */
     public function me(Request $request): JsonResponse

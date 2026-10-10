@@ -64,7 +64,7 @@ final class PosTerminalController extends Controller
         // 4. Products with active location stocks
         $products = Product::where('business_id', $business->id)
             ->where('is_active', true)
-            ->with(['category', 'outputUnit', 'stocks' => function ($q) use ($selectedLocationId) {
+            ->with(['category', 'outputUnit', 'channelPrices', 'stocks' => function ($q) use ($selectedLocationId) {
                 if ($selectedLocationId) {
                     $q->where('location_id', $selectedLocationId);
                 }
@@ -73,6 +73,15 @@ final class PosTerminalController extends Controller
             ->map(function (Product $p) use ($selectedLocationId) {
                 $isService = $p->isService();
                 $locStock = $p->stocks->first();
+                $channelPricesMap = [
+                    'dine_in' => (float) $p->selling_price,
+                    'takeaway' => (float) $p->selling_price,
+                ];
+                if ($p->relationLoaded('channelPrices')) {
+                    foreach ($p->channelPrices as $cp) {
+                        $channelPricesMap[$cp->channel] = (float) $cp->price;
+                    }
+                }
                 return [
                     'id' => $p->id,
                     'name' => $p->name,
@@ -86,6 +95,7 @@ final class PosTerminalController extends Controller
                     'unit_id' => $p->output_unit_id,
                     'unit_code' => $p->outputUnit?->code ?? ($isService ? 'jasa' : 'satuan'),
                     'selling_price' => (float) $p->selling_price,
+                    'channel_prices' => $channelPricesMap,
                     'base_cost' => (float) $p->base_cost,
                     'stock' => $isService ? null : ($locStock ? (float) $locStock->quantity : 0.0),
                     'min_stock' => (float) $p->min_stock,
@@ -948,6 +958,34 @@ final class PosTerminalController extends Controller
             'status' => $order->status,
             'message' => 'Menunggu pembayaran QRIS...',
         ], Response::HTTP_OK);
+    }
+
+    /**
+     * Serve or proxy QRIS image directly with CORS headers enabled.
+     */
+    public function getQrisImage(Request $request, string $id): \Symfony\Component\HttpFoundation\Response
+    {
+        $business = Context::requireBusiness();
+
+        $order = PosOrder::where('business_id', $business->id)->find($id);
+        if (! $order || empty($order->gateway_qr_url)) {
+            return response()->json(['success' => false, 'message' => 'QR image tidak ditemukan.'], Response::HTTP_NOT_FOUND);
+        }
+
+        try {
+            $response = \Illuminate\Support\Facades\Http::timeout(8)->get($order->gateway_qr_url);
+            if ($response->successful()) {
+                return response($response->body(), 200, [
+                    'Content-Type' => 'image/png',
+                    'Access-Control-Allow-Origin' => '*',
+                    'Cache-Control' => 'no-cache, private',
+                ]);
+            }
+        } catch (\Throwable) {
+            // fallback redirect
+        }
+
+        return redirect()->away($order->gateway_qr_url);
     }
 
     /**
